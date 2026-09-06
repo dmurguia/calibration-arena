@@ -4,14 +4,14 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
 from .db import init_db
-from .routers import auth, battles, catalog, leaderboard, releases
+from .routers import auth, battles, catalog, leaderboard, releases, pilot
 
 def _maybe_seed() -> None:
     """First boot on a fresh volume: seed the demo roster/votes so the boards
@@ -39,7 +39,8 @@ def _maybe_seed() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    _maybe_seed()
+    if os.getenv("ARENA_LEGACY_API", "0") == "1":
+        _maybe_seed()
     yield
 
 
@@ -59,11 +60,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(catalog.router)
-app.include_router(battles.router)
-app.include_router(leaderboard.router)
-app.include_router(releases.router)
+@app.middleware("http")
+async def local_inference_boundary(request: Request, call_next):
+    if os.getenv("ARENA_INFERENCE_BACKEND") == "local-cli":
+        loopback = {"127.0.0.1", "::1", "localhost"}
+        origin = request.headers.get("origin")
+        if (not request.client or request.client.host not in loopback
+                or request.url.hostname not in loopback
+                or (origin and origin != str(request.base_url).rstrip("/"))
+                or request.headers.get("sec-fetch-site") == "cross-site"
+                or request.headers.get("x-forwarded-for")
+                or request.headers.get("forwarded")):
+            return JSONResponse({"detail": "Local model access is available only from this computer."}, status_code=403)
+    return await call_next(request)
+
+
+app.include_router(pilot.router)
+# Archive prototype routes explicitly; never expose seeded boards in the pilot.
+if os.getenv("ARENA_LEGACY_API", "0") == "1":
+    for legacy_router in (auth, catalog, battles, leaderboard, releases):
+        app.include_router(legacy_router.router)
+
 
 
 @app.get("/api/health")
@@ -79,7 +96,7 @@ if _dist.exists():
 
     @app.get("/{path:path}")
     def spa(path: str) -> FileResponse:
-        candidate = _dist / path
-        if path and candidate.is_file():
+        candidate = (_dist / path).resolve()
+        if path and candidate.is_relative_to(_dist.resolve()) and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(_dist / "index.html")

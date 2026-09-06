@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import { getBoard } from '../../utils/boards'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * The engraving ships locally at frontend/public/engraving.jpg — an
@@ -146,21 +145,13 @@ function JournalBlock({ e, n }: { e: JournalEntry; n: number }) {
  * columns so the lens finds something wherever it lands.
  */
 export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLensProps) {
+  const root = useRef<HTMLDivElement | null>(null)
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
   const [pinned, setPinned] = useState(false)
   const [src, setSrc] = useState(LOCAL_ENGRAVING)
 
-  const readouts = useMemo<Readout[]>(() => {
-    const rows = getBoard('journal-entries')
-    return rows.map((row) => ({
-      name: row.name,
-      score: row.score,
-      ci: Math.round((row.ciHigh - row.ciLow) / 2),
-      rank: row.rank,
-      delta: row.previousRank - row.rank,
-      winRate: row.winRate,
-    }))
-  }, [])
+  // Practice-only lens: never use fictional model scores as background texture.
+  const readouts: Readout[] = useMemo(() => [], [])
 
   // Interleave ratings with journal entries, then give each column a different
   // starting offset so neighbouring columns don't line up.
@@ -207,7 +198,10 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
 
   useEffect(() => {
     if (pinned) return
-    const onMove = (e: PointerEvent) => setPoint({ x: e.clientX, y: e.clientY })
+    const onMove = (e: PointerEvent) => {
+      const box = root.current?.getBoundingClientRect()
+      setPoint({ x: e.clientX - (box?.left ?? 0), y: e.clientY - (box?.top ?? 0) })
+    }
     const onLeave = () => setPoint(null)
     window.addEventListener('pointermove', onMove)
     document.documentElement.addEventListener('pointerleave', onLeave)
@@ -224,7 +218,7 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
     : 'radial-gradient(circle at -600px -600px, #000 0 1px, transparent 2px)'
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <div ref={root} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* 1 — the drawing */}
       <img
         src={src}

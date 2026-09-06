@@ -1,3 +1,15 @@
+# Calibrated
+
+The current product is a prompt-first accounting workspace: choose a work type, compare two anonymous drafts, make your judgment, and keep the result in Notebook.
+
+See [the product decision](docs/pilot/DECISIONS.md), [the cohort and credential runbook](docs/pilot/RUNBOOK.md), and [verification](docs/pilot/QA.md).
+
+Start with `backend/.env.pilot.example`. Explicit authored samples work without credentials. Live prompting supports server-side OpenRouter configuration, or a temporary loopback-only [Codex and Claude Code bridge](docs/pilot/LOCAL-MODELS.md) using existing CLI sign-ins. Browser-bound identity is implemented; Clerk is an explicitly deferred cross-device upgrade.
+
+Legacy tournament endpoints, synthetic boards and code-return login are disabled by default (`ARENA_LEGACY_API=0`). The original prototype notes below are historical, not current product claims.
+
+---
+
 # Benchmark Stadium
 
 **The arena for work you sign your name to.** Blind head-to-heads of professional work

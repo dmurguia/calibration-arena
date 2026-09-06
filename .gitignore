@@ -9,3 +9,7 @@ frontend/*.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
 .pytest_cache/
+
+.venv/
+backend/*.db-shm
+backend/*.db-wal

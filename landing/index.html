@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calibrated</title>
-<meta name="description" content="Calibrated is the measured-judgment layer for professional AI: licensed CPAs, attorneys, and clinicians whose accuracy is scored on every task, producing evals, rubrics, and grading that frontier labs and vertical AI vendors can audit.">
+<meta name="description" content="Calibrated runs a live arena of licensed CPAs who measure AI models against the public accounting benchmarks and real close work, show where a model loses points and why, and produce the tasks and grading that move the score.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -141,7 +141,7 @@ main,header,footer{position:relative;z-index:1}
 .gauge .tick.major{opacity:.9}
 .gauge .ring{stroke:var(--ink);opacity:.9}
 .gauge .needle{stroke:var(--oxide);transform-origin:60px 60px;transform:rotate(-118deg);transition:transform 1.6s cubic-bezier(.23,1,.32,1)}
-.gauge.settled .needle{transform:rotate(52deg)}
+.gauge.settled .needle{transform:rotate(30deg)}
 .gauge .hub{fill:var(--ink)}
 .gauge .arc{stroke:var(--sage-ink);opacity:.35;fill:none}
 .readout .big{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:54px;line-height:1;letter-spacing:-.01em}
@@ -344,7 +344,7 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
       Calibrated <span class="co">Co.</span>
     </a>
     <nav class="navlinks" aria-label="Primary">
-      <a href="#difference">Why measured</a>
+      <a href="#difference">Why an arena</a>
       <a href="#data">Data</a>
       <a href="#verticals">Verticals</a>
       <a href="#panel">Panel</a>
@@ -369,22 +369,22 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
   <div class="wrap hero-grid">
     <div>
       <p class="eyebrow"><span class="n">Expert data</span><span class="rule"></span><span>Accounting · Law · Medicine</span></p>
-      <h1 class="serif resolve">Expert judgment, <em>measured.</em></h1>
-      <p class="lede">Every expert-data vendor vets by résumé and interview. Calibrated scores the judge on every task they touch. We run a panel of licensed CPAs, attorneys, and clinicians whose accuracy is measured against known answers each week, and we turn that panel into evals, rubrics, and grading that frontier labs and vertical AI vendors can audit. Starting with accounting.</p>
+      <h1 class="serif resolve">Accounting AI, <em>scored by accountants.</em></h1>
+      <p class="lede">APEX-Accounting, Realm, FinanceQA, TaxCalcBench: the benchmarks exist. Knowing how to use them is the work. Calibrated runs a live arena of licensed CPAs who measure models against the public accounting benchmarks and against real close-and-reconciliation work, tell you which criteria you lose and why, and produce the tasks and grading that move the score. Accounting first. Law and medicine next.</p>
       <div class="ctas">
         <a class="btn primary" href="#contact">Get data
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn ghost" href="#boards">See the boards</a>
         <a class="btn ghost" href="#panel">Join the panel</a>
       </div>
-      <p class="fine">Every rating we deliver ships with the rater&rsquo;s calibration score. If you can&rsquo;t audit the judge, you can&rsquo;t trust the data. <a href="#difference">How it works</a></p>
+      <p class="fine">Every judge is license-verified and scored against hidden known answers each week, so a grade from this panel can be audited. <a href="#difference">How it works</a></p>
     </div>
 
-    <div class="instrument resolve" aria-label="Calibration instrument: panel accuracy and a live rater ledger">
-      <span class="chip frame-label"><b>[</b>Panel · Accounting · Week 12<b>]</b></span>
-      <span class="chip oxide frame-label2"><b>[</b>Authors hidden<b>]</b></span>
+    <div class="instrument resolve" aria-label="Benchmark diagnostic: criteria passed by an evaluated model and where it loses points">
+      <span class="chip frame-label"><b>[</b>Diagnostic · Close · 50 tasks<b>]</b></span>
+      <span class="chip oxide frame-label2"><b>[</b>Model hidden<b>]</b></span>
       <div class="inst-top">
-        <svg class="gauge" id="gauge" viewBox="0 0 120 120" role="img" aria-label="Gauge showing panel accuracy on known-answer checks at 94 percent">
+        <svg class="gauge" id="gauge" viewBox="0 0 120 120" role="img" aria-label="Gauge showing criteria passed by the evaluated model at 61 percent">
           <circle class="ring" cx="60" cy="60" r="52" fill="none" stroke-width="1.5"/>
           <path class="arc" d="M 22 88 A 46 46 0 1 1 98 88" stroke-width="6" stroke-linecap="butt"/>
           <g id="ticks"></g>
@@ -392,22 +392,22 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
           <circle class="hub" cx="60" cy="60" r="3.2"/>
         </svg>
         <div class="readout">
-          <p class="big serif num" id="bigread">94.1<span style="font-size:.5em;vertical-align:.45em;margin-left:2px">%</span></p>
-          <p class="cap">Panel accuracy on hidden known-answer checks, verified reviewers only.</p>
-          <p class="tag"><span class="chip sage"><b>[</b>Above floor · 80%<b>]</b></span></p>
+          <p class="big serif num" id="bigread">61.3<span style="font-size:.5em;vertical-align:.45em;margin-left:2px">%</span></p>
+          <p class="cap">Criteria passed on a private held-out set, graded by license-verified CPAs.</p>
+          <p class="tag"><span class="chip sage"><b>[</b>1,100 criteria · 2 graders each<b>]</b></span></p>
         </div>
       </div>
       <div class="ledger">
         <table>
-          <thead><tr><th>Reviewer</th><th>License</th><th>Calibration</th><th class="r">Pctl</th></tr></thead>
+          <thead><tr><th>Criterion</th><th>Verdict</th><th>Pass rate</th><th class="r">Fix first</th></tr></thead>
           <tbody>
-            <tr><td class="who">D. Okafor<span class="role">CPA · Controller, 11 yrs</span></td><td><span class="chip sage"><b>[</b>Verified<b>]</b></span></td><td class="num"><span class="bar top" style="width:92px"></span>96%</td><td class="r num">Top 6%</td></tr>
-            <tr><td class="who">R. Saldana<span class="role">CPA · Audit senior</span></td><td><span class="chip sage"><b>[</b>Verified<b>]</b></span></td><td class="num"><span class="bar top" style="width:86px"></span>90%</td><td class="r num">Top 18%</td></tr>
-            <tr><td class="who"><span class="hidden-id" aria-label="identity hidden"></span><span class="role">Applicant · not yet paid-pool</span></td><td><span class="chip"><b>[</b>Pending<b>]</b></span></td><td class="num"><span class="bar low" style="width:62px"></span>64%</td><td class="r num">—</td></tr>
+            <tr><td class="who">Bank rec · cutoff<span class="role">Timing of in-transit items</span></td><td><span class="chip sage"><b>[</b>Passes<b>]</b></span></td><td class="num"><span class="bar top" style="width:78px"></span>92%</td><td class="r num">—</td></tr>
+            <tr><td class="who">Accrual reversal<span class="role">Prior-period entries not reversed</span></td><td><span class="chip"><b>[</b>Loses<b>]</b></span></td><td class="num"><span class="bar low" style="width:56px"></span>58%</td><td class="r num">#2</td></tr>
+            <tr><td class="who">Intercompany elimination<span class="role">Policy misread, not arithmetic</span></td><td><span class="chip oxide"><b>[</b>Fails<b>]</b></span></td><td class="num"><span class="bar low" style="width:30px"></span>31%</td><td class="r num">#1</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="inst-foot"><span>Illustrative record · season 1 boards publish at the verified floor</span><span>Re-scored weekly</span></div>
+      <div class="inst-foot"><span>Illustrative diagnostic · real results publish with the first pilot</span><span>Re-run per model release</span></div>
     </div>
   </div>
 </section>
@@ -415,20 +415,20 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
 <!-- ============ TRUST STRIP ============ -->
 <div class="strip" role="note" aria-label="How the panel is kept honest">
   <div class="wrap">
-    <span>Every judge scored weekly</span><i class="dot"></i>
+    <span>Public benchmarks, graded by licensed CPAs</span><i class="dot"></i>
     <span>Licenses verified · CPAVerify · State bar · NPI</span><i class="dot"></i>
     <span>Synthetic matters · zero client data</span><i class="dot"></i>
-    <span>Calibration score shipped with every rating</span><i class="dot"></i>
-    <span>Authors hidden until reveal</span>
+    <span>Criteria-level results, not one score</span><i class="dot"></i>
+    <span>Every judge scored weekly</span>
   </div>
 </div>
 
 <!-- ============ THE DIFFERENCE ============ -->
 <section id="difference">
   <div class="wrap">
-    <p class="eyebrow"><span class="n">The problem</span><span class="rule"></span><span>Why measured, not vetted</span></p>
-    <h2 class="h2 serif">The frontier is bottlenecked on expert judgment nobody can audit.</h2>
-    <p class="sub">Labs now buy work product, not trivia: reconcile the accounts, draft the redline, code the encounter. On that kind of task an expert&rsquo;s opinion is the label, and public benchmarks are showing how far models still have to go. The industry&rsquo;s answer has been more experts, screened harder at the door. Ours is to keep measuring them after they walk through it.</p>
+    <p class="eyebrow"><span class="n">The problem</span><span class="rule"></span><span>Why an arena, not a leaderboard</span></p>
+    <h2 class="h2 serif">A benchmark score says how far. It doesn&rsquo;t say where, or why.</h2>
+    <p class="sub">Labs and vertical vendors now buy work product, not trivia: reconcile the accounts, draft the redline, code the encounter. The public benchmarks show how far models still have to go; the best of them clear only about half the criteria on expert-authored accounting tasks. But one number can&rsquo;t tell a team which criteria they lose, whether a miss is a cutoff error or a policy misread, or what data would fix it. Our answer is an arena: licensed CPAs grading live model output against the public benchmarks and against closed-universe close work, criterion by criterion, by judges whose own accuracy is measured.</p>
 
     <div class="compare">
       <table>
@@ -436,6 +436,7 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
           <tr><th scope="col">Dimension</th><th scope="col">Typical expert-data vendor</th><th scope="col" class="us">Calibrated</th></tr>
         </thead>
         <tbody>
+          <tr><td>What you get back</td><td class="them">A leaderboard position and a spreadsheet of scores.</td><td class="us">A criteria-level failure taxonomy, a private held-out set built the same way as the public benchmark, and the tasks and grading that move the score.</td></tr>
           <tr><td>Who gets in</td><td class="them">Résumé screen, an AI or human interview, a sample task. Once.</td><td class="us">License verified against the registry, then a blind judging session with hidden known-answer checks before anything counts.</td></tr>
           <tr><td>Quality signal</td><td class="them">Spot QA and inter-annotator agreement, kept internal.</td><td class="us">Per-rater calibration score, peer consensus, and percentile, re-scored every week and delivered with the data.<span class="note">A rating from a 96% judge and a rating from a 71% judge are not the same row.</span></td></tr>
           <tr><td>Breadth vs. depth</td><td class="them">100+ domains, thousands of practitioners, thin per profession.</td><td class="us">Three licensed professions, deep. The task library is the work itself: journal entries, reconciliations, redlines, chart notes.</td></tr>
@@ -724,7 +725,7 @@ footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
       <span class="mono">Calibrated Co. · Calibration Arena · Corsac</span>
     </div>
     <div class="l">
-      <a href="#difference">Why measured</a><a href="#data">Data</a><a href="#panel">Panel</a><a href="#boards">Boards</a><a href="#research">Research</a><a href="#company">Company</a>
+      <a href="#difference">Why an arena</a><a href="#data">Data</a><a href="#panel">Panel</a><a href="#boards">Boards</a><a href="#research">Research</a><a href="#company">Company</a>
     </div>
     <span class="mono">© 2026 Calibrated Co.</span>
   </div>

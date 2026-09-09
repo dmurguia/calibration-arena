@@ -30,7 +30,7 @@ Every number below carries a source. Items I could not confirm from a primary or
 
 ## 2. What you have already built (my read of the three repos)
 
-- **Corsac**: an eval control plane with a real engine. ~870 packs, ~15.6K graded cases, a discovery → plan → draft → judge → publish pipeline, vaulted answer keys, and a scaffold for interop with Harvey's LAB task format. You have already generated an eval pack *about* Mercor. The pipeline is the one thing in your stack a Tier-1 vendor does not have and cannot build in a week (what that is worth, concretely, is in §4).
+- **Corsac**: an eval control plane with a real engine. ~870 packs, ~15.6K graded cases, a discovery → plan → draft → judge → publish pipeline, vaulted answer keys, and a scaffold for interop with Harvey's LAB task format. You have already generated an eval pack *about* Mercor. Correction after your pushback: the Tier-1 vendors do have generators. Mercor bought Sepal and Deeptune for RL environments, Micro1 ships Realm and Cortex, AfterQuery sells agent environments. The pipeline is not something they lack; it is what lets a one-person company produce a vertical held-out set at a cost a $500M-run-rate vendor will not bother to match for a $15K buyer (§4 says what that is worth, concretely).
 - **Corsac Expert Network**: application → credential upload → qualification quiz → admin approval → timed harness → earnings. Four offerings sketched (custom eval creation, domain scoring, review queue, agent QA audit). Manus-built, working, no customers.
 - **Calibration Arena**: a Bradley–Terry arena for professional work product with credential tiers, hidden gold-standard traps, a behavioral timing floor, weighted votes, company boards, and a release radar. Runs on seeded synthetic votes; sign-in codes show in the UI; live model generation is wired but keyless.
 
@@ -88,7 +88,7 @@ Kill criterion: fewer than 10 CPAVerify-verified reviewers with three completed 
 
 Grounded in: Micro1's 80–90% gross margin on off-the-shelf datasets versus 30–35% on hours at Mercor; Applied Compute's result that 1–2K expert tasks measurably move a model; AfterQuery's growth on published benchmarks rather than listed gigs.
 
-The artifact: **100–200 closed-universe close-and-reconciliation tasks**, each a synthetic company world (ledger extract, bank statements, sub-ledgers, policies, a terse controller brief), solved by a CPA, with 20+ fact-anchored pass/fail criteria, graded by a calibrated panel, with per-rater calibration metadata in the export. Corsac's pipeline generates the worlds and drafts the rubrics; CPAs solve, correct, and grade. That is your actual unfair advantage: the generator plus the measured panel.
+The artifact: **100–200 closed-universe close-and-reconciliation tasks**, each a synthetic company world (ledger extract, bank statements, sub-ledgers, policies, a terse controller brief), solved by a CPA, with 20+ fact-anchored pass/fail criteria, graded by a calibrated panel, with per-rater calibration metadata in the export. Corsac's pipeline generates the worlds and drafts the rubrics; CPAs solve, correct, and grade. This artifact and the RL environments built from it are Calibrated Co. products, separate from the arena (§15); the arena only supplies the panel and the public board. The advantage is not the generator alone (§2, corrected) but the generator plus a measured panel aimed at one vertical at a price the incumbents will not chase.
 
 Cost estimate **[mine]**: 150 tasks × ~4 expert hours × $90 ≈ $54K, plus grading and review, ≈ $70–90K all-in. A 50-task pilot version is ≈ $25–30K. That is the number to fund from a design partner's pilot fee or, with the guardrails in §9, from the pre-seed float.
 
@@ -349,6 +349,147 @@ You said you can float coordination from the pre-seed. $25–50K is 280–550 CP
 - Say in writing to your pre-seed investors what this money buys: a verified CPA panel and a licensable 50-task accounting eval set, and the tests (T3, T4, T6, T7) that decide whether to spend more. If the round was raised on a different product story, say that this is the wedge and why. I do not know what you raised on, so check this against the deck.
 - A one-page weekly log: spend against tranche, passers, tasks produced, buyer pipeline stage. It takes ten minutes and it is what you will need for the seed anyway.
 - No equity for panelists, no "founding seat" language without a written rate and term. Cash and a credential, as the offer says.
+
+---
+
+## 10. Cash flow: source, capture, pilot fee, on a weekly clock
+
+The order is fixed by what each stage costs and what it commits you to. **Sourcing** is cheap and reversible (outreach, intake, license checks). **Capture** is the moment a CPA signs the contractor agreement and passes the paid assessment; it costs $100 a head and commits you to nothing further. **Pilot fee** is the deposit that unlocks payroll; nothing recurring starts before it lands. The trough in the table below is set entirely by the gap between the deposit and the delivery payment, which is why the deposit term matters more than the price.
+
+Base case, all figures $K, all mine: a $15K diagnostic paid 50% on signing and 50% on delivery; cohort 1 of 12 CPAs at 5 hours a week at $90 ($5.4K a week) for four weeks; the cohort drops to 2.5 hours a week for exception-bench prep afterwards; an $8K a month exception-bench retainer from week 9; a second diagnostic deposit in week 10.
+
+| Wk | Stage | Out | In | Net | Cumulative | What moves the money |
+|---|---|---|---|---|---|---|
+| 0 | Source | 1.0 | | −1.0 | −1.0 | Sales Navigator, intake form, contract template, payout rail |
+| 1 | Source | 0.5 | | −0.5 | −1.5 | Outreach only |
+| 2 | Capture | 1.5 | | −1.5 | −3.0 | First 10 paid assessments |
+| 3 | Capture | 2.0 | | −2.0 | −5.0 | 15 assessments; **Gate 1**: 12 passers and a buyer who has named a price |
+| 4 | Pilot | 6.9 | 7.5 | +0.6 | −4.4 | 15 assessments; **Gate 2**: T4 ≥ 80% and the deposit clears; payroll starts |
+| 5 | Pilot | 5.4 | | −5.4 | −9.8 | Cohort builds and grades the 50-task set |
+| 6 | Pilot | 5.4 | | −5.4 | −15.2 | |
+| 7 | Pilot | 6.9 | | −6.9 | **−22.1** | Payroll plus $1.5K referral bonuses; the trough |
+| 8 | Deliver | 2.7 | 7.5 | +4.8 | −17.3 | Readout; delivery payment; cohort drops to 2.5 h/wk |
+| 9 | Retainer | 2.7 | 8.0 | +5.3 | −12.0 | Exception bench month 1 invoiced up front |
+| 10 | Pilot 2 | 2.7 | 7.5 | +4.8 | −7.2 | Second buyer's deposit |
+| 11 | Pilot 2 | 5.4 | | −5.4 | −12.6 | Cohort back to 5 h/wk |
+| 12 | Pilot 2 | 5.4 | | −5.4 | −18.0 | Receivables outstanding: $7.5K delivery, $8K retainer month 2 |
+
+What the table says:
+
+- **A $25K float covers one pilot with about $3K to spare.** The second pilot overlapping the first is what the $50K is for, or it waits for the first delivery payment. Do not run two cohorts on $25K.
+- **Deposit on signing is a hard term, not a preference.** If the first buyer pays net-30 on delivery instead, the trough moves to about −$29K and a $25K float is gone before the invoice clears. A $10K diagnostic instead of $15K moves the trough to about −$25K. Either one alone is survivable on $50K; both together are not.
+- **No buyer by week 4 means no payroll, not a smaller cohort.** Burn stays at $5–7K, the passers keep their arena credential and a standing offer, and you keep selling. That is the whole point of recruiting only to the assessment line.
+- **The exception-bench retainer is what turns the curve.** Without it, weeks 8–12 are a second pilot funded from the float again. Sell it in the readout meeting, not later.
+
+---
+
+## 11. GTM pitch sequence
+
+Two sequences: the warm one for Rillet and any vendor you can get introduced to, and the cold one for post-training shops and application-layer companies. Both sell the same thing in the same order (diagnostic → exception bench → environment), and both are built so the first paid step is small enough to sign without a procurement cycle.
+
+### The 30-second version, for every touch
+
+> Benchmarks tell you how far your model is from a CPA. They don't tell you where it loses points or why. We run an arena of licensed CPAs who grade models on the public accounting benchmarks and on close work built the same way, criterion by criterion. First deliverable is a diagnostic on your model: which criteria fail, whether the miss is cutoff, classification, policy, or arithmetic, and which to fix first. Then we sit on your exceptions every week.
+
+### Warm sequence (Rillet-shaped)
+
+1. **Intro ask, three lines.** Who you are, the one thing you do, and a request for 25 minutes with whoever owns model quality. Attach nothing.
+2. **Discovery call.** Six questions, in this order: how do you measure accounting quality today; which public benchmarks do you track, if any; where do exceptions your system can't resolve go now; do you post-train or only prompt and retrieve; what would it be worth to know where you lose points before your customers find out; who signs a $15K engagement. The last two are the qualification.
+3. **Free teaser, one week.** Ten tasks from your held-out set run against a model of their choosing (their product, or the frontier model it sits on), graded by three CPAs, returned as a one-page failure taxonomy. Cost to you is about $1.5K of CPA time. Grounded in how Vals and AfterQuery earned paid conversations: a published, free result first.
+4. **Proposal.** 50-task diagnostic, $15K, 50% on signing, two to three weeks, held-out set stays held out, contamination log included. One page. The teaser is the proof; the proposal only adds scope and terms.
+5. **Readout meeting.** Present the taxonomy, then propose the exception bench retainer ($8–12K a month **[mine]**) in the same meeting, and the environment only if they said yes to post-training in step 2.
+6. **Reference and publish.** Ask for a quote and permission to put an anonymized version in *State of Finance AI*. That is the asset the cold sequence needs.
+
+### Cold sequence (Applied Compute-shaped, Harvey-shaped)
+
+1. **Hook with the publication, not the pitch.** Send *State of Finance AI, Issue 1* with one sentence about what it found. Post-training shops read benchmark posts; that is how Applied Compute and Mercor found each other.
+2. **Ask for the technical conversation.** "We have a 50-task held-out close set with verifiable criteria and a CPA panel that grades it. Would your team want to run it?" This is a question about their pipeline, not a sales call.
+3. **Offer the held-out set under license** (non-exclusive, per-task) with the panel's grading as a service on top. They already know what a verifiable reward is; do not explain it to them.
+4. **Environment as the second sale**, priced per instance, once they have seen the set.
+
+### What to have before the first call
+
+A live board with real votes (even a small one), the ten-task teaser ready to run in a week, the one-page proposal template, and one real (not illustrative) diagnostic in the landing hero. Without the first and last, the pitch is a plan; with them it is a product.
+
+---
+
+## 12. *State of Finance AI*: what you would actually publish
+
+"Cheapest PR artifact" means it is made from data you already generate, so it costs editing time, not new work. AfterQuery grew on FinanceQA posts, Micro1 on Realm posts, and Vals is cited in model cards because it publishes rankings nobody else produced. The accounting version does not exist yet.
+
+**Issue 1, minimum viable, from the arena and the public benchmarks:**
+
+1. **The board.** Frontier models (and any accounting-AI vendor that opts in) ranked on close-and-reconciliation work by the arena's Bradley–Terry scores, with confidence intervals, from real CPA votes. Three models and 20 tasks is enough for a first issue if the intervals are honest.
+2. **Where they lose.** The criteria-level failure taxonomy across all models: cutoff, accrual reversal, intercompany, policy misreads, arithmetic. This is the hero diagnostic on the landing page, made real and aggregated.
+3. **Public benchmark re-run.** FinanceQA, TaxCalcBench, and the GDPval accounting subset run through Corsac and graded by the panel, with the panel's agreement rate against the published answer keys. That agreement rate is itself news: it says how much the public keys can be trusted.
+4. **Release deltas.** What changed between model versions on the same tasks, from the release radar. This is the section that gets the issue re-shared every time a lab ships.
+5. **The confidently-wrong rate.** How often a model produces a clean-looking journal entry that fails a fact-anchored criterion. Controllers will read this section first.
+6. **One annotated task.** A full close task, a model's answer, and a CPA's grading notes. Shows the method; recruits panelists.
+7. **Panel and method.** Number of verified CPAs, calibration distribution, trap rate, how tasks are built. The proof point, at the back.
+8. **A downloadable ten-task sample.** The lead magnet, and the thing the cold sequence in §11 sends.
+
+Cadence: one issue per major model release, quarterly at minimum. Distribution: the landing page's research section, LinkedIn from your own profile, Hacker News once, a pitch to Going Concern, and an email list that starts with everyone who took the assessment. Do not publish Issue 1 until the votes are real; a seeded board would be found out by the first controller who reads it.
+
+---
+
+## 13. Folding the Corsac Expert Network into Calibrated
+
+Agreed: one practitioner-facing brand. The Expert Network already has the flow you need (application → credential upload → qualification quiz → admin approval → timed harness → earnings), so this is a re-skin and a re-point, not a rebuild.
+
+- **Name it as a part of the company, not a product.** "Calibrated Panel" (or "Calibrated Experts") at a path under the company domain. The word "network" implies a marketplace you are not running.
+- **One identity across arena and panel.** The arena calibration score becomes the qualification; the Expert Network quiz becomes the paid assessment in §8; the earnings page connects to the payout rail. A CPA should never log into two things.
+- **Corsac stays as the engine name**, developer-facing and internal. Practitioners and buyers see Calibrated; the pipeline is what Calibrated runs on. Park the Corsac "OS for enterprises" motion as before.
+- **Rewrite the copy against §8's offer**: rate stated, paid assessment, weekly pay, license verification, what deactivation means. The current copy was written for a marketplace with no customers; the new copy is written for a cohort with a start date.
+- **Order of work:** rename and re-point the domain (a day), swap the quiz for the assessment (a few days, needs one Corsac world), wire earnings to the payout rail (a few days), then retire the old brand pages. Everything else waits for cohort 1.
+
+---
+
+## 14. The PII gateway
+
+Worth thinking through now, because it decides whether the exception bench can ever touch a customer's real ledgers. Do not build it before cohort 1; do design the exception bench so it can be slotted in.
+
+**What it is.** A one-way gate between a customer's data and everything else you run (the panel, Corsac, any model). Documents go in, a de-identified but still-reconcilable copy comes out, and the mapping never leaves the customer's side.
+
+**Why accounting makes it harder than a redaction tool.** Blacking out names breaks the work. A reconciliation only makes sense if the same vendor is the same token on every line, amounts are untouched, dates keep their intervals, and account numbers keep their structure. So the gateway is a *consistent pseudonymization* layer, not a redactor:
+
+- Detect: names, EINs, SSNs, bank and card numbers, addresses, emails, employee IDs, customer and vendor names, invoice numbers that encode a customer. Deterministic detectors first (formats, checksums), a named-entity model second, an LLM pass third for the things the first two miss (a vendor name that is also a common word).
+- Replace: format-preserving tokens with a per-customer salt, so "Acme Supply" is `VENDOR_0412` on every document in the engagement and nowhere else. Shift all dates by one engagement-level offset. Never touch amounts.
+- Verify: the scrubbed close still reconciles to itself. That is the test no generic PII tool runs, and it is the one that matters.
+- Audit: a log of what was replaced, counts by type, and a re-identification vault the customer holds, not you.
+
+**Build versus borrow.** Microsoft Presidio is open source and covers detection and basic replacement; AWS Comprehend, Google Cloud DLP, Private AI, and Nightfall are hosted alternatives. None of them know that a vendor must map consistently or that a trial balance must still foot. The accounting-aware layer on top is the product, and it is small.
+
+**What it changes commercially.** With the gateway, the exception bench can take a customer's real exceptions with a lighter security conversation, because what reaches your panel carries no client PII. Without it, the bench is limited to synthetic and customer-scrubbed inputs. It does not remove the need for a DPA when you process customer data at all; it reduces what the DPA has to cover and what a breach could expose.
+
+**The pitch line it gives you** is the one already in §4: registry-verified US-licensed reviewers, synthetic or de-identified documents, no screen-scraping tools, and only the PII a license lookup needs. After the Mercor breach that is a real differentiator for a small vendor, and it is grounded in Micro1 already marketing a US-only workforce as a security feature.
+
+**Test before you claim it:** seed 200 PII items into ten synthetic closes, run the gateway, measure recall by type, then have a CPA confirm each scrubbed close still reconciles. Under 99% recall on identifiers and it is not a gateway yet.
+
+---
+
+## 15. Where the pieces live: repos and the arena boundary
+
+**The artifact and the environments are Calibrated Co., not the arena.** The arena is the public funnel, credential, and board. The synthetic worlds, the held-out sets, the RL environments, the diagnostics, and the exception bench are the company's products, built on Corsac, graded by the panel. Keep that boundary in the code and the brand: the arena never becomes the place buyers get data, and the products never depend on the arena being up.
+
+**Yes, a separate repo.** Three reasons, in order of how much they bite:
+
+1. The Vercel project attached to this repo builds the arena frontend, which is why the landing page on this branch has no preview URL. A second project pointed at a subdirectory works but is a standing source of confusion.
+2. Contractors, a future co-founder, and investors will need access to the company repo without seeing arena internals, and the reverse.
+3. The company repo will accumulate things the arena should never carry: customer-specific worlds, contracts, the PII gateway, panel operations.
+
+Suggested shape:
+
+```
+calibrated-co/
+  landing/        the company site (moves from here)
+  docs/           this memo, State of Finance AI drafts, pitch templates
+  panel/          the rebranded Expert Network (application, assessment, earnings)
+  worlds/         Corsac-generated closed-universe tasks, held-out sets, environments
+  gateway/        the PII gateway, when it exists
+  agents/         the growth-marketing agent and any others
+```
+
+Corsac stays its own repo and is a dependency of `worlds/`. Calibration Arena stays its own repo and product. The move is two directories and one Vercel project; I did not create the repo because that is outward-facing and yours to do, but the landing and this memo are ready to move as-is.
 
 ---
 

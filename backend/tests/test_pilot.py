@@ -63,9 +63,10 @@ def test_optional_research_and_no_implicit_contact(client):
     assert client.post('/api/pilot/participants', json={**PROFILE, 'followup': True}).status_code == 422
 
 
-def test_invite_and_founder_boundaries(client, monkeypatch):
+def test_public_enrollment_and_founder_boundaries(client, monkeypatch):
     monkeypatch.setenv('PILOT_INVITE_CODE', 'test-cohort')
-    assert client.post('/api/pilot/participants', json=PROFILE).status_code == 403
+    assert client.post('/api/pilot/participants', json=PROFILE).status_code == 200
+    assert client.get('/api/pilot/config').json()['invite_required'] is False
     response = client.post('/api/pilot/participants', json={**PROFILE, 'invite_code': 'test-cohort'})
     assert response.status_code == 200
     assert 'invite_code' not in response.json()['participant']
@@ -175,12 +176,12 @@ def test_guest_sees_value_before_background_and_keeps_ownership(client):
     assert data['runs'][0]['id'] == run['id']
 
 
-def test_guest_does_not_infer_consent_but_still_checks_invite(client, monkeypatch):
+def test_public_guest_does_not_infer_consent_or_require_legacy_invite(client, monkeypatch):
     guest = client.post('/api/pilot/guests', json={}).json()['participant']
     assert guest['research_consent'] is False
     assert guest['consent_at'] is None and guest['consent_version'] is None
     monkeypatch.setenv('PILOT_INVITE_CODE', 'pilot-test')
-    assert client.post('/api/pilot/guests', json={'research_consent': True}).status_code == 403
+    assert client.post('/api/pilot/guests', json={'research_consent': True}).status_code == 200
     assert client.post('/api/pilot/guests', json={'research_consent': True, 'invite_code': 'pilot-test'}).status_code == 200
 
 

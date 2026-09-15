@@ -58,23 +58,18 @@ function Home() {
   return <div className="p-arena-page"><CalibrationLens radius={76} intensity={0.10} /><div className="p-arena-content"><Ask embedded /></div></div>
 }
 
-async function beginGuest(invite: string, refresh: () => Promise<void>) {
+async function beginGuest(refresh: () => Promise<void>) {
   if (!token()) {
-    const response = await call<{ token: string }>('/guests', { invite_code: invite, source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct' })
+    const response = await call<{ token: string }>('/guests', { source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct' })
     saveToken(response.token)
   }
   await refresh()
 }
 
-function InviteField({ invite, setInvite }: { invite: string; setInvite: (v: string) => void }) {
-  const { config, me } = usePilot()
-  return config?.invite_required && !me ? <label className="p-invite-field">Invitation code<input value={invite} onChange={e => setInvite(e.target.value)} required autoComplete="off" /></label> : null
-}
-
 function CaseLibrary() {
   const { cases, me, refresh } = usePilot(); const navigate = useNavigate()
   const [assignments, setAssignments] = useState<CaseAssignment[]>([]); const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(''); const [busy, setBusy] = useState(''); const [invite, setInvite] = useState('')
+  const [error, setError] = useState(''); const [busy, setBusy] = useState('')
   useEffect(() => {
     let cancelled = false
     if (!me) { setLoading(false); return }
@@ -90,7 +85,7 @@ function CaseLibrary() {
   const row = (a: CaseAssignment, i: number) => <button className="p-case-row p-assigned-row" onClick={() => open(a)} disabled={!!busy} key={a.id}><span className="p-case-number">{String(i + 1).padStart(2, '0')}</span><div><span className="p-meta">{a.framework}</span><h3>{a.title}</h3></div><span className="p-case-time">{busy === a.id ? 'Opening…' : a.status === 'completed' ? 'Reviewed' : a.run_id ? 'Resume' : 'Compare'}</span><ArrowUpRight size={20} /></button>
   const first = assignments.slice(0, 3)
   return <div className="p-workspace"><Eyebrow>Accounting</Eyebrow><h1>Close examples</h1><p className="p-lead">Compare the same responses to a few month-end questions. Progress stays in this notebook; return to your own questions whenever you like.</p>
-    {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(invite, refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><InviteField invite={invite} setInvite={setInvite} /><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
+    {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
     {me && loading && <p role="status">Loading saved progress…</p>}
     {me && !loading && !assignments.length && <p className="p-empty-cases">No shared comparisons have been added yet. <Link to="/">Ask a question</Link> or explore a practice example below.</p>}
     {!!first.length && <><p className="p-case-progress" role="status">{first.filter(a => a.status === 'completed').length} of {first.length} reviewed</p><div className="p-case-list">{first.map(row)}</div>{assignments.length > 3 && <details className="p-more-cases"><summary>More close examples ({assignments.length - 3})</summary><div className="p-case-list">{assignments.slice(3).map((a, i) => row(a, i + 3))}</div></details>}</>}
@@ -99,13 +94,13 @@ function CaseLibrary() {
 }
 
 function Profile({ onReady }: { onReady: () => void }) {
-  const { config, refresh, me } = usePilot()
+  const { refresh, me } = usePilot()
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [followup, setFollowup] = useState(false)
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setBusy(true); setError('')
     const f = new FormData(e.currentTarget)
     try {
-      const result = await call<{ token?: string }>(me ? '/profile' : '/participants', { name: f.get('name'), role: f.get('role'), experience: f.get('experience'), framework: f.get('framework'), email: followup ? f.get('email') : null, followup, research_consent: f.get('research') === 'on', source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct', invite_code: f.get('invite') || '' })
+      const result = await call<{ token?: string }>(me ? '/profile' : '/participants', { name: f.get('name'), role: f.get('role'), experience: f.get('experience'), framework: f.get('framework'), email: followup ? f.get('email') : null, followup, research_consent: f.get('research') === 'on', source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct' })
       if (result.token) saveToken(result.token); await refresh(); onReady()
     } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
   }
@@ -114,11 +109,10 @@ function Profile({ onReady }: { onReady: () => void }) {
     <div className="p-form-grid"><label>Your work<select name="role" required defaultValue=""><option value="" disabled>Select your role</option>{['Public accountant', 'Industry accountant', 'Bookkeeper', 'Controller / finance leader', 'Other accounting professional'].map(x => <option key={x}>{x}</option>)}</select></label>
       <label>Accounting experience<select name="experience" required defaultValue=""><option value="" disabled>Select experience</option>{['0–2 years', '3–7 years', '8–15 years', '16+ years'].map(x => <option key={x}>{x}</option>)}</select></label></div>
     <label>Framework you usually work with<select name="framework" required defaultValue=""><option value="" disabled>Select a framework</option>{['US GAAP', 'IFRS', 'Local GAAP / other', 'Multiple / not applicable'].map(x => <option key={x}>{x}</option>)}</select></label>
-    {config?.invite_required && !me && <label>Invitation code<input name="invite" required autoComplete="off" /></label>}
     <label className="p-checkbox"><input type="checkbox" checked={followup} onChange={e => setFollowup(e.target.checked)} />I’m open to a short follow-up conversation. (Optional)</label>
     {followup && <label>Email for follow-up<input name="email" type="email" required maxLength={254} autoComplete="email" /></label>}
     <label className="p-checkbox"><input name="research" type="checkbox" />Allow my submissions to be used in private research. Optional; this does not grant publication or model-training permission.</label>
-    <p className="p-fine">Progress is saved for this browser. Use your own device. No password or verified account is created. Contact the person who invited you to withdraw or delete your data.</p>
+    <p className="p-fine">Progress is saved for this browser. Use your own device. No password or verified account is created. Contact the Calibrated team to withdraw or delete your data.</p>
     <ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Saving your profile…' : 'Save my background'} <ArrowRight size={16} /></button>
   </form>
 }
@@ -126,18 +120,17 @@ function Profile({ onReady }: { onReady: () => void }) {
 function CaseStart() {
   const { caseId } = useParams(); const { cases, me, refresh } = usePilot(); const navigate = useNavigate()
   const c = cases.find(c => c.id === caseId); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
-  const [invite, setInvite] = useState('')
-  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(invite, refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
   if (!c) return <NotFound />
   return <div className="p-narrow"><Link className="p-back" to="/"><ChevronLeft size={15} /> Arena</Link><Eyebrow>{c.topic} · {c.minutes} minutes</Eyebrow><h1>{c.title}</h1><p className="p-lead">Compare two responses, choose a preference, and see the explanation.</p><div className="p-brief"><Eyebrow>Case facts · synthetic company</Eyebrow><p>{c.brief}</p></div>
-    <form onSubmit={start}><InviteField invite={invite} setInvite={setInvite} /><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Opening case…' : 'Compare responses'} <ArrowRight size={16} /></button></form>
+    <form onSubmit={start}><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Opening case…' : 'Compare responses'} <ArrowRight size={16} /></button></form>
     <p className="p-fine">Authored sample case. Your work is saved for this browser. <Link to="/method">How it works</Link>.</p>
   </div>
 }
 
 function Ask({ embedded = false }: { embedded?: boolean }) {
   const { config, me, refresh } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState(''); const [invite, setInvite] = useState('')
+  const [question, setQuestion] = useState('')
   const [starterId, setStarterId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const submit = async (e: FormEvent) => {
@@ -145,7 +138,7 @@ function Ask({ embedded = false }: { embedded?: boolean }) {
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
     setBusy(true)
     try {
-      if (!me) await beginGuest(invite, refresh)
+      if (!me) await beginGuest(refresh)
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', source_example_id: starterId })
       await refresh(); navigate(`/session/${run.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
@@ -156,7 +149,7 @@ function Ask({ embedded = false }: { embedded?: boolean }) {
       <label htmlFor="open-prompt" className="sr-only">Accounting prompt</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} placeholder="Describe the question, paste a draft, or ask about a close issue…" />
       <div className="p-composer-bottom"><span>{config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy}><ArrowUp size={19} /></button></div>
-      <InviteField invite={invite} setInvite={setInvite} /><ErrorNote message={error} />{busy && <p className="p-composer-status" role="status">Preparing both responses…</p>}
+      <ErrorNote message={error} />{busy && <p className="p-composer-status" role="status">Preparing both responses…</p>}
     </form>
     <div className="p-type-samples"><span>Try a question</span>{config?.prompt_starters?.map(c => <button key={c.id} type="button" onClick={() => { setQuestion(c.brief); setStarterId(c.id); setError(''); document.getElementById('open-prompt')?.focus() }}>{c.title}<ArrowUpRight size={12} /></button>)}</div>
     {starterId && <p className="p-sample-note">Edit the facts as needed. Both models will answer the prompt above.</p>}
@@ -293,7 +286,7 @@ function Method() {
     <h2>One workspace, two sources of drafts</h2><p>Ask an accounting question in your own words. The editable question suggestions request fresh answers from both models. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and choose a preference. One vote reveals the authors and opens the preferred response. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. After voting, ask a follow-up about the selected response. Both models receive the same conversation and selected answer. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
     <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
     <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
-    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the person who invited you.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
+    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
     <h2>Your notebook</h2><p>Your comparisons and judgments are saved for this browser. Use the same browser to return to your work; cross-device sign-in is not available.</p>
     <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
   </div>

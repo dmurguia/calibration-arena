@@ -22,7 +22,7 @@ def live_ready():
         return pilot_direct.ready()
     if inference_backend() != "openrouter":
         return False
-    values = [os.getenv(k, "") for k in ("OPENROUTER_API_KEY", "OPENROUTER_MODEL_A", "OPENROUTER_MODEL_B", "PILOT_INVITE_CODE")]
+    values = [os.getenv(k, "") for k in ("OPENROUTER_API_KEY", "OPENROUTER_MODEL_A", "OPENROUTER_MODEL_B")]
     return all(v and not v.startswith("PLACEHOLDER") for v in values) and values[1] != values[2]
 
 

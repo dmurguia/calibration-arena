@@ -274,3 +274,18 @@ def test_audit_detects_tampering_and_consent_boundaries():
     assert not audit(duplicate)['ok']
     data['runs'][0]['drafts'][0]['text'] = 'Tampered output'
     assert not audit(data)['ok']
+
+
+@pytest.mark.parametrize("backend", ["direct", "openrouter"])
+def test_live_readiness_does_not_require_invitation(monkeypatch, backend):
+    from app.pilot_inference import live_ready
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", backend)
+    monkeypatch.delenv("PILOT_INVITE_CODE", raising=False)
+    for key, value in {"OPENAI_API_KEY": "qa-key", "ANTHROPIC_API_KEY": "qa-key",
+                       "OPENAI_MODEL": "qa/openai", "ANTHROPIC_MODEL": "qa/anthropic",
+                       "OPENROUTER_API_KEY": "qa-key", "OPENROUTER_MODEL_A": "qa/a",
+                       "OPENROUTER_MODEL_B": "qa/b"}.items():
+        monkeypatch.setenv(key, value)
+    assert live_ready()
+    monkeypatch.delenv("OPENAI_API_KEY" if backend == "direct" else "OPENROUTER_API_KEY")
+    assert not live_ready()

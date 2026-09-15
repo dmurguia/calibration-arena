@@ -6,7 +6,7 @@ from .pilot_audit import new_attempt, finish_artifact, timestamp, GenerationFail
 
 
 def ready():
-    keys = ('OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL', 'PILOT_INVITE_CODE')
+    keys = ('OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL')
     return all(os.getenv(k, '').strip() and not os.environ[k].startswith('PLACEHOLDER') for k in keys)
 
 

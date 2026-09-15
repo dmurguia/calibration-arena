@@ -200,7 +200,7 @@ def public_run(run):
 
 @router.get("/config")
 def config():
-    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": bool(os.getenv("PILOT_INVITE_CODE")), "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
+    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": False, "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
 
 
 @router.get("/cases")
@@ -263,9 +263,6 @@ def start_assignment(assignment_id: str, p=Depends(participant), db: Session = D
 
 @router.post("/participants")
 def enroll(body: Profile, db: Session = Depends(get_db)):
-    required = os.getenv("PILOT_INVITE_CODE", "")
-    if required and not secrets.compare_digest(body.invite_code, required):
-        raise HTTPException(403, "The invitation code is not valid.")
     token = secrets.token_urlsafe(32)
     profile = body.model_dump(exclude={"invite_code"})
     profile.update(consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None, publication_consent=False, training_consent=False, identity="self-reported", dataset=os.getenv("PILOT_DATASET", "preview"))
@@ -279,9 +276,6 @@ def enroll(body: Profile, db: Session = Depends(get_db)):
 
 @router.post("/guests")
 def guest(body: Guest, db: Session = Depends(get_db)):
-    required = os.getenv("PILOT_INVITE_CODE", "")
-    if required and not secrets.compare_digest(body.invite_code, required):
-        raise HTTPException(403, "The invitation code is not valid.")
     raw = secrets.token_urlsafe(32)
     profile = dict(name="Guest", role="Not supplied", experience="Not supplied", framework="Not supplied", followup=False,
                    research_consent=body.research_consent, source=body.source, consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None,

@@ -1,13 +1,12 @@
 """Loopback-only CLI inference using the owner's existing signed-in applications."""
 import asyncio
-import hashlib
 import json
 import os
 import shutil
 import signal
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
+from .pilot_audit import GenerationFailure, new_attempt, finish_artifact, timestamp
 
 # One comparison at a time, two independent CLI processes in parallel.
 _PAIR_LOCK = asyncio.Lock()
@@ -119,37 +118,45 @@ def parse_claude(raw):
     return result.get('result', ''), model_ids[0] if len(model_ids) == 1 else None
 
 
-async def generate_local(question, instructions, task_type):
+async def generate_local(question, instructions, task_type, *, history=None):
     if not ready():
         raise ValueError('Configure both local CLIs and model IDs first.')
     if _PAIR_LOCK.locked():
         raise ValueError('Another local comparison is running. Try again when it finishes.')
     async with _PAIR_LOCK:
+        prompt = question if not history else json.dumps({'conversation': [*history, {'role': 'user', 'content': question}]}, ensure_ascii=False)
         with tempfile.TemporaryDirectory(prefix='calibrated-models-') as directory:
             args = commands(directory, instructions)
-            results = await asyncio.gather(*(execute(a, question, directory) for a in args), return_exceptions=True)
-        if any(isinstance(r, BaseException) for r in results):
-            raise ValueError('Both local answers could not be generated. Check CLI sign-in or usage limits and try again.')
+            attempts = [new_attempt('local-cli', model, {'cli': name, 'arguments': a,
+                       'stdin': prompt, 'instructions': instructions, 'model': model})
+                       for name, model, a in zip(('Codex', 'Claude Code'),
+                       (os.environ['LOCAL_CODEX_MODEL'], os.environ['LOCAL_CLAUDE_MODEL']), args)]
+            results = await asyncio.gather(*(execute(a, prompt, directory) for a in args), return_exceptions=True)
         drafts = []
-        for name, model, raw, parse in zip(('Codex', 'Claude Code'),
-                (os.environ['LOCAL_CODEX_MODEL'], os.environ['LOCAL_CLAUDE_MODEL']),
-                results, (parse_codex, parse_claude)):
+        for name, raw, parse, attempt in zip(('Codex', 'Claude Code'), results, (parse_codex, parse_claude), attempts):
             try:
+                if isinstance(raw, BaseException):
+                    raise raw
+                attempt['response_stdout'] = raw
                 content, actual = parse(raw)
-                if not isinstance(content, str) or not content.strip():
-                    raise ValueError('Empty response')
-            except (ValueError, KeyError, TypeError) as exc:
-                raise ValueError('A local CLI returned an incomplete response.') from exc
-            drafts.append({
-                'artifact_id': hashlib.sha256((name + model + content).encode()).hexdigest(),
-                'text': content.strip(), 'author': f'{name} · {actual or model}',
-                'model_id': model, 'actual_model_id': actual, 'origin': 'local-cli',
-                'cli': name, 'checks': [], 'task_type': task_type,
-                'review_note': 'Generated through a signed-in CLI. No independently verified ground truth.',
-                'prompt_version': 'ask-local-v1',
-                'request_sha256': hashlib.sha256(json.dumps({'question': question, 'instructions': instructions, 'model': model}, sort_keys=True).encode()).hexdigest(),
-                'settings': {'effort': 'low', 'tools': False, 'fresh_session': True, 'timeout_seconds': _TIMEOUT,
-                             'temperature': None, 'note': 'CLI harnesses differ; API generation settings are not matched.'},
-                'generated_at': datetime.now(timezone.utc).isoformat(),
-            })
+                attempt.update(resolved_model=actual, finish_reason='complete')
+                if name == 'Claude Code':
+                    envelope = json.loads(raw)
+                    attempt.update(usage=envelope.get('usage'), cost=envelope.get('total_cost_usd'),
+                                   provider_response_id=envelope.get('uuid'))
+                else:
+                    completed = next(e for e in reversed([json.loads(s) for s in raw.splitlines() if s.strip()]) if e.get('type') == 'turn.completed')
+                    attempt['usage'] = completed.get('usage')
+                settings = {'effort': 'low', 'tools': False, 'fresh_session': True, 'timeout_seconds': _TIMEOUT,
+                            'temperature': None, 'note': 'CLI harnesses differ; API generation settings are not matched.'}
+                drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v2', cli=name))
+            except Exception as exc:
+                attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
+        if len(drafts) != 2:
+            raise GenerationFailure('Both local answers could not be generated. Check CLI sign-in or usage limits and try again.', attempts)
+        if any(a.get('hygiene_flags') for a in attempts):
+            for a in attempts:
+                if a.get('hygiene_flags'):
+                    a['status'] = 'quarantined'
+            raise GenerationFailure('A local response contained unexpected identifying content. Please try again.', attempts)
         return drafts

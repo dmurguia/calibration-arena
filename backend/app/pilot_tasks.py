@@ -1,5 +1,10 @@
 """User-selected work types. This is explicit routing, not an intent classifier."""
 TASKS = {
+    "accounting-question": {
+        "label": "Accounting question",
+        "placeholder": "Describe the accounting question, paste a draft, or ask about a close issue…",
+        "instruction": "Address the user's actual accounting question in the format they request. If no format is requested, use the clearest concise answer. Do not force a journal entry or memo. Ask for essential missing information rather than inventing facts or a workpaper. Distinguish supplied policy from authoritative guidance.",
+    },
     "journal-entry": {
         "label": "Journal entry",
         "placeholder": "Describe the transaction, amounts and period…",

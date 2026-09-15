@@ -1,5 +1,7 @@
 # Deploying Calibration Arena — Railway (API + data) · Vercel (frontend)
 
+> Current ten-accountant setup: [Local CLI testing and hosted API sharing](pilot/LOCAL-AND-HOSTED.md). Use this newer guide for credentials and pilot settings. The older prototype instructions below include synthetic seeding, dev login and wildcard preview CORS; those settings do not apply to the current participant release.
+
 One repo, two deploy targets. Railway runs the FastAPI backend and owns the
 data; Vercel builds `frontend/` and gives per-PR preview URLs. No local
 environment needed once this is wired — push to `main` and both redeploy.

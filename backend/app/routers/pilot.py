@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 import hashlib
 import os
 import secrets
+from copy import deepcopy
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException
@@ -14,6 +15,9 @@ from ..db import Base, get_db
 from ..pilot_cases import CASES, snapshot
 from ..pilot_inference import generate, live_ready, inference_backend
 from ..pilot_tasks import TASKS, case_task
+from ..pilot_examples import STARTERS
+from ..pilot_audit import GenerationFailure, text_hash
+from ..pilot_study import Assignment, ClosePack, assign_cases, assigned_case
 
 router = APIRouter(prefix="/api/pilot", tags=["pilot"])
 
@@ -82,8 +86,24 @@ class Guest(Strict):
 class Start(Strict):
     case_id: str | None = Field(default=None, max_length=100)
     question: str = Field(default="", max_length=5000)
+    independent_first: bool = True  # Legacy callers retain the independent-answer protocol.
+    source_run_id: str | None = Field(default=None, max_length=100)
+    source_position: Literal['a', 'b'] | None = None
+    continuation_mode: Literal['revision', 'followup'] = 'revision'
+    retry_of_run_id: str | None = Field(default=None, max_length=100)
+    source_example_id: str | None = Field(default=None, max_length=100)
     privacy_ack: bool = False  # Historical acknowledgement only; never inferred from submission.
-    task_type: Literal["journal-entry", "treatment-memo", "workpaper-review"] = "journal-entry"
+    task_type: Literal["accounting-question", "journal-entry", "treatment-memo", "workpaper-review"] = "accounting-question"
+
+    @model_validator(mode='after')
+    def context_fields(self):
+        if self.continuation_mode == 'followup' and (not self.source_run_id or not self.source_position):
+            raise ValueError('Choose a revealed response to continue.')
+        if self.source_position and self.continuation_mode != 'followup':
+            raise ValueError('A selected response requires follow-up mode.')
+        if self.retry_of_run_id and (self.source_run_id or self.case_id):
+            raise ValueError('Retry a failed question without selecting another source.')
+        return self
 
 
 class Conclusion(Strict):
@@ -112,14 +132,37 @@ class Judgment(Strict):
         return self
 
 
+class Preference(Strict):
+    preference: Literal["a", "b", "tie", "neither"]
+
+
+class Issue(Strict):
+    position: Literal["a", "b"]
+    category: Literal["calculation", "timing", "account-treatment", "policy", "missing-facts", "unsupported-claim", "other"]
+    note: str = Field(default="", max_length=3000)
+
+    @model_validator(mode="after")
+    def explain_other(self):
+        if self.category == "other" and len(self.note) < 5:
+            raise ValueError("Describe the issue in a few words.")
+        return self
+
+
+class Improvement(Strict):
+    position: Literal["a", "b", "both"] = "both"
+    category: Literal["calculation", "timing", "account-treatment", "policy", "missing-facts", "unsupported-claim", "clarity", "other"] | None = None
+    note: str = Field(min_length=1, max_length=3000)
+
+
 class Feedback(Strict):
     usefulness: Literal["useful", "somewhat", "not-useful"]
     note: str = Field(default="", max_length=1000)
 
 
 class Activity(Strict):
-    name: Literal["visit", "share_intent", "left_session"]
+    name: Literal["visit", "share_intent", "left_session", "response_copied", "response_downloaded", "close_examples_opened"]
     run_id: str | None = None
+    position: Literal['a', 'b'] | None = None
 
 
 def emit(db, p, name, run=None, data=None):
@@ -148,7 +191,7 @@ def public_run(run):
     revealed = run.status == "completed"
     visible = run.status in ("review", "completed")
     result = {"id": run.id, "status": run.status, "created_at": run.created_at,
-              **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type")}}
+              **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id")}}
     result["drafts"] = [{"position": "ab"[i], "text": d["text"], **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
     if revealed:
         result.update({k: data.get(k) for k in ("expected", "takeaway", "validation", "judgment", "feedback")})
@@ -157,12 +200,65 @@ def public_run(run):
 
 @router.get("/config")
 def config():
-    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": bool(os.getenv("PILOT_INVITE_CODE")), "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
+    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": bool(os.getenv("PILOT_INVITE_CODE")), "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
 
 
 @router.get("/cases")
 def cases():
     return [{**{k: c[k] for k in ("id", "title", "topic", "minutes", "brief")}, "task_type": case_task(c["id"])} for c in CASES]
+
+
+def public_assignment(db, assignment):
+    pack, case = assigned_case(db, assignment)
+    run = db.get(Run, assignment.run_id) if assignment.run_id else None
+    return {'id': assignment.id, 'pack_id': pack.id, 'case_id': case['id'], 'version': case['version'],
+            'title': case['title'], 'brief': case['brief'], 'framework': case['framework'],
+            'evidence': case['evidence'], 'ordinal': assignment.ordinal,
+            'run_id': assignment.run_id, 'status': run.status if run else 'not-started',
+            'exposure': assignment.exposure}
+
+
+@router.post('/assignments')
+def assignments(p=Depends(participant), db: Session = Depends(get_db)):
+    rows = assign_cases(db, p.id)
+    return [public_assignment(db, row) for row in rows]
+
+
+@router.post('/assignments/{assignment_id}/start')
+def start_assignment(assignment_id: str, p=Depends(participant), db: Session = Depends(get_db)):
+    assignment = db.get(Assignment, assignment_id)
+    if not assignment or assignment.participant_id != p.id:
+        raise HTTPException(404, 'Case assignment not found.')
+    if assignment.run_id:
+        emit(db, p, 'case_resumed', db.get(Run, assignment.run_id), {'assignment_id': assignment.id})
+        db.commit()
+        return public_run(owned(db, p, assignment.run_id))
+    try:
+        pack, case = assigned_case(db, assignment)
+    except ValueError:
+        raise HTTPException(409, 'This case pack needs operator review.')
+    data = deepcopy(case)
+    data.pop('id')
+    prior = db.scalar(select(func.count()).select_from(Assignment).where(
+        Assignment.participant_id == p.id, Assignment.case_id == case['id'], Assignment.run_id.is_not(None)))
+    secrets.SystemRandom().shuffle(data['drafts'])
+    data.update(kind='close-case', case_id=case['id'], pack_id=pack.id, pack_sha256=pack.sha256,
+                assignment_id=assignment.id, mode='frozen-model-pair', task_type='accounting-question',
+                evaluation_scope='shared-close-case', history=[], turn_number=1,
+                prior_case_exposure=bool(prior), reviewer_exposure=assignment.exposure,
+                drafts_shown_at=now(), independent_first=False)
+    run = Run(id=secrets.token_hex(16), participant_id=p.id, created_at=now(), status='review', data=data)
+    db.add(run)
+    db.flush()
+    changed = db.execute(update(Assignment).where(Assignment.id == assignment.id, Assignment.run_id.is_(None)).values(run_id=run.id))
+    if changed.rowcount != 1:
+        db.rollback()
+        db.expire_all()
+        return public_run(owned(db, p, db.get(Assignment, assignment_id).run_id))
+    emit(db, p, 'session_started', run, {'entry': 'close-case', 'assignment_id': assignment.id, 'pack_id': pack.id})
+    emit(db, p, 'drafts_shown', run, {'mechanism': 'preference-v2'})
+    db.commit()
+    return public_run(run)
 
 
 @router.post("/participants")
@@ -217,12 +313,19 @@ def me(p=Depends(participant), db: Session = Depends(get_db)):
 @router.post("/events")
 def activity(body: Activity, p=Depends(participant), db: Session = Depends(get_db)):
     run = owned(db, p, body.run_id) if body.run_id else None
+    evidence = {}
+    if body.name in ('response_copied', 'response_downloaded'):
+        if not run or run.status != 'completed' or not body.position:
+            raise HTTPException(422, 'Select a revealed response for this action.')
+        draft = run.data['drafts']['ab'.index(body.position)]
+        evidence = {'position': body.position, 'artifact_id': draft.get('artifact_id'),
+                    'text_sha256': text_hash(draft['text']), 'after_reveal': True}
     if body.name == "visit":
         cutoff = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
         recent = db.scalar(select(Event).where(Event.participant_id == p.id, Event.name == "visit", Event.at > cutoff))
         if recent:
             return {"ok": True}
-    emit(db, p, body.name, run)
+    emit(db, p, body.name, run, evidence)
     db.commit()
     return {"ok": True}
 
@@ -232,6 +335,30 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
     if count >= 20:
         raise HTTPException(429, "You've reached today's 20-session limit. Come back tomorrow.")
+    source = owned(db, p, body.source_run_id) if body.source_run_id else None
+    retry = owned(db, p, body.retry_of_run_id) if body.retry_of_run_id else None
+    if retry and retry.status != 'failed':
+        raise HTTPException(409, 'Only a failed request can be retried.')
+    if source and (source.status != "completed" or body.case_id):
+        raise HTTPException(409, "Vote on the original pair before starting a revised prompt.")
+    example = next((e for e in STARTERS if e['id'] == body.source_example_id), None)
+    if body.source_example_id and not example:
+        raise HTTPException(422, 'Unknown prompt starter.')
+    history = []
+    turn_number = 1
+    source_artifact = None
+    if source and body.continuation_mode == 'followup':
+        selected = source.data['drafts']['ab'.index(body.source_position)]
+        history = [*source.data.get('history', []), {'role': 'user', 'content': source.data['brief']},
+                   {'role': 'assistant', 'content': selected['text']}]
+        turn_number = source.data.get('turn_number', 1) + 1
+        source_artifact = {'artifact_id': selected.get('artifact_id'), 'text_sha256': text_hash(selected['text'])}
+    elif retry:
+        history = retry.data.get('history', [])
+        turn_number = retry.data.get('turn_number', 1)
+        source_artifact = retry.data.get('source_artifact')
+    if turn_number > 20 or sum(len(m['content']) for m in history) + len(body.question) > 40000:
+        raise HTTPException(422, 'This conversation reached its context limit (20 turns or 40,000 characters). Start a new question; the notebook keeps this conversation.')
     if body.case_id:
         case = next((c for c in CASES if c["id"] == body.case_id), None)
         if case is None:
@@ -241,28 +368,44 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         data = snapshot(case)
         data.update(kind="challenge", case_id=case["id"], mode="authored-fixture", task_type=case_task(case["id"]))
         secrets.SystemRandom().shuffle(data["drafts"])
-        status = "conclusion"
+        status = "conclusion" if body.independent_first else "review"
+        data["independent_first"] = body.independent_first
+        if status == "review":
+            data["drafts_shown_at"] = now()
     else:
-        if len(body.question) < 15:
-            raise HTTPException(422, "Describe the work in at least 15 characters.")
+        if len(body.question) < (1 if history else 15):
+            raise HTTPException(422, "Describe a new question in at least 15 characters, or enter a follow-up.")
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
         data = {"kind": "ask", "case_id": None, "title": TASKS[body.task_type]["label"], "brief": body.question,
-                "mode": inference_backend(), "version": "ask-local-v1" if inference_backend() == "local-cli" else "ask-v2", "drafts": [], "privacy_ack": body.privacy_ack,
-                "task_type": body.task_type, "routing": "explicit-user-selection"}
+                "mode": inference_backend(), "version": "ask-local-v2" if inference_backend() == "local-cli" else "ask-v3", "drafts": [], "privacy_ack": body.privacy_ack,
+                "task_type": body.task_type, "routing": "explicit-user-selection",
+                "source_run_id": source.id if source else retry.data.get('source_run_id') if retry else None,
+                "source_position": body.source_position if source else retry.data.get('source_position') if retry else None,
+                "source_artifact": source_artifact, "history": history, "turn_number": turn_number,
+                "retry_of_run_id": retry.id if retry else None,
+                "source_example_id": body.source_example_id, "source_example_version": example['version'] if example else None,
+                "source_example_edited": body.question != example['brief'] if example else None,
+                "root_run_id": (source.data.get("root_run_id") or source.id) if source else (retry.data.get('root_run_id') or retry.id) if retry else None,
+                "evaluation_scope": 'exploratory-followup' if history else "exploratory-prompt-revision" if source else 'exploratory-retry' if retry else 'exploratory-prompt-starter' if example else "exploratory-first-pair"}
         status = "generating"
     run = Run(id=secrets.token_hex(16), participant_id=p.id, created_at=now(), status=status, data=data)
     db.add(run)
     emit(db, p, "session_started", run, {"entry": data["kind"], "mode": data["mode"], "case_id": data["case_id"], "task_type": data["task_type"]})
+    if status == "review":
+        emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
     db.commit()
     if not body.case_id:
         try:
-            drafts = await generate(body.question, body.task_type)
+            drafts = await generate(body.question, body.task_type, history=history) if history else await generate(body.question, body.task_type)
+            attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
             secrets.SystemRandom().shuffle(drafts)
-            run.data = {**data, "drafts": drafts, "drafts_shown_at": now()}
+            run.data = {**data, "drafts": drafts, "generation_attempts": attempts, "drafts_shown_at": now()}
             run.status = "review"
-            emit(db, p, "drafts_shown", run, {"mechanism": "approval-and-pair-v1"})
-        except ValueError:
+            emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
+        except ValueError as exc:
+            run.data = {**data, 'generation_attempts': exc.attempts if isinstance(exc, GenerationFailure) else [],
+                        'generation_error_type': type(exc).__name__}
             run.status = "failed"
             emit(db, p, "generation_failed", run)
         db.commit()
@@ -288,6 +431,87 @@ def conclude(run_id: str, body: Conclusion, p=Depends(participant), db: Session 
     db.commit()
     db.refresh(run)
     return public_run(run)
+
+
+@router.post("/runs/{run_id}/skip-conclusion")
+def skip_conclusion(run_id: str, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    changed = db.execute(update(Run).where(Run.id == run_id, Run.status == "conclusion").values(
+        data={**run.data, "conclusion_skipped_at": now(), "drafts_shown_at": now()}, status="review"))
+    if changed.rowcount != 1:
+        raise HTTPException(409, "The drafts have already been opened.")
+    emit(db, p, "conclusion_skipped", run)
+    emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
+    db.commit()
+    db.refresh(run)
+    return public_run(run)
+
+
+@router.post("/runs/{run_id}/preference")
+def prefer(run_id: str, body: Preference, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    if run.status != "review":
+        if run.status == 'completed' and run.data.get('judgment', {}).get('mechanism') == 'preference-v2' and run.data['judgment']['preference'] == body.preference:
+            return public_run(run)
+        raise HTTPException(409, "This pair is not awaiting a vote.")
+    elapsed = int((datetime.now(timezone.utc) - datetime.fromisoformat(run.data["drafts_shown_at"])).total_seconds() * 1000)
+    # Missing approval/confidence is deliberately NOT inferred from a preference.
+    judgment = {**body.model_dump(), "a": None, "b": None, "confidence": None, "reasons": [],
+                "rationale": "", "correction": "", "submitted_at": now(), "decision_ms": elapsed,
+                "mechanism": "preference-v2", "question": "Which response would you prefer to use?"}
+    changed = db.execute(update(Run).where(Run.id == run_id, Run.status == "review").values(
+        data={**run.data, "judgment": judgment}, status="completed"))
+    if changed.rowcount != 1:
+        db.refresh(run)
+        if run.status == 'completed' and run.data.get('judgment', {}).get('mechanism') == 'preference-v2' and run.data['judgment']['preference'] == body.preference:
+            return public_run(run)
+        raise HTTPException(409, "This pair already has a vote.")
+    emit(db, p, "judgment_completed", run, {"mechanism": "preference-v2"})
+    db.commit()
+    db.refresh(run)
+    return public_run(run)
+
+
+@router.get("/runs/{run_id}/issues")
+def issues(run_id: str, p=Depends(participant), db: Session = Depends(get_db)):
+    owned(db, p, run_id)
+    records = db.scalars(select(Event).where(Event.run_id == run_id, Event.name == "issue_reported").order_by(Event.at)).all()
+    return [{"id": e.id, "at": e.at, **{k: e.data[k] for k in ("position", "category", "note", "after_reveal")}} for e in records]
+
+
+@router.post("/runs/{run_id}/issues")
+def report_issue(run_id: str, body: Issue, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    if run.status not in ("review", "completed"):
+        raise HTTPException(409, "Open the drafts before reporting an issue.")
+    count = db.scalar(select(func.count()).select_from(Event).where(Event.run_id == run_id, Event.name == "issue_reported"))
+    if count >= 20:
+        raise HTTPException(429, "This pair already has 20 issue reports.")
+    draft = run.data["drafts"]["ab".index(body.position)]
+    emit(db, p, "issue_reported", run, {**body.model_dump(), "artifact_id": draft.get("artifact_id"),
+         "text_sha256": hashlib.sha256(draft["text"].encode()).hexdigest(),
+         "after_reveal": run.status == "completed", "taxonomy_version": "accounting-issues-v1",
+         "assessment": "reviewer-reported-unverified"})
+    db.commit()
+    return issues(run_id, p, db)
+
+
+@router.post("/runs/{run_id}/improvements")
+def improve(run_id: str, body: Improvement, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    if run.status not in ("review", "completed"):
+        raise HTTPException(409, "Open the responses before leaving feedback.")
+    count = db.scalar(select(func.count()).select_from(Event).where(Event.run_id == run_id, Event.name == "issue_reported"))
+    if count >= 20:
+        raise HTTPException(429, "This comparison already has 20 feedback notes.")
+    targets = [i for i in range(2) if body.position == "both" or "ab"[i] == body.position]
+    artifacts = [{"position": "ab"[i], "artifact_id": run.data["drafts"][i].get("artifact_id"),
+                  "text_sha256": hashlib.sha256(run.data["drafts"][i]["text"].encode()).hexdigest()} for i in targets]
+    emit(db, p, "issue_reported", run, {**body.model_dump(), "artifacts": artifacts,
+         "after_reveal": run.status == "completed", "taxonomy_version": "response-improvement-v2",
+         "assessment": "reviewer-reported-unverified"})
+    db.commit()
+    return issues(run_id, p, db)
 
 
 @router.post("/runs/{run_id}/judgment")
@@ -318,7 +542,9 @@ def feedback(run_id: str, body: Feedback, p=Depends(participant), db: Session = 
 
 
 def export_data(db):
-    return {"schema_version": "pilot-export-v1", "exported_at": now(), "notice": "PRIVATE pilot records. Check each participant research_consent before research reuse. No publication or training rights granted. Identity is self-reported. Authored fixtures are not model runs.",
+    return {"schema_version": "pilot-export-v2", "exported_at": now(), "notice": "PRIVATE pilot records. Check each participant research_consent before research reuse. No publication or training rights granted. Identity is self-reported. Authored fixtures are not model runs.",
+            "close_packs": [{'id': pack.id, 'sha256': pack.sha256, 'created_at': pack.created_at, 'active': pack.active, 'data': pack.data} for pack in db.scalars(select(ClosePack))],
+            "assignments": [{k: getattr(a, k) for k in ('id', 'participant_id', 'pack_id', 'case_id', 'ordinal', 'created_at', 'run_id', 'exposure')} for a in db.scalars(select(Assignment))],
             "participants": [{"id": p.id, "created_at": p.created_at, **p.profile} for p in db.scalars(select(Participant)).all()],
             "runs": [{**r.data, "id": r.id, "participant_id": r.participant_id, "created_at": r.created_at, "status": r.status} for r in db.scalars(select(Run)).all()],
             "events": [{"id": e.id, "participant_id": e.participant_id, "run_id": e.run_id, "name": e.name, "at": e.at, "data": e.data} for e in db.scalars(select(Event)).all()]}

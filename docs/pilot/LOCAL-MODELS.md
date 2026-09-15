@@ -1,5 +1,20 @@
 # Local Codex and Claude Code bridge
 
+## Verified 8 September 2026
+
+The local server on port 8021 reported `inference_backend=local-cli` and `ask_mode=live`. Both existing sign-ins worked (Codex via ChatGPT, Claude Code via Max); no PAT or exported OAuth token was required. Local `backend/.env` now preserves the CLI backend, explicit binary paths and requested models, with mode 0600 and Git exclusion. No existing API key values were replaced.
+
+A fresh fictional insurance comparison completed through both adapters: Codex returned 685 characters, Claude Code 2,434. Both carried request hashes and `origin=local-cli`; neither included an email address or the host surname in this smoke test. Neither CLI exposed an unambiguous resolved model ID. This single check does not establish general output hygiene or model correctness. It was not saved as an accountant judgment.
+
+To restart with the saved private configuration, from the worktree root:
+
+```bash
+/Users/david/Code/benchmark-stadium/.venv/bin/python -m uvicorn app.main:app \
+  --app-dir backend --env-file backend/.env --host 127.0.0.1 --port 8021 --no-proxy-headers
+```
+
+Keep the loopback/origin restrictions. This is local development and operator testing; it does not configure hosted access for the ten friends. The older machine and verification notes below describe their original check dates.
+
 Connected and smoke-tested on 6 September 2026. The open composer now uses two real signed-in CLI calls when `ARENA_INFERENCE_BACKEND=local-cli`. The five explicit authored samples are unchanged.
 
 ## Current machine

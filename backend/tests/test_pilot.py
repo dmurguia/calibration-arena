@@ -72,7 +72,7 @@ def test_invite_and_founder_boundaries(client, monkeypatch):
     assert client.get('/api/pilot/founder/export').status_code == 403
     monkeypatch.setenv('PILOT_ADMIN_TOKEN', 'a-long-private-test-admin-token')
     data = client.get('/api/pilot/founder/export', headers={'X-Pilot-Admin': 'a-long-private-test-admin-token'}).json()
-    assert data['schema_version'] == 'pilot-export-v1'
+    assert data['schema_version'] == 'pilot-export-v2'
     assert all('token_hash' not in p and 'token' not in p for p in data['participants'])
     assert all(p['publication_consent'] is False and p['training_consent'] is False for p in data['participants'])
     assert not any('synthetic' in e['name'] for e in data['events'])
@@ -234,3 +234,88 @@ def test_samples_are_explicit_not_prompt_routing(client):
     assert response.json()['task_type'] == 'workpaper-review'
     assert client.post('/api/pilot/runs', headers=h, json={'case_id': sample['id'], 'question': 'This is a changed prompt with different numbers.'}).status_code == 422
     assert client.post('/api/pilot/runs', headers=h, json={'question': sample['brief'], 'task_type': 'imaginary-category'}).status_code == 422
+
+
+def test_quick_preference_keeps_unmeasured_fields_null(client):
+    h = enroll(client)
+    run = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
+    path = '/api/pilot/runs/' + run['id']
+    assert run['status'] == 'review' and len(run['drafts']) == 2
+    assert all(set(d) == {'position', 'text'} for d in run['drafts'])
+    result = client.post(path + '/preference', headers=h, json={'preference': 'a'})
+    assert result.status_code == 200, result.text
+    j = result.json()['judgment']
+    assert j['mechanism'] == 'preference-v2'
+    assert j['a'] is None and j['b'] is None and j['confidence'] is None
+    assert j['reasons'] == [] and j['decision_ms'] >= 0
+    assert result.json()['drafts'][0]['author']
+    assert client.post(path + '/preference', headers=h, json={'preference': 'b'}).status_code == 409
+    assert client.post(path + '/judgment', headers=h, json=JUDGMENT).status_code == 409
+
+
+def test_issue_reports_append_with_provenance_and_exposure(client, monkeypatch):
+    h, other = enroll(client), enroll(client)
+    run = start(client, h); path = '/api/pilot/runs/' + run['id']
+    report = {'position': 'b', 'category': 'timing', 'note': 'Coverage starts in April.'}
+    assert client.post(path + '/issues', headers=h, json=report).status_code == 409
+    skipped = client.post(path + '/skip-conclusion', headers=h, json={})
+    assert skipped.status_code == 200 and skipped.json()['conclusion'] is None
+    assert client.post(path + '/skip-conclusion', headers=h, json={}).status_code == 409
+    assert client.post(path + '/issues', headers=other, json=report).status_code == 404
+    assert client.get(path + '/issues', headers=other).status_code == 404
+    assert client.post(path + '/issues', headers=h, json={**report, 'category': 'other', 'note': ''}).status_code == 422
+    first = client.post(path + '/issues', headers=h, json=report).json()
+    assert len(first) == 1 and first[0]['after_reveal'] is False
+    assert 'artifact_id' not in first[0]  # No identity/provenance leak before voting.
+    client.post(path + '/preference', headers=h, json={'preference': 'neither'})
+    second = client.post(path + '/issues', headers=h, json={**report, 'position': 'a'}).json()
+    assert len(second) == 2 and second[1]['after_reveal'] is True
+    assert client.get(path + '/issues', headers=h).json() == second
+    monkeypatch.setenv('PILOT_ADMIN_TOKEN', 'a-long-private-test-admin-token')
+    exported = client.get('/api/pilot/founder/export', headers={'X-Pilot-Admin': 'a-long-private-test-admin-token'}).json()
+    events = [e for e in exported['events'] if e['name'] == 'issue_reported']
+    assert all(e['data']['text_sha256'] and e['data']['assessment'] == 'reviewer-reported-unverified' for e in events)
+
+
+def test_prompt_revision_is_owned_fresh_and_separately_scoped(client, monkeypatch):
+    from app.routers import pilot
+    h, other = enroll(client), enroll(client)
+    original = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
+    question = 'Revised fictional insurance prompt: explain the recognition dates concisely.'
+    body = {'question': question, 'source_run_id': original['id']}
+    assert client.post('/api/pilot/runs', headers=other, json=body).status_code == 404
+    assert client.post('/api/pilot/runs', headers=h, json=body).status_code == 409
+    client.post('/api/pilot/runs/' + original['id'] + '/preference', headers=h, json={'preference': 'tie'})
+    seen = []
+    async def generated(prompt, task_type):
+        seen.append((prompt, task_type))
+        return [{'text': 'Fresh answer one', 'author': 'model-one'}, {'text': 'Fresh answer two', 'author': 'model-two'}]
+    monkeypatch.setattr(pilot, 'live_ready', lambda: True)
+    monkeypatch.setattr(pilot, 'generate', generated)
+    result = client.post('/api/pilot/runs', headers=h, json=body)
+    assert result.status_code == 200, result.text
+    assert seen == [(question, 'accounting-question')]
+    assert result.json()['source_run_id'] == original['id']
+    assert result.json()['evaluation_scope'] == 'exploratory-prompt-revision'
+    assert result.json()['status'] == 'review'
+    assert result.json()['brief'] == question
+    assert 'author' not in result.json()['drafts'][0]
+
+
+def test_improvement_requires_text_but_category_is_optional(client):
+    h, other = enroll(client), enroll(client)
+    run = start(client, h); path = '/api/pilot/runs/' + run['id']
+    assert client.post(path + '/improvements', headers=h, json={'note': 'Use fewer words.'}).status_code == 409
+    client.post(path + '/skip-conclusion', headers=h, json={})
+    for payload in [{'note': ' '}, {'category': 'clarity'}, {'note': 'Shorter', 'position': 'c'}, {'note': 'Shorter', 'category': 'invented'}]:
+        assert client.post(path + '/improvements', headers=h, json=payload).status_code == 422
+    assert client.post(path + '/improvements', headers=other, json={'note': 'Shorter'}).status_code == 404
+    before = client.post(path + '/improvements', headers=h, json={'note': 'Make both answers more concise.'})
+    assert before.status_code == 200
+    assert before.json()[0]['position'] == 'both'
+    assert before.json()[0]['category'] is None and before.json()[0]['after_reveal'] is False
+    client.post(path + '/preference', headers=h, json={'preference': 'b'})
+    after = client.post(path + '/improvements', headers=h, json={'position': 'b', 'category': 'clarity', 'note': 'Put the entry first.'})
+    assert after.status_code == 200 and len(after.json()) == 2
+    assert after.json()[1]['after_reveal'] is True
+    assert client.get(path + '/issues', headers=h).json() == after.json()

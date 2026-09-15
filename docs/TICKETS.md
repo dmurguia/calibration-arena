@@ -1,5 +1,7 @@
 # Work log — Linear-ready tickets
 
+For the current accounting product sprint, use [Two-day sprint: ten accountants, open prompts and shared cases](pilot/TWO-DAY-SPRINT.md). Its CA2D-01 through CA2D-12 entries are proposed local tickets, not existing Linear issues. The work log below describes earlier product work.
+
 Upload companion: `tickets.csv` (same content, Linear CSV-import columns).
 Tickets DA-1…DA-12 are **Done** (shipped on this branch) and double as the work log;
 DA-13…DA-20 are **Backlog** — the follow-ups and placeholder swaps.

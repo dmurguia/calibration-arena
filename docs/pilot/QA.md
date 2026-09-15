@@ -34,3 +34,28 @@ Two independent accountant reviews of the cases and rubrics; live OpenRouter smo
 ## Local CLI integration — 6 September
 
 41 backend tests now pass, including seven local adapter/boundary tests; final targeted rerun and production build passed. Real Codex and Claude Code responses were generated through the browser in 9.2 seconds and the judgment/reveal was saved. See [Local models](LOCAL-MODELS.md). OpenRouter itself remains untested.
+
+## 8 September — one-vote comparison
+
+- Production build passes. 44 backend tests pass (one existing Starlette/httpx deprecation warning), including new contracts for quick-vote immutability, deliberately unmeasured approval/confidence, optional append-only issues with answer provenance and reveal exposure, ownership, optional conclusion skip, and fresh prompt revisions.
+- Browser QA used the existing localhost QA identity, separate from the user's 127.0.0.1 identity. Sample run `3b7b9b4e17bed61fd974e732743a7b23` opened straight into blind A/B; an explicitly labeled QA timing issue persisted, and one click saved preference and revealed authors.
+- Edited prompt generated a real local Codex/Claude pair in run `df1797dd9d3be8a6b5f90c89fe6d4cad`. Tables and lists rendered as Markdown. One vote revealed the configured CLI authors. This is integration testing, not accountant/model-performance evidence.
+- Desktop and mobile viewport inspections confirmed neutral fact presentation, rounded responses, nearby vote controls, optional issue disclosures and the retained composer. No document-level horizontal overflow was observed; temporary viewport override reset.
+- Markdown rendering disables raw HTML and remote images. No model-authored HTML executes.
+- Dependency audit: four findings in existing Vite/esbuild/react-router dependencies; none in the added react-markdown/remark-gfm packages. No unrelated major dependency migration was made.
+- OpenRouter remains pending credentials and provider/settings preflight. Expert validation forms are blank; shared real-output study distribution and statistical estimation are not implemented.
+
+### Conversation layout and result reveal
+
+- 45 backend tests pass. New contract checks require improvement text, allow omitted category, reject invalid targets/types, enforce ownership and preserve before/after-reveal attribution. Legacy issue routes and records remain supported.
+- Browser checked the preferred-first model tabs, alternate response, per-target unsaved feedback preservation, saving uncategorized feedback and persistence after reload. Exactly one improvement textbox appears above the composer.
+- Copy action verified against the clipboard. Markdown download verified on disk with prompt, author, source, response and date. QA file: `calibrated-df1797dd-b.md`; no participant profile or feedback in the exported result.
+- Checked the right-aligned prompt bubble, left-aligned reveal and mobile layout; viewport reset after testing. No “Keep working,” separate product-feedback survey or per-response issue forms remain in the current UI.
+
+
+## Sprint verification — 9 September 2026
+
+- 55 backend tests pass; frontend production build passes. Test coverage includes exact follow-up history, ownership, context bounds, partial provider failure, retry linkage, real-pack requirements and tamper rejection, stable assignments, direct-provider request contracts, hygiene flags, export joins and consent separation.
+- Browser QA used isolated port 8033 and a temporary database, with an explicitly synthetic three-case pack. It verified invitation entry, a case vote, model reveal, open improvement capture, a short contextual follow-up using both actual local CLIs, copy, 1/3 progress and resume of the exact completed case. The participant database received no synthetic shared pack.
+- The private export audit passed with zero errors/warnings across the two QA runs. Both local attempts completed and received identical serialized conversation input. Zero QA runs were research-eligible. This is integration evidence, not model-quality or human-validation evidence.
+- Remaining: live direct APIs with supplied keys, real validated pack, expert assessment, spending/concurrency controls, hosted durable-storage checks and mobile release verification.

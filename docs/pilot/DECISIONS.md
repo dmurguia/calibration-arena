@@ -125,3 +125,11 @@ Calibrated is the brand; Accounting is the current workspace. Persistent left na
 ## User-facing positioning
 
 User direction, 6 September: remove founding-cohort, pilot and beta framing throughout the participant experience, including profile, notebook, help and errors. Present Calibrated as the product. Keep factual source labels for authored samples and actual connection errors; do not imply model generation or verified credentials. Internal cohort operations, validation status and dataset labels remain in private documentation and records.
+
+## Conversation-first comparison (15 September 2026)
+
+Open questions can continue before voting, for five total turns. The same follow-up is sent to the original two configured models; each gets its own assistant history. A/B positions remain stable within the conversation. A changed configured model pair fails rather than silently replacing a participant. Earlier selected-response follow-ups remain supported for old clients and are a different protocol.
+
+The interface separates the persistent composer from Finish & reveal. New preference submissions require A or B, with an optional explanation saved atomically before identities are returned. Historical tie/neither records remain unchanged. Votes retain final artifact IDs/hashes, turn count, parent/root links and whether any part of the conversation had already been revealed. Multi-turn votes describe conversation preference, not independent per-turn votes or correctness. Retries preserve the two histories. Founder exports and notebook ownership remain protected.
+
+Desktop responses support asymmetric focus; mobile uses response selectors. Waiting displays elapsed time without inventing tool activity. Model reveal has reduced-motion-aware animation, copy and Markdown download. Downloads include the selected branch's preceding messages. Feedback is collapsed after reveal; the accounting-background form is removed from this journey. Source attachments, tool execution and structured spreadsheet/workpaper artifacts are not implemented in this pass.

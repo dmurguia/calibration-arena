@@ -7,7 +7,7 @@ from .pilot_tasks import TASKS
 from . import pilot_local, pilot_direct
 from .pilot_audit import GenerationFailure, new_attempt, finish_artifact, timestamp
 
-SYSTEM = "You are a careful accounting reviewer. Answer the actual question provided. State the reporting framework and assumptions, show calculations and journal entries when appropriate, identify missing facts and uncertainty, and do not invent citations. Do not add preparer names, signatures, email addresses or model identities. Keep the response under 500 words."
+SYSTEM = "You are a careful accounting reviewer. Answer the actual question provided. State the reporting framework and assumptions, show calculations and journal entries when appropriate, identify missing facts and uncertainty, and do not invent citations. Do not add preparer names, signatures, email addresses or model identities. Be concise, but include the calculations, proposed entries and open questions needed to review the work. You only have the supplied text; do not claim to inspect files or post entries without tool evidence."
 CONFIG = {"temperature": 0.2, "top_p": 1, "max_tokens": 1000}
 
 
@@ -29,15 +29,19 @@ def live_ready():
 async def generate(question, task_type="accounting-question", *, history=None):
     if not live_ready():
         raise ValueError("Live models are not connected. Choose an authored sample case to try the review flow.")
+    if isinstance(history, dict):
+        keys = {'direct': ('OPENAI_MODEL', 'ANTHROPIC_MODEL'), 'local-cli': ('LOCAL_CODEX_MODEL', 'LOCAL_CLAUDE_MODEL'), 'openrouter': ('OPENROUTER_MODEL_A', 'OPENROUTER_MODEL_B')}[inference_backend()]
+        if set(history) != {os.getenv(k) for k in keys}:
+            raise ValueError('The model pair changed. Start a new comparison.')
     instructions = SYSTEM + "\n\n" + TASKS[task_type]["instruction"]
     if inference_backend() == "local-cli":
         return await pilot_local.generate_local(question, instructions, task_type, history=history)
     if inference_backend() == 'direct':
         return await pilot_direct.generate_direct(question, instructions, task_type, history=history)
-    messages = [{"role": "system", "content": instructions}, *(history or []), {"role": "user", "content": question}]
+    messages = [{"role": "system", "content": instructions}, *(history if isinstance(history, list) else []), {"role": "user", "content": question}]
 
     async def call(model):
-        payload = {"model": model, "messages": messages, **CONFIG, "provider": {"data_collection": "deny", "zdr": True, "allow_fallbacks": False}}
+        payload = {"model": model, "messages": ([{"role": "system", "content": instructions}, *history[model], {"role": "user", "content": question}] if isinstance(history, dict) else messages), **CONFIG, "provider": {"data_collection": "deny", "zdr": True, "allow_fallbacks": False}}
         attempt = new_attempt('openrouter', model, payload)
         try:
             async with httpx.AsyncClient(timeout=45) as client:
@@ -53,7 +57,7 @@ async def generate(question, task_type="accounting-question", *, history=None):
             attempt['finish_reason'] = choice.get('finish_reason')
             if choice.get('finish_reason') not in (None, 'stop'):
                 raise ValueError('Incomplete or refused response')
-            return finish_artifact(attempt, choice['message']['content'], task_type, CONFIG, 'ask-v3')
+            return finish_artifact(attempt, choice['message']['content'], task_type, CONFIG, 'ask-v4')
         except Exception as exc:
             attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
             return attempt

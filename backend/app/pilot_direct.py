@@ -19,16 +19,18 @@ def normalized_messages(provider, request):
 
 
 async def generate_direct(question, instructions, task_type, *, history=None):
-    messages = [*(history or []), {'role': 'user', 'content': question}]
+    def messages(model):
+        prior = history[model] if isinstance(history, dict) else (history or [])
+        return [*prior, {'role': 'user', 'content': question}]
     token_limit = max(256, min(int(os.getenv('PILOT_MAX_OUTPUT_TOKENS', '2000')), 8000))
     requests = [
         ('openai', 'https://api.openai.com/v1/responses',
          {'Authorization': 'Bearer ' + os.environ['OPENAI_API_KEY']},
-         {'model': os.environ['OPENAI_MODEL'], 'instructions': instructions, 'input': messages,
+         {'model': os.environ['OPENAI_MODEL'], 'instructions': instructions, 'input': messages(os.environ['OPENAI_MODEL']),
           'max_output_tokens': token_limit, 'store': False}),
         ('anthropic', 'https://api.anthropic.com/v1/messages',
          {'x-api-key': os.environ['ANTHROPIC_API_KEY'], 'anthropic-version': '2023-06-01'},
-         {'model': os.environ['ANTHROPIC_MODEL'], 'system': instructions, 'messages': messages,
+         {'model': os.environ['ANTHROPIC_MODEL'], 'system': instructions, 'messages': messages(os.environ['ANTHROPIC_MODEL']),
           'max_tokens': token_limit}),
     ]
 
@@ -64,7 +66,7 @@ async def generate_direct(question, instructions, task_type, *, history=None):
             settings = {k: v for k, v in payload.items() if k not in ('model', 'instructions', 'input', 'system', 'messages')}
             # Omitted sampling/reasoning parameters use provider defaults, not invented matched values.
             settings['sampling'] = 'provider-default'
-            return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v1')
+            return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2')
         except Exception as exc:
             attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
             return attempt

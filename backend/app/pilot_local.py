@@ -124,14 +124,16 @@ async def generate_local(question, instructions, task_type, *, history=None):
     if _PAIR_LOCK.locked():
         raise ValueError('Another local comparison is running. Try again when it finishes.')
     async with _PAIR_LOCK:
-        prompt = question if not history else json.dumps({'conversation': [*history, {'role': 'user', 'content': question}]}, ensure_ascii=False)
+        models = (os.environ['LOCAL_CODEX_MODEL'], os.environ['LOCAL_CLAUDE_MODEL'])
+        histories = [history[m] if isinstance(history, dict) else (history or []) for m in models]
+        prompts = [question if not h else json.dumps({'conversation': [*h, {'role': 'user', 'content': question}]}, ensure_ascii=False) for h in histories]
         with tempfile.TemporaryDirectory(prefix='calibrated-models-') as directory:
             args = commands(directory, instructions)
             attempts = [new_attempt('local-cli', model, {'cli': name, 'arguments': a,
                        'stdin': prompt, 'instructions': instructions, 'model': model})
-                       for name, model, a in zip(('Codex', 'Claude Code'),
-                       (os.environ['LOCAL_CODEX_MODEL'], os.environ['LOCAL_CLAUDE_MODEL']), args)]
-            results = await asyncio.gather(*(execute(a, prompt, directory) for a in args), return_exceptions=True)
+                       for name, model, a, prompt in zip(('Codex', 'Claude Code'),
+                       models, args, prompts)]
+            results = await asyncio.gather(*(execute(a, prompt, directory) for a, prompt in zip(args, prompts)), return_exceptions=True)
         drafts = []
         for name, raw, parse, attempt in zip(('Codex', 'Claude Code'), results, (parse_codex, parse_claude), attempts):
             try:
@@ -149,7 +151,7 @@ async def generate_local(question, instructions, task_type, *, history=None):
                     attempt['usage'] = completed.get('usage')
                 settings = {'effort': 'low', 'tools': False, 'fresh_session': True, 'timeout_seconds': _TIMEOUT,
                             'temperature': None, 'note': 'CLI harnesses differ; API generation settings are not matched.'}
-                drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v2', cli=name))
+                drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v3', cli=name))
             except Exception as exc:
                 attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
         if len(drafts) != 2:

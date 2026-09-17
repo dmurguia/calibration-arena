@@ -89,7 +89,7 @@ class Start(Strict):
     independent_first: bool = True  # Legacy callers retain the independent-answer protocol.
     source_run_id: str | None = Field(default=None, max_length=100)
     source_position: Literal['a', 'b'] | None = None
-    continuation_mode: Literal['revision', 'followup'] = 'revision'
+    continuation_mode: Literal['revision', 'followup', 'compare'] = 'revision'
     retry_of_run_id: str | None = Field(default=None, max_length=100)
     source_example_id: str | None = Field(default=None, max_length=100)
     privacy_ack: bool = False  # Historical acknowledgement only; never inferred from submission.
@@ -99,6 +99,8 @@ class Start(Strict):
     def context_fields(self):
         if self.continuation_mode == 'followup' and (not self.source_run_id or not self.source_position):
             raise ValueError('Choose a revealed response to continue.')
+        if self.continuation_mode == 'compare' and not self.source_run_id:
+            raise ValueError('Choose a conversation to continue.')
         if self.source_position and self.continuation_mode != 'followup':
             raise ValueError('A selected response requires follow-up mode.')
         if self.retry_of_run_id and (self.source_run_id or self.case_id):
@@ -133,7 +135,8 @@ class Judgment(Strict):
 
 
 class Preference(Strict):
-    preference: Literal["a", "b", "tie", "neither"]
+    preference: Literal["a", "b"]
+    rationale: str = Field(default="", max_length=3000)
 
 
 class Issue(Strict):
@@ -192,6 +195,9 @@ def public_run(run):
     visible = run.status in ("review", "completed")
     result = {"id": run.id, "status": run.status, "created_at": run.created_at,
               **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id")}}
+    if data.get('pair_histories'):
+        result['conversation'] = [{'position': 'ab'[i], 'messages': data['pair_histories'].get(model, [])} for i, model in enumerate(data['pair_order'])]
+    result['identity_exposed'] = bool(data.get('identity_exposed'))
     result["drafts"] = [{"position": "ab"[i], "text": d["text"], **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
     if revealed:
         result.update({k: data.get(k) for k in ("expected", "takeaway", "validation", "judgment", "feedback")})
@@ -200,7 +206,7 @@ def public_run(run):
 
 @router.get("/config")
 def config():
-    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": bool(os.getenv("PILOT_INVITE_CODE")), "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
+    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": False, "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
 
 
 @router.get("/cases")
@@ -263,9 +269,6 @@ def start_assignment(assignment_id: str, p=Depends(participant), db: Session = D
 
 @router.post("/participants")
 def enroll(body: Profile, db: Session = Depends(get_db)):
-    required = os.getenv("PILOT_INVITE_CODE", "")
-    if required and not secrets.compare_digest(body.invite_code, required):
-        raise HTTPException(403, "The invitation code is not valid.")
     token = secrets.token_urlsafe(32)
     profile = body.model_dump(exclude={"invite_code"})
     profile.update(consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None, publication_consent=False, training_consent=False, identity="self-reported", dataset=os.getenv("PILOT_DATASET", "preview"))
@@ -279,9 +282,6 @@ def enroll(body: Profile, db: Session = Depends(get_db)):
 
 @router.post("/guests")
 def guest(body: Guest, db: Session = Depends(get_db)):
-    required = os.getenv("PILOT_INVITE_CODE", "")
-    if required and not secrets.compare_digest(body.invite_code, required):
-        raise HTTPException(403, "The invitation code is not valid.")
     raw = secrets.token_urlsafe(32)
     profile = dict(name="Guest", role="Not supplied", experience="Not supplied", framework="Not supplied", followup=False,
                    research_consent=body.research_consent, source=body.source, consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None,
@@ -330,6 +330,12 @@ def activity(body: Activity, p=Depends(participant), db: Session = Depends(get_d
     return {"ok": True}
 
 
+def conversation_revealed(db, run):
+    root = run.data.get('root_run_id') or run.id
+    return any(r.status == 'completed' for r in db.scalars(select(Run).where(Run.participant_id == run.participant_id))
+               if (r.data.get('root_run_id') or r.id) == root)
+
+
 @router.post("/runs")
 async def start(body: Start, p=Depends(participant), db: Session = Depends(get_db)):
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
@@ -339,15 +345,29 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     retry = owned(db, p, body.retry_of_run_id) if body.retry_of_run_id else None
     if retry and retry.status != 'failed':
         raise HTTPException(409, 'Only a failed request can be retried.')
-    if source and (source.status != "completed" or body.case_id):
+    if source and (source.status not in (("review", "completed") if body.continuation_mode == "compare" else ("completed",)) or body.case_id):
         raise HTTPException(409, "Vote on the original pair before starting a revised prompt.")
     example = next((e for e in STARTERS if e['id'] == body.source_example_id), None)
     if body.source_example_id and not example:
         raise HTTPException(422, 'Unknown prompt starter.')
     history = []
+    pair_histories = {}
+    pair_order = []
+    identity_exposed = False
     turn_number = 1
     source_artifact = None
-    if source and body.continuation_mode == 'followup':
+    if source and body.continuation_mode == 'compare':
+        if source.data['mode'] not in ('direct', 'local-cli', 'openrouter'):
+            raise HTTPException(422, 'Start an open question to compare model conversations.')
+        turn_number = source.data.get('turn_number', 1) + 1
+        pair_order = [d['model_id'] for d in source.data['drafts']]
+        if len(set(pair_order)) != 2:
+            raise HTTPException(422, 'A conversation requires two distinct model IDs.')
+        for d in source.data['drafts']:
+            pair_histories[d['model_id']] = [*source.data.get('pair_histories', {}).get(d['model_id'], source.data.get('history', [])),
+                {'role': 'user', 'content': source.data['brief']}, {'role': 'assistant', 'content': d['text']}]
+        identity_exposed = conversation_revealed(db, source)
+    elif source and body.continuation_mode == 'followup':
         selected = source.data['drafts']['ab'.index(body.source_position)]
         history = [*source.data.get('history', []), {'role': 'user', 'content': source.data['brief']},
                    {'role': 'assistant', 'content': selected['text']}]
@@ -357,6 +377,11 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         history = retry.data.get('history', [])
         turn_number = retry.data.get('turn_number', 1)
         source_artifact = retry.data.get('source_artifact')
+        pair_histories = retry.data.get('pair_histories', {})
+        pair_order = retry.data.get('pair_order', [])
+        identity_exposed = retry.data.get('identity_exposed', False)
+    if pair_histories and (turn_number > 5 or any(sum(len(m['content']) for m in h) + len(body.question) > 40000 for h in pair_histories.values())):
+        raise HTTPException(422, 'This comparison reached its limit (5 turns or 40,000 characters). Finish and reveal, or start a new question.')
     if turn_number > 20 or sum(len(m['content']) for m in history) + len(body.question) > 40000:
         raise HTTPException(422, 'This conversation reached its context limit (20 turns or 40,000 characters). Start a new question; the notebook keeps this conversation.')
     if body.case_id:
@@ -373,21 +398,22 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         if status == "review":
             data["drafts_shown_at"] = now()
     else:
-        if len(body.question) < (1 if history else 15):
+        if len(body.question) < (1 if history or pair_histories else 15):
             raise HTTPException(422, "Describe a new question in at least 15 characters, or enter a follow-up.")
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
         data = {"kind": "ask", "case_id": None, "title": TASKS[body.task_type]["label"], "brief": body.question,
-                "mode": inference_backend(), "version": "ask-local-v2" if inference_backend() == "local-cli" else "ask-v3", "drafts": [], "privacy_ack": body.privacy_ack,
+                "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4", "drafts": [], "privacy_ack": body.privacy_ack,
                 "task_type": body.task_type, "routing": "explicit-user-selection",
                 "source_run_id": source.id if source else retry.data.get('source_run_id') if retry else None,
                 "source_position": body.source_position if source else retry.data.get('source_position') if retry else None,
+                "pair_histories": pair_histories, "pair_order": pair_order, "identity_exposed": identity_exposed,
                 "source_artifact": source_artifact, "history": history, "turn_number": turn_number,
                 "retry_of_run_id": retry.id if retry else None,
                 "source_example_id": body.source_example_id, "source_example_version": example['version'] if example else None,
                 "source_example_edited": body.question != example['brief'] if example else None,
                 "root_run_id": (source.data.get("root_run_id") or source.id) if source else (retry.data.get('root_run_id') or retry.id) if retry else None,
-                "evaluation_scope": 'exploratory-followup' if history else "exploratory-prompt-revision" if source else 'exploratory-retry' if retry else 'exploratory-prompt-starter' if example else "exploratory-first-pair"}
+                "evaluation_scope": ("unblinded-conversation" if identity_exposed else "blind-conversation") if pair_histories else 'exploratory-followup' if history else "exploratory-prompt-revision" if source else 'exploratory-retry' if retry else 'exploratory-prompt-starter' if example else "exploratory-first-pair"}
         status = "generating"
     run = Run(id=secrets.token_hex(16), participant_id=p.id, created_at=now(), status=status, data=data)
     db.add(run)
@@ -397,9 +423,14 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     db.commit()
     if not body.case_id:
         try:
-            drafts = await generate(body.question, body.task_type, history=history) if history else await generate(body.question, body.task_type)
+            drafts = await generate(body.question, body.task_type, history=pair_histories or history) if history or pair_histories else await generate(body.question, body.task_type)
             attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
-            secrets.SystemRandom().shuffle(drafts)
+            if pair_order:
+                if set(pair_order) != {d['model_id'] for d in drafts}:
+                    raise GenerationFailure('The model pair changed. Start a new comparison.', attempts)
+                drafts.sort(key=lambda d: pair_order.index(d['model_id']))
+            else:
+                secrets.SystemRandom().shuffle(drafts)
             run.data = {**data, "drafts": drafts, "generation_attempts": attempts, "drafts_shown_at": now()}
             run.status = "review"
             emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
@@ -456,9 +487,11 @@ def prefer(run_id: str, body: Preference, p=Depends(participant), db: Session = 
         raise HTTPException(409, "This pair is not awaiting a vote.")
     elapsed = int((datetime.now(timezone.utc) - datetime.fromisoformat(run.data["drafts_shown_at"])).total_seconds() * 1000)
     # Missing approval/confidence is deliberately NOT inferred from a preference.
-    judgment = {**body.model_dump(), "a": None, "b": None, "confidence": None, "reasons": [],
-                "rationale": "", "correction": "", "submitted_at": now(), "decision_ms": elapsed,
-                "mechanism": "preference-v2", "question": "Which response would you prefer to use?"}
+    exposed = bool(run.data.get('identity_exposed')) or conversation_revealed(db, run)
+    judgment = {**body.model_dump(), "identity_exposed": exposed, "turn_number": run.data.get('turn_number', 1),
+                "artifacts": [{"artifact_id": d.get('artifact_id'), "text_sha256": text_hash(d['text'])} for d in run.data['drafts']], "a": None, "b": None, "confidence": None, "reasons": [],
+                "rationale": body.rationale.strip(), "correction": "", "submitted_at": now(), "decision_ms": elapsed,
+                "mechanism": "preference-v2", "question": "Which conversation would you prefer to use?"}
     changed = db.execute(update(Run).where(Run.id == run_id, Run.status == "review").values(
         data={**run.data, "judgment": judgment}, status="completed"))
     if changed.rowcount != 1:

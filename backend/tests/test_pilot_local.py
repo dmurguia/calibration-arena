@@ -117,3 +117,18 @@ def test_local_run_remains_blind_and_records_correct_source(client, monkeypatch)
         revealed = c.post('/api/pilot/runs/' + run['id'] + '/judgment', headers=headers,
                           json=dict(a='revise', b='revise', preference='tie', reasons=['Clarity'], confidence='low')).json()
         assert {d['author'] for d in revealed['drafts']} == {'Codex', 'Claude Code'}
+
+
+def test_local_followup_keeps_each_models_history(monkeypatch):
+    configure(monkeypatch)
+    calls = []
+    async def execute(args, prompt, directory):
+        calls.append((args[0], json.loads(prompt)['conversation']))
+        return codex_result() if args[0] == '/test/codex' else claude_result()
+    monkeypatch.setattr(local, 'execute', execute)
+    histories = {'codex-test-model': [{'role': 'assistant', 'content': 'First path'}],
+                 'claude-test-model': [{'role': 'assistant', 'content': 'Second path'}]}
+    from app.pilot_inference import generate
+    asyncio.run(generate('Continue', history=histories))
+    assert calls[0][1] == histories['codex-test-model'] + [{'role': 'user', 'content': 'Continue'}]
+    assert calls[1][1] == histories['claude-test-model'] + [{'role': 'user', 'content': 'Continue'}]

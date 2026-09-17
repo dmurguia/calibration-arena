@@ -215,7 +215,7 @@ def test_hygiene_and_export_actions_do_not_create_correctness(client, monkeypatc
     run = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
     payload = {'name': 'response_copied', 'run_id': run['id'], 'position': 'a'}
     assert client.post('/api/pilot/events', headers=h, json=payload).status_code == 422
-    client.post(f'/api/pilot/runs/{run["id"]}/preference', headers=h, json={'preference': 'neither'})
+    client.post(f'/api/pilot/runs/{run["id"]}/preference', headers=h, json={'preference': 'b'})
     assert client.post('/api/pilot/events', headers=h, json=payload).status_code == 200
 
 
@@ -274,3 +274,91 @@ def test_audit_detects_tampering_and_consent_boundaries():
     assert not audit(duplicate)['ok']
     data['runs'][0]['drafts'][0]['text'] = 'Tampered output'
     assert not audit(data)['ok']
+
+
+@pytest.mark.parametrize("backend", ["direct", "openrouter"])
+def test_live_readiness_does_not_require_invitation(monkeypatch, backend):
+    from app.pilot_inference import live_ready
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", backend)
+    monkeypatch.delenv("PILOT_INVITE_CODE", raising=False)
+    for key, value in {"OPENAI_API_KEY": "qa-key", "ANTHROPIC_API_KEY": "qa-key",
+                       "OPENAI_MODEL": "qa/openai", "ANTHROPIC_MODEL": "qa/anthropic",
+                       "OPENROUTER_API_KEY": "qa-key", "OPENROUTER_MODEL_A": "qa/a",
+                       "OPENROUTER_MODEL_B": "qa/b"}.items():
+        monkeypatch.setenv(key, value)
+    assert live_ready()
+    monkeypatch.delenv("OPENAI_API_KEY" if backend == "direct" else "OPENROUTER_API_KEY")
+    assert not live_ready()
+
+
+def test_blind_conversation_histories_limit_and_reveal(client, monkeypatch):
+    from app.routers import pilot
+    from app.db import SessionLocal
+    h = guest(client)
+    seen = []
+    async def generate(question, task_type, *, history=None):
+        seen.append(deepcopy(history))
+        return [{'model_id': model, 'text': f'{model} answer {len(seen)}', 'author': model,
+                 'artifact_id': f'{model}-{len(seen)}'} for model in ('model-one', 'model-two')]
+    monkeypatch.setattr(pilot, 'live_ready', lambda: True)
+    monkeypatch.setattr(pilot, 'generate', generate)
+    monkeypatch.setattr(pilot, 'inference_backend', lambda: 'direct')
+    run = client.post('/api/pilot/runs', headers=h, json={'question': 'Explain this fictional reconciliation.'}).json()
+    root = run['id']
+    with SessionLocal() as db:
+        order = [d['model_id'] for d in db.get(pilot.Run, root).data['drafts']]
+    for turn in range(2, 6):
+        previous = run
+        response = client.post('/api/pilot/runs', headers=h, json={'question': 'Explain more', 'source_run_id': run['id'], 'continuation_mode': 'compare'})
+        assert response.status_code == 200
+        run = response.json()
+        assert run['status'] == 'review' and run['turn_number'] == turn
+        assert all('author' not in d and 'model_id' not in d for d in run['drafts'])
+        assert run['evaluation_scope'] == 'blind-conversation'
+        for i, model in enumerate(order):
+            own_history = seen[-1][model]
+            assert own_history[-1]['content'] == previous['drafts'][i]['text']
+            assert all(other not in m['content'] for m in own_history for other in order if other != model)
+            assert run['conversation'][i]['messages'] == own_history
+    assert client.post('/api/pilot/runs', headers=h, json={'question': 'Again', 'source_run_id': run['id'], 'continuation_mode': 'compare'}).status_code == 422
+    for invalid in ('tie', 'neither'):
+        assert client.post(f'/api/pilot/runs/{run["id"]}/preference', headers=h, json={'preference': invalid}).status_code == 422
+    # Revealing an ancestor before voting makes this assessment unblinded.
+    client.post(f'/api/pilot/runs/{root}/preference', headers=h, json={'preference': 'a'})
+    voted = client.post(f'/api/pilot/runs/{run["id"]}/preference', headers=h,
+                        json={'preference': 'b', 'rationale': 'The reconciliation exposes the unexplained difference.'}).json()
+    assert voted['judgment']['identity_exposed'] is True
+    assert voted['judgment']['turn_number'] == 5
+    assert voted['judgment']['rationale'].startswith('The reconciliation')
+    assert len(voted['judgment']['artifacts']) == 2
+    assert all(d['author'] for d in voted['drafts'])
+
+
+def test_direct_separate_histories_and_changed_pair(monkeypatch):
+    from app import pilot_direct, pilot_inference
+    for key, value in {'ARENA_INFERENCE_BACKEND': 'direct', 'OPENAI_API_KEY': 'qa', 'ANTHROPIC_API_KEY': 'qa', 'OPENAI_MODEL': 'one', 'ANTHROPIC_MODEL': 'two'}.items():
+        monkeypatch.setenv(key, value)
+    histories = {'one': [{'role': 'assistant', 'content': 'Only one'}], 'two': [{'role': 'assistant', 'content': 'Only two'}]}
+    seen = []
+    class Response:
+        status_code = 200
+        headers = {}
+        def __init__(self, model): self.model = model
+        def raise_for_status(self): pass
+        def json(self):
+            if self.model == 'one': return {'status': 'completed', 'output': [{'type': 'message', 'content': [{'type': 'output_text', 'text': 'First answer'}]}]}
+            return {'stop_reason': 'end_turn', 'content': [{'type': 'text', 'text': 'Second answer'}]}
+    class Client:
+        def __init__(self, **kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): pass
+        async def post(self, url, headers, json):
+            seen.append(json)
+            return Response(json['model'])
+    monkeypatch.setattr(pilot_direct.httpx, 'AsyncClient', Client)
+    asyncio.run(pilot_inference.generate('Explain', history=histories))
+    for request in seen:
+        assert (request.get('input') or request.get('messages'))[:-1] == histories[request['model']]
+    monkeypatch.setenv('OPENAI_MODEL', 'changed')
+    with pytest.raises(ValueError, match='model pair changed'):
+        asyncio.run(pilot_inference.generate('Explain', history=histories))

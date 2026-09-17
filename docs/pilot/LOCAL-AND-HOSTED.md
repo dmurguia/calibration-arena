@@ -44,7 +44,7 @@ ANTHROPIC_MODEL=<verified Anthropic API model ID>
 PILOT_MAX_OUTPUT_TOKENS=2000
 ```
 
-The placeholders are instructions, not working values. Retain/configure `PILOT_INVITE_CODE`, `PILOT_ADMIN_TOKEN`, and `ARENA_DATABASE_URL` on durable storage. Use a separate participant dataset from local QA. Set `ARENA_LEGACY_API=0`, `ARENA_AUTO_SEED=0`, and `ARENA_DEV_LOGIN_CODE=0`. Set `ARENA_CORS_ORIGINS` to the exact Vercel frontend HTTPS origin. Do not import the old prototype's wildcard preview-origin or synthetic-seeding settings.
+The placeholders are instructions, not working values. Enrollment is public; `PILOT_INVITE_CODE` is no longer required and existing values are ignored. Retain/configure `PILOT_ADMIN_TOKEN` and `ARENA_DATABASE_URL` on durable storage. Use a separate participant dataset from local QA. Set `ARENA_LEGACY_API=0`, `ARENA_AUTO_SEED=0`, and `ARENA_DEV_LOGIN_CODE=0`. Set `ARENA_CORS_ORIGINS` to the exact Vercel frontend HTTPS origin. Do not import the old prototype's wildcard preview-origin or synthetic-seeding settings.
 
 Review Railway's staged changes and deploy them to apply the variables. The deployment must include the current pilot code with the `direct` adapter; adding variables to an older deployed build does not ship the local changes. Confirm `/api/pilot/config` reports `inference_backend: direct` and complete one actual paired API request before distributing.
 

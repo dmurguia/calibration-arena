@@ -1,6 +1,6 @@
 import { createContext, FormEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2 } from 'lucide-react'
 import { DialMark } from '../components/brand/DialMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -55,26 +55,22 @@ export default function Pilot() {
 }
 
 function Home() {
-  return <div className="p-arena-page"><CalibrationLens radius={76} intensity={0.10} /><div className="p-arena-content"><Ask embedded /></div></div>
+  const [loading, setLoading] = useState(false)
+  return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <CalibrationLens radius={76} intensity={0.10} />}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
 }
 
-async function beginGuest(invite: string, refresh: () => Promise<void>) {
+async function beginGuest(refresh: () => Promise<void>) {
   if (!token()) {
-    const response = await call<{ token: string }>('/guests', { invite_code: invite, source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct' })
+    const response = await call<{ token: string }>('/guests', { source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct' })
     saveToken(response.token)
   }
   await refresh()
 }
 
-function InviteField({ invite, setInvite }: { invite: string; setInvite: (v: string) => void }) {
-  const { config, me } = usePilot()
-  return config?.invite_required && !me ? <label className="p-invite-field">Invitation code<input value={invite} onChange={e => setInvite(e.target.value)} required autoComplete="off" /></label> : null
-}
-
 function CaseLibrary() {
   const { cases, me, refresh } = usePilot(); const navigate = useNavigate()
   const [assignments, setAssignments] = useState<CaseAssignment[]>([]); const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(''); const [busy, setBusy] = useState(''); const [invite, setInvite] = useState('')
+  const [error, setError] = useState(''); const [busy, setBusy] = useState('')
   useEffect(() => {
     let cancelled = false
     if (!me) { setLoading(false); return }
@@ -90,7 +86,7 @@ function CaseLibrary() {
   const row = (a: CaseAssignment, i: number) => <button className="p-case-row p-assigned-row" onClick={() => open(a)} disabled={!!busy} key={a.id}><span className="p-case-number">{String(i + 1).padStart(2, '0')}</span><div><span className="p-meta">{a.framework}</span><h3>{a.title}</h3></div><span className="p-case-time">{busy === a.id ? 'Opening…' : a.status === 'completed' ? 'Reviewed' : a.run_id ? 'Resume' : 'Compare'}</span><ArrowUpRight size={20} /></button>
   const first = assignments.slice(0, 3)
   return <div className="p-workspace"><Eyebrow>Accounting</Eyebrow><h1>Close examples</h1><p className="p-lead">Compare the same responses to a few month-end questions. Progress stays in this notebook; return to your own questions whenever you like.</p>
-    {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(invite, refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><InviteField invite={invite} setInvite={setInvite} /><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
+    {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
     {me && loading && <p role="status">Loading saved progress…</p>}
     {me && !loading && !assignments.length && <p className="p-empty-cases">No shared comparisons have been added yet. <Link to="/">Ask a question</Link> or explore a practice example below.</p>}
     {!!first.length && <><p className="p-case-progress" role="status">{first.filter(a => a.status === 'completed').length} of {first.length} reviewed</p><div className="p-case-list">{first.map(row)}</div>{assignments.length > 3 && <details className="p-more-cases"><summary>More close examples ({assignments.length - 3})</summary><div className="p-case-list">{assignments.slice(3).map((a, i) => row(a, i + 3))}</div></details>}</>}
@@ -98,77 +94,52 @@ function CaseLibrary() {
     <details className="p-practice-library"><summary>Practice examples</summary><p className="p-fine">Fixed, authored drafts with a policy-based explanation. These are separate from shared model comparisons.</p><div className="p-case-list">{cases.map((c, i) => <Link className="p-case-row" to={`/case/${c.id}`} key={c.id}><span className="p-case-number">{String(i + 1).padStart(2, '0')}</span><div><span className="p-meta">{c.topic}</span><h3>{c.title}</h3></div><span className="p-case-time">{me?.runs.some(r => r.case_id === c.id && r.status === 'completed') ? 'Reviewed' : 'Compare'}</span><ArrowUpRight size={20} /></Link>)}</div></details></div>
 }
 
-function Profile({ onReady }: { onReady: () => void }) {
-  const { config, refresh, me } = usePilot()
-  const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [followup, setFollowup] = useState(false)
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); setBusy(true); setError('')
-    const f = new FormData(e.currentTarget)
-    try {
-      const result = await call<{ token?: string }>(me ? '/profile' : '/participants', { name: f.get('name'), role: f.get('role'), experience: f.get('experience'), framework: f.get('framework'), email: followup ? f.get('email') : null, followup, research_consent: f.get('research') === 'on', source: new URLSearchParams(location.search).get('source')?.slice(0, 100) || 'direct', invite_code: f.get('invite') || '' })
-      if (result.token) saveToken(result.token); await refresh(); onReady()
-    } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
-  }
-  return <form className="p-card p-profile" onSubmit={submit}><Eyebrow>Your reviewer context · about 30 seconds</Eyebrow><h2>A little context for your judgment.</h2><p>Different accounting backgrounds bring different perspectives. Your background is self-reported.</p>
-    <label>What should we call you?<input autoComplete="given-name" name="name" required maxLength={60} placeholder="First name or a nickname" /></label>
-    <div className="p-form-grid"><label>Your work<select name="role" required defaultValue=""><option value="" disabled>Select your role</option>{['Public accountant', 'Industry accountant', 'Bookkeeper', 'Controller / finance leader', 'Other accounting professional'].map(x => <option key={x}>{x}</option>)}</select></label>
-      <label>Accounting experience<select name="experience" required defaultValue=""><option value="" disabled>Select experience</option>{['0–2 years', '3–7 years', '8–15 years', '16+ years'].map(x => <option key={x}>{x}</option>)}</select></label></div>
-    <label>Framework you usually work with<select name="framework" required defaultValue=""><option value="" disabled>Select a framework</option>{['US GAAP', 'IFRS', 'Local GAAP / other', 'Multiple / not applicable'].map(x => <option key={x}>{x}</option>)}</select></label>
-    {config?.invite_required && !me && <label>Invitation code<input name="invite" required autoComplete="off" /></label>}
-    <label className="p-checkbox"><input type="checkbox" checked={followup} onChange={e => setFollowup(e.target.checked)} />I’m open to a short follow-up conversation. (Optional)</label>
-    {followup && <label>Email for follow-up<input name="email" type="email" required maxLength={254} autoComplete="email" /></label>}
-    <label className="p-checkbox"><input name="research" type="checkbox" />Allow my submissions to be used in private research. Optional; this does not grant publication or model-training permission.</label>
-    <p className="p-fine">Progress is saved for this browser. Use your own device. No password or verified account is created. Contact the person who invited you to withdraw or delete your data.</p>
-    <ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Saving your profile…' : 'Save my background'} <ArrowRight size={16} /></button>
-  </form>
-}
-
 function CaseStart() {
   const { caseId } = useParams(); const { cases, me, refresh } = usePilot(); const navigate = useNavigate()
   const c = cases.find(c => c.id === caseId); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
-  const [invite, setInvite] = useState('')
-  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(invite, refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
   if (!c) return <NotFound />
   return <div className="p-narrow"><Link className="p-back" to="/"><ChevronLeft size={15} /> Arena</Link><Eyebrow>{c.topic} · {c.minutes} minutes</Eyebrow><h1>{c.title}</h1><p className="p-lead">Compare two responses, choose a preference, and see the explanation.</p><div className="p-brief"><Eyebrow>Case facts · synthetic company</Eyebrow><p>{c.brief}</p></div>
-    <form onSubmit={start}><InviteField invite={invite} setInvite={setInvite} /><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Opening case…' : 'Compare responses'} <ArrowRight size={16} /></button></form>
+    <form onSubmit={start}><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Opening case…' : 'Compare responses'} <ArrowRight size={16} /></button></form>
     <p className="p-fine">Authored sample case. Your work is saved for this browser. <Link to="/method">How it works</Link>.</p>
   </div>
 }
 
-function Ask({ embedded = false }: { embedded?: boolean }) {
+function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState(''); const [invite, setInvite] = useState('')
+  const [question, setQuestion] = useState('')
   const [starterId, setStarterId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
-    setBusy(true)
+    setBusy(true); onBusy?.(true); window.scrollTo({ top: 0 })
     try {
-      if (!me) await beginGuest(invite, refresh)
+      if (!me) await beginGuest(refresh)
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', source_example_id: starterId })
       await refresh(); navigate(`/session/${run.id}`)
-    } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
+    } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    <Eyebrow>Accounting</Eyebrow><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">Compare two answers to an accounting question.</p>
-    <form className="p-composer" onSubmit={submit}>
+    {!busy && <><Eyebrow>Accounting</Eyebrow><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">Compare two answers to an accounting question.</p></>}
+    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Accounting prompt</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} placeholder="Describe the question, paste a draft, or ask about a close issue…" />
       <div className="p-composer-bottom"><span>{config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy}><ArrowUp size={19} /></button></div>
-      <InviteField invite={invite} setInvite={setInvite} /><ErrorNote message={error} />{busy && <p className="p-composer-status" role="status">Preparing both responses…</p>}
+      <ErrorNote message={error} />
     </form>
     <div className="p-type-samples"><span>Try a question</span>{config?.prompt_starters?.map(c => <button key={c.id} type="button" onClick={() => { setQuestion(c.brief); setStarterId(c.id); setError(''); document.getElementById('open-prompt')?.focus() }}>{c.title}<ArrowUpRight size={12} /></button>)}</div>
     {starterId && <p className="p-sample-note">Edit the facts as needed. Both models will answer the prompt above.</p>}
+    </>}
   </div>
 }
 
 interface Report { id: string; position: string; category: string | null; note: string; after_reveal: boolean }
 const issueTypes: [string, string][] = [['clarity', 'Clarity / presentation'], ['calculation', 'Calculation'], ['timing', 'Timing'], ['account-treatment', 'Account treatment'], ['policy', 'Policy / framework'], ['missing-facts', 'Missing facts'], ['unsupported-claim', 'Unsupported claim'], ['other', 'Other']]
 
-function DraftPanel({ draft, reveal, authored }: { draft: Draft; reveal: boolean; authored: boolean }) {
+function DraftPanel({ draft, reveal, authored, focused, onFocus }: { draft: Draft; reveal: boolean; authored: boolean; focused?: boolean; onFocus?: () => void }) {
   return <article className="p-draft">
-    <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span></header>
+    <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
     <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null, a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }) => <div className="p-table-scroll"><table>{children}</table></div> }}>{draft.text}</Markdown>}</div>
     {reveal && !!draft.checks?.length && <details className="p-check-details"><summary>Case checks</summary>{draft.checks.map(check => <p key={check.label}>{check.passed ? '✓' : '↳'} {check.label}: {check.passed ? 'pass' : 'needs correction'}</p>)}<p>{draft.review_note}</p></details>}
   </article>
@@ -202,11 +173,11 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
   const active = run.drafts.find(d => d.position === position) || ordered[0]
   const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.') } catch { setMessage('Copy is unavailable. Download the response instead.') } }
   const download = () => {
-    const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${run.history?.length ? '\n\n## Earlier conversation\n\n' + run.history.map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
+    const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${(run.conversation?.find(t => t.position === active.position)?.messages || run.history)?.length ? '\n\n## Earlier conversation\n\n' + (run.conversation?.find(t => t.position === active.position)?.messages || run.history || []).map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
-  return <section className="p-result"><div className="p-result-intro"><DialMark size={27} /><div><p>{preferred ? 'The response you preferred came from' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
+  return <section className="p-result p-reveal-arrival"><div className="p-reveal-spark" aria-hidden="true">✦</div><div className="p-result-intro"><DialMark size={27} /><div><p>{preferred ? 'Your pick revealed' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
     <div className="p-result-tabs" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}><span className="p-result-position">{d.position.toUpperCase()}</span><span>{d.author}</span>{d.position === preferred && <span className="p-preferred-label">Preferred</span>}</button>)}</div>
     <div className="p-result-toolbar"><span>Response {active.position.toUpperCase()}</span><div><button onClick={copy}><Copy size={14} />Copy response</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
     <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}><DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} /></div>
@@ -214,32 +185,43 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
   </section>
 }
 
-function RevisionComposer({ run, position }: { run: Run; position: string }) {
+function WaitingPair() {
+  const [seconds, setSeconds] = useState(0)
+  useEffect(() => { const started = Date.now(); const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000); return () => clearInterval(timer) }, [])
+  return <div className="p-waiting" role="status"><DialMark size={28} /><div><strong>Two perspectives in progress</strong><p>Waiting for both responses · {seconds}s</p><div className="p-waiting-cards" aria-hidden="true"><span>A</span><span>B</span></div></div></div>
+}
+
+function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) => void }) {
   const { config, refresh } = usePilot(); const navigate = useNavigate()
   const [question, setQuestion] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  const active = run.drafts.find(d => d.position === position)
+  const limit = (run.turn_number || 1) >= 5
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
-    if (config?.ask_mode !== 'live') { setError('Live models are not connected. Your follow-up stays here until a connection is available.'); return }
-    setBusy(true)
+    if (config?.ask_mode !== 'live') { setError('Live models are not connected. Your follow-up stays here.'); return }
+    setBusy(true); onBusy(true)
     try {
-      const next = await call<Run>('/runs', { question, task_type: 'accounting-question', source_run_id: run.id, source_position: position, continuation_mode: 'followup' })
+      const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', source_run_id: run.id, continuation_mode: 'compare' })
       await refresh(); navigate(`/session/${next.id}`)
-    } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
+    } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy(false) }
   }
-  return <section className="p-refine"><div className="p-refine-heading"><span className="p-fine">Continue from Response {position.toUpperCase()} · {active?.author}</span><Link to="/">New question <Plus size={14} /></Link></div>
-    <form className="p-composer" onSubmit={submit}><label htmlFor="revision-prompt" className="sr-only">Follow-up prompt</label>
-      <textarea id="revision-prompt" value={question} onChange={e => setQuestion(e.target.value)} rows={3} minLength={1} maxLength={5000} placeholder="Ask a follow-up or describe what to change…" required />
-      <div className="p-composer-bottom"><span>Both models receive this conversation and the selected response</span><button className="p-send" disabled={busy} aria-label="Send follow-up"><ArrowUp size={18} /></button></div>
-      <ErrorNote message={error} />{busy && <p role="status" className="p-composer-status">Preparing both responses…</p>}
-    </form>
+  return <section className="p-refine"><div className="p-refine-heading"><span className="p-fine">{run.status === 'completed' || run.identity_exposed ? 'Models revealed' : 'Authors hidden'}</span><Link to="/">New question <Plus size={14} /></Link></div>
+    {limit ? <p className="p-limit-note">This comparison has reached its conversation limit. {run.status === 'completed' ? 'Start a new question to explore further.' : 'Finish & reveal when you’re ready.'}</p> : <form className="p-composer" onSubmit={submit}><label htmlFor="revision-prompt" className="sr-only">Follow-up prompt</label>
+      <textarea id="revision-prompt" value={question} onChange={e => setQuestion(e.target.value)} rows={2} minLength={1} maxLength={5000} placeholder="Ask both a follow-up…" required disabled={busy} />
+      <div className="p-composer-bottom"><span>Same follow-up. Each model continues its own conversation.</span><button className="p-send" disabled={busy || !question.trim()} aria-label="Send follow-up"><ArrowUp size={18} /></button></div>
+      <ErrorNote message={error} />
+    </form>}
+    {busy && <WaitingPair />}
   </section>
 }
 
 function Session() {
-  const { runId } = useParams(); const { refresh, me } = usePilot(); const [run, setRun] = useState<Run | null>(null)
+  const { runId } = useParams(); const { refresh } = usePilot(); const [run, setRun] = useState<Run | null>(null)
   const [position, setPosition] = useState('a'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [conclusion, setConclusion] = useState(''); const [copied, setCopied] = useState(false)
   useEffect(() => { setRun(null); setConclusion(''); setError(''); setCopied(false); call<Run>(`/runs/${runId}`).then(r => { setRun(r); setPosition(r.judgment?.preference === 'b' ? 'b' : 'a') }).catch(e => setError(errorText(e))) }, [runId])
+  const [focus, setFocus] = useState<string | null>(null); const [judging, setJudging] = useState(false); const [choice, setChoice] = useState<string | null>(null); const [why, setWhy] = useState(''); const [generating, setGenerating] = useState(false)
+  useEffect(() => { setFocus(null); setJudging(false); setChoice(null); setWhy(''); setGenerating(false) }, [runId])
+  const voteDialog = useRef<HTMLDialogElement>(null)
+  useEffect(() => { const dialog = voteDialog.current; if (judging && run?.status === 'review') dialog?.showModal(); else dialog?.close() }, [judging, run?.status])
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
   const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
@@ -249,21 +231,36 @@ function Session() {
   return <div className="p-workspace p-comparison">
     <div className="p-session-top"><span>Accounting · {run.title}</span><Link to="/record">Notebook <ArrowUpRight size={13} /></Link></div>
     {!!run.history?.length && <details className="p-thread-history"><summary>Earlier messages ({run.history.length})</summary>{run.history.map((m, i) => m.role === 'user' ? <section className="p-question" key={i}><Eyebrow>Prompt</Eyebrow><p>{m.content}</p></section> : <div className="p-history-answer" key={i}><Eyebrow>Selected response</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</details>}
+    {!!run.conversation?.length && <details className="p-thread-history"><summary>Earlier turns · A and B</summary><div className="p-drafts">{run.conversation.map(thread => <div key={thread.position}><h3>Response {thread.position.toUpperCase()}</h3>{thread.messages.map((m, i) => <div key={i} className={m.role === 'user' ? 'p-question' : 'p-history-answer'}><Eyebrow>{m.role === 'user' ? 'Prompt' : 'Response'}</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</div>)}</div></details>}
     <section className="p-question"><Eyebrow>{run.kind === 'ask' ? 'Prompt' : run.mode === 'authored-fixture' ? 'Practice · authored responses' : 'Close example'}</Eyebrow><p>{run.brief}</p>{run.source_run_id && <Link className="p-text-link" to={`/session/${run.source_run_id}`}>Previous comparison <ArrowUpRight size={12} /></Link>}</section>
     {run.status === 'conclusion' && <div className="p-independent"><h2>Compare the responses.</h2><button className="p-button" disabled={busy} onClick={() => save('skip-conclusion', {})}>Show responses <ArrowRight size={16} /></button>
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
-      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <><div className="p-pair-heading"><DialMark size={25} /><h1>Which response would you prefer to use?</h1></div>
-      <div className="p-drafts">{run.drafts.map(d => <DraftPanel key={`${run.id}-${d.position}`} draft={d} reveal={false} authored={run.mode === 'authored-fixture'} />)}</div></>}
-      {!voted && <div className="p-vote-area"><div className="p-vote-bar" role="group" aria-label="Choose a preferred response"><button disabled={busy} onClick={() => save('preference', { preference: 'a' })}>Prefer A</button><DialMark size={24} /><button disabled={busy} onClick={() => save('preference', { preference: 'b' })}>Prefer B</button></div><div className="p-vote-alternatives"><button disabled={busy} onClick={() => save('preference', { preference: 'tie' })}>About the same</button><span>·</span><button disabled={busy} onClick={() => save('preference', { preference: 'neither' })}>Neither</button></div>{busy && <span role="status" className="p-fine">Saving preference…</span>}</div>}
+      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <><div className="p-pair-heading"><DialMark size={25} /><h1>Two perspectives. Keep the conversation going.</h1></div>
+      <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-preview' : ''}`} key={`${run.id}-${d.position}`}><DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} /></div>)}</div></>}
+      <div className="p-conversation-dock">
+      {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
+      </div>
+      {!voted && <>
+        <button className="p-floating-vote" disabled={generating} onClick={() => setJudging(true)} aria-haspopup="dialog"><DialMark size={22} /><span>Ready to choose?</span><ArrowRight size={17} /></button>
+        <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
+          <div className="p-decision">
+          <Eyebrow>Choose & reveal</Eyebrow>
+          <h2 id="vote-title">Which response do you prefer?</h2>
+          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-pressed={choice === p} onClick={() => setChoice(p)}>I prefer {p.toUpperCase()}</button>)}</div>
+          {choice && <form className="p-vote-reason" onSubmit={e => { e.preventDefault(); save('preference', { preference: choice, rationale: why }) }}><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /><div><button className="p-button" disabled={busy || generating}>Reveal models <ArrowRight size={16} /></button><button type="button" className="p-text-link" disabled={busy || generating} onClick={() => save('preference', { preference: choice, rationale: '' })}>Skip & reveal</button></div></form>}
+          <button className="p-text-link" disabled={busy} onClick={() => setJudging(false)}>Keep comparing</button>
+          {busy && <p role="status">Revealing the models…</p>}
+          <ErrorNote message={error} />
+          </div>
+        </dialog>
+      </>}
       <ErrorNote message={error} />
       {voted && run.expected && <details className="p-case-explanation"><summary>Read the case explanation</summary><p>{run.expected}</p><p className="p-fine">{run.mode === 'authored-fixture' ? 'Based on the stated policy. This practice sample has not been independently validated.' : 'Applies to this case version and its stated requirements.'}</p></details>}
       {run.conclusion && <details className="p-own"><summary>Initial note</summary><p>{run.conclusion}</p></details>}
       {voted && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
-      <ImprovementForm key={`feedback-${run.id}`} run={run} position={voted ? position : 'both'} />
-      {voted && <RevisionComposer key={`composer-${run.id}`} run={run} position={position} />}
+      {voted && <details className="p-own"><summary>Suggest an improvement</summary><ImprovementForm key={`feedback-${run.id}`} run={run} position={position} /></details>}
       {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
-      {voted && me?.participant.identity === 'guest' && <details className="p-own"><summary>Add accounting background (optional)</summary><Profile onReady={() => {}} /></details>}
     </>}
     {!showing && <ErrorNote message={error} />}
     {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p><RetryComposer run={run} /></div>}
@@ -272,7 +269,7 @@ function Session() {
 
 function RetryComposer({ run }: { run: Run }) {
   const navigate = useNavigate(); const [question, setQuestion] = useState(run.brief); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
+  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
 }
 
 function Notebook() {
@@ -290,10 +287,10 @@ function Notebook() {
 function Method() {
   const { config } = usePilot()
   return <div className="p-narrow p-method"><Eyebrow>Calibrated · Accounting</Eyebrow><h1>How comparisons work</h1><p className="p-lead">Bring a question, compare two drafts, and decide what you would use.</p>
-    <h2>One workspace, two sources of drafts</h2><p>Ask an accounting question in your own words. The editable question suggestions request fresh answers from both models. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and choose a preference. One vote reveals the authors and opens the preferred response. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. After voting, ask a follow-up about the selected response. Both models receive the same conversation and selected answer. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
+    <h2>One workspace, two sources of drafts</h2><p>Ask an accounting question in your own words. The editable question suggestions request fresh answers from both models. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
     <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
     <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
-    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the person who invited you.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
+    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
     <h2>Your notebook</h2><p>Your comparisons and judgments are saved for this browser. Use the same browser to return to your work; cross-device sign-in is not available.</p>
     <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
   </div>

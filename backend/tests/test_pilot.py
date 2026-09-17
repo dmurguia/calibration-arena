@@ -268,7 +268,7 @@ def test_issue_reports_append_with_provenance_and_exposure(client, monkeypatch):
     first = client.post(path + '/issues', headers=h, json=report).json()
     assert len(first) == 1 and first[0]['after_reveal'] is False
     assert 'artifact_id' not in first[0]  # No identity/provenance leak before voting.
-    client.post(path + '/preference', headers=h, json={'preference': 'neither'})
+    client.post(path + '/preference', headers=h, json={'preference': 'b'})
     second = client.post(path + '/issues', headers=h, json={**report, 'position': 'a'}).json()
     assert len(second) == 2 and second[1]['after_reveal'] is True
     assert client.get(path + '/issues', headers=h).json() == second
@@ -286,7 +286,7 @@ def test_prompt_revision_is_owned_fresh_and_separately_scoped(client, monkeypatc
     body = {'question': question, 'source_run_id': original['id']}
     assert client.post('/api/pilot/runs', headers=other, json=body).status_code == 404
     assert client.post('/api/pilot/runs', headers=h, json=body).status_code == 409
-    client.post('/api/pilot/runs/' + original['id'] + '/preference', headers=h, json={'preference': 'tie'})
+    client.post('/api/pilot/runs/' + original['id'] + '/preference', headers=h, json={'preference': 'a'})
     seen = []
     async def generated(prompt, task_type):
         seen.append((prompt, task_type))

@@ -1,0 +1,294 @@
+<title>Calibration Arena Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F7F8F5; --card:#FFFFFF; --ink:#1B2420; --muted:#5D6B64;
+  --hairline:#DDE3DD; --accent:#2E5E4E; --accent-ink:#FFFFFF;
+  --approve:#2E7D4F; --flag:#B3402A; --caution:#8A6D1F;
+  --flag-bg:#FBEDE9; --approve-bg:#EAF4EC; --doc-bg:#FDFDFB;
+  --chip-bg:#EEF1ED; --shadow:0 1px 3px rgba(27,36,32,.08), 0 4px 16px rgba(27,36,32,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141A17; --card:#1C2420; --ink:#E7ECE8; --muted:#93A29A;
+    --hairline:#2C3630; --accent:#6FBF9F; --accent-ink:#10251D;
+    --approve:#5FBF85; --flag:#E08770; --caution:#CBB268;
+    --flag-bg:#33221D; --approve-bg:#1D3227; --doc-bg:#202924;
+    --chip-bg:#242E28; --shadow:0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141A17; --card:#1C2420; --ink:#E7ECE8; --muted:#93A29A;
+  --hairline:#2C3630; --accent:#6FBF9F; --accent-ink:#10251D;
+  --approve:#5FBF85; --flag:#E08770; --caution:#CBB268;
+  --flag-bg:#33221D; --approve-bg:#1D3227; --doc-bg:#202924;
+  --chip-bg:#242E28; --shadow:0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:26px;font-weight:700;margin:6px 0 2px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 20px;max-width:64ch}
+.topbar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px}
+.progress{display:flex;gap:6px;align-items:center}
+.tick{width:26px;height:5px;background:var(--hairline);border-radius:2px}
+.tick.on{background:var(--accent)}
+.progress span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:8px}
+.brief{background:var(--card);border:1px solid var(--hairline);border-radius:10px;padding:18px 20px;margin-bottom:8px;box-shadow:var(--shadow)}
+.brief p{margin:8px 0 12px;max-width:74ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:999px;background:var(--chip-bg);color:var(--muted);border:1px solid var(--hairline)}
+.howto{display:flex;gap:10px;align-items:baseline;color:var(--muted);font-size:13px;margin:14px 2px 18px;max-width:80ch}
+.howto b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.draft{background:var(--card);border:1px solid var(--hairline);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.draft.flagged-reveal{outline:2px solid var(--flag);outline-offset:-1px}
+.draft.passed-reveal{outline:2px solid var(--approve);outline-offset:-1px}
+.dhead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--hairline)}
+.dhead .who{font-weight:600;font-size:13.5px}
+.dhead .anon{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.doc{background:var(--doc-bg);padding:16px 18px;font-family:'IBM Plex Serif',Georgia,serif;font-size:13.5px;flex:1}
+.doc h4{margin:0 0 4px;font-size:13px;letter-spacing:.05em;text-transform:uppercase;font-family:'IBM Plex Sans',sans-serif;color:var(--muted);font-weight:600}
+table{border-collapse:collapse;width:100%;margin:6px 0 10px}
+th,td{border:1px solid var(--hairline);padding:4px 8px;text-align:left;font-size:12.5px}
+th{font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--chip-bg)}
+td.num{text-align:right;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.indent{padding-left:22px}
+tr.tot td{font-weight:600;background:var(--chip-bg)}
+.memo{font-style:italic;color:var(--muted);font-size:12.5px;margin:2px 0 0}
+.judge{border-top:1px solid var(--hairline);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.jrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.jlabel{font-size:12px;color:var(--muted);font-weight:500;min-width:110px}
+.seg{display:flex;border:1px solid var(--hairline);border-radius:8px;overflow:hidden}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;padding:6px 11px;cursor:pointer;border-right:1px solid var(--hairline)}
+.seg button:last-child{border-right:0}
+.seg button:focus-visible,.rank button:focus-visible,.cseg button:focus-visible,#submit:focus-visible,#again:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg button.sel-yes{background:var(--approve-bg);color:var(--approve);font-weight:600}
+.seg button.sel-no{background:var(--flag-bg);color:var(--flag);font-weight:600}
+.seg button.sel-cant{background:var(--chip-bg);color:var(--ink);font-weight:600}
+.rank{display:flex;gap:6px}
+.rank button{appearance:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--hairline);background:transparent;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer}
+.rank button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.actions{margin-top:20px;background:var(--card);border:1px solid var(--hairline);border-radius:10px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.cseg{display:flex;border:1px solid var(--hairline);border-radius:8px;overflow:hidden}
+.cseg button{appearance:none;border:0;border-right:1px solid var(--hairline);background:transparent;color:var(--muted);font:inherit;font-size:12.5px;padding:7px 12px;cursor:pointer}
+.cseg button:last-child{border-right:0}
+.cseg button.on{background:var(--chip-bg);color:var(--ink);font-weight:600}
+.note{flex:1;min-width:220px}
+.note input{width:100%;border:1px solid var(--hairline);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:13px;padding:8px 10px}
+.note input::placeholder{color:var(--muted)}
+#submit{appearance:none;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;font-size:14px;padding:10px 22px;cursor:pointer}
+#submit:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);width:100%}
+.verdict{display:none;margin-top:8px;border-radius:8px;padding:10px 12px;font-size:12.5px;font-family:'IBM Plex Sans',sans-serif}
+.reveal .verdict{display:block}
+.verdict.bad{background:var(--flag-bg);color:var(--flag)}
+.verdict.good{background:var(--approve-bg);color:var(--approve)}
+.verdict b{display:block;margin-bottom:2px}
+.calib{display:none;margin-top:20px;border-radius:10px;padding:18px 20px;border:1px solid var(--hairline);background:var(--card);box-shadow:var(--shadow)}
+.reveal-mode .calib{display:block}
+.calib h3{margin:0 0 6px;font-size:16px}
+.calib p{margin:6px 0;max-width:76ch}
+.calib .result{font-weight:700}
+.calib .result.ok{color:var(--approve)} .calib .result.miss{color:var(--flag)}
+.datanote{margin-top:14px;padding-top:12px;border-top:1px dashed var(--hairline);font-size:12.5px;color:var(--muted)}
+.footer{margin-top:26px;font-size:11.5px;color:var(--muted);max-width:80ch}
+#again{display:none;appearance:none;border:1px solid var(--hairline);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:13px;padding:8px 16px;cursor:pointer;margin-top:10px}
+.reveal-mode #again{display:inline-block}
+.reveal-mode .judge button{pointer-events:none;opacity:.75}
+.reveal-mode #submit{display:none}
+.reveal-mode .cseg button,.reveal-mode .note input{pointer-events:none;opacity:.75}
+@media (prefers-reduced-motion: no-preference){
+  .verdict{animation:rise .35s ease-out}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<div class="wrap" id="app">
+  <div class="topbar">
+    <div>
+      <p class="eyebrow">Calibration Arena · Blind session · Demo</p>
+      <h1>Journal entries — prepaid annual subscription</h1>
+    </div>
+    <div class="progress" role="img" aria-label="Comparison 1 of 6">
+      <span class="tick on"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+      <span>1 / 6</span>
+    </div>
+  </div>
+
+  <div class="brief">
+    <p class="eyebrow">Scenario · certified item JE-PP-004 v1</p>
+    <p>On <b>November 1</b>, Meridian Fitness LLC collected <b>$18,000</b> cash for a 12-month software subscription beginning that day. Record the cash receipt and November's revenue recognition, with memos a reviewer could rely on.</p>
+    <div class="chips">
+      <span class="chip">FY2026 · accrual basis</span>
+      <span class="chip">Policy: revenue ratable over service period</span>
+      <span class="chip">Materiality $500</span>
+      <span class="chip">Synthetic company — no client data</span>
+    </div>
+  </div>
+
+  <p class="howto">For each draft: <b>would you sign off on it</b> as filed? Then <b>rank all four</b> (same number = tie). One tap of confidence, an optional note, submit. Authors stay hidden until you do.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="actions">
+    <div>
+      <div class="jlabel" style="margin-bottom:6px">How confident are you?</div>
+      <div class="cseg" id="conf" role="group" aria-label="Confidence">
+        <button data-c="low">Not very</button><button data-c="med">Fairly</button><button data-c="high">Very</button>
+      </div>
+    </div>
+    <div class="note">
+      <div class="jlabel" style="margin-bottom:6px">Optional — what tipped your ranking?</div>
+      <input id="why" type="text" maxlength="160" placeholder="e.g. only two drafts actually deferred the revenue">
+    </div>
+    <button id="submit" disabled>Submit &amp; reveal</button>
+    <div class="hint" id="hint">To submit: sign-off decision and rank on all four drafts, plus a confidence tap.</div>
+  </div>
+
+  <div class="calib" id="calib" aria-live="polite">
+    <h3>Reveal</h3>
+    <p id="calibResult"></p>
+    <p id="calibDetail"></p>
+    <p class="datanote"><b>What your judgment just recorded:</b> four sign-off decisions (the objective-check audit), one ranking with ties (the preference signal, counted only among drafts that pass checks), a confidence level, and your note. Draft C was this session's hidden calibration item — it scores <i>you</i>, never the models.</p>
+    <button id="again">Reset demo</button>
+  </div>
+
+  <p class="footer">Demo only: fictional company, fictional author names, hand-written outputs. Illustrates the judgment screen for the Calibration Arena pilot — it stores nothing and ranks nothing real.</p>
+</div>
+
+<script>
+const DRAFTS = [
+  { id:'A', author:'Atlas 4', pass:true,
+    verdict:'<b>Passes objective checks.</b> Correct deferral and ratable recognition; memo cites policy and shows the remaining deferred balance.',
+    doc:`<h4>Entry 1 — Cash receipt, Nov 1</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Cash</td><td class="num">18,000</td><td class="num"></td></tr>
+    <tr><td class="indent">Deferred Revenue</td><td class="num"></td><td class="num">18,000</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">18,000</td><td class="num">18,000</td></tr></table>
+    <h4>Entry 2 — November recognition</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Deferred Revenue</td><td class="num">1,500</td><td class="num"></td></tr>
+    <tr><td class="indent">Subscription Revenue</td><td class="num"></td><td class="num">1,500</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">1,500</td><td class="num">1,500</td></tr></table>
+    <p class="memo">Memo: $18,000 deferred at receipt per ratable-recognition policy; 1/12 recognized for November service. Deferred balance carried forward: $16,500. Schedule attached to workpaper JE-11.</p>` },
+  { id:'B', author:'Ledger-1', pass:true,
+    verdict:'<b>Passes objective checks.</b> Amounts and treatment correct — documentation is thin (no policy reference, no remaining-balance note), which the rubric scores separately.',
+    doc:`<h4>Entry 1 — Cash receipt</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Cash</td><td class="num">18,000</td><td class="num"></td></tr>
+    <tr><td class="indent">Deferred Revenue</td><td class="num"></td><td class="num">18,000</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">18,000</td><td class="num">18,000</td></tr></table>
+    <h4>Entry 2 — Revenue recognition</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Deferred Revenue</td><td class="num">1,500</td><td class="num"></td></tr>
+    <tr><td class="indent">Subscription Revenue</td><td class="num"></td><td class="num">1,500</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">1,500</td><td class="num">1,500</td></tr></table>
+    <p class="memo">Memo: As discussed.</p>` },
+  { id:'C', author:'Corvid 9', pass:false,
+    verdict:'<b>Fails objective checks — this was the hidden calibration item.</b> Recognizes the full $18,000 on day one and credits Sales Revenue directly, violating the ratable-recognition policy. The entry balances and the memo sounds confident; the treatment is wrong.',
+    doc:`<h4>Entry 1 — Sale recorded, Nov 1</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Cash</td><td class="num">18,000</td><td class="num"></td></tr>
+    <tr><td class="indent">Sales Revenue</td><td class="num"></td><td class="num">18,000</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">18,000</td><td class="num">18,000</td></tr></table>
+    <p class="memo">Memo: Full contract value recorded at point of sale. Entry verified and in balance; no further entries required for the subscription term.</p>` },
+  { id:'D', author:'Fathom 2', pass:true,
+    verdict:'<b>Passes objective checks.</b> Correct treatment with a full amortization schedule; wordier memo. Whether you prefer this presentation over Draft A is exactly the judgment signal the arena collects.',
+    doc:`<h4>Entry 1 — Cash receipt, Nov 1</h4>
+    <table><tr><th>Account</th><th style="width:86px">Debit</th><th style="width:86px">Credit</th></tr>
+    <tr><td>Cash</td><td class="num">18,000</td><td class="num"></td></tr>
+    <tr><td class="indent">Deferred Revenue</td><td class="num"></td><td class="num">18,000</td></tr>
+    <tr class="tot"><td>Totals</td><td class="num">18,000</td><td class="num">18,000</td></tr></table>
+    <h4>Entry 2 — November recognition (schedule excerpt)</h4>
+    <table><tr><th>Period</th><th style="width:86px">Recognized</th><th style="width:96px">Deferred bal.</th></tr>
+    <tr><td>Nov 2026</td><td class="num">1,500</td><td class="num">16,500</td></tr>
+    <tr><td>Dec 2026</td><td class="num">1,500</td><td class="num">15,000</td></tr>
+    <tr><td>…monthly through Oct 2027</td><td class="num">1,500</td><td class="num">0</td></tr></table>
+    <p class="memo">Memo: Consideration received in advance of performance is deferred and recognized ratably over the twelve-month service period beginning November 1, consistent with company policy and the underlying subscription agreement. Dr Deferred Revenue / Cr Subscription Revenue $1,500 for November. Full 12-line schedule maintained in the recognition workpaper and reviewed for arithmetic accuracy.</p>` },
+];
+
+const state = { sign:{}, rank:{}, conf:null };
+const grid = document.getElementById('grid');
+
+DRAFTS.forEach(d => {
+  const el = document.createElement('article');
+  el.className = 'draft'; el.id = 'draft'+d.id;
+  el.innerHTML = `
+    <div class="dhead"><span class="who">Draft ${d.id}</span><span class="anon" data-anon="${d.id}">Author hidden</span></div>
+    <div class="doc">${d.doc}</div>
+    <div class="judge">
+      <div class="jrow"><span class="jlabel">Would you sign off?</span>
+        <div class="seg" role="group" aria-label="Sign off on draft ${d.id}">
+          <button data-s="yes" data-d="${d.id}">Sign off</button>
+          <button data-s="no" data-d="${d.id}">Don't sign</button>
+          <button data-s="cant" data-d="${d.id}">Can't tell</button>
+        </div></div>
+      <div class="jrow"><span class="jlabel">Rank (1 = best)</span>
+        <div class="rank" role="group" aria-label="Rank draft ${d.id}">
+          ${[1,2,3,4].map(n=>`<button data-r="${n}" data-d="${d.id}">${n}</button>`).join('')}
+        </div></div>
+      <div class="verdict ${d.pass?'good':'bad'}">${d.verdict}</div>
+    </div>`;
+  grid.appendChild(el);
+});
+
+function refresh(){
+  const done = DRAFTS.every(d=>state.sign[d.id]) && DRAFTS.every(d=>state.rank[d.id]) && state.conf;
+  document.getElementById('submit').disabled = !done;
+  document.getElementById('hint').textContent = done
+    ? 'Ready — submitting reveals authors and the objective-check results.'
+    : 'To submit: sign-off decision and rank on all four drafts, plus a confidence tap.';
+}
+
+grid.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const d = b.dataset.d;
+  if(b.dataset.s){
+    state.sign[d] = b.dataset.s;
+    b.parentElement.querySelectorAll('button').forEach(x=>x.className='');
+    b.className = 'sel-'+b.dataset.s;
+  } else if(b.dataset.r){
+    state.rank[d] = +b.dataset.r;
+    b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+  }
+  refresh();
+});
+
+document.getElementById('conf').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  state.conf = b.dataset.c;
+  document.querySelectorAll('#conf button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  refresh();
+});
+
+document.getElementById('submit').addEventListener('click', () => {
+  document.getElementById('app').classList.add('reveal-mode');
+  DRAFTS.forEach(d=>{
+    const el = document.getElementById('draft'+d.id);
+    el.classList.add('reveal', d.pass?'passed-reveal':'flagged-reveal');
+    el.querySelector('[data-anon]').textContent = d.author + ' (fictional)';
+  });
+  const caught = state.sign['C'] === 'no';
+  const unsure = state.sign['C'] === 'cant';
+  const res = document.getElementById('calibResult');
+  if(caught){
+    res.innerHTML = '<span class="result ok">You caught the planted defect.</span> You declined to sign Draft C — the one output that fails the objective checks.';
+  } else if(unsure){
+    res.innerHTML = '<span class="result miss">You hesitated on the planted defect.</span> You marked Draft C "can\'t tell" — it recognizes a full year of revenue on day one.';
+  } else {
+    res.innerHTML = '<span class="result miss">You signed off on the planted defect.</span> Draft C recognizes the full $18,000 immediately and books it to the wrong account — its confident memo is part of the test.';
+  }
+  const rankedLast = state.rank['C'] === Math.max(...Object.values(state.rank));
+  document.getElementById('calibDetail').textContent = rankedLast
+    ? 'Your ranking also placed it last. Sign-off decisions and rankings on planted items feed your calibration score; your ranking among the three drafts that pass checks feeds the preference leaderboard.'
+    : 'Your ranking placed at least one checks-passing draft below it — the gap between "looks good" and "is right" is exactly what calibration measures.';
+  document.getElementById('calib').scrollIntoView({behavior:'smooth', block:'nearest'});
+});
+
+document.getElementById('again').addEventListener('click', () => location.reload());
+</script>

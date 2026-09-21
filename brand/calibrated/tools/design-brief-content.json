@@ -1,0 +1,179 @@
+[
+  {
+    "number": "01",
+    "label": "PURPOSE & POSITIONING",
+    "title": "The art of better.",
+    "intro": "Design a contemporary identity for Calibrated Co. that makes disciplined improvement feel both technical and deeply human.",
+    "sections": [
+      [
+        "The idea",
+        "Tools change. The human practice of observing, making, testing and refining continues. Watchmaking is the central analogy: a precise machine depends on patient judgment, practiced hands and repeated adjustment. Calibrated applies that same respect for craft to the way AI is built, measured and improved."
+      ],
+      [
+        "How it fits Calibrated",
+        "The current local site frames Calibrated as a research lab working on expert-authored evaluations, long-horizon agent trajectories and reinforcement learning environments. The identity should make that agenda tangible: expert judgment becomes explicit criteria; complex work becomes a sequence that can be studied; feedback makes improvement possible. Treat these as research directions, not claims of proven capabilities or outcomes."
+      ],
+      [
+        "Who it should speak to",
+        "Design for technically literate AI researchers, builders and prospective collaborators, while remaining inviting to the domain experts whose judgment makes the work meaningful. This is a proposed communication audience for the design assignment, not a validated customer segmentation."
+      ],
+      [
+        "What people should feel",
+        "Capable, curious, exacting and human. A place where serious work happens and the process is visible. The identity has a confident, heavy signature; the surrounding page is quiet and open enough to think on. Material and restraint carry the craft."
+      ],
+      [
+        "The assignment",
+        "Develop the supplied brand direction into a coherent, production-ready identity and website system. Keep the public identity broad enough to span domains. \"The art of better.\" is the brand idea; it should sit alongside a clear description of Calibrated's actual work."
+      ]
+    ],
+    "image": "images/masters/open-sketch.png",
+    "caption": "The signature starting point: open, continuous graphite."
+  },
+  {
+    "number": "02",
+    "label": "INSPIRATION",
+    "title": "Observe across disciplines.",
+    "intro": "The references matter for what they teach us about working, not simply for how they look.",
+    "sections": [
+      [
+        "Watchmaking: judgment inside precision",
+        "Borrow the relationship between hand skill and measurement: adjustment, tolerances, instrument markings and a tool worn through use. The founder's steel-watch reference points to brushed stainless steel, silver, graphite and dark metal. Emphasize finish, light and precise construction. Avoid luxury-watch advertising, ornamental gears and borrowed prestige."
+      ],
+      [
+        "The pocket notebook: thought before presentation",
+        "The founder's Moleskine reference is practical: a black notebook carried around, written in and used. Private shorthand, crossed-out ideas, pencil pressure and awkward loops help their author think. Paper, charcoal and a fine writing line should carry this idea. Colored covers and decorative palettes are no longer part of the direction."
+      ],
+      [
+        "Florence and Leonardo: observation becomes a model",
+        "The founder studied in Florence and is drawn to sketches that connect the movement of hair and water. Carry forward that habit of finding patterns between human, natural and mechanical systems. Make new contemporary studies; avoid faux Renaissance handwriting, artificial aging or a sepia costume."
+      ],
+      [
+        "Nature: space around concentrated work",
+        "The California coast and the founder's association with Alpine watchmaking suggest quiet, distance and room to observe. Express that through scale, negative space, rhythm and fluid movement. Literal coastal scenery felt too obvious in the exploration; nature should usually be sensed through the drawing."
+      ],
+      [
+        "1980s/90s technology and editorial energy",
+        "Take tactile cues from instrument panels, fanfold paper, carbon copies and direct labels. Keep them within the neutral notebook palette. The founder's AfterQuery reference concerns close, energetic framing in technical settings. Use material intimacy and work in progress; do not reproduce its brand or imagery."
+      ]
+    ],
+    "note": "Creative reference: https://www.afterquery.com/ . Reference images guide the brief; they are not licensed production assets."
+  },
+  {
+    "number": "03",
+    "label": "IDENTITY & TYPOGRAPHY",
+    "title": "A strong mark. Quiet type.",
+    "intro": "Keep the C and Calibrated Co. wordmark bold. Use conservative, regular typography for the rest of the page.",
+    "sections": [
+      [
+        "The C / power-button idea",
+        "The C opens to the right and holds a separate horizontal dash: a restrained double reading of the company initial and a rotated power-button gesture. It should feel drawn with an old pen: heavier through the left and lower curve, subtly uneven in its bowl, with deliberate cut terminals. Imperfection comes from pressure and movement, not random distress. The primary presentation is the paper-colored C on a charcoal backdrop. Leather brown is reserved for accents, never the logo or its background."
+      ],
+      [
+        "What the designer should resolve",
+        "Refine the curve, terminal angles, dash placement, spacing and small-size behavior. Compare the symbol at favicon size, in a website header, on a notebook cover and in one-color print. Keep the silhouette strong enough to work without texture. The current vectors are working masters, not a claim that every optical detail is final."
+      ],
+      [
+        "Weight belongs to the identity",
+        "Archivo Black remains the supplied face for CALIBRATED CO. Preserve its confidence and refine spacing where useful. Bold is a deliberate event, not the default for every headline. Do not spread the wordmark's weight across the whole notebook. For an unusually important moment, one short bold statement can provide contrast."
+      ],
+      [
+        "The everyday reading voice",
+        "IBM Plex Sans Regular 400 handles headings, notes, the tagline, body copy and interface text. It is the same face used in the founder's preferred 'Human marks. Precise instruments. Room to keep improving.' sample. IBM Plex Mono Regular 400 keeps code legible. Retire the handwriting typeface; let the graphite artwork carry the expressive, private notation."
+      ],
+      [
+        "Identity hierarchy",
+        "The C is the compact signature. The wordmark carries recognition and confidence. \"The art of better.\" carries the philosophy. A separate, direct product or research descriptor explains what Calibrated does. Avoid asking the tagline to communicate the entire business."
+      ]
+    ],
+    "image": "previews/identity-and-colors.png",
+    "caption": "Working identity and color family supplied in the brand kit."
+  },
+  {
+    "number": "04",
+    "label": "COLOR & MATERIAL",
+    "title": "Paper, graphite and leather.",
+    "intro": "Soft gray charcoal, notebook paper and a restrained leather brown, with steel remaining a precise material reference.",
+    "sections": [
+      [
+        "Palette roles",
+        "Soft charcoal (#464643) carries the identity and primary text. Notebook paper (#F4F1E9) is the main canvas. Graphite (#656460) carries quieter text and drawn marks. Brushed steel (#929698) remains a material detail. Leather brown (#70543E) replaces the silver swatch. Chalk white (#FAF9F6) provides a light reading surface."
+      ],
+      [
+        "Keep it simple",
+        "Paper dominates. Dark marks, spacing and selective weight establish hierarchy. Use leather brown as a restrained reference to a timeless watch strap: a small editorial detail, an edge or a supporting field. Never use it as the primary mark background or logo color. Keep the rest quiet. Do not rebuild a colorful accent system."
+      ],
+      [
+        "Finish supplies variation",
+        "Brushed and polished metal can sit beside matte graphite and fibrous paper. Use natural highlights and neutral reflections to suggest precision. Keep the logo flat and legible; avoid chrome-effect lettering, metallic gradients across every panel and synthetic glamour."
+      ],
+      [
+        "The image library",
+        "Retain the open graphite sketch and pressure study. Three new generated studies add fine working notation, brushed steel, and paper with black book cloth. The earlier colored images are superseded. A designer may complement the library with commissioned drawing or licensed close photography."
+      ],
+      [
+        "Practical requirements",
+        "Use soft charcoal or graphite on paper, paper on charcoal, and paper on leather brown. Steel is not a small-text color on a light field. Check the actual crop and interface state for contrast. Keep text live; physical leather, foil, ink and metal finishes need production samples."
+      ]
+    ],
+    "palette": true
+  },
+  {
+    "number": "05",
+    "label": "MOTION & WEBSITE",
+    "title": "A sketch finds syntax.",
+    "intro": "The opening state must read unmistakably as drawing: loose, continuous, exploratory and uncontained.",
+    "sections": [
+      [
+        "The movement",
+        "Begin with graphite loops, overshoots, pressure and corrections. Let selected strokes gather into recurring forms, then find baselines, spacing and indentation. Braces, a few digits and readable code can emerge from the same gesture. The transition should invite the question: is this someone's private notation, or a machine making its work visible?"
+      ],
+      [
+        "The ending",
+        "Keep a trace of the original drawing behind or beside the structured output. The story is collaborative refinement: human judgment remains active as the representation changes. Do not imply that the hand is an inferior stage erased by a perfect machine. A cycle can return to revision and sketching."
+      ],
+      [
+        "Motion character",
+        "Use a measured pace and purposeful transitions. Give viewers time to recognize the starting material. Avoid particle clouds, neural-network dots, Matrix rain, neon, glitch effects and decorative binary wallpaper. Binary was an early association; legible structure and continuous marks are the stronger expression."
+      ],
+      [
+        "Website composition",
+        "Use conservative regular headings, clear reading text, crisp rules and generous empty space. Reserve bold for the company signature or rare intentional emphasis. Expressive handwriting belongs in the artwork. Test a research article, an evaluation view, a collaborator story and compact navigation. Labels and scales must describe something real."
+      ],
+      [
+        "Production behavior",
+        "The current animation is an interactive concept study, not finished production code. Supply a static poster frame, reduced-motion treatment and a clear start/pause policy. Make the mobile crop work before adding complexity. Preserve selectable code when it carries information; illustrative marks should not masquerade as real evaluation results."
+      ]
+    ],
+    "image": "images/masters/working-notation.png",
+    "caption": "Fine graphite notation: an ordinary page of thinking."
+  },
+  {
+    "number": "06",
+    "label": "SCOPE & REVIEW",
+    "title": "Make the system usable.",
+    "intro": "The assignment is to resolve and extend an established direction. Explore through real applications, then consolidate the strongest system.",
+    "sections": [
+      [
+        "Deliverables to request",
+        "A refined C and wordmark with horizontal, stacked, reversed and small-size variants; outlined SVGs and high-resolution transparent exports; typography roles with font files or license instructions; screen color tokens and approved contrast pairs; an image and illustration direction with sources; website examples for desktop and mobile; motion storyboard and production assets; and a concise usage guide in an editable design file."
+      ],
+      [
+        "Suggested review sequence",
+        "First: present two or three close refinements of the C and wordmark, tested at real sizes. Second: apply the chosen refinement to one homepage hero, one technical/research page and one notebook or print application. Third: resolve the motion, responsive rules, accessible states and export package. Keep explorations close enough to compare the decisions that matter."
+      ],
+      [
+        "Success criteria",
+        "The mark is recognizable in one color and at small sizes. The opening graphic reads as a sketch before data. Bold creates selective emphasis. Typography is conservative and easy to read. Gray charcoal, paper and leather brown feel quiet and enduring. Calibrated's work is understandable with motion turned off."
+      ],
+      [
+        "Room for designer judgment",
+        "Refine optical balance, wordmark spacing, the regular type hierarchy, crop choices and motion timing. New commissioned drawing is welcome. Keep handwritten character in the artwork rather than the interface font. Do not restore decorative script headings or make all headings bold."
+      ],
+      [
+        "Before final production",
+        "Confirm final website copy, priority page types, commercial font or photography budget, production owner and schedule with the founder. Those are not specified by this brief. The existing kit is the starting material, not an instruction to retain every asset unchanged."
+      ]
+    ],
+    "note": "Handoff files: README.md, logos/, fonts/, colors/, images/, motion/ and RIGHTS.md. Revision 3 incorporates the founder's preference for conservative typography, leather brown and softer charcoal. Research context comes from the local Calibrated site."
+  }
+]

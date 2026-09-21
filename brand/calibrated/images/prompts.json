@@ -1,0 +1,33 @@
+[
+  {
+    "name": "open-sketch",
+    "method": "OpenAI built-in image generation",
+    "created": "2026-09-21",
+    "prompt": null,
+    "prompt_note": "Approved original artwork from the preceding exploration. Exact generation prompt is not reconstructed; creative direction is documented in the guide."
+  },
+  {
+    "name": "graphite-pressure",
+    "prompt": "Use case: stylized-concept. Create an original website art asset for Calibrated Co., no text and no logo. Extreme macro of a forceful graphite drawing on ivory uncoated paper: three broad pencil strokes sweeping diagonally out of frame, heavy dark cores, broken silvery edges, erased searching lines and paper tooth. Crop so close the act of drawing becomes an abstract landscape of pressure. Editorial 1980s art-school print sensibility, physically believable, handmade and imperfect. Cream #F3EBDD and near-black #222821 only. Wide landscape 3:2. No dots, particles, neurons, smooth digital ribbon, notebook object, hands, sepia aging, shadows or faux document borders. Genuine open continuous strokes and clear untouched paper intervals; suited to website section backgrounds.",
+    "method": "OpenAI built-in image generation",
+    "created": "2026-09-21"
+  },
+  {
+    "name": "instrument-steel",
+    "prompt": "Use case: photorealistic-natural. Asset: a 1536x1024 landscape editorial macro material study for Calibrated Co, craft meets technology. Extreme close crop of an unbranded precision watch instrument: a curved ring of brushed stainless steel, one beautifully finished slotted steel screw, a small section of fine machined concentric grooves, soft black shadow. Realistic fine tooling lines and restrained mirror highlights. Timeless understated watchmaking, silvery metal entirely neutral monochrome. Tactile, honest, quiet, slightly imperfect manufacturing surface, photographed with close editorial framing and grazing diffused light. Abstract enough to serve as website imagery without a whole watch. No blue cast, no gold, no brass, no green, no colored accents, no text, no digits, no logos, no skin, no jewelry advertisement, no futuristic render. Entire palette is paper white, silver, grey, charcoal.",
+    "created": "2026-09-21",
+    "method": "OpenAI built-in image generation"
+  },
+  {
+    "name": "working-notation",
+    "prompt": "Use case: stylized-concept. Asset: 1536x1024 original scanned notebook graphite drawing for Calibrated Co. An open, loose, messy, human page of working thoughts on very lightly warm offwhite uncoated paper. Thin grey pencil traces, overlapping loops, private hurried unreadable chicken-scratch marginal notes, gentle erased marks, long flowing water-like curves and repeated attempts at a deliberate C, with a very small section on the lower right in which handwriting resolves into graphite drawn aligned brackets and a few 0s and 1s. This is used working paper, not a styled desk scene or a finished decorative illustration. Realism of graphite pressure and uneven continuous fine strokes. Let lines run beyond the edges; lots of breathing room. Strict neutral palette: charcoal, grey graphite and offwhite paper. No colored corrections, no green or blue, no yellow, no sepia, no skin, no notebook object, no border, no labels or readable brand text, no dots or neurons. Fine pen-like handwriting rather than thick marker. Image only.",
+    "created": "2026-09-21",
+    "method": "OpenAI built-in image generation"
+  },
+  {
+    "name": "paper-and-cloth",
+    "prompt": "Use case: photorealistic-natural. Asset: 1536x1024 landscape editorial close material photograph-style study for a timeless craft and technology brand. Abstract extreme crop of ivory uncoated notebook paper resting on a charcoal black woven book cloth, beside the slim visible edge of a brushed stainless steel precision ruler with no numbers or text in frame. A few light graphite smudges on paper. Authentic tiny paper fibers, restrained tactile charcoal weave, finely brushed neutral silver. Only offwhite, soft grey and charcoal, no other color casts or accents. Simple quiet composition, paper across upper two thirds, cloth at lower edge, thin steel detail at right. No whole notebook, no staged workspace, no hands, no logos, no text, no leather luxury product mockup. Soft overcast grazing light, close editorial intimacy, understated craftsmanship.",
+    "created": "2026-09-21",
+    "method": "OpenAI built-in image generation"
+  }
+]

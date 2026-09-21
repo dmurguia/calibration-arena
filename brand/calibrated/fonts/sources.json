@@ -1,0 +1,110 @@
+[
+  {
+    "file": "fonts/archivoblack/ArchivoBlack-Regular.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/ArchivoBlack-Regular.ttf",
+    "sha256": "dd9a89a019b4849f66ab75455fe7bdf931311042cbb0f0f97acc061539703180",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/archivoblack/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/OFL.txt",
+    "sha256": "3173acd82f8c6159b5b1037b539fcbd4edff68e65c2ea8b9412b5a5ca97b08ff",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/archivoblack/METADATA.pb",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/METADATA.pb",
+    "sha256": "def0eb81b3f0d8739a25566ce484cac9e396ad46108a02a809dd8a04c26bfdc5",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexsans/IBMPlexSans[wdth,wght].ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsans/IBMPlexSans%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "3b031aa4216174205bd8471f88a49b91f093169e9e87bd5262242bc5967fe2e3",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexsans/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsans/OFL.txt",
+    "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexsans/METADATA.pb",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsans/METADATA.pb",
+    "sha256": "85f7e73668461cfacc4d9ecf94a7b67dd14dc24a71c0ae2cecd36215f0ca856c",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexmono/IBMPlexMono-Regular.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+    "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexmono/IBMPlexMono-Medium.ttf",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Medium.ttf",
+    "sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexmono/OFL.txt",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/OFL.txt",
+    "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/ibmplexmono/METADATA.pb",
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/METADATA.pb",
+    "sha256": "2eb58f75e032cc5e021887aa7b02bf11bf548710fc5b6f23eb19c440df101a0b",
+    "license": "SIL Open Font License 1.1"
+  },
+  {
+    "file": "fonts/web/ArchivoBlack-Regular-400.woff2",
+    "source": "https://fonts.gstatic.com/s/archivoblack/v23/HTxqL289NzCGg4MzN6KJ7eW6CYyF_jzx13E.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap",
+    "sha256": "4eca2abdbbc1998c3a286e2e83a2256be5263ccb801aa93b00c64fea891efd3a",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  },
+  {
+    "file": "fonts/web/IBMPlexSans-400.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYbSB4Zh.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+    "sha256": "056e4e2459f57a0033c8c9c844ff19d6e42ac8602027803d4345823bcc939818",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  },
+  {
+    "file": "fonts/web/IBMPlexSans-500.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYbSB4Zh.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+    "sha256": "056e4e2459f57a0033c8c9c844ff19d6e42ac8602027803d4345823bcc939818",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  },
+  {
+    "file": "fonts/web/IBMPlexSans-600.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYbSB4Zh.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+    "sha256": "056e4e2459f57a0033c8c9c844ff19d6e42ac8602027803d4345823bcc939818",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  },
+  {
+    "file": "fonts/web/IBMPlexMono-400.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap",
+    "sha256": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  },
+  {
+    "file": "fonts/web/IBMPlexMono-500.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+    "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap",
+    "sha256": "a76f53ca6612e7b3828eec2311098675b7f9849ae4169a8bcef6302aec02a6c0",
+    "license": "SIL Open Font License 1.1",
+    "coverage": "Latin subset; desktop TTF files carry broader coverage"
+  }
+]

@@ -1,0 +1,7 @@
+token,name,hex,red,green,blue,role
+ink,Charcoal,#464643,70,70,67,Primary text and the identity
+paper,Notebook paper,#F4F1E9,244,241,233,Main canvas; lightly warm off-white
+graphite,Graphite,#656460,101,100,96,Secondary text and pencil-like marks
+steel,Brushed steel,#929698,146,150,152,Material accent and non-text details
+leather,Leather brown,#70543E,112,84,62,Restrained warmth; a timeless watch strap
+white,Chalk white,#FAF9F6,250,249,246,Light reading surface

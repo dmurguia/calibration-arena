@@ -1,0 +1,19 @@
+/* Calibrated Co. v3 — sRGB screen colors */
+:root {
+  --cal-ink: #464643;
+  --cal-paper: #F4F1E9;
+  --cal-graphite: #656460;
+  --cal-steel: #929698;
+  --cal-leather: #70543E;
+  --cal-white: #FAF9F6;
+  --cal-font-identity: 'Archivo Black', sans-serif;
+  --cal-font-display: 'IBM Plex Sans', sans-serif;
+  --cal-font-body: 'IBM Plex Sans', sans-serif;
+  --cal-font-mono: 'IBM Plex Mono', monospace;
+  --cal-font-editorial: 'IBM Plex Sans', sans-serif;
+  --cal-background: var(--cal-paper);
+  --cal-text: var(--cal-ink);
+  --cal-text-secondary: var(--cal-graphite);
+  --cal-action: var(--cal-ink);
+  --cal-action-text: var(--cal-paper);
+}

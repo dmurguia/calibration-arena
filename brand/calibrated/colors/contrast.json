@@ -1,0 +1,38 @@
+[
+  {
+    "foreground": "ink",
+    "background": "paper",
+    "ratio": 8.39,
+    "WCAG_AA_normal_text": true
+  },
+  {
+    "foreground": "graphite",
+    "background": "paper",
+    "ratio": 5.25,
+    "WCAG_AA_normal_text": true
+  },
+  {
+    "foreground": "paper",
+    "background": "ink",
+    "ratio": 8.39,
+    "WCAG_AA_normal_text": true
+  },
+  {
+    "foreground": "paper",
+    "background": "leather",
+    "ratio": 6.15,
+    "WCAG_AA_normal_text": true
+  },
+  {
+    "foreground": "ink",
+    "background": "white",
+    "ratio": 8.99,
+    "WCAG_AA_normal_text": true
+  },
+  {
+    "foreground": "graphite",
+    "background": "white",
+    "ratio": 5.63,
+    "WCAG_AA_normal_text": true
+  }
+]

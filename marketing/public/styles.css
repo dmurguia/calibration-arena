@@ -2014,14 +2014,6 @@ form > .caption {
   border-top: 1px solid var(--ink);
   padding-block: 30px 65px;
 }
-.review-verdict > div:first-of-type {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 6%;
-}
-.review-verdict > div:first-of-type > .caption {
-  grid-column: 2;
-}
 .review-verdict .artifact-table {
   margin-block: 30px 20px;
 }
@@ -2033,9 +2025,6 @@ form > .caption {
   max-width: 750px;
 }
 @media (max-width: 700px) {
-  .review-verdict > div:first-of-type {
-    display: block;
-  }
   .review-verdict h2 {
     margin-bottom: 22px;
   }
@@ -2078,3 +2067,37 @@ form > .caption {
 }
 
 @media (max-width: 700px) { .hero-craft h1 { font-size: clamp(43px, 14vw, 56px); } }
+
+/* Copy revision: lead with the company and its approved graphite study. */
+.hero-company {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  gap: 5%;
+  align-items: center;
+  padding-block: 70px 76px;
+}
+.hero-company h1 { font-size: clamp(48px, 5.4vw, 78px); line-height: 1.06; }
+.hero-company .lead { max-width: 485px; font-size: 19px; }
+.hero-company .hero-art > img { height: 400px; }
+.hero-company .hero-art figcaption { font-family: Plex, sans-serif; font-size: 14px; }
+.partnerships .text-link { margin-top: 24px; }
+.partnerships h3 { margin-top: 0; }
+.raw-result pre { overflow: auto; padding: 20px; background: var(--chalk); font: 12px/1.7 PlexMono,monospace; max-height: 540px; }
+.review-verdict > p:not(.eyebrow):not(.caption) { max-width: 780px; margin-top: 24px; }
+.review-verdict .raw-result { margin-top: 25px; }
+@media (max-width: 900px) {
+  .hero-company { gap: 4%; padding-block: 52px; }
+  .hero-company h1 { font-size: 47px; }
+  .hero-company .lead { font-size: 17px; }
+  .hero-company .hero-art > img { height: 340px; }
+}
+@media (max-width: 700px) {
+  .hero-company { display: flex; flex-direction: column; align-items: stretch; gap: 30px; padding-block: 34px 36px; }
+  .hero-company h1 { font-size: clamp(40px, 12.1vw, 48px); margin-bottom: 21px; }
+  .hero-company .eyebrow { margin-bottom: 18px; }
+  .hero-company .lead { font-size: 16px; }
+  .hero-company .actions { margin-top: 22px; }
+  .hero-company .hero-art > img { height: 235px; }
+  .hero-company .hero-art figcaption { margin-top: 12px; font-size: 12px; }
+  .raw-result pre { padding: 12px; font-size: 10px; }
+}

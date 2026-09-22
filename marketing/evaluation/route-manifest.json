@@ -1,7 +1,7 @@
 [
   {
     "route": "/",
-    "title": "Agents that meet the standard of your work",
+    "title": "AI training for professional work",
     "id": "home"
   },
   {
@@ -11,7 +11,7 @@
   },
   {
     "route": "/directions/outcomes/",
-    "title": "Agents that meet the standard of your work",
+    "title": "AI training for professional work",
     "id": "outcomes"
   },
   {
@@ -56,7 +56,7 @@
   },
   {
     "route": "/review/",
-    "title": "Compare the directions",
+    "title": "Original JEV results",
     "id": "review"
   }
 ]

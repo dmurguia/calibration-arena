@@ -30,12 +30,15 @@ export async function build() {
   const sample = JSON.parse(
     await readFile(path.join(root, "src/sample.json"), "utf8"),
   );
+  const originalJevResults = await Promise.all([1, 2].map(async number =>
+    JSON.parse(await readFile(path.join(root, `evaluation/run-${number}-result.json`), 'utf8'))
+  ));
   const routes = [
     [
       "/",
       site.defaultDirection === "craft"
         ? "The art of better agents"
-        : "Agents that meet the standard of your work",
+        : "AI training for professional work",
       site.defaultDirection === "craft"
         ? pages.homeCraft(sample)
         : pages.homeOutcomes(sample),
@@ -49,7 +52,7 @@ export async function build() {
     ],
     [
       "/directions/outcomes/",
-      "Agents that meet the standard of your work",
+      "AI training for professional work",
       pages.homeOutcomes(sample),
       "outcomes",
     ],
@@ -71,19 +74,23 @@ export async function build() {
       "privacy",
     ],
     ["/terms/", "Website terms", pages.legalPage("terms", config), "terms"],
-    ["/review/", "Compare the directions", pages.reviewPage(), "review"],
+    ["/review/", "Original JEV results", pages.reviewPage(originalJevResults), "review"],
   ];
   const out = path.join(root, "dist");
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
   await cp(path.join(root, "public"), out, { recursive: true });
+  await mkdir(path.join(out, 'reports'), { recursive: true });
+  await Promise.all(originalJevResults.map((result,index) => writeFile(
+    path.join(out, 'reports', `jev-run-${index+1}.json`), JSON.stringify(result,null,2)+'\n'
+  )));
   const descriptions = {
     enterprises:
-      "Expert-led evaluations, training material and reinforcement learning environments scoped to your enterprise workflow.",
+      "Training data, evaluations and reinforcement learning environments for your enterprise agents.",
     training:
-      "Inspect a working practice case and see how tasks, criteria and professional judgment become useful feedback for agents.",
+      "Try an accounting example and see how expert criteria become checks on an agent's answers.",
     company:
-      "The art of better. Calibrated Co. brings professional judgment and the habits of craft to agent evaluation and training.",
+      "Calibrated is an AI training and evaluation company, starting with professional work.",
     leaderboard:
       "Calibration Arena model comparisons: publication status, evaluation context and the evidence needed for a useful ranking.",
     data: "Discuss training data and evaluation tasks shaped around professional workflows.",

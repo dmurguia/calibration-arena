@@ -1,6 +1,6 @@
 # Calibrated company website: structure and editorial decisions
 
-Prepared 22 September 2026. The intended company domain is **calibrated.co**, following the founder's final correction. This work does not change DNS or publish a site.
+Original structure proposal, prepared 22 September 2026. **Superseded in part by the [wording review and cleanup](COPY-REVIEW.md): the hero, homepage structure and supporting copy have since been simplified.** The intended company domain is **calibrated.co**, following the founder's final correction. This work does not change DNS or publish a site.
 
 ## Reference analysis
 

@@ -12,7 +12,7 @@ npm run dev
 ```
 
 - Site: [http://127.0.0.1:4317/](http://127.0.0.1:4317/)
-- Review and JEV summary: [http://127.0.0.1:4317/review/](http://127.0.0.1:4317/review/)
+- Original JEV results: [http://127.0.0.1:4317/review/](http://127.0.0.1:4317/review/)
 - Craft: [http://127.0.0.1:4317/directions/craft/](http://127.0.0.1:4317/directions/craft/)
 - Outcomes: [http://127.0.0.1:4317/directions/outcomes/](http://127.0.0.1:4317/directions/outcomes/)
 
@@ -27,7 +27,7 @@ The server binds only to `127.0.0.1`. If the port is occupied, run `PORT=4318 np
 - [Local verification](QA.md)
 - [Approved identity](../brand/calibrated/DESIGN-BRIEF.md)
 
-Outcomes is the default because the enterprise-buyer persona preferred it in both JEV passes. Other persona judgments were not stable. Keep both routes for review; this is not a human conversion experiment.
+The default homepage has been rewritten after founder feedback. It leads with AI training, names the three services and includes the graphite hero artwork. Both variations now use the shorter copy. The original JEV results remain available for audit and do not evaluate the revised site. See [the copy review](research/COPY-REVIEW.md).
 
 ## Files
 

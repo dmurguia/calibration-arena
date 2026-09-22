@@ -1,6 +1,8 @@
-# JEV homepage comparison
+# JEV homepage comparison: original drafts
 
-## Recommendation
+> Historical evaluation. The founder subsequently rejected the original copy as verbose and unclear. Both homepage routes and supporting copy have been revised. The results below apply only to the original evidence packets, not the current site. See [the copy review](../research/COPY-REVIEW.md).
+
+## Original recommendation
 
 Use **Outcomes** as the initial enterprise homepage. Keep **Craft** available for founder review. The recommendation combines the founder's enterprise priority with the one stable persona preference in this evaluation; it is not a claim that one design wins across all audiences.
 
@@ -29,7 +31,7 @@ Both candidates' largest-gap classifications selected the **unconfigured contact
 
 ## Decision made
 
-The default `/` now uses the unchanged Outcomes candidate. `/directions/craft/` and `/directions/outcomes/` retain the evaluated versions. The enterprise, approach, company and inquiry pages are shared. Subsequent visual spacing, mobile navigation and no-JavaScript refinements do not alter the evaluated marketing copy. The internal review page was expanded to display these findings.
+At the time of this run, the default `/` used the unchanged Outcomes candidate. Both direction routes and their shared supporting pages have since been rewritten. The saved input packets preserve the exact copy evaluated. The internal review page displays these historical findings and raw responses.
 
 The immediate practical improvement is a confirmed contact email or booking URL. It was requested from the founder; no address has been guessed. The placeholder prepares a useful brief and states plainly that it has not been submitted.
 

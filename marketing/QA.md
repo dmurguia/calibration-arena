@@ -2,7 +2,15 @@
 
 Verified 22 September 2026 on the separate `codex/calibrated-company-site` worktree. This records local website and integration checks, not a public deployment, recruited-persona study or model-performance benchmark.
 
-## Build and functional checks
+## Copy cleanup verification
+
+The founder-requested second pass shortened the Outcomes homepage from 574 to 181 main-content words (68%). The hero now names AI training and shows the approved graphite artwork. Supporting service pages were also shortened. The interactive case now lives on `/training/#example`.
+
+All 12 routes were rechecked at 320, 390, 768 and 1280 pixels after the rewrite: 48 checks with no document overflow or broken images. Desktop and phone hero layouts were visually reviewed. The five automated test groups pass. Original JEV probabilities and raw response downloads are displayed on `/review/`; those results apply to the old drafts. No new model evaluation was run for this rewrite.
+
+The moved demo was checked in the browser: Draft A passes both checks; Draft B balances but fails the policy check with the early-expense explanation. The run-1 disclosure opens and displays the complete saved response. The temporary browser viewport was reset.
+
+## Original build and functional checks
 
 - Static build renders **12 pages**, plus a dedicated 404, robots file and sitemap. The marketing site needs no application backend or runtime API key.
 - **5 automated test groups pass**: fixture and computed-check agreement, check order independence, contact-protocol validation, project-brief behavior, and full-page/link/fragment/asset validation.
@@ -34,7 +42,7 @@ Interactions checked:
 
 ## JEV verification
 
-Two live Gateway requests completed with ten judgments each. Both candidate orders were assessed against six persona briefs. The raw results and input hashes are saved in `evaluation/`. After source formatting and visual refinements, `scripts/evaluate.mjs --check-inputs` confirmed both evaluated input packets still match the current page copy. See [the report](evaluation/REPORT.md) for the result and its limitations.
+Two live Gateway requests completed with ten judgments each. Both candidate orders were assessed against six persona briefs. The raw results and input hashes are saved in `evaluation/`. The original input-match check passed before the founder's copy cleanup. Those saved inputs no longer match the revised pages, and the original results are labeled historical. See [the report](evaluation/REPORT.md) for the result and its limitations.
 
 ## Release status
 

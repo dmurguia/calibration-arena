@@ -1,0 +1,113 @@
+{
+  "id": "insurance-cutoff",
+  "title": "The books balance. Does the timing?",
+  "topic": "Prepaids \u00b7 period cutoff",
+  "minutes": 3,
+  "brief": "A fictional company pays $14,400 on March 15 for insurance covering April 1 through March 31 next year. Review the March payment and month-end treatment. Policy: recognize insurance expense evenly over the coverage period; no expense before coverage starts. Amounts are material. No other adjustments apply.",
+  "takeaway": "A balanced entry can still belong to the wrong period.",
+  "expected": "At payment: Dr Prepaid insurance $14,400; Cr Cash $14,400. March insurance expense is $0. Begin $1,200 monthly recognition in April, when coverage starts.",
+  "drafts": [
+    {
+      "artifact_id": "insurance-supported-v1",
+      "text": "March 15\nDr Prepaid insurance   $14,400\nCr Cash                $14,400\n\nMarch close\nNo amortization entry. Coverage has not begun.\n\nReview note\nRetain the policy dates with the schedule. Recognize $1,200 each month from April through March next year.",
+      "postings": [
+        [
+          "March 15",
+          "Prepaid insurance",
+          1440000
+        ],
+        [
+          "March 15",
+          "Cash",
+          -1440000
+        ]
+      ],
+      "expected_postings": [
+        [
+          "March 15",
+          "Prepaid insurance",
+          1440000
+        ],
+        [
+          "March 15",
+          "Cash",
+          -1440000
+        ]
+      ],
+      "review_note": "Payment and expense recognition use different dates. This draft follows the stated coverage policy.",
+      "author": "Authored practice draft",
+      "model_id": null,
+      "origin": "authored-fixture",
+      "version": "1",
+      "checks": [
+        {
+          "label": "Debits equal credits",
+          "passed": true
+        },
+        {
+          "label": "Amounts, accounts and dates match the stated case policy",
+          "passed": true
+        }
+      ],
+      "sha256": "65d913fc98bd1739b4ef103215929ce7d3e552ac01d2397edabc931267d16feb"
+    },
+    {
+      "artifact_id": "insurance-early-v1",
+      "text": "March 15\nDr Prepaid insurance   $14,400\nCr Cash                $14,400\n\nMarch close\nDr Insurance expense    $1,200\nCr Prepaid insurance    $1,200\n\nReview note\nThe annual premium is allocated at $1,200 per month beginning in the payment month. Remaining prepaid balance: $13,200.",
+      "postings": [
+        [
+          "March 15",
+          "Prepaid insurance",
+          1440000
+        ],
+        [
+          "March 15",
+          "Cash",
+          -1440000
+        ],
+        [
+          "March 31",
+          "Insurance expense",
+          120000
+        ],
+        [
+          "March 31",
+          "Prepaid insurance",
+          -120000
+        ]
+      ],
+      "expected_postings": [
+        [
+          "March 15",
+          "Prepaid insurance",
+          1440000
+        ],
+        [
+          "March 15",
+          "Cash",
+          -1440000
+        ]
+      ],
+      "review_note": "This planted cutoff error starts expense a month early. Equal debits and credits do not resolve the period error.",
+      "author": "Authored practice draft",
+      "model_id": null,
+      "origin": "authored-fixture",
+      "version": "1",
+      "checks": [
+        {
+          "label": "Debits equal credits",
+          "passed": true
+        },
+        {
+          "label": "Amounts, accounts and dates match the stated case policy",
+          "passed": false
+        }
+      ],
+      "sha256": "516d6ab558cb9309a89bfb07e093a53f878ddb63589895b47056cef8d7c3f724"
+    }
+  ],
+  "version": "pilot-cases-v1",
+  "rubric_version": "stated-policy-v1",
+  "validation": "Authored practice case; independent accountant validation pending",
+  "source": "backend/app/pilot_cases.py"
+}

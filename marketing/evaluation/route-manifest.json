@@ -1,0 +1,62 @@
+[
+  {
+    "route": "/",
+    "title": "Agents that meet the standard of your work",
+    "id": "home"
+  },
+  {
+    "route": "/directions/craft/",
+    "title": "The art of better agents",
+    "id": "craft"
+  },
+  {
+    "route": "/directions/outcomes/",
+    "title": "Agents that meet the standard of your work",
+    "id": "outcomes"
+  },
+  {
+    "route": "/enterprises/",
+    "title": "For enterprises",
+    "id": "enterprises"
+  },
+  {
+    "route": "/training/",
+    "title": "Our approach",
+    "id": "training"
+  },
+  {
+    "route": "/company/",
+    "title": "The company",
+    "id": "company"
+  },
+  {
+    "route": "/leaderboard/",
+    "title": "Leaderboard",
+    "id": "leaderboard"
+  },
+  {
+    "route": "/get-data/",
+    "title": "Get data",
+    "id": "data"
+  },
+  {
+    "route": "/contact/",
+    "title": "Discuss a project",
+    "id": "contact"
+  },
+  {
+    "route": "/privacy/",
+    "title": "Privacy notice",
+    "id": "privacy"
+  },
+  {
+    "route": "/terms/",
+    "title": "Website terms",
+    "id": "terms"
+  },
+  {
+    "route": "/review/",
+    "title": "Compare the directions",
+    "id": "review"
+  }
+]

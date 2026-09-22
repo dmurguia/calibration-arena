@@ -1,0 +1,16 @@
+{
+  "name": "calibrated-company-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local scripts/serve.mjs",
+    "build": "node --env-file-if-exists=.env.local scripts/build.mjs",
+    "preview": "node --env-file-if-exists=.env.local scripts/serve.mjs --production",
+    "test": "node --test scripts/site.test.mjs",
+    "evaluate": "node --env-file-if-exists=.env.local scripts/evaluate.mjs"
+  }
+}

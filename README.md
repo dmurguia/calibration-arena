@@ -1,5 +1,18 @@
 # Calibrated
 
+## Company marketing site
+
+The separate company website lives in [`marketing/`](marketing/README.md). It has two reviewable homepage directions, enterprise and approach pages, a working practice-case excerpt, and a saved JEV persona comparison. It runs independently of the accounting app, without API keys or npm dependencies:
+
+```bash
+cd marketing
+npm run dev
+```
+
+Open [the site](http://127.0.0.1:4317/) or [compare both directions](http://127.0.0.1:4317/review/). The intended company domain is `calibrated.co`; this local preview does not publish or change DNS.
+
+## Accounting workspace
+
 The current product is a prompt-first accounting workspace: choose a work type, compare two anonymous drafts, make your judgment, and keep the result in Notebook.
 
 See [the product decision](docs/pilot/DECISIONS.md), [the cohort and credential runbook](docs/pilot/RUNBOOK.md), and [verification](docs/pilot/QA.md).

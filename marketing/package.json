@@ -11,6 +11,7 @@
     "build": "node --env-file-if-exists=.env.local scripts/build.mjs",
     "preview": "node --env-file-if-exists=.env.local scripts/serve.mjs --production",
     "test": "node --test scripts/site.test.mjs",
-    "evaluate": "node --env-file-if-exists=.env.local scripts/evaluate.mjs"
+    "evaluate": "node --env-file-if-exists=.env.local scripts/evaluate.mjs",
+    "build:deploy": "CONTACT_URL=mailto:david@corsac.ai node scripts/build.mjs --deploy"
   }
 }

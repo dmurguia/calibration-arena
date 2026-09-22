@@ -55,3 +55,13 @@ Two live Gateway requests completed with ten judgments each. Both candidate orde
 Ready for local review and demo. The source and run instructions are in `marketing/`, separate from the Arena's frontend and backend. A real contact destination, final operator/privacy/terms details and an approved public host/domain configuration remain necessary before public launch. The public-facing copy includes no fake customers, invented statistics, unverified certifications or synthetic rankings.
 
 No push, deployment, domain attachment or DNS edit is included in this verification. Canonical metadata targets the founder-confirmed `calibrated.co`. The site remains noindex by default.
+
+
+## Launch preparation, 22 September 2026
+
+The source is the latest company-site branch at `6620675`, with the “Hone your agents” homepage, approved C/wordmark, graphite artwork and local Plex fonts. The September 6 “Worlds for intelligence” concept is excluded from this PR.
+
+- Existing five tests pass. A deployment regression test checks the current headline/brand assets/contact and prevents publishing internal review/evaluation directories.
+- `npm run build:deploy` produces nine HTML pages with the confirmed direct contact address.
+- No browser was opened for this launch pass, per the user's request. Earlier visual QA above refers to the company-site implementation and is not fresh live verification.
+- Root and www DNS are verified; TLS certificate issuance succeeded. Correct-site production release and the www redirect remain pending approval.

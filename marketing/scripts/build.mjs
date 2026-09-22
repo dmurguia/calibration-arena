@@ -6,7 +6,7 @@ import { header, footer, esc } from "../src/components.mjs";
 import * as pages from "../src/pages.mjs";
 
 export const root = fileURLToPath(new URL("..", import.meta.url));
-export async function build() {
+export async function build({ includeReview = true } = {}) {
   const config = {
     siteUrl: validatedDestination(
       process.env.SITE_URL || "https://calibrated.co",
@@ -33,7 +33,7 @@ export async function build() {
   const originalJevResults = await Promise.all([1, 2].map(async number =>
     JSON.parse(await readFile(path.join(root, `evaluation/run-${number}-result.json`), 'utf8'))
   ));
-  const routes = [
+  const allRoutes = [
     [
       "/",
       site.defaultDirection === "craft"
@@ -76,14 +76,17 @@ export async function build() {
     ["/terms/", "Website terms", pages.legalPage("terms", config), "terms"],
     ["/review/", "Original JEV results", pages.reviewPage(originalJevResults), "review"],
   ];
+  const routes = includeReview ? allRoutes : allRoutes.filter(([route]) => !route.startsWith("/directions/") && route !== "/review/");
   const out = path.join(root, "dist");
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
   await cp(path.join(root, "public"), out, { recursive: true });
+  if (includeReview) {
   await mkdir(path.join(out, 'reports'), { recursive: true });
   await Promise.all(originalJevResults.map((result,index) => writeFile(
     path.join(out, 'reports', `jev-run-${index+1}.json`), JSON.stringify(result,null,2)+'\n'
   )));
+  }
   const descriptions = {
     enterprises:
       "Training data, evaluations and reinforcement learning environments for your enterprise agents.",
@@ -127,7 +130,7 @@ export async function build() {
     path.join(out, "sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${publicRoutes.map(([route]) => `<url><loc>${esc(new URL(route, config.siteUrl).href)}</loc></url>`).join("")}</urlset>`,
   );
-  await writeFile(
+  if (includeReview) await writeFile(
     path.join(root, "evaluation/route-manifest.json"),
     JSON.stringify(
       routes.map(([route, title, , id]) => ({ route, title, id })),
@@ -144,4 +147,4 @@ if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 )
-  await build();
+  await build({ includeReview: !process.argv.includes("--deploy") });

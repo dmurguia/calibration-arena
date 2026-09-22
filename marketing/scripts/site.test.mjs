@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, access } from "node:fs/promises";
 import path from "node:path";
 import { build, root } from "./build.mjs";
 import { evaluateDraft, projectBrief } from "../public/demo-core.mjs";
@@ -105,4 +105,27 @@ test("all pages render without JS; internal links, fragments, assets and safety 
   const sharingImage = await readFile(path.join(root, 'dist/assets/share-card.png'));
   assert.equal(sharingImage.readUInt32BE(16), 1200);
   assert.equal(sharingImage.readUInt32BE(20), 630);
+});
+
+
+test("deployment contains the current branded site and excludes internal review artifacts", async () => {
+  const previousContact = process.env.CONTACT_URL;
+  process.env.CONTACT_URL = "mailto:david@corsac.ai";
+  try {
+    const routes = await build({ includeReview: false });
+    assert.equal(routes.length, 9);
+    const home = await readFile(path.join(root, "dist/index.html"), "utf8");
+    assert.match(home, /Hone your agents/);
+    assert.match(home, /assets\/calibrated-wordmark-ink.svg/);
+    assert.match(home, /assets\/open-sketch.webp/);
+    assert.match(await readFile(path.join(root, "dist/contact/index.html"), "utf8"), /mailto:david@corsac.ai/);
+    for (const entry of ["review", "directions", "reports", "research", ".env.local"]) {
+      await assert.rejects(access(path.join(root, "dist", entry)), { code: "ENOENT" });
+    }
+    const sitemap = await readFile(path.join(root, "dist/sitemap.xml"), "utf8");
+    assert.doesNotMatch(sitemap, /\/(review|directions|reports)\//);
+  } finally {
+    if (previousContact === undefined) delete process.env.CONTACT_URL;
+    else process.env.CONTACT_URL = previousContact;
+  }
 });

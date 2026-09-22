@@ -95,3 +95,19 @@ npm run evaluate
 Alternatively install `ai@7.0.107` in this project without saving credentials and set `AI_GATEWAY_API_KEY` only in the evaluator's environment. The site build never reads that key. No key value is printed or saved. Input hashes let unchanged completed runs be reused; changed copy triggers new live requests. Each of the two sequential requests has a bounded timeout and one retry. Failures are recorded without credential-bearing error text.
 
 Do not interpret the resulting probabilities as purchase likelihoods. Review the full [evaluation report](evaluation/REPORT.md), including the substantial order sensitivity outside the enterprise-buyer persona.
+
+
+## Vercel launch configuration
+
+The dedicated Vercel project is `calibrated-site` in `davidmurguia-6787s-projects`. Its project directory is this `marketing/` folder, not the older `calibrated-site/` concept or the Accounting Arena frontend.
+
+- Build: `npm run build:deploy`; output: `dist`.
+- Canonical domain: `https://calibrated.co`; DNS stays at Porkbun.
+- Confirmed contact: `mailto:david@corsac.ai`. The other proposed mailboxes have not been verified.
+- The deployment build publishes nine pages and excludes `/review/`, `/directions/` and `/reports/`. The normal local build keeps those review materials available.
+- Search indexing remains disabled during founder review (`PUBLIC_LAUNCH=0`). The existing public-indexing gate and draft legal notices remain explicit; setting a flag is not legal approval.
+- The brief stays local. Visitors can use the direct email link to contact David; no submission backend or email delivery claim has been added.
+- Automatic Git deployment is not connected. Merging the PR does not itself change production. When enabled later, use repository `dmurguia/calibration-arena`, root directory `marketing`.
+- Both custom domains pass Vercel DNS verification. HTTPS issuance succeeded. Final correct-site production and www redirect checks must be completed after the replacement is approved.
+
+From this folder, use `npx vercel` for a review deployment and `npx vercel --prod` for an approved production release. The existing project can be selected with `npx vercel link --project calibrated-site --scope davidmurguia-6787s-projects`. Local `.vercel/` metadata is ignored.

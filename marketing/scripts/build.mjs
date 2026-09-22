@@ -37,8 +37,8 @@ export async function build() {
     [
       "/",
       site.defaultDirection === "craft"
-        ? "The art of better agents"
-        : "AI training for professional work",
+        ? "Your expertise. Better agents"
+        : "Hone your agents",
       site.defaultDirection === "craft"
         ? pages.homeCraft(sample)
         : pages.homeOutcomes(sample),
@@ -46,13 +46,13 @@ export async function build() {
     ],
     [
       "/directions/craft/",
-      "The art of better agents",
+      "Your expertise. Better agents",
       pages.homeCraft(sample),
       "craft",
     ],
     [
       "/directions/outcomes/",
-      "AI training for professional work",
+      "Hone your agents",
       pages.homeOutcomes(sample),
       "outcomes",
     ],
@@ -88,11 +88,11 @@ export async function build() {
     enterprises:
       "Training data, evaluations and reinforcement learning environments for your enterprise agents.",
     training:
-      "Try an accounting example and see how expert criteria become checks on an agent's answers.",
+      "See how company expertise becomes training tasks, feedback and evaluations for knowledge-work agents.",
     company:
-      "Calibrated is an AI training and evaluation company, starting with professional work.",
+      "Our belief: companies will own their knowledge work through open-weight models shaped by their expertise.",
     leaderboard:
-      "Calibration Arena model comparisons: publication status, evaluation context and the evidence needed for a useful ranking.",
+      "Knowledge-work model comparisons: publication status and evaluation criteria.",
     data: "Discuss training data and evaluation tasks shaped around professional workflows.",
     contact:
       "Prepare a project brief for Calibrated: the workflow, your quality standard and the way your team wants to work.",

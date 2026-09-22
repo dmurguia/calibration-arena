@@ -1,17 +1,17 @@
 [
   {
     "route": "/",
-    "title": "AI training for professional work",
+    "title": "Hone your agents",
     "id": "home"
   },
   {
     "route": "/directions/craft/",
-    "title": "The art of better agents",
+    "title": "Your expertise. Better agents",
     "id": "craft"
   },
   {
     "route": "/directions/outcomes/",
-    "title": "AI training for professional work",
+    "title": "Hone your agents",
     "id": "outcomes"
   },
   {

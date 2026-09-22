@@ -2,6 +2,12 @@
 
 Verified 22 September 2026 on the separate `codex/calibrated-company-site` worktree. This records local website and integration checks, not a public deployment, recruited-persona study or model-performance benchmark.
 
+## Knowledge-work positioning revision
+
+The latest founder-directed pass replaces the public accounting example with an illustrative support workflow, shifts the homepage/company thesis to knowledge work and open-weight models, removes the repeated taglines, and uses an ink C mark with no contrasting background. The link-preview image was regenerated to match. Systems shown are the six named in the founder's screenshot. Stanford, MIT and Verkada are founder-supplied team backgrounds.
+
+Six changed routes were checked at 320, 768 and 1280 pixels: 18 browser layout checks, no overflow, no broken images and no accounting text. The desktop and phone hero were visually inspected, team affiliations verified in the rendered page, and the viewport restored. All generated HTML was searched for the removed labels and accounting references with no matches. The original fixture remains in source/test history but no longer renders publicly. Historical JEV results are unchanged and do not evaluate this revision.
+
 ## Copy cleanup verification
 
 The founder-requested second pass shortened the Outcomes homepage from 574 to 181 main-content words (68%). The hero now names AI training and shows the approved graphite artwork. Supporting service pages were also shortened. The interactive case now lives on `/training/#example`.

@@ -238,7 +238,7 @@ strong {
   flex-shrink: 0;
 }
 .mark {
-  background: var(--ink);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2100,4 +2100,24 @@ form > .caption {
   .hero-company .hero-art > img { height: 235px; }
   .hero-company .hero-art figcaption { margin-top: 12px; font-size: 12px; }
   .raw-result pre { padding: 12px; font-size: 10px; }
+}
+
+/* Company expertise and knowledge-work positioning. */
+.systems-band { border-block: 1px solid var(--line); padding: 34px 0 40px; }
+.systems-band h2 { font-family: Plex, sans-serif; font-size: 16px; letter-spacing: 0; text-align: center; line-height: 1.5; }
+.systems-list { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px 32px; padding: 30px 0 0; margin: 0; list-style: none; }
+.systems-list li { font-size: 23px; white-space: nowrap; }
+.knowledge-thesis .prose p + p { margin-top: 20px; }
+.affiliation-list { display: flex; flex-wrap: wrap; gap: 28px 9%; list-style: none; margin: 0; padding: 20px 0; }
+.affiliation-list li { font-family: Plex, sans-serif; font-size: clamp(30px, 4vw, 52px); }
+.workflow-study { list-style: none; margin: 0; padding: 0; }
+.workflow-study li { display: grid; grid-template-columns: 160px 1fr 1.3fr; gap: 28px; padding: 30px 0; border-top: 1px solid var(--line); }
+.workflow-study h3 { font-size: 24px; line-height: 1.3; }
+.workflow-study p { line-height: 1.65; }
+@media (max-width: 700px) {
+  .systems-list { justify-content: center; gap: 22px 32px; }
+  .systems-list li { font-size: 20px; }
+  .systems-band h2 { max-width: 280px; margin: auto; }
+  .workflow-study li { grid-template-columns: 1fr; gap: 12px; }
+  .affiliation-list { gap: 24px; justify-content: space-between; }
 }

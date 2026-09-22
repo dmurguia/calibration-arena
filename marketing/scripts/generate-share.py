@@ -25,11 +25,11 @@ def asset(name,x,y,width,height):
 svg='<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#F4F1E9"/>'
 svg+=asset('calibrated-wordmark-ink.svg',64,60,295,42)
 svg+='<path d="M64 145H1136M64 548H1136" stroke="#CCC9C0"/>'
-svg+=text('The art of',64,277,80)+text('better agents.',64,365,80)
+svg+=text('Hone your',64,277,80)+text('agents.',64,365,80)
 svg+=text('Evaluations. Training data. RL environments.',67,449,24)
-svg+='<rect x="862" y="220" width="224" height="224" fill="#464643"/>'
-svg+=asset('calibrated-mark-paper.svg',894,252,160,160)
-svg+=text('calibrated.co',64,587,19)+text('Expert judgment. Practiced intelligence.',790,587,16)
+
+svg+=asset('calibrated-mark-ink.svg',894,252,160,160)
+svg+=text('calibrated.co',64,587,19)+text('Your expertise. Your models.',790,587,16)
 svg+='</svg>'
 (root/'public/assets/share-card.svg').write_text(svg)
 print('Created outlined share-card.svg')

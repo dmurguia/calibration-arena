@@ -27,7 +27,7 @@ The server binds only to `127.0.0.1`. If the port is occupied, run `PORT=4318 np
 - [Local verification](QA.md)
 - [Approved identity](../brand/calibrated/DESIGN-BRIEF.md)
 
-The default homepage has been rewritten after founder feedback. It leads with AI training, names the three services and includes the graphite hero artwork. Both variations now use the shorter copy. The original JEV results remain available for audit and do not evaluate the revised site. See [the copy review](research/COPY-REVIEW.md).
+The default homepage has been rewritten after founder feedback. It opens with “Hone your agents,” names the three services, presents the company-expertise/open-weight-model thesis and includes the graphite hero artwork. Both variations share the same supporting structure. The original JEV results remain available for audit and do not evaluate the revised site. See [the copy review](research/COPY-REVIEW.md).
 
 ## Files
 
@@ -41,13 +41,13 @@ marketing/
   dist/                Generated static site (ignored)
 ```
 
-Edit copy in `src/pages.mjs` and shared sections in `src/components.mjs`. Change `defaultDirection` in `src/config.mjs` to `craft` or `outcomes`. CSS lives in `public/styles.css`. The build renders complete HTML for every route, so search crawlers and visitors do not need JavaScript to read the pages. JavaScript enhances navigation, the practice case and the brief form.
+Edit copy in `src/pages.mjs` and shared sections in `src/components.mjs`. Change `defaultDirection` in `src/config.mjs` to `craft` or `outcomes`. CSS lives in `public/styles.css`. The build renders complete HTML for every route, so search crawlers and visitors do not need JavaScript to read the pages. JavaScript enhances navigation and the brief form.
 
 ## What works now
 
-Twelve pages, responsive navigation, desktop and phone layouts, direct routes, keyboard controls, native FAQ disclosure, and a functional sample with deterministic posting checks. The brief form can prepare, copy and download text without saving or sending it. The data entry point is an intentional placeholder for the future offering. The leaderboard states that no validated public rankings are connected.
+Twelve pages, responsive navigation, desktop and phone layouts, direct routes, keyboard controls, native FAQ disclosure, and an illustrative knowledge-work workflow. The brief form can prepare, copy and download text without saving or sending it. The data entry point is an intentional placeholder for the future offering. The leaderboard states that no validated public rankings are connected.
 
-The interactive example is sourced from `backend/app/pilot_cases.py`. It is an authored fixture, not a real model run. Its independent expert validation is pending. The browser reimplements its two checks and the tests compare their results against the source snapshot. No QA event is written to the Arena's database.
+The knowledge-work example is an illustrative support workflow, not a live model run or measured result. Historical fixture code remains in the repository but is no longer rendered by the marketing site. Team backgrounds (Stanford, MIT and Verkada) and systems expertise were supplied by the founder; they do not represent vendor or institutional endorsements.
 
 Local webfonts, OFL notices, SVG identity assets and existing generated brand studies are bundled. The share image is a 1200 × 630 PNG with an outlined SVG source. `scripts/generate-share.py` regenerates the SVG with `fonttools`; use a standard SVG renderer such as Sharp for the PNG. These tools are not required to build the site.
 

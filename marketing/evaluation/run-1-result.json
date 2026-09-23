@@ -1,0 +1,105 @@
+{
+  "status": "complete",
+  "evaluatedAt": "2026-09-22T07:43:50.877Z",
+  "rubricVersion": "2026-09-22-v1",
+  "model": "typesafe-ai/jev",
+  "sdkVersion": "7.0.107",
+  "inputHash": "f25a87109279a5e5799f5043a9a883d5f8743a4ed6146b54b8168e45b1cbf98c",
+  "candidateMapping": {
+    "candidate_1": "craft",
+    "candidate_2": "outcomes"
+  },
+  "answers": {
+    "enterprise_buyer_preference": {
+      "type": "choice",
+      "choice": "candidate_2",
+      "probabilities": {
+        "candidate_1": 0.07,
+        "no_clear_difference": 0.24,
+        "candidate_2": 0.69
+      }
+    },
+    "technical_lead_preference": {
+      "type": "choice",
+      "choice": "no_clear_difference",
+      "probabilities": {
+        "candidate_1": 0.21,
+        "no_clear_difference": 0.41,
+        "candidate_2": 0.38
+      }
+    },
+    "procurement_sponsor_preference": {
+      "type": "choice",
+      "choice": "candidate_2",
+      "probabilities": {
+        "candidate_1": 0.06,
+        "no_clear_difference": 0.45,
+        "candidate_2": 0.49
+      }
+    },
+    "investor_preference": {
+      "type": "choice",
+      "choice": "candidate_1",
+      "probabilities": {
+        "candidate_1": 0.35,
+        "no_clear_difference": 0.32,
+        "candidate_2": 0.33
+      }
+    },
+    "prospective_employee_preference": {
+      "type": "choice",
+      "choice": "candidate_1",
+      "probabilities": {
+        "candidate_1": 0.52,
+        "no_clear_difference": 0.36,
+        "candidate_2": 0.12
+      }
+    },
+    "domain_expert_preference": {
+      "type": "choice",
+      "choice": "candidate_1",
+      "probabilities": {
+        "candidate_1": 0.42,
+        "no_clear_difference": 0.41,
+        "candidate_2": 0.17
+      }
+    },
+    "candidate_1_largest_gap": {
+      "type": "choice",
+      "choice": "contact_path",
+      "probabilities": {
+        "differentiation": 0,
+        "contact_path": 0.76,
+        "offer_clarity": 0.01,
+        "proof": 0.23,
+        "none": 0,
+        "technical_substance": 0
+      }
+    },
+    "candidate_1_scope_clarity": {
+      "type": "boolean",
+      "probability": 0.89
+    },
+    "candidate_2_largest_gap": {
+      "type": "choice",
+      "choice": "contact_path",
+      "probabilities": {
+        "differentiation": 0,
+        "contact_path": 0.84,
+        "offer_clarity": 0.01,
+        "none": 0,
+        "proof": 0.15,
+        "technical_substance": 0
+      }
+    },
+    "candidate_2_scope_clarity": {
+      "type": "boolean",
+      "probability": 0.88
+    }
+  },
+  "usage": {
+    "inputTokens": 8322,
+    "outputTokens": 482,
+    "totalTokens": 8804
+  }
+}

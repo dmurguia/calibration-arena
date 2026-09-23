@@ -1,0 +1,50 @@
+[
+  {
+    "page": "directions/outcomes",
+    "before": 574,
+    "after": 181,
+    "reduction_percent": 68
+  },
+  {
+    "page": "directions/craft",
+    "before": 615,
+    "after": 181,
+    "reduction_percent": 71
+  },
+  {
+    "page": "enterprises",
+    "before": 577,
+    "after": 275,
+    "reduction_percent": 52
+  },
+  {
+    "page": "training",
+    "before": 444,
+    "after": 281,
+    "reduction_percent": 37
+  },
+  {
+    "page": "company",
+    "before": 301,
+    "after": 121,
+    "reduction_percent": 60
+  },
+  {
+    "page": "leaderboard",
+    "before": 130,
+    "after": 35,
+    "reduction_percent": 73
+  },
+  {
+    "page": "get-data",
+    "before": 136,
+    "after": 44,
+    "reduction_percent": 68
+  },
+  {
+    "page": "contact",
+    "before": 151,
+    "after": 134,
+    "reduction_percent": 11
+  }
+]

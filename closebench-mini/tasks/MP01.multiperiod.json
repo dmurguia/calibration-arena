@@ -1,0 +1,51 @@
+{
+ "id": "MP01",
+ "area": "06 Close orchestration (multi-period stretch)",
+ "instruction_stage1": "Close US March for the items assigned to you: depreciation and prepaid software amortization per the schedules, and accrue March legal fees from Parker & Rowe based on their estimate. Follow approval policy and send me a memo.",
+ "instruction_stage2": "April is now open. Close US April: book depreciation and prepaid software amortization, and enter the Parker & Rowe invoice that just arrived so April carries only April's legal cost given what we booked in March. Follow approval policy and send me a memo.",
+ "world_seed": 20260923,
+ "starting_state_ref": "worlds/MP01/stage1_start.json",
+ "stage1_expected": [
+  [
+   "US",
+   "6800",
+   3425,
+   0
+  ],
+  [
+   "US",
+   "1510",
+   0,
+   3425
+  ],
+  [
+   "US",
+   "6200",
+   1250,
+   0
+  ],
+  [
+   "US",
+   "1210",
+   0,
+   1250
+  ],
+  [
+   "US",
+   "6500",
+   14250,
+   0
+  ],
+  [
+   "US",
+   "2100",
+   0,
+   14250
+  ]
+ ],
+ "stage2_april_docs": "Parker & Rowe invoice PR-4410 (Mar 14,250 + Apr 3,100 = 17,350); April schedules",
+ "trap": {
+  "present": false,
+  "description": null
+ }
+}

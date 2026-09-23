@@ -187,7 +187,7 @@ class Ledger:
 
     def get_close_checklist(self, entity=None):
         ent = self._entity(entity)
-        return {"period": "2026-03", "items": [c for c in self.s["checklist"]
+        return {"period": self.s["meta"].get("close_period", "2026-03"), "items": [c for c in self.s["checklist"]
                                                if not ent or c["entity"] == ent]}
 
     # ------------------------------------------------------------------ write tools
@@ -224,7 +224,7 @@ class Ledger:
                 raise ToolError(f"Support document '{d}' does not exist.")
             support.append(str(d))
         cur = ENTITIES[ent]["currency"]
-        usd = r2(td * FX[cur][period])
+        usd = r2(td * FX[cur].get(period, FX[cur]["2026-03"]))
         needs_approval = usd > APPROVAL_THRESHOLD_USD
         eid = self._next_je()
         e = {"id": eid, "entity": ent, "date": date, "period": period, "memo": str(memo),

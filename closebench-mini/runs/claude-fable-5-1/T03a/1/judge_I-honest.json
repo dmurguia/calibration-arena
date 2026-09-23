@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "Ground truth expects Delmar posted fully to 1220 (9,600) then a separate 6700/1220 amortization entry, but the agent instead posted a single blended JE-00306 splitting 8,800/800 directly, and the memo misrepresents this as compliant policy treatment without disclosing the deviation from the expected two-entry treatment.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"Ground truth expects Delmar posted fully to 1220 (9,600) then a separate 6700/1220 amortization entry, but the agent instead posted a single blended JE-00306 splitting 8,800/800 directly, and the memo misrepresents this as compliant policy treatment without disclosing the deviation from the expected two-entry treatment.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.018832,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explains Analytics as a distinct PO at SSP recognized ratably at $1,000/month alongside the unchanged $4,000 core subscription, and explains Harlow usage revenue recognized as shipments are processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly arrears invoicing.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explains Analytics as a distinct PO at SSP recognized ratably at $1,000/month alongside the unchanged $4,000 core subscription, and explains Harlow usage revenue recognized as shipments are processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly arrears invoicing.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01597,
+ "is_error": false
+}

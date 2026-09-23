@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly states M1 was recognized due to signed written acceptance on 2026-03-14 and M2 was not recognized because acceptance-based milestone method requires written acceptance, not internal % complete.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly states M1 was recognized due to signed written acceptance on 2026-03-14 and M2 was not recognized because acceptance-based milestone method requires written acceptance, not internal % complete.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016188,
+ "is_error": false
+}

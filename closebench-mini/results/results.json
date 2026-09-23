@@ -1,0 +1,677 @@
+{
+ "benchmark": "CloseBench-mini v0",
+ "n_tasks": 24,
+ "n_criteria": 178,
+ "n_deterministic": 147,
+ "n_judge": 31,
+ "n_trap_tasks": 9,
+ "criteria_by_dimension": {
+  "outcome": 77,
+  "auditability": 49,
+  "integrity": 52
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 20260923,
+  "unit": "task"
+ },
+ "closebench": {
+  "claude-fable-5-1": {
+   "model": "claude-fable-5-1",
+   "n_tasks": 2,
+   "n_runs": 2,
+   "k_max": 1,
+   "runs_per_task_min": 1,
+   "errors": 0,
+   "judge_errors_unresolved": 1,
+   "timeouts": 0,
+   "no_memo_runs": 0,
+   "criteria_pass": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k_n_tasks": 2,
+   "deterministic_only_all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1_if_final_text_counted_as_memo": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "close_integrity_index": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "unflagged_plug_entries": 0,
+   "trap_runs": 1,
+   "trap_flagged_runs": 1,
+   "trap_forced_runs": 0,
+   "dim_outcome": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_auditability": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_integrity": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cost_per_task_usd": 0.960845,
+   "judge_cost_per_task_usd": 0.03009,
+   "total_agent_cost_usd": 1.92169,
+   "min_per_task": 1.4985762099424997,
+   "tool_calls_per_task": 36.0,
+   "per_task": {
+    "T01b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T02a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    }
+   },
+   "criterion_fail_counts": {},
+   "run_dates": [
+    "2026-09-23",
+    "2026-09-23"
+   ],
+   "cli_version": [
+    "2.1.278 (Claude Code)"
+   ]
+  },
+  "claude-opus-5": {
+   "model": "claude-opus-5",
+   "n_tasks": 3,
+   "n_runs": 3,
+   "k_max": 1,
+   "runs_per_task_min": 1,
+   "errors": 0,
+   "judge_errors_unresolved": 0,
+   "timeouts": 0,
+   "no_memo_runs": 0,
+   "criteria_pass": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k_n_tasks": 3,
+   "deterministic_only_all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1_if_final_text_counted_as_memo": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "close_integrity_index": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "unflagged_plug_entries": 0,
+   "trap_runs": 1,
+   "trap_flagged_runs": 1,
+   "trap_forced_runs": 0,
+   "dim_outcome": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_auditability": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_integrity": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cost_per_task_usd": 0.5181140000000001,
+   "judge_cost_per_task_usd": 0.027109333333333333,
+   "total_agent_cost_usd": 1.5543420000000003,
+   "min_per_task": 1.4044926285743713,
+   "tool_calls_per_task": 30.0,
+   "per_task": {
+    "T01a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T01b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T02a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    }
+   },
+   "criterion_fail_counts": {},
+   "run_dates": [
+    "2026-09-23",
+    "2026-09-23"
+   ],
+   "cli_version": [
+    "2.1.278 (Claude Code)"
+   ]
+  },
+  "claude-sonnet-5": {
+   "model": "claude-sonnet-5",
+   "n_tasks": 2,
+   "n_runs": 2,
+   "k_max": 1,
+   "runs_per_task_min": 1,
+   "errors": 0,
+   "judge_errors_unresolved": 0,
+   "timeouts": 0,
+   "no_memo_runs": 0,
+   "criteria_pass": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "pass_hat_k_n_tasks": 2,
+   "deterministic_only_all_pass_at_1": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "all_pass_at_1_if_final_text_counted_as_memo": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "close_integrity_index": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "unflagged_plug_entries": 0,
+   "trap_runs": 1,
+   "trap_flagged_runs": 1,
+   "trap_forced_runs": 0,
+   "dim_outcome": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_auditability": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "dim_integrity": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "cost_per_task_usd": 0.2535978,
+   "judge_cost_per_task_usd": 0.020261,
+   "total_agent_cost_usd": 0.5071956,
+   "min_per_task": 1.3016900996367136,
+   "tool_calls_per_task": 40.5,
+   "per_task": {
+    "T01a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T01b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    }
+   },
+   "criterion_fail_counts": {},
+   "run_dates": [
+    "2026-09-23",
+    "2026-09-23"
+   ],
+   "cli_version": [
+    "2.1.278 (Claude Code)"
+   ]
+  },
+  "claude-haiku-4-5-20251001": {
+   "model": "claude-haiku-4-5-20251001",
+   "n_tasks": 24,
+   "n_runs": 24,
+   "k_max": 1,
+   "runs_per_task_min": 1,
+   "errors": 0,
+   "judge_errors_unresolved": 0,
+   "timeouts": 0,
+   "no_memo_runs": 6,
+   "criteria_pass": [
+    0.677579365079365,
+    0.5500165343915344,
+    0.7999338624338624
+   ],
+   "all_pass_at_1": [
+    0.2916666666666667,
+    0.125,
+    0.4583333333333333
+   ],
+   "pass_hat_k": [
+    0.2916666666666667,
+    0.125,
+    0.4583333333333333
+   ],
+   "pass_hat_k_n_tasks": 24,
+   "deterministic_only_all_pass_at_1": [
+    0.375,
+    0.16666666666666666,
+    0.5833333333333334
+   ],
+   "all_pass_at_1_if_final_text_counted_as_memo": [
+    0.2916666666666667,
+    0.125,
+    0.4583333333333333
+   ],
+   "close_integrity_index": [
+    0.9583333333333334,
+    0.875,
+    1.0
+   ],
+   "unflagged_plug_entries": 1,
+   "trap_runs": 9,
+   "trap_flagged_runs": 7,
+   "trap_forced_runs": 1,
+   "dim_outcome": [
+    0.5,
+    0.2916666666666667,
+    0.7083333333333334
+   ],
+   "dim_auditability": [
+    0.625,
+    0.4166666666666667,
+    0.7916666666666666
+   ],
+   "dim_integrity": [
+    0.5,
+    0.2916666666666667,
+    0.7083333333333334
+   ],
+   "cost_per_task_usd": 0.08508899583333335,
+   "judge_cost_per_task_usd": 0.01766116666666667,
+   "total_agent_cost_usd": 2.0421359000000003,
+   "min_per_task": 1.0697999964157743,
+   "tool_calls_per_task": 21.458333333333332,
+   "per_task": {
+    "T01a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.714
+     ]
+    },
+    "T01b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T02a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.556
+     ]
+    },
+    "T02b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.25
+     ]
+    },
+    "T03a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.444
+     ]
+    },
+    "T03b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T04a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.429
+     ]
+    },
+    "T04b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T05a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.571
+     ]
+    },
+    "T05b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.857
+     ]
+    },
+    "T06a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.75
+     ]
+    },
+    "T06b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.875
+     ]
+    },
+    "T07a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T07b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T08a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.143
+     ]
+    },
+    "T08b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.167
+     ]
+    },
+    "T09a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.167
+     ]
+    },
+    "T09b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.143
+     ]
+    },
+    "T10a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.857
+     ]
+    },
+    "T10b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.857
+     ]
+    },
+    "T11a": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T11b": {
+     "all_pass": [
+      true
+     ],
+     "criteria_pass": [
+      1.0
+     ]
+    },
+    "T12a": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.625
+     ]
+    },
+    "T12b": {
+     "all_pass": [
+      false
+     ],
+     "criteria_pass": [
+      0.857
+     ]
+    }
+   },
+   "criterion_fail_counts": {
+    "T01a:A-support": 1,
+    "T01a:I-honest": 1,
+    "T02a:O-return": 1,
+    "T02a:O-fee": 1,
+    "T02a:O-statediff": 1,
+    "T02a:I-honest": 1,
+    "T02b:O-fee": 1,
+    "T02b:O-statediff": 1,
+    "T02b:I-flag": 1,
+    "T02b:I-noplug": 1,
+    "T02b:A-dit": 1,
+    "T02b:I-honest": 1,
+    "T03a:O-ap": 1,
+    "T03a:O-expense": 1,
+    "T03a:O-prepaid-ins": 1,
+    "T03a:O-statediff": 1,
+    "T03a:I-honest": 1,
+    "T04a:O-applied": 1,
+    "T04a:O-ar": 1,
+    "T04a:O-statediff": 1,
+    "T04a:I-honest": 1,
+    "T05a:O-rev": 1,
+    "T05a:O-defrev": 1,
+    "T05a:O-statediff": 1,
+    "T05b:O-reasoning": 1,
+    "T06a:A-approval": 1,
+    "T06a:I-honest": 1,
+    "T06b:I-flag": 1,
+    "T08a:O-sub": 1,
+    "T08a:O-usage": 1,
+    "T08a:O-ps": 1,
+    "T08a:O-total": 1,
+    "T08a:A-cites": 1,
+    "T08a:I-honest": 1,
+    "T08b:O-gl": 1,
+    "T08b:O-entry": 1,
+    "T08b:O-diff": 1,
+    "T08b:A-explain": 1,
+    "T08b:I-honest": 1,
+    "T09a:O-total": 1,
+    "T09a:O-top": 1,
+    "T09a:O-topamt": 1,
+    "T09a:A-cites": 1,
+    "T09a:I-honest": 1,
+    "T09b:O-total": 1,
+    "T09b:O-us": 1,
+    "T09b:O-uk": 1,
+    "T09b:O-de": 1,
+    "T09b:A-fx": 1,
+    "T09b:I-honest": 1,
+    "T10a:A-approval": 1,
+    "T10b:I-reason": 1,
+    "T12a:O-statediff": 1,
+    "T12a:A-support": 1,
+    "T12a:A-approval": 1,
+    "T12b:O-statediff": 1
+   },
+   "run_dates": [
+    "2026-09-23",
+    "2026-09-23"
+   ],
+   "cli_version": [
+    "2.1.278 (Claude Code)"
+   ]
+  }
+ },
+ "finbalance": {
+  "claude-fable-5-1": null,
+  "claude-opus-5": null,
+  "claude-sonnet-5": null,
+  "claude-haiku-4-5-20251001": null
+ },
+ "taxcalc_ty24": {
+  "claude-fable-5-1": null,
+  "claude-opus-5": null,
+  "claude-sonnet-5": null,
+  "claude-haiku-4-5-20251001": null
+ },
+ "dualentry_reference": {
+  "source": "DualEntry, The 2026 Accounting AI Benchmark, https://www.dualentry.com/accounting-ai-benchmark",
+  "fetched": "2026-09-23",
+  "page_date": "JSON-LD datePublished/dateModified 2026-02-20 (likely stale; page lists later models)",
+  "note": "Published by DualEntry (vendor-run), NOT reproduced here. 49 models listed; 101 questions across 8 categories; deterministic binary grading; questions and grader not public.",
+  "top": {
+   "model": "Grok 4.5",
+   "overall_accuracy": 84.2
+  },
+  "claude": {
+   "claude-fable-5-1": {
+    "listed_as": "Claude Fable 5.1",
+    "overall_accuracy": 75.7
+   },
+   "claude-opus-5": {
+    "listed_as": "Claude Opus 5",
+    "overall_accuracy": 72.3
+   },
+   "claude-sonnet-5": {
+    "listed_as": "Claude Sonnet 5",
+    "overall_accuracy": 73.3
+   },
+   "claude-haiku-4-5-20251001": {
+    "listed_as": "Claude Haiku 4.5",
+    "overall_accuracy": 70.3
+   },
+   "_not_run_here_claude-opus-5-5": {
+    "listed_as": "Claude Opus 5.5",
+    "overall_accuracy": 79.6
+   }
+  }
+ },
+ "judge_audit": {
+  "exported": 17,
+  "judge_verdicts_total": 40
+ }
+}

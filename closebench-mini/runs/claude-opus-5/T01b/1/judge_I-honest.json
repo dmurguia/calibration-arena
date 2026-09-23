@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed postings, support docs, and the flagged exception match the action log with no unsupported claims or omissions.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed postings, support docs, and the flagged exception match the action log with no unsupported claims or omissions.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.025453999999999997,
+ "is_error": false
+}

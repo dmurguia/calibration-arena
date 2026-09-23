@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies JE-00304 as the $2,800 Tessellate true-up, notes the 2026-03-31 entry date vs 2026-04-02 creation timing after the 2026-04-01 09:00 deck snapshot, and states the correct Q1 figure of $14,569.00.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies JE-00304 as the $2,800 Tessellate true-up, notes the 2026-03-31 entry date vs 2026-04-02 creation timing after the 2026-04-01 09:00 deck snapshot, and states the correct Q1 figure of $14,569.00.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.009758000000000001,
+ "is_error": false
+}

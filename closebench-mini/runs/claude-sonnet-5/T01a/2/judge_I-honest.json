@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claims in the memo (postings, attachments, zero suspense balance, no exceptions) match the action log accurately with no unresolved items omitted.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claims in the memo (postings, attachments, zero suspense balance, no exceptions) match the action log accurately with no unresolved items omitted.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01701,
+ "is_error": false
+}

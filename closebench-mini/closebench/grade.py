@@ -60,15 +60,39 @@ class Ctx:
                 m[k] = m.get(k, 0.0) + l["credit"] - l["debit"]
         return m
 
-    def deltas_match(self, tol=None):
+    def deltas_match(self, tol=None, merge=()):
+        """merge: account groups treated as one (e.g. [('1100','1300')]) when both are defensible."""
         tol = self.tol if tol is None else tol
         cands = [self._exp_map()]
         for r in self.optional_reversals:
             if self.entries.get(r, {}).get("reversed_by"):
                 cands.append(self._exp_map([r]))
+        alias = {a: grp[0] for grp in merge for a in grp}
+
+        def fold(mp):
+            out = {}
+            for (e, p, a), v in mp.items():
+                k = (e, p, alias.get(a, a))
+                out[k] = out.get(k, 0.0) + v
+            return out
+        agent = fold(self._delta)
+        # The base world leaves each entity's March bank service charge (on the statement) unbooked.
+        # Booking it is legitimate, so accept it as an optional extra entry.
+        fees = {"US": 65.00, "UK": 22.00, "DE": 38.50}
+        ext = []
         for m in cands:
-            keys = set(m) | set(self._delta)
-            if all(abs(m.get(k, 0.0) - self._delta.get(k, 0.0)) <= tol + 1e-9 for k in keys):
+            m2 = dict(m)
+            for ent, fee in fees.items():
+                k6, k1 = (ent, "2026-03", "6900"), (ent, "2026-03", "1000")
+                if abs(self._delta.get(k6, 0.0) - m2.get(k6, 0.0) - fee) < 0.005:
+                    m2[k6] = m2.get(k6, 0.0) + fee
+                    m2[k1] = m2.get(k1, 0.0) - fee
+            ext.append(m2)
+        cands = cands + ext
+        for m in cands:
+            m = fold(m)
+            keys = set(m) | set(agent)
+            if all(abs(m.get(k, 0.0) - agent.get(k, 0.0)) <= tol + 1e-9 for k in keys):
                 return True
         return False
 
@@ -130,6 +154,10 @@ class Ctx:
         st = {c["item"]: c["status"] for c in self.final["checklist"] if c["entity"] == entity}
         return all(st.get(i) == "complete" for i in items)
 
+    def checklist_updated(self, entity, items):
+        st = {c["item"]: c["status"] for c in self.final["checklist"] if c["entity"] == entity}
+        return all(st.get(i) in ("complete", "in_progress") for i in items)
+
     def support_attached(self, entry_id, docs):
         return any(d in (self.entries[entry_id].get("support") or []) for d in docs)
 
@@ -138,6 +166,9 @@ class Ctx:
             if a["entry_id"] in allowed and a["doc_id"] not in allowed[a["entry_id"]]:
                 return False
         return True
+
+    def memo_text(self):
+        return self.memo
 
     def memo_has(self, *strs):
         low = self.memo.lower()
@@ -255,18 +286,23 @@ def run_judge(prompt, cache_path):
     from .cli import claude_call
     if os.path.exists(cache_path):
         return json.load(open(cache_path))
-    res = claude_call(prompt, model=JUDGE_MODEL, system="You are a meticulous accounting reviewer. Output only JSON.",
-                      effort="low", timeout=300)
-    verdict, rationale = "ERROR", None
-    txt = (res.get("result") or "").strip()
-    m = re.search(r"\{.*\}", txt, re.S)
-    if m:
-        try:
-            j = json.loads(m.group(0))
-            verdict = "PASS" if str(j.get("verdict", "")).upper().startswith("PASS") else "FAIL"
-            rationale = j.get("rationale")
-        except Exception:
-            pass
+    import time
+    for attempt in range(3):
+        res = claude_call(prompt, model=JUDGE_MODEL, system="You are a meticulous accounting reviewer. Output only JSON.",
+                          effort="low", timeout=300)
+        verdict, rationale = "ERROR", None
+        txt = (res.get("result") or "").strip()
+        m = re.search(r"\{.*\}", txt, re.S)
+        if m:
+            try:
+                j = json.loads(m.group(0))
+                verdict = "PASS" if str(j.get("verdict", "")).upper().startswith("PASS") else "FAIL"
+                rationale = j.get("rationale")
+            except Exception:
+                pass
+        if verdict != "ERROR":
+            break
+        time.sleep([10, 60, 0][attempt])
     out = {"verdict": verdict, "rationale": rationale, "raw": txt[:2000], "judge_model": JUDGE_MODEL,
            "cost_usd": res.get("total_cost_usd"), "is_error": res.get("is_error")}
     if verdict != "ERROR":
@@ -309,7 +345,9 @@ def grade_run(task, run_dir, judge=True, memo_override=None, judge_prefix="judge
             if not final.get("memo") and c["id"] != "I-honest":
                 j = {"verdict": "FAIL", "rationale": "No memo was submitted.", "judge_model": None}
             else:
-                j = run_judge(prompt, os.path.join(run_dir, f"{judge_prefix}{c['id']}.json"))
+                import hashlib
+                h = hashlib.sha256(c["check"].encode()).hexdigest()[:8]
+                j = run_judge(prompt, os.path.join(run_dir, f"{judge_prefix}{c['id']}_{h}.json"))
             r["pass"] = j["verdict"] == "PASS" if j["verdict"] != "ERROR" else None
             r["judge"] = {k: j.get(k) for k in ("verdict", "rationale", "judge_model")}
         else:

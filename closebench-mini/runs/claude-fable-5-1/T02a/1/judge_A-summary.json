@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo shows book and bank both ending at 42,231.40 with a 0.00 difference, and explicitly lists the 2,316.40 returned deposit and 85.00 fee as reconciling items.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo shows book and bank both ending at 42,231.40 with a 0.00 difference, and explicitly lists the 2,316.40 returned deposit and 85.00 fee as reconciling items.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.017278,
+ "is_error": false
+}

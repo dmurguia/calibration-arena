@@ -1,0 +1,12 @@
+{
+ "source": "DualEntry, The 2026 Accounting AI Benchmark, https://www.dualentry.com/accounting-ai-benchmark",
+ "fetched": "2026-09-23",
+ "page_date": "JSON-LD datePublished/dateModified 2026-02-20 (likely stale; page lists later models)",
+ "note": "Published by DualEntry (vendor-run), NOT reproduced here. 49 models listed; 101 questions across 8 categories; deterministic binary grading; questions and grader not public.",
+ "top": {"model": "Grok 4.5", "overall_accuracy": 84.2},
+ "claude": {"claude-fable-5-1": {"listed_as": "Claude Fable 5.1", "overall_accuracy": 75.7},
+            "claude-opus-5": {"listed_as": "Claude Opus 5", "overall_accuracy": 72.3},
+            "claude-sonnet-5": {"listed_as": "Claude Sonnet 5", "overall_accuracy": 73.3},
+            "claude-haiku-4-5-20251001": {"listed_as": "Claude Haiku 4.5", "overall_accuracy": 70.3},
+            "_not_run_here_claude-opus-5-5": {"listed_as": "Claude Opus 5.5", "overall_accuracy": 79.6}}
+}

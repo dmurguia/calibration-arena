@@ -1,0 +1,11 @@
+{
+ "note": "No API keys were used. All models were invoked via the Claude Code CLI (`claude -p`) on the author's subscription, per the author's instruction; only Claude models were run. The CLI exposes no models-list endpoint, so availability was established by probing each candidate ID with a one-line prompt on 2026-09-23 (see models_available.json).",
+ "cli": "Claude Code 2.1.278",
+ "models": [
+  {"id": "claude-fable-5-1", "provider": "Anthropic (via Claude Code CLI)", "role": "contestant", "thinking": "CLI default effort (no --effort flag); temperature not settable via CLI (provider default)"},
+  {"id": "claude-opus-5", "provider": "Anthropic (via Claude Code CLI)", "role": "contestant", "thinking": "CLI default effort (no --effort flag); temperature not settable via CLI (provider default)"},
+  {"id": "claude-sonnet-5", "provider": "Anthropic (via Claude Code CLI)", "role": "contestant and fixed judge", "thinking": "contestant: CLI default effort; judge: --effort low"},
+  {"id": "claude-haiku-4-5-20251001", "provider": "Anthropic (via Claude Code CLI)", "role": "contestant (low-cost reference; also used for harness smoke test)", "thinking": "CLI default effort"}
+ ],
+ "pricing": "Cost figures are the CLI's reported total_cost_usd per call (list-price-equivalent USD computed by Claude Code). Actual billing was the author's subscription; these are notional API-equivalent dollars."
+}

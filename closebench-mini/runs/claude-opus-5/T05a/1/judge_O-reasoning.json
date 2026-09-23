@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo clearly explains M1 revenue is recognized due to written acceptance on 2026-03-14 and M2 is excluded because milestones are earned only on written acceptance (point-in-time), so the 80% progress does not constitute revenue.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo clearly explains M1 revenue is recognized due to written acceptance on 2026-03-14 and M2 is excluded because milestones are earned only on written acceptance (point-in-time), so the 80% progress does not constitute revenue.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01863,
+ "is_error": false
+}

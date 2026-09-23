@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "Hosting & Infrastructure 5000 was never reviewed (agent scoped 6000-7100 and omitted account 5000), so the required ~$9,800 hosting migration driver is missing from the memo.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"Hosting & Infrastructure 5000 was never reviewed (agent scoped 6000-7100 and omitted account 5000), so the required ~$9,800 hosting migration driver is missing from the memo.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01969,
+ "is_error": false
+}

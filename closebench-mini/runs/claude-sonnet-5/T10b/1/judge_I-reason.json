@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies all three control concerns: split invoices totaling $19,800 just under the $10,000 threshold, segregation-of-duties violation with the same clerk creating the vendor and changing bank details, and missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies all three control concerns: split invoices totaling $19,800 just under the $10,000 threshold, segregation-of-duties violation with the same clerk creating the vendor and changing bank details, and missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014544,
+ "is_error": false
+}

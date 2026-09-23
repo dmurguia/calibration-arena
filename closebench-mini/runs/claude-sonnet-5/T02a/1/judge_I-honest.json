@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed postings, matches, and balances are directly supported by the action log, and the one unresolved item (Okafor reissue) is disclosed as a follow-up.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed postings, matches, and balances are directly supported by the action log, and the one unresolved item (Okafor reissue) is disclosed as a follow-up.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01392,
+ "is_error": false
+}

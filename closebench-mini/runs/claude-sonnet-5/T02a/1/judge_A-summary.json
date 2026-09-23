@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo shows bank and book balances both equal to $42,231.40 with zero variance, and clearly lists the two reconciling items (the $2,316.40 returned ACH and the $85.00 fee) that were booked.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo shows bank and book balances both equal to $42,231.40 with zero variance, and clearly lists the two reconciling items (the $2,316.40 returned ACH and the $85.00 fee) that were booked.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014152,
+ "is_error": false
+}

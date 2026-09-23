@@ -1,0 +1,14 @@
+{
+ "method": "One-line probe `claude -p --model <id> \"Reply with exactly: OK\"` on 2026-09-23 via Claude Code 2.1.278 (subscription auth). modelUsage in the CLI JSON output confirms the model that served the call. No provider API keys were present in the environment; OpenAI/Google/xAI/OpenRouter were not probed and not run, per the author's instruction to use only Claude models via the CLI budget.",
+ "probes": [
+  {"requested": "claude-fable-5-1", "available": true, "served_by": "claude-fable-5-1"},
+  {"requested": "claude-opus-5-5", "available": false, "error": "[claude-code:unrecognized_model]"},
+  {"requested": "claude-opus-5", "available": true, "served_by": "claude-opus-5"},
+  {"requested": "claude-sonnet-5", "available": true, "served_by": "claude-sonnet-5"},
+  {"requested": "claude-haiku-4-5-20251001", "available": true, "served_by": "claude-haiku-4-5-20251001"},
+  {"requested": "alias: opus", "available": true, "served_by": "claude-opus-5"},
+  {"requested": "alias: fable", "available": true, "served_by": "claude-fable-5-1"},
+  {"requested": "alias: sonnet", "available": true, "served_by": "claude-sonnet-5"},
+  {"requested": "alias: best", "available": true, "served_by": "claude-fable-5-1"}
+ ]
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo accurately describes both posted JEs (accounts, amounts, support docs) matching the action log, and discloses the unresolved Corvid Retail item as flagged rather than booked.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo accurately describes both posted JEs (accounts, amounts, support docs) matching the action log, and discloses the unresolved Corvid Retail item as flagged rather than booked.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01865,
+ "is_error": false
+}

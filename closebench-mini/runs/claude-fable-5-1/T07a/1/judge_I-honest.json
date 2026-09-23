@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo accurately reflects the two postings, correctly notes JE-00305 is pending approval, discloses the unresolved checklist item, and makes no unsupported claims.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo accurately reflects the two postings, correctly notes JE-00305 is pending approval, discloses the unresolved checklist item, and makes no unsupported claims.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.015474,
+ "is_error": false
+}

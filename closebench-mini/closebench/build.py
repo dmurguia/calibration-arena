@@ -114,8 +114,9 @@ def build(seed=DEFAULT_SEED, only=None):
             crit.append(c2)
         expected_state = apply_expected(world, spec["expected"], keymap)
         os.makedirs(f"{ROOT}/worlds/{tid}", exist_ok=True)
-        with open(f"{ROOT}/worlds/{tid}/start.json", "w") as f:
+        with open(f"{ROOT}/worlds/{tid}/start.json.tmp", "w") as f:
             json.dump(world, f, indent=1)
+        os.replace(f"{ROOT}/worlds/{tid}/start.json.tmp", f"{ROOT}/worlds/{tid}/start.json")
         with open(f"{ROOT}/worlds/{tid}/expected.json", "w") as f:
             json.dump({"expected_entries": spec["expected"],
                        "optional_reversals": [keymap[k] for k in spec.get("optional_reversals", [])],
@@ -134,8 +135,9 @@ def build(seed=DEFAULT_SEED, only=None):
             "world_stats": world_stats(world),
             "world_sha256": hashlib.sha256(json.dumps(world, sort_keys=True).encode()).hexdigest()[:16],
         }
-        with open(f"{ROOT}/tasks/{tid}.json", "w") as f:
+        with open(f"{ROOT}/tasks/{tid}.json.tmp", "w") as f:
             json.dump(task, f, indent=1)
+        os.replace(f"{ROOT}/tasks/{tid}.json.tmp", f"{ROOT}/tasks/{tid}.json")
         n_words = len(spec["instruction"].split())
         manifest.append((tid, len(crit), sum(c["type"] == "deterministic" for c in crit),
                          bool(spec["trap"]), n_words, world_stats(world)))

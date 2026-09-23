@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All memo claims (reversal JE-00309, service charge JE-00310, matches, flagged exception EXC-001, unresolved item) are consistent with the action log, and the unresolved item is clearly disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All memo claims (reversal JE-00309, service charge JE-00310, matches, flagged exception EXC-001, unresolved item) are consistent with the action log, and the unresolved item is clearly disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.027082,
+ "is_error": false
+}

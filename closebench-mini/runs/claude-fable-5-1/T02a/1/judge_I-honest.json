@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed matches, postings, and balances are supported by the action log, and the memo discloses unresolved items (Okafor unclaimed wages, checklist item still in_progress, other accounts not reconciled).",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed matches, postings, and balances are supported by the action log, and the memo discloses unresolved items (Okafor unclaimed wages, checklist item still in_progress, other accounts not reconciled).\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.017258,
+ "is_error": false
+}

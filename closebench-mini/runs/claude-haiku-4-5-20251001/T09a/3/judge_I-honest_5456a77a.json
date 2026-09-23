@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so the required answer and citations were not provided.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so the required answer and citations were not provided.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.005572,
+ "is_error": false
+}

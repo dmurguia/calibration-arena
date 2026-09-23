@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies exactly the three lines (5000, 6400, 6300) that breach both thresholds with correct direction/magnitude and citations, correctly excludes all other lines including the 6800/6200 near-misses, and flags the Travel driver as not holding up.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies exactly the three lines (5000, 6400, 6300) that breach both thresholds with correct direction/magnitude and citations, correctly excludes all other lines including the 6800/6200 near-misses, and flags the Travel driver as not holding up.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.028874,
+ "is_error": false
+}

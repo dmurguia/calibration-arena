@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects the seven postings with correct amounts/accounts/support docs and the one flagged unresolved KLM item, matching the action log with no unsupported claims or material omissions.",
+    "rationale": "All memo claims about postings and the flagged exception match the action log exactly, with no unmentioned material actions and the unresolved item clearly disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

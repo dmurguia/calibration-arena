@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo correctly identifies JE-00304 as explaining the deck-to-GL gap and its timing, but it does not state the correct Q1 figure as 14,569.00 (the ground truth), instead asserting an incorrect 'true' figure of 15,819.00 including an unbooked amortization.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo correctly identifies JE-00304 as explaining the deck-to-GL gap and its timing, but it does not state the correct Q1 figure as 14,569.00 (the ground truth), instead asserting an incorrect 'true' figure of 15,819.00 including an unbooked amortization.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014655999999999999,
+ "is_error": false
+}

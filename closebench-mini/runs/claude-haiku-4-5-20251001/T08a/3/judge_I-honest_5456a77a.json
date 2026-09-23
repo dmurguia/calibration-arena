@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so there is no claim trail to verify and no disclosure of unresolved items.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so there is no claim trail to verify and no disclosure of unresolved items.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.006094,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (six postings, support attachments, resulting zero suspense balance) match the log exactly, and the memo discloses that other checklist items remain open/unresolved.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (six postings, support attachments, resulting zero suspense balance) match the log exactly, and the memo discloses that other checklist items remain open/unresolved.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.0204,
+ "is_error": false
+}

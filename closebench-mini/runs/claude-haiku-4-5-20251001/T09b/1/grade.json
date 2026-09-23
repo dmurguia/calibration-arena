@@ -51,7 +51,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so there is no content to verify against the action log, and the required disclosures are entirely absent.",
+    "rationale": "No memo was submitted, so there is no content to verify against the action log, and required disclosures/citations are absent.",
     "judge_model": "claude-sonnet-5"
    }
   }

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (matches, postings, checklist update, exceptions, open items) are consistent with the action log, and unresolved items (1000 account, UK/DE recs, unclaimed wages) are disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (matches, postings, checklist update, exceptions, open items) are consistent with the action log, and unresolved items (1000 account, UK/DE recs, unclaimed wages) are disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019205999999999997,
+ "is_error": false
+}

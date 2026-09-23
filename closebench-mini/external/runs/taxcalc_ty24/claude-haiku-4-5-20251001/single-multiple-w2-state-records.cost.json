@@ -1,0 +1,54 @@
+{
+ "total_cost_usd": 0.046836,
+ "usage": {
+  "input_tokens": 9,
+  "cache_creation_input_tokens": 7826,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 6235,
+  "output_tokens_details": {
+   "thinking_tokens": 4271
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 7826,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 9,
+    "output_tokens": 6235,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 7826,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 7826
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 9,
+   "outputTokens": 6235,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 7826,
+   "webSearchRequests": 0,
+   "costUSD": 0.046836,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000,
+   "thinkingTokens": 4271,
+   "canonicalModel": "claude-haiku-4-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "wall_s": 43.96884870529175,
+ "duration_ms": 42989
+}

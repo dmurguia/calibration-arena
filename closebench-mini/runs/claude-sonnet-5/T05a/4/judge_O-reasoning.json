@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly cites DOC-0184's signed acceptance dated 2026-03-14 as the trigger for M1 recognition and explains M2 is excluded because acceptance-based (point-in-time), not percentage-of-completion, recognition applies and no acceptance occurred despite ~80% completion.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly cites DOC-0184's signed acceptance dated 2026-03-14 as the trigger for M1 recognition and explains M2 is excluded because acceptance-based (point-in-time), not percentage-of-completion, recognition applies and no acceptance occurred despite ~80% completion.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.013262,
+ "is_error": false
+}

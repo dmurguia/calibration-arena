@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo's claims about postings, matches, and the flagged exception accurately reflect the action log entries, with the unresolved $3,000 Evergreen item clearly disclosed as unapplied.",
+    "rationale": "All three posted entries, the flagged exception, and unresolved item match the action log with no fabricated or omitted material actions.",
     "judge_model": "claude-sonnet-5"
    }
   }

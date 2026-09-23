@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The agent missed Hosting & Infrastructure (6000/5000) as a qualifying >10%/>$5,000 line entirely, so it did not identify exactly the three expected lines.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The agent missed Hosting & Infrastructure (6000/5000) as a qualifying >10%/>$5,000 line entirely, so it did not identify exactly the three expected lines.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.020413999999999998,
+ "is_error": false
+}

@@ -88,6 +88,10 @@ def model_metrics(model, tasks_meta):
     m["all_pass_at_1"] = pct_ci(per_task_allpass, lambda s: mean(mean(x) for x in s))
     m["pass_hat_k"] = pct_ci(full_k, lambda s: mean(all(x) for x in s))
     m["pass_hat_k_n_tasks"] = len(full_k)
+    # sensitivity: T06b is dominated by the 60-call tool budget (no trial-balance tool)
+    ex = {t: v for t, v in per_task_allpass.items() if t != "T06b"}
+    m["all_pass_at_1_excl_T06b"] = pct_ci(ex, lambda s: mean(mean(x) for x in s))
+    m["pass_hat_k_excl_T06b"] = pct_ci({t: v for t, v in full_k.items() if t != "T06b"}, lambda s: mean(all(x) for x in s))
     m["deterministic_only_all_pass_at_1"] = pct_ci(per_task_det, lambda s: mean(mean(x) for x in s))
     # fallback-memo diagnostic (final chat text graded as memo when submit_memo was never called)
     fb = {t: [bool((r["fallback"] or r["grade"])["all_pass"]) for r in v] for t, v in ok.items()}
@@ -104,6 +108,11 @@ def model_metrics(model, tasks_meta):
     for dim in ("outcome", "auditability", "integrity"):
         per = {t: [r["grade"]["dimension_all_pass"].get(dim, True) for r in v] for t, v in ok.items()}
         m[f"dim_{dim}"] = pct_ci(per, lambda s: mean(mean(x) for x in s))
+    jc = [c["pass"] for r in all_runs for c in r["grade"]["criteria"] if c["type"] == "judge"]
+    dc = [c["pass"] for r in all_runs for c in r["grade"]["criteria"] if c["type"] == "deterministic"]
+    m["judge_criteria_pass_rate"] = mean(jc)
+    m["deterministic_criteria_pass_rate"] = mean(dc)
+    m["n_judge_verdicts"] = len(jc)
     m["cost_per_task_usd"] = mean(r["cost"].get("total_cost_usd") or 0 for r in all_runs)
     m["judge_cost_per_task_usd"] = mean(r["judge_cost"] for r in all_runs)
     m["total_agent_cost_usd"] = sum(r["cost"].get("total_cost_usd") or 0 for r in all_runs)
@@ -167,6 +176,18 @@ def taxcalc_metrics(model):
             "cost_per_item_usd": mean(costs)}
 
 
+def mp_metrics(models):
+    out = {}
+    for m in models:
+        gs = [json.load(open(p)) for p in sorted(glob.glob(os.path.join(ROOT, "runs", m, "MP01", "*", "grade.json")))]
+        if gs:
+            out[m] = {"n_runs": len(gs), "stage1_all_pass": sum(g["stage1_all_pass"] for g in gs),
+                      "stage2_all_pass": sum(g["stage2_all_pass"] for g in gs), "both_all_pass": sum(g["all_pass"] for g in gs),
+                      "march_accruals_booked": [g["stage1_march_accrual_booked"] for g in gs],
+                      "cost_usd": sum(g["cost_usd"] for g in gs)}
+    return out
+
+
 def judge_audit(models, n=30):
     rows = []
     for m in models:
@@ -193,7 +214,9 @@ def judge_audit(models, n=30):
         if len(take) < per:
             take += [r for r in mr if r not in take][: per - len(take)]
         out += take
-    out = out[:n]
+    rest = [r for r in rows if r not in out]
+    rng.shuffle(rest)
+    out = (out + rest)[:n]
     for r in out:
         d = os.path.join(ROOT, os.path.dirname(r["memo_file"]))
         st = json.load(gzip.open(os.path.join(d, "final_state.json.gz")))
@@ -208,7 +231,7 @@ def judge_audit(models, n=30):
 
 def main():
     os.makedirs(RES, exist_ok=True)
-    tasks_meta = {os.path.basename(p)[:-5]: json.load(open(p)) for p in glob.glob(os.path.join(ROOT, "tasks", "*.json"))}
+    tasks_meta = {os.path.basename(p)[:-5]: json.load(open(p)) for p in glob.glob(os.path.join(ROOT, "tasks", "T*.json"))}
     models = json.load(open(os.path.join(RES, "models_run.json")))["models"]
     crit = [c for t in tasks_meta.values() for c in t["criteria"]]
     out = {
@@ -222,6 +245,7 @@ def main():
         "closebench": {m: model_metrics(m, tasks_meta) for m in [x["id"] for x in models]},
         "finbalance": {m["id"]: finbalance_metrics(m["id"]) for m in models},
         "taxcalc_ty24": {m["id"]: taxcalc_metrics(m["id"]) for m in models},
+        "multiperiod_MP01": mp_metrics([x["id"] for x in models]),
         "dualentry_reference": json.load(open(os.path.join(RES, "reference_published.json"))),
     }
     n_audit, n_judged = judge_audit([x["id"] for x in models])

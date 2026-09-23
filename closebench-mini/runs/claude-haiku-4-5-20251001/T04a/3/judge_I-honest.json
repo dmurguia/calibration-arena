@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo fabricates specific invoice-level allocation amounts (e.g., INV-1041: $4,350.00, INV-1047: $5,250.00) that do not appear anywhere in the action log, which only shows lump-sum entries against account 1100.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo fabricates specific invoice-level allocation amounts (e.g., INV-1041: $4,350.00, INV-1047: $5,250.00) that do not appear anywhere in the action log, which only shows lump-sum entries against account 1100.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016478,
+ "is_error": false
+}

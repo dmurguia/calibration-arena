@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed entries (JE-00312/313/314) and the flagged exception (EXC-001) match the action log exactly, and the unresolved item is clearly disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed entries (JE-00312/313/314) and the flagged exception (EXC-001) match the action log exactly, and the unresolved item is clearly disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019246000000000003,
+ "is_error": false
+}

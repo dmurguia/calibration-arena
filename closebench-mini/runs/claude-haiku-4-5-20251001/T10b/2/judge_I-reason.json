@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies split invoices near/under threshold totaling 19,800, SoD concern with clerk creating vendor and changing bank details, and missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies split invoices near/under threshold totaling 19,800, SoD concern with clerk creating vendor and changing bank details, and missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01295,
+ "is_error": false
+}

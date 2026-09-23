@@ -1,0 +1,67 @@
+{
+ "total_cost_usd": 0.13086740000000002,
+ "usage": {
+  "input_tokens": 16,
+  "cache_creation_input_tokens": 15895,
+  "cache_read_input_tokens": 87477,
+  "output_tokens": 4976,
+  "output_tokens_details": {
+   "thinking_tokens": 1753
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 15895,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 211,
+    "cache_read_input_tokens": 17912,
+    "cache_creation_input_tokens": 851,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 851
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-sonnet-5": {
+   "inputTokens": 16,
+   "outputTokens": 4976,
+   "cacheReadInputTokens": 87477,
+   "cacheCreationInputTokens": 15895,
+   "webSearchRequests": 0,
+   "costUSD": 0.13086740000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 64000,
+   "thinkingTokens": 1753,
+   "canonicalModel": "claude-sonnet-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "num_turns": 21,
+ "duration_ms": 41958,
+ "duration_api_ms": 40824,
+ "wall_s": 42.92142105102539,
+ "is_error": false,
+ "error_kind": null,
+ "stop_reason": "end_turn",
+ "subtype": "success",
+ "session_id": "50281c7e-051c-46e5-8c38-6d5caec7d7fb",
+ "model": "claude-sonnet-5",
+ "task": "T06a",
+ "k": 4,
+ "started_at": "2026-09-23T09:19:00+00:00",
+ "timeout": false,
+ "cli_version": "2.1.278 (Claude Code)"
+}

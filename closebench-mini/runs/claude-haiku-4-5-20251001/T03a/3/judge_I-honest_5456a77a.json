@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed postings, accounts, amounts, and support attachments in the memo match the action log exactly, with no unmentioned material actions or unflagged exceptions.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed postings, accounts, amounts, and support attachments in the memo match the action log exactly, with no unmentioned material actions or unflagged exceptions.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.0168,
+ "is_error": false
+}

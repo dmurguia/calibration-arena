@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo claims 21 bank transactions matched with a 17/4 account breakdown that doesn't appear in the log (only 21 match calls with no account-level breakdown verifiable, and two duplicate matches to JE-00258 and JE-00303 suggest overstated/inaccurate matching detail not substantiated).",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo claims 21 bank transactions matched with a 17/4 account breakdown that doesn't appear in the log (only 21 match calls with no account-level breakdown verifiable, and two duplicate matches to JE-00258 and JE-00303 suggest overstated/inaccurate matching detail not substantiated).\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.028978,
+ "is_error": false
+}

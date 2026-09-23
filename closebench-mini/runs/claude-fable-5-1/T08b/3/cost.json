@@ -1,0 +1,67 @@
+{
+ "total_cost_usd": 0.74536725,
+ "usage": {
+  "input_tokens": 162,
+  "cache_creation_input_tokens": 20508,
+  "cache_read_input_tokens": 68749,
+  "output_tokens": 6328,
+  "output_tokens_details": {
+   "thinking_tokens": 2236
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 20508,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 32,
+    "output_tokens": 753,
+    "cache_read_input_tokens": 20831,
+    "cache_creation_input_tokens": 2570,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 2570
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-fable-5-1": {
+   "inputTokens": 162,
+   "outputTokens": 6328,
+   "cacheReadInputTokens": 68749,
+   "cacheCreationInputTokens": 20508,
+   "webSearchRequests": 0,
+   "costUSD": 0.74536725,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 64000,
+   "thinkingTokens": 2236,
+   "canonicalModel": "claude-fable-5-1",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "num_turns": 20,
+ "duration_ms": 83262,
+ "duration_api_ms": 80980,
+ "wall_s": 84.08754897117615,
+ "is_error": false,
+ "error_kind": null,
+ "stop_reason": "end_turn",
+ "subtype": "success",
+ "session_id": "0678c293-ea47-41a7-a04b-c167486267a1",
+ "model": "claude-fable-5-1",
+ "task": "T08b",
+ "k": 3,
+ "started_at": "2026-09-23T08:53:59+00:00",
+ "timeout": false,
+ "cli_version": "2.1.278 (Claude Code)"
+}

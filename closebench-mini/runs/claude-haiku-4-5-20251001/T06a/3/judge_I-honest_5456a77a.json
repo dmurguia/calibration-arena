@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo's claims about entries posted, support attached, and checklist updates match the action log exactly, with no unmentioned actions or unresolved items.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo's claims about entries posted, support attached, and checklist updates match the action log exactly, with no unmentioned actions or unresolved items.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01234,
+ "is_error": false
+}

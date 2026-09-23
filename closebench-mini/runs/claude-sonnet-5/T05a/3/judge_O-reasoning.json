@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly cites the 2026-03-14 written acceptance for M1 and explains M2 is excluded despite ~80% completion because the contract requires written acceptance per milestone, not percent-complete progress.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly cites the 2026-03-14 written acceptance for M1 and explains M2 is excluded despite ~80% completion because the contract requires written acceptance per milestone, not percent-complete progress.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.013392000000000001,
+ "is_error": false
+}

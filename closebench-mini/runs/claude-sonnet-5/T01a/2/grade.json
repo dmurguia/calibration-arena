@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All claims in the memo (postings, attachments, zero suspense balance, no exceptions) match the action log accurately with no unresolved items omitted.",
+    "rationale": "All claimed actions (six reclass entries posted, support attached to both new and original entries, zero suspense balance, no exceptions) match the action log with no unresolved items omitted.",
     "judge_model": "claude-sonnet-5"
    }
   }

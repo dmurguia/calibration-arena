@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All memo claims (reversal, reclass, approval request, and both flagged exceptions) are directly supported by the action log, and unresolved items (pending approval, EXC-001, EXC-002) are disclosed.",
+    "rationale": "All claimed actions (reversal JE-00307, reclass JE-00308, approval request, EXC-001/EXC-002 flags, checklist update) match the action log, and unresolved items (pending approval, open exceptions) are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

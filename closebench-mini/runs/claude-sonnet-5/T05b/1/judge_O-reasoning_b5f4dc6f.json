@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explains Analytics is a distinct service at SSP recognized ratably as a separate contract alongside the unchanged $4,000/month core subscription, and explains Harlow usage revenue is recognized as shipments are processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly-in-arrears invoicing.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explains Analytics is a distinct service at SSP recognized ratably as a separate contract alongside the unchanged $4,000/month core subscription, and explains Harlow usage revenue is recognized as shipments are processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly-in-arrears invoicing.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.015992,
+ "is_error": false
+}

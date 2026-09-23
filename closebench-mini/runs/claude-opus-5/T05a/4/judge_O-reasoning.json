@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly explains M1 recognition based on the 2026-03-14 written acceptance and explains M2's 80% completion is not recognized because acceptance-based point-in-time recognition governs and no acceptance exists.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly explains M1 recognition based on the 2026-03-14 written acceptance and explains M2's 80% completion is not recognized because acceptance-based point-in-time recognition governs and no acceptance exists.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019158,
+ "is_error": false
+}

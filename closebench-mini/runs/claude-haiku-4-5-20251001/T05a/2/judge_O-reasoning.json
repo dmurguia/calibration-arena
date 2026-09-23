@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "Memo explicitly recognizes M1 due to 2026-03-14 written acceptance and withholds M2 revenue despite ~80% completion because acceptance-based recognition per contract precludes revenue on partial progress.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"Memo explicitly recognizes M1 due to 2026-03-14 written acceptance and withholds M2 revenue despite ~80% completion because acceptance-based recognition per contract precludes revenue on partial progress.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014156,
+ "is_error": false
+}

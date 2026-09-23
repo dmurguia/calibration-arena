@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo shows bank and book balances both equal to $42,231.40 with zero variance, and clearly lists the two reconciling items (the $2,316.40 returned ACH and the $85.00 fee) that were booked.",
+    "rationale": "The memo shows adjusted book balance ($42,231.40) equal to bank closing balance with $0.00 variance and explicitly lists both reconciling items (the $2,316.40 returned deposit and the $85.00 fee) with supporting detail.",
     "judge_model": "claude-sonnet-5"
    }
   },
@@ -70,7 +70,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All claimed postings, matches, and balances are directly supported by the action log, and the one unresolved item (Okafor reissue) is disclosed as a follow-up.",
+    "rationale": "All claimed actions (two journal entries posted with correct amounts/accounts, six bank matches, follow-up item disclosed) are consistent with the action log with no unmentioned material actions.",
     "judge_model": "claude-sonnet-5"
    }
   }

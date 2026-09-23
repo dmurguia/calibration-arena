@@ -20,7 +20,7 @@
    "dimension": "outcome",
    "type": "deterministic",
    "description": "Ledger state diff equals expected",
-   "pass": false
+   "pass": true
   },
   {
    "id": "A-support",
@@ -58,17 +58,17 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo's claims about postings (JE-00307/308/309), the pending approval status, and the flagged exceptions accurately match the action log with no fabricated actions and unresolved items clearly disclosed.",
+    "rationale": "All claimed actions (JE-00307 reversal, JE-00308 reclass, JE-00309 posting, EXC-001/EXC-002 flags, approval request, checklist update) match the action log, and unresolved items (pending approval, unresolved legal wire, Zoom double-charge) are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }
  ],
  "n_criteria": 8,
- "n_pass": 7,
+ "n_pass": 8,
  "judge_errors": 0,
- "all_pass": false,
+ "all_pass": true,
  "dimension_all_pass": {
-  "outcome": false,
+  "outcome": true,
   "auditability": true,
   "integrity": true
  },

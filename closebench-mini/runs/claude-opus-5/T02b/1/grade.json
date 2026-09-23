@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All memo claims (reversal JE-00309, service charge JE-00310, matches, flagged exception EXC-001, unresolved item) are consistent with the action log, and the unresolved item is clearly disclosed.",
+    "rationale": "The memo's claims (two entries posted with cited support, 18 bank lines matched, EXC-001 flagged and not booked, checklist marked complete) all match the action log with no fabricated or omitted material actions.",
     "judge_model": "claude-sonnet-5"
    }
   }

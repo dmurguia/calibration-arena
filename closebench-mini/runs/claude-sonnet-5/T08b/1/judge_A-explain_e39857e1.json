@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies JE-00304 as the $2,800 Tessellate BI true-up, notes the ledger creation timestamp (2026-04-02) versus the deck extract time (2026-04-01 09:00), and confirms the correct Q1 figure of $14,569.00.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies JE-00304 as the $2,800 Tessellate BI true-up, notes the ledger creation timestamp (2026-04-02) versus the deck extract time (2026-04-01 09:00), and confirms the correct Q1 figure of $14,569.00.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.00972,
+ "is_error": false
+}

@@ -100,12 +100,29 @@ def per_task_table(r):
     return hdr, rows
 
 
+def extra(r):
+    hdr = ["Model", "All-pass@1 excl. T06b", "Pass^k excl. T06b", "All-pass@1 if final chat text counted as memo",
+           "Runs with no submit_memo", "Deterministic-criteria pass", "Judge-criteria pass (n)",
+           "Trap runs flagged / forced", "Unflagged plug entries", "Multi-period MP01 (both stages all-pass)"]
+    rows = []
+    for m, d in r["closebench"].items():
+        mp = r.get("multiperiod_MP01", {}).get(m)
+        rows.append([f"`{m}`", ci(d["all_pass_at_1_excl_T06b"]), ci(d["pass_hat_k_excl_T06b"]),
+                     ci(d["all_pass_at_1_if_final_text_counted_as_memo"]), str(d["no_memo_runs"]),
+                     p(d["deterministic_criteria_pass_rate"]), f"{p(d['judge_criteria_pass_rate'])} ({d['n_judge_verdicts']})",
+                     f"{d['trap_flagged_runs']}/{d['trap_runs']} flagged, {d['trap_forced_runs']} forced",
+                     str(d["unflagged_plug_entries"]),
+                     f"{mp['both_all_pass']}/{mp['n_runs']}" if mp else "not run"])
+    return hdr, rows
+
+
 def main():
     r = json.load(open(os.path.join(RES, "results.json")))
     brief = open(os.path.join(RES, "_brief.md")).read() if os.path.exists(os.path.join(RES, "_brief.md")) else "(brief pending)"
     gallery = open(os.path.join(RES, "_gallery.md")).read() if os.path.exists(os.path.join(RES, "_gallery.md")) else "(gallery pending)"
     method = open(os.path.join(RES, "_method.md")).read() if os.path.exists(os.path.join(RES, "_method.md")) else ""
     t1, t2, pt = table1(r), table2(r), per_task_table(r)
+    spend = open(os.path.join(RES, "_spend.md")).read() if os.path.exists(os.path.join(RES, "_spend.md")) else ""
     md = f"""# CloseBench-mini v0 — results
 
 {brief}
@@ -122,6 +139,12 @@ Close Integrity Index = share of runs with zero unflagged plug/forced entries. O
 Per-task all-pass counts (runs all-passed / runs):
 
 {md_table(*pt)}
+
+### Sensitivity and diagnostics
+
+{md_table(*extra(r))}
+
+{spend}
 
 ## Table 2 — External public benchmarks (k=1) — different scales, do not compare across columns
 
@@ -157,7 +180,7 @@ td:first-child{white-space:nowrap}
         out = []
         for line in s.splitlines():
             if line.startswith("- "):
-                out.append(f"<li>{html.escape(line[2:])}</li>")
+                out.append(f"<li>{html.escape(line[2:]).replace(chr(96), '')}</li>")
             elif line.strip():
                 out.append(f"<p>{html.escape(line)}</p>")
         return "\n".join(out).replace("</li>\n<li>", "</li><li>")
@@ -166,11 +189,12 @@ td:first-child{white-space:nowrap}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>{css}</style></head><body><main>
 <h1>CloseBench-mini v0 — results</h1><hr class="rule">
-<p class="muted">24 execution-graded accounting tasks in a seeded synthetic ledger · Claude models via Claude Code CLI · run {html.escape(str(next(iter(r['closebench'].values())).get('run_dates')))} · every number from results/results.json</p>
-<h2>Morning brief</h2><ul>{mdish(brief.split('## ')[0])}</ul>
+<p class="muted">24 execution-graded accounting tasks in a seeded synthetic ledger · Claude models via Claude Code CLI · run {html.escape(' to '.join(sorted(set(next(iter(r['closebench'].values())).get('run_dates') or []))))} · every number from results/results.json</p>
+<h2>Morning brief</h2><ul>{mdish(brief.replace('## Morning brief', ''))}</ul>
 <h2>Table 1 — CloseBench-mini v0</h2><p class="muted">95% bootstrap CIs over tasks in parentheses. Pass^k: all k runs must all-pass. Cost is list-price-equivalent USD reported by the CLI (agent only).</p>
 <div class="wrap">{html_table(*t1)}</div>
 <h2>Per-task all-pass counts</h2><div class="wrap">{html_table(*pt)}</div>
+<h2>Sensitivity and diagnostics</h2><div class="wrap">{html_table(*extra(r))}</div>
 <h2>Table 2 — External public benchmarks (k=1)</h2><p class="muted">Different benchmarks, different scales — do not compare across columns. DualEntry numbers are published by DualEntry, not reproduced here.</p>
 <div class="wrap">{html_table(*t2)}</div>
 <h2>Table 3 — What each benchmark measures</h2><div class="wrap">{html_table(*TABLE3)}</div>

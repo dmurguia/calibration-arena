@@ -1,0 +1,218 @@
+taxcalc: 51 items x 4 models
+{'done': 1}
+{'done': 2}
+{'done': 3}
+{'done': 4}
+{'done': 5}
+{'done': 6}
+{'done': 7}
+{'done': 8}
+{'done': 9}
+{'done': 10}
+{'done': 11}
+taxcalc: 51 items x 4 models
+{'cached': 1}
+{'cached': 2}
+{'cached': 3}
+{'cached': 4}
+{'cached': 5}
+{'cached': 6}
+{'cached': 7}
+{'cached': 8}
+{'cached': 9}
+{'cached': 10}
+{'cached': 11}
+{'cached': 11, 'done': 1}
+{'cached': 11, 'done': 2}
+{'cached': 11, 'done': 3}
+{'cached': 11, 'done': 4}
+{'cached': 11, 'done': 5}
+{'cached': 11, 'done': 6}
+{'cached': 11, 'done': 7}
+{'cached': 11, 'done': 8}
+{'cached': 11, 'done': 9}
+{'cached': 11, 'done': 10}
+{'cached': 11, 'done': 11}
+{'cached': 11, 'done': 12}
+{'cached': 11, 'done': 13}
+{'cached': 11, 'done': 14}
+{'cached': 11, 'done': 15}
+{'cached': 11, 'done': 16}
+{'cached': 11, 'done': 17}
+{'cached': 11, 'done': 18}
+{'cached': 11, 'done': 19}
+{'cached': 11, 'done': 20}
+{'cached': 11, 'done': 21}
+{'cached': 11, 'done': 22}
+{'cached': 11, 'done': 23}
+{'cached': 11, 'done': 24}
+{'cached': 11, 'done': 25}
+{'cached': 11, 'done': 26}
+{'cached': 11, 'done': 27}
+{'cached': 11, 'done': 28}
+{'cached': 11, 'done': 29}
+{'cached': 11, 'done': 30}
+{'cached': 11, 'done': 31}
+{'cached': 11, 'done': 32}
+{'cached': 11, 'done': 33}
+{'cached': 11, 'done': 34}
+{'cached': 11, 'done': 35}
+{'cached': 11, 'done': 36}
+{'cached': 11, 'done': 37}
+{'cached': 11, 'done': 38}
+{'cached': 11, 'done': 39}
+{'cached': 11, 'done': 40}
+{'cached': 11, 'done': 41}
+{'cached': 11, 'done': 42}
+{'cached': 11, 'done': 43}
+{'cached': 11, 'done': 44}
+{'cached': 11, 'done': 45}
+{'cached': 11, 'done': 46}
+{'cached': 11, 'done': 47}
+{'cached': 11, 'done': 48}
+{'cached': 11, 'done': 49}
+{'cached': 11, 'done': 50}
+{'cached': 11, 'done': 51}
+{'cached': 11, 'done': 52}
+{'cached': 11, 'done': 53}
+{'cached': 11, 'done': 54}
+{'cached': 11, 'done': 55}
+{'cached': 11, 'done': 56}
+{'cached': 11, 'done': 57}
+{'cached': 11, 'done': 58}
+{'cached': 11, 'done': 59}
+{'cached': 11, 'done': 60}
+{'cached': 11, 'done': 61}
+{'cached': 11, 'done': 62}
+{'cached': 11, 'done': 63}
+{'cached': 11, 'done': 64}
+{'cached': 11, 'done': 65}
+{'cached': 11, 'done': 66}
+{'cached': 11, 'done': 67}
+{'cached': 11, 'done': 68}
+{'cached': 11, 'done': 69}
+{'cached': 11, 'done': 70}
+{'cached': 11, 'done': 71}
+{'cached': 11, 'done': 72}
+{'cached': 11, 'done': 73}
+{'cached': 11, 'done': 74}
+{'cached': 11, 'done': 75}
+{'cached': 11, 'done': 76}
+{'cached': 11, 'done': 77}
+{'cached': 11, 'done': 78}
+{'cached': 11, 'done': 79}
+{'cached': 11, 'done': 80}
+{'cached': 11, 'done': 81}
+{'cached': 11, 'done': 82}
+{'cached': 11, 'done': 83}
+{'cached': 11, 'done': 84}
+{'cached': 11, 'done': 85}
+{'cached': 11, 'done': 86}
+{'cached': 11, 'done': 87}
+{'cached': 11, 'done': 88}
+{'cached': 11, 'done': 89}
+{'cached': 11, 'done': 90}
+{'cached': 11, 'done': 91}
+{'cached': 11, 'done': 92}
+{'cached': 11, 'done': 93}
+{'cached': 11, 'done': 94}
+{'cached': 11, 'done': 95}
+{'cached': 11, 'done': 96}
+{'cached': 11, 'done': 97}
+{'cached': 11, 'done': 98}
+{'cached': 11, 'done': 99}
+{'cached': 11, 'done': 100}
+{'cached': 11, 'done': 101}
+{'cached': 11, 'done': 102}
+{'cached': 11, 'done': 103}
+{'cached': 11, 'done': 104}
+{'cached': 11, 'done': 105}
+{'cached': 11, 'done': 106}
+{'cached': 11, 'done': 107}
+{'cached': 11, 'done': 108}
+{'cached': 11, 'done': 109}
+{'cached': 11, 'done': 110}
+{'cached': 11, 'done': 111}
+{'cached': 11, 'done': 112}
+{'cached': 11, 'done': 113}
+{'cached': 11, 'done': 114}
+{'cached': 11, 'done': 115}
+{'cached': 11, 'done': 116}
+{'cached': 11, 'done': 117}
+{'cached': 11, 'done': 118}
+{'cached': 11, 'done': 119}
+{'cached': 11, 'done': 120}
+{'cached': 11, 'done': 121}
+{'cached': 11, 'done': 122}
+{'cached': 11, 'done': 123}
+{'cached': 11, 'done': 124}
+{'cached': 11, 'done': 125}
+{'cached': 11, 'done': 126}
+{'cached': 11, 'done': 127}
+{'cached': 11, 'done': 128}
+{'cached': 11, 'done': 129}
+{'cached': 11, 'done': 130}
+{'cached': 11, 'done': 131}
+{'cached': 11, 'done': 132}
+{'cached': 11, 'done': 133}
+{'cached': 11, 'done': 134}
+{'cached': 11, 'done': 135}
+{'cached': 11, 'done': 136}
+{'cached': 11, 'done': 137}
+{'cached': 11, 'done': 138}
+{'cached': 11, 'done': 139}
+{'cached': 11, 'done': 140}
+{'cached': 11, 'done': 141}
+{'cached': 11, 'done': 142}
+{'cached': 11, 'done': 143}
+{'cached': 11, 'done': 144}
+{'cached': 11, 'done': 145}
+{'cached': 11, 'done': 146}
+{'cached': 11, 'done': 147}
+{'cached': 11, 'done': 148}
+{'cached': 11, 'done': 149}
+{'cached': 11, 'done': 150}
+{'cached': 11, 'done': 151}
+{'cached': 11, 'done': 152}
+{'cached': 11, 'done': 153}
+{'cached': 11, 'done': 154}
+{'cached': 11, 'done': 155}
+{'cached': 11, 'done': 156}
+{'cached': 11, 'done': 157}
+{'cached': 11, 'done': 158}
+{'cached': 11, 'done': 159}
+{'cached': 11, 'done': 160}
+{'cached': 11, 'done': 161}
+{'cached': 11, 'done': 162}
+{'cached': 11, 'done': 163}
+{'cached': 11, 'done': 164}
+{'cached': 11, 'done': 165}
+{'cached': 11, 'done': 166}
+{'cached': 11, 'done': 167}
+{'cached': 11, 'done': 168}
+{'cached': 11, 'done': 169}
+{'cached': 11, 'done': 170}
+{'cached': 11, 'done': 171}
+{'cached': 11, 'done': 172}
+{'cached': 11, 'done': 173}
+{'cached': 11, 'done': 174}
+{'cached': 11, 'done': 175}
+{'cached': 11, 'done': 176}
+{'cached': 11, 'done': 177}
+{'cached': 11, 'done': 178}
+{'cached': 11, 'done': 179}
+{'cached': 11, 'done': 180}
+{'cached': 11, 'done': 181}
+{'cached': 11, 'done': 182}
+{'cached': 11, 'done': 183}
+{'cached': 11, 'done': 184}
+{'cached': 11, 'done': 185}
+{'cached': 11, 'done': 186}
+{'cached': 11, 'done': 187}
+{'cached': 11, 'done': 188}
+{'cached': 11, 'done': 189}
+{'cached': 11, 'done': 190}
+{'cached': 11, 'done': 191}
+{'cached': 11, 'done': 192}
+{'cached': 11, 'done': 193}
+final {'cached': 11, 'done': 193}

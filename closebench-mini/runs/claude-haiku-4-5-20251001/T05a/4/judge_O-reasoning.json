@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo clearly explains M1 recognized due to written acceptance on 2026-03-14 and M2 not recognized despite 80% completion because acceptance had not occurred, consistent with the point-in-time per-milestone acceptance policy.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo clearly explains M1 recognized due to written acceptance on 2026-03-14 and M2 not recognized despite 80% completion because acceptance had not occurred, consistent with the point-in-time per-milestone acceptance policy.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014008000000000001,
+ "is_error": false
+}

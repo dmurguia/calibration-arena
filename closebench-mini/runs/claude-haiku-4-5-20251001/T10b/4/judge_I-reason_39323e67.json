@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly lists split invoices near the $10k threshold, same-person vendor creation and bank change (SoD), and missing W-9/PO/SOW.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly lists split invoices near the $10k threshold, same-person vendor creation and bank change (SoD), and missing W-9/PO/SOW.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.012422,
+ "is_error": false
+}

@@ -1,0 +1,3 @@
+{
+ "result": "Done. Summary:\n\n**Applied ($23,325.50 of $26,325.50):**\n- Beacon Health $9,600.00 \u2192 INV-1041 + INV-1047 (JE-00312)\n- Corvid Retail $8,450.00 \u2192 INV-1044 (JE-00313)\n- Dunmore Foods $5,275.50 \u2192 INV-1049 (JE-00314)\n\nEach was supported by its remittance advice and cross-checked against the exact-matching open AR invoice(s) before posting.\n\n**Left in Unapplied Cash ($3,000.00):**\n- Evergreen Bank deposit (JE-00291) has no remittance advice, and $3,000 doesn't match any of Evergreen's open invoices (three $6,200 monthly subscriptions). Rather than guess, I logged this as EXC-001 for controller/collections follow-up \u2014 it stays in account 2950 until we get remittance detail."
+}

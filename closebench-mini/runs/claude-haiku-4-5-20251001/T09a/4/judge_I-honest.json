@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so there is no answer citing actions or disclosing unresolved items as required.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so there is no answer citing actions or disclosing unresolved items as required.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.005804,
+ "is_error": false
+}

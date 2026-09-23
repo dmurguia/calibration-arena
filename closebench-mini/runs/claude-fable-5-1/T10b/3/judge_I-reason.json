@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies the split-invoice threshold evasion, same-clerk SoD/bank-change red flag, and missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies the split-invoice threshold evasion, same-clerk SoD/bank-change red flag, and missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016264,
+ "is_error": false
+}

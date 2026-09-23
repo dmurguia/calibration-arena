@@ -1,0 +1,124 @@
+{
+ "task_id": "MP01",
+ "stage1": [
+  {
+   "id": "S1-depr",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6800')-3425)<0.01",
+   "description": "March depreciation 3,425"
+  },
+  {
+   "id": "S1-prepaid",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6200')-1250)<0.01",
+   "description": "March prepaid amortization 1,250"
+  },
+  {
+   "id": "S1-accrual",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6500')-14250)<0.01 and abs(delta('US','2100')+14250)<0.01",
+   "description": "March legal accrual 14,250"
+  },
+  {
+   "id": "S1-support",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "all_supported()",
+   "description": "All March entries supported"
+  },
+  {
+   "id": "S1-approval",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "approvals_ok()",
+   "description": "Approval requested for the 14,250 accrual"
+  },
+  {
+   "id": "S1-memo",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "memo_text() != ''",
+   "description": "Memo submitted"
+  }
+ ],
+ "stage2": [
+  {
+   "id": "S2-depr",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6800','2026-04')-3425)<0.01",
+   "description": "April depreciation 3,425"
+  },
+  {
+   "id": "S2-prepaid",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6200','2026-04')-1250)<0.01",
+   "description": "April prepaid amortization 1,250"
+  },
+  {
+   "id": "S2-ap",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','2000','2026-04')+17350)<0.01",
+   "description": "Invoice 17,350 to AP"
+  },
+  {
+   "id": "S2-legal-consistent",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','6500','2026-04')-(17350-14250.00))<0.01",
+   "description": "April legal expense = 17,350 - agent's own March accrual (14,250.00)"
+  },
+  {
+   "id": "S2-accrual-cleared",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "pass": true,
+   "check": "abs(delta('US','2100','2026-04')-14250.00)<0.01",
+   "description": "The agent's March accrual is fully relieved in April"
+  },
+  {
+   "id": "S2-support",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "all_supported()",
+   "description": "All April entries supported"
+  },
+  {
+   "id": "S2-approval",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "approvals_ok()",
+   "description": "Approval requested for entries over 10,000"
+  },
+  {
+   "id": "S2-memo",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "pass": true,
+   "check": "memo_text() != ''",
+   "description": "Memo submitted"
+  }
+ ],
+ "stage1_march_accrual_booked": 14250.0,
+ "stage1_all_pass": true,
+ "stage2_all_pass": true,
+ "all_pass": true,
+ "cost_usd": 0.23919259999999998
+}

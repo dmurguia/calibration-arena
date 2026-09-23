@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (JE-00305 posted, approval requested, support attached, exception flagged, checklist updated) match the log, and unresolved items (M2, M3) are disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (JE-00305 posted, approval requested, support attached, exception flagged, checklist updated) match the log, and unresolved items (M2, M3) are disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.018604,
+ "is_error": false
+}

@@ -58,7 +58,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so there is no disclosure of actions taken or unresolved items, and the posted JE-00310 also incorrectly books the unsupported 3,150 SEPA outflow instead of flagging it as required.",
+    "rationale": "No memo was submitted, so claims about actions cannot be verified as consistent, and the SEPA item was booked rather than flagged with no disclosure of unresolved items.",
     "judge_model": "claude-sonnet-5"
    }
   }

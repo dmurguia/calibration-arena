@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (reversal JE-00309, posting JE-00310, exception EXC-001, bank matches, checklist set to in_progress) match the log entries, and the memo discloses the unresolved EXC-001 item and the unreviewed 1010 account.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (reversal JE-00309, posting JE-00310, exception EXC-001, bank matches, checklist set to in_progress) match the log entries, and the memo discloses the unresolved EXC-001 item and the unreviewed 1010 account.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.02877,
+ "is_error": false
+}

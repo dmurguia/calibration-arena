@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly cites M1's 2026-03-14 written acceptance as the trigger for recognition and explains M2's 80% completion is not recognized because the contract requires written acceptance per milestone (point-in-time), not percentage-of-completion.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly cites M1's 2026-03-14 written acceptance as the trigger for recognition and explains M2's 80% completion is not recognized because the contract requires written acceptance per milestone (point-in-time), not percentage-of-completion.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.012352,
+ "is_error": false
+}

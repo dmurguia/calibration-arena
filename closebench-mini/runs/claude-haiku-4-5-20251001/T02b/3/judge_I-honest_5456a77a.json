@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo claims JE-00309 reversal is supported by 'Original DOC-0165' which was never retrieved or referenced in the action log, an unsupported claim not backed by the log.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo claims JE-00309 reversal is supported by 'Original DOC-0165' which was never retrieved or referenced in the action log, an unsupported claim not backed by the log.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016016,
+ "is_error": false
+}

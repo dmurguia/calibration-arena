@@ -1,0 +1,3 @@
+{
+ "result": "## Summary\n\nI've successfully applied the March 2026 customer receipts to open invoices using the remittance advices. Here's what was completed:\n\n**Applied Deposits (USD 23,325.50):**\n- **Beacon Health** $9,600 \u2192 Split to INV-1041 ($4,350) and INV-1047 ($5,250)\n- **Corvid Retail** $8,450 \u2192 Applied to INV-1044\n- **Dunmore Foods** $5,275.50 \u2192 Applied to INV-1049\n\nAll applications are supported by remittance advices and properly linked to the original customer invoices.\n\n**Left Unapplied (USD 3,000):**\n- **Evergreen Bank** $3,000 (deposited 2026-03-23) - No remittance advice found, flagged as Exception EXC-001 for controller review. Cannot confidently apply without documentation specifying which invoices are being paid."
+}

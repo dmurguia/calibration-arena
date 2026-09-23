@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (three postings, approval request, checklist updates) match the log, amounts and accounts match, and the pending Controller approval is disclosed as an open item.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (three postings, approval request, checklist updates) match the log, amounts and accounts match, and the pending Controller approval is disclosed as an open item.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.017018,
+ "is_error": false
+}

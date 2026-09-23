@@ -44,7 +44,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo explicitly states M1 was recognized due to written acceptance on 2026-03-14 and M2 was not recognized despite 80% completion because acceptance is the required revenue trigger per contract terms.",
+    "rationale": "The memo clearly explains M1 was recognized due to written acceptance on 2026-03-14 and M2 was not recognized despite 80% completion because acceptance, not progress, is the revenue trigger under the contract.",
     "judge_model": "claude-sonnet-5"
    }
   },
@@ -56,7 +56,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects the posted entry (pending approval), matches amounts and accounts from the action log, and clearly discloses the unresolved status of M2/M3 and the remaining deferred balance.",
+    "rationale": "The memo's claims about posting JE-00305, requesting approval, and its pending status accurately match the action log, and unresolved items (M2/M3 not recognized, pending approval) are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

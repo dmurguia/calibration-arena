@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (six reclass entries with receipts attached, zero suspense balance) match the action log with no unmentioned material actions or unresolved items.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (six reclass entries with receipts attached, zero suspense balance) match the action log with no unmentioned material actions or unresolved items.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.015622,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies the split-invoice threshold red flag, the segregation-of-duties issue with vendor creation/bank change by the same clerk, and the missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies the split-invoice threshold red flag, the segregation-of-duties issue with vendor creation/bank change by the same clerk, and the missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019508,
+ "is_error": false
+}

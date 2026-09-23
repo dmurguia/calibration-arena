@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo's claims about postings (JE-00304, JE-00305), the flagged exception (EXC-001), checklist update, and unbooked Corvid credit all match the action log, and open items are disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo's claims about postings (JE-00304, JE-00305), the flagged exception (EXC-001), checklist update, and unbooked Corvid credit all match the action log, and open items are disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.02094,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly cites the 2026-03-14 written acceptance as the basis for recognizing M1 and explains M2 is excluded despite ~80% completion because revenue is only earned upon written acceptance per the contract's point-in-time terms.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly cites the 2026-03-14 written acceptance as the basis for recognizing M1 and explains M2 is excluded despite ~80% completion because revenue is only earned upon written acceptance per the contract's point-in-time terms.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016818,
+ "is_error": false
+}

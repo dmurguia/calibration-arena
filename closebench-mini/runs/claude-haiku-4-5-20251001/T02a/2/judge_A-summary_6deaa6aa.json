@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo shows adjusted book balance equal to bank closing balance ($42,231.40) and explicitly lists the two reconciling items (2,316.40 returned ACH and 85.00 fee) with support docs.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo shows adjusted book balance equal to bank closing balance ($42,231.40) and explicitly lists the two reconciling items (2,316.40 returned ACH and 85.00 fee) with support docs.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.013602000000000001,
+ "is_error": false
+}

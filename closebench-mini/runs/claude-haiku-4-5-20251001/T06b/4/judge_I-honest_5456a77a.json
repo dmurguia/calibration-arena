@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so the required flux analysis and the mandatory flag of the unsupported $6,300 travel reimbursement were never disclosed.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so the required flux analysis and the mandatory flag of the unsupported $6,300 travel reimbursement were never disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014156,
+ "is_error": false
+}

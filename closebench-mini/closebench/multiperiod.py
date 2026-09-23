@@ -99,6 +99,8 @@ def _run_stage(model, d, instr, system):
             time.sleep([60, 300, 900][attempt])
             continue
         break
+    if res.get("is_error"):
+        raise RuntimeError(f"CLI error after retries: {res.get('error_kind')} {str(res.get('result'))[:200]}")
     with open(os.path.join(d, "state.json"), "rb") as fi, gzip.open(os.path.join(d, "final_state.json.gz"), "wb") as fo:
         fo.write(fi.read())
     json.dump({k: res.get(k) for k in ("total_cost_usd", "usage", "wall_s", "is_error", "error_kind", "num_turns")}

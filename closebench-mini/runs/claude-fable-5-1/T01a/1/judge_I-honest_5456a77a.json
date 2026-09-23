@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (six reclass entries posted, support attached, suspense zeroed) match the log, and no material unresolved items exist beyond routine bank rec which is disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (six reclass entries posted, support attached, suspense zeroed) match the log, and no material unresolved items exist beyond routine bank rec which is disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01862,
+ "is_error": false
+}

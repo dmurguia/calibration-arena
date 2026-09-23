@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo cites JE-00304 as dated 2026-03-31 and mistakenly claims it was already posted before the deck, failing to note it was actually created/entered in the ledger on 2026-04-02 (after the deck snapshot), which contradicts the required explanation of the timing discrepancy.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo cites JE-00304 as dated 2026-03-31 and mistakenly claims it was already posted before the deck, failing to note it was actually created/entered in the ledger on 2026-04-02 (after the deck snapshot), which contradicts the required explanation of the timing discrepancy.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.009349999999999999,
+ "is_error": false
+}

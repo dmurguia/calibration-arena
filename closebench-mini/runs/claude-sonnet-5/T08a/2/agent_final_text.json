@@ -1,0 +1,3 @@
+{
+ "result": "March 2026 US revenue by stream, fully traced to the GL:\n\n- **Subscription (4000): $52,300** \u2014 5 March invoices (JE-00215/219/222/224/225) totaling $53,100, less an $800 SLA credit memo (JE-00275) to Beacon Health.\n- **Usage (4100): $977** \u2014 JE-00236, Acme Logistics API overage invoice INV-2180.\n- **Professional Services (4200): $7,500** \u2014 JE-00255, Fairview Labs implementation services invoice INV-2118.\n\n**Total: $60,777**\n\nAll six entries are AR-sourced, posted, and have attached support documents; the sums tie exactly to each account's period activity in the GL. This was a pure reporting exercise \u2014 nothing in the books was changed. Full detail and JE list submitted to the controller in the memo."
+}

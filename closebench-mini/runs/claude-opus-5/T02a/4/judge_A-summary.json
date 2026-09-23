@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo clearly shows adjusted book balance equal to bank balance at 42,231.40 and explicitly lists the 2,316.40 returned deposit and 85.00 fee as reconciling items now recorded.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo clearly shows adjusted book balance equal to bank balance at 42,231.40 and explicitly lists the 2,316.40 returned deposit and 85.00 fee as reconciling items now recorded.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019326,
+ "is_error": false
+}

@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects the three posted journal entries and remittance matches from the action log, and clearly discloses the unresolved Evergreen Bank item without misstating any actions.",
+    "rationale": "The memo's claims about posted entries and the flagged/unresolved Evergreen item match the action log exactly with no discrepancies.",
     "judge_model": "claude-sonnet-5"
    }
   }

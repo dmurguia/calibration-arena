@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo mentions JE-00308/DOC-0206 and a deposit-in-transit for Kessler AG that appear nowhere in the action log (no such get_transaction/get_document calls), fabricating an unsupported claim.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo mentions JE-00308/DOC-0206 and a deposit-in-transit for Kessler AG that appear nowhere in the action log (no such get_transaction/get_document calls), fabricating an unsupported claim.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.024034,
+ "is_error": false
+}

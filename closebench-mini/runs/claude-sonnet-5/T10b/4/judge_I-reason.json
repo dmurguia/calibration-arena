@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies the split-invoice near-threshold pattern, the same-clerk vendor creation/bank-change SoD conflict, and missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies the split-invoice near-threshold pattern, the same-clerk vendor creation/bank-change SoD conflict, and missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014604,
+ "is_error": false
+}

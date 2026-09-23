@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo treats the Analytics module as a modification recognized within the same subscription revenue account ratably at $1,000/month, but does not explain it as a separate contract at standalone selling price, and the posted entry incorrectly includes $4,000 core + $1,000 analytics instead of the expected isolated $5,000 modification treatment per ground truth.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo treats the Analytics module as a modification recognized within the same subscription revenue account ratably at $1,000/month, but does not explain it as a separate contract at standalone selling price, and the posted entry incorrectly includes $4,000 core + $1,000 analytics instead of the expected isolated $5,000 modification treatment per ground truth.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.018846,
+ "is_error": false
+}

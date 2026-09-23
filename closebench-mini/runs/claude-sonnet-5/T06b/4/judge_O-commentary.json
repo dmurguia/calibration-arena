@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "Hosting & Infrastructure 5000 (~$9,800 one-time migration) was never identified as a >10%/>$5,000 mover, so the required set of lines was not correctly identified.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"Hosting & Infrastructure 5000 (~$9,800 one-time migration) was never identified as a >10%/>$5,000 mover, so the required set of lines was not correctly identified.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.02091,
+ "is_error": false
+}

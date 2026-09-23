@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The agent missed Hosting & Infrastructure (6000/5000-equivalent, ~+9,800 one-time migration) entirely, so it did not identify all three required lines.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The agent missed Hosting & Infrastructure (6000/5000-equivalent, ~+9,800 one-time migration) entirely, so it did not identify all three required lines.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019568,
+ "is_error": false
+}

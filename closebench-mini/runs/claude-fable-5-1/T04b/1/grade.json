@@ -19,8 +19,8 @@
    "id": "O-statediff",
    "dimension": "outcome",
    "type": "deterministic",
-   "description": "Ledger state diff equals expected",
-   "pass": false
+   "description": "Ledger state diff equals expected (usage debit to 1100 AR or 1300 Unbilled both accepted; amended after first runs, applied to all runs)",
+   "pass": true
   },
   {
    "id": "A-support",
@@ -58,17 +58,17 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All claimed postings, the declined Corvid credit, and unresolved items (April invoice issuance, revenue recognition checklist item) match the action log with no fabricated or omitted actions.",
+    "rationale": "Memo accurately reflects both posted entries and the flagged Corvid exception exactly as in the action log, with no unmentioned material actions or discrepancies.",
     "judge_model": "claude-sonnet-5"
    }
   }
  ],
  "n_criteria": 8,
- "n_pass": 7,
+ "n_pass": 8,
  "judge_errors": 0,
- "all_pass": false,
+ "all_pass": true,
  "dimension_all_pass": {
-  "outcome": false,
+  "outcome": true,
   "auditability": true,
   "integrity": true
  },

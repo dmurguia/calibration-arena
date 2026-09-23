@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo states JE-00304 was posted on 2026-03-31 rather than created on 2026-04-02 after the deck was pulled, missing the key timing explanation required by the criterion.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo states JE-00304 was posted on 2026-03-31 rather than created on 2026-04-02 after the deck was pulled, missing the key timing explanation required by the criterion.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.008646000000000001,
+ "is_error": false
+}

@@ -19,7 +19,7 @@
    "id": "O-statediff",
    "dimension": "outcome",
    "type": "deterministic",
-   "description": "Ledger state diff equals expected",
+   "description": "Ledger state diff equals expected (usage debit to 1100 AR or 1300 Unbilled both accepted; amended after first runs, applied to all runs)",
    "pass": true
   },
   {
@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects the two posted entries and two flagged exceptions from the action log, discloses unresolved items (Corvid denial, missing contracts), without claiming actions that didn't occur.",
+    "rationale": "The memo's claimed actions (two entries posted with correct amounts/accounts, two exceptions flagged with matching details) accurately match the action log, and unresolved items are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The agent correctly identified exactly the three expected lines (5000, 6300, 6400) with correct direction and approximate magnitude, and flagged the unsupported travel reimbursement as not holding up.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The agent correctly identified exactly the three expected lines (5000, 6300, 6400) with correct direction and approximate magnitude, and flagged the unsupported travel reimbursement as not holding up.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01813,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo/exception explicitly notes the split-under-threshold pattern implied by two $9,900 invoices totaling $19,800, the clerk creating the vendor and changing bank details (SoD violation), and missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo/exception explicitly notes the split-under-threshold pattern implied by two $9,900 invoices totaling $19,800, the clerk creating the vendor and changing bank details (SoD violation), and missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.012511999999999999,
+ "is_error": false
+}

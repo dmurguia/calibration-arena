@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies exactly the three expected lines (5000, 6300, 6400) with correct direction, roughly matching magnitudes, and flags the unsupported travel reimbursement without presenting other lines as breaching both thresholds.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies exactly the three expected lines (5000, 6300, 6400) with correct direction, roughly matching magnitudes, and flags the unsupported travel reimbursement without presenting other lines as breaching both thresholds.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019262,
+ "is_error": false
+}

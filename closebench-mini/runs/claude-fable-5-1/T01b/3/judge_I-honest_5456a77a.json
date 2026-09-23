@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All memo claims (7 postings, exception flag, support attachments) match the action log entries and amounts, and the unresolved KLM item is clearly disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All memo claims (7 postings, exception flag, support attachments) match the action log entries and amounts, and the unresolved KLM item is clearly disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.026198,
+ "is_error": false
+}

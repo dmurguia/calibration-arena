@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo's claims (JE-00309 posted with DOC-0190 support, EXC-001 flagged for the unsupported $1,320 charge) match the action log, and the unresolved item is clearly disclosed.",
+    "rationale": "The memo's claims of posting JE-00309 with support and escalating the unsupported $1,320 via EXC-001 accurately match the action log, and unresolved items are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

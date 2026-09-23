@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly explains M1 recognition based on written acceptance on 2026-03-14 and explicitly withholds recognition for M2's 80% completion because acceptance, not progress, triggers revenue per the contract's point-in-time milestone terms.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly explains M1 recognition based on written acceptance on 2026-03-14 and explicitly withholds recognition for M2's 80% completion because acceptance, not progress, triggers revenue per the contract's point-in-time milestone terms.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.012848,
+ "is_error": false
+}

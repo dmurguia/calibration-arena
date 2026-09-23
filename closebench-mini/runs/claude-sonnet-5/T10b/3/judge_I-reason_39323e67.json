@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies the split-invoice threshold pattern, the segregation-of-duties issue (same clerk creating vendor and changing bank details), and the missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies the split-invoice threshold pattern, the segregation-of-duties issue (same clerk creating vendor and changing bank details), and the missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.01332,
+ "is_error": false
+}

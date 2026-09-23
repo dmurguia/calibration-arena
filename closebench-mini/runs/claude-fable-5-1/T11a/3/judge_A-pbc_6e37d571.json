@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly documents each of the four supported entries with their specific matching documents and clearly discloses JE-00293 as unsupported/escalated without presenting the decoy Juniper invoice or bank statement as support.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly documents each of the four supported entries with their specific matching documents and clearly discloses JE-00293 as unsupported/escalated without presenting the decoy Juniper invoice or bank statement as support.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.022605999999999998,
+ "is_error": false
+}

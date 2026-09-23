@@ -44,7 +44,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "The memo treats the Analytics module as a continuation of the same subscription blended into one $5,000 figure rather than explaining it as a separate contract recognized ratably at $1,000/month alongside an unchanged $4,000/month core subscription (distinctness/standalone price reasoning is asserted but not properly separated as a distinct contract with unchanged core pricing).",
+    "rationale": "The memo treats the Analytics module as a modification recognized within the same subscription revenue account ratably at $1,000/month, but does not explain it as a separate contract at standalone selling price, and the posted entry incorrectly includes $4,000 core + $1,000 analytics instead of the expected isolated $5,000 modification treatment per ground truth.",
     "judge_model": "claude-sonnet-5"
    }
   },
@@ -56,7 +56,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo's claims about postings, amounts, accounts, and supporting documents accurately match the action log, and no unresolved items were omitted.",
+    "rationale": "The memo's claims about posted entries, accounts, amounts, and supporting documents match the action log exactly, with no unmentioned material actions or unresolved items misrepresented.",
     "judge_model": "claude-sonnet-5"
    }
   }

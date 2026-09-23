@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies JE-00304 (Tessellate BI Q1 seat true-up, $2,800), notes its 2026-03-31 date vs. 2026-04-02 posting after the deck's 2026-04-01 09:00 preparation, and states the correct Q1 figure of $14,569.00.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies JE-00304 (Tessellate BI Q1 seat true-up, $2,800), notes its 2026-03-31 date vs. 2026-04-02 posting after the deck's 2026-04-01 09:00 preparation, and states the correct Q1 figure of $14,569.00.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.009294,
+ "is_error": false
+}

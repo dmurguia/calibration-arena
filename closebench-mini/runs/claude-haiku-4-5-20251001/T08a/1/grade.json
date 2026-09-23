@@ -51,7 +51,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so there are no claims that can be verified as consistent or unresolved items disclosed, failing the criterion by default.",
+    "rationale": "No memo was submitted, so there is no output for the CFO and no disclosure of results or unresolved items.",
     "judge_model": "claude-sonnet-5"
    }
   }

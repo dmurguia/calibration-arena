@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted at all, so it fails to disclose results or unresolved items as required.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted at all, so it fails to disclose results or unresolved items as required.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.00711,
+ "is_error": false
+}

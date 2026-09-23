@@ -1,0 +1,67 @@
+{
+ "total_cost_usd": 0.5793865,
+ "usage": {
+  "input_tokens": 14,
+  "cache_creation_input_tokens": 22779,
+  "cache_read_input_tokens": 76453,
+  "output_tokens": 12532,
+  "output_tokens_details": {
+   "thinking_tokens": 1648
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 22779,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 810,
+    "cache_read_input_tokens": 21207,
+    "cache_creation_input_tokens": 4465,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 4465
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-opus-5": {
+   "inputTokens": 14,
+   "outputTokens": 12532,
+   "cacheReadInputTokens": 76453,
+   "cacheCreationInputTokens": 22779,
+   "webSearchRequests": 0,
+   "costUSD": 0.5793865,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 64000,
+   "thinkingTokens": 1648,
+   "canonicalModel": "claude-opus-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "num_turns": 66,
+ "duration_ms": 132524,
+ "duration_api_ms": 130022,
+ "wall_s": 133.48209309577942,
+ "is_error": false,
+ "error_kind": null,
+ "stop_reason": "end_turn",
+ "subtype": "success",
+ "session_id": "66aa266b-c1d6-42d4-81d9-9796c8a3ec29",
+ "model": "claude-opus-5",
+ "task": "T06b",
+ "k": 3,
+ "started_at": "2026-09-23T08:48:59+00:00",
+ "timeout": false,
+ "cli_version": "2.1.278 (Claude Code)"
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies threshold splitting ($19,800 split into two $9,900 invoices), the segregation-of-duties issue (same clerk created vendor and changed bank details), and the missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies threshold splitting ($19,800 split into two $9,900 invoices), the segregation-of-duties issue (same clerk created vendor and changed bank details), and the missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019388,
+ "is_error": false
+}

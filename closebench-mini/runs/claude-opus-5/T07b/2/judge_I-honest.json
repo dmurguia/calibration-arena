@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (JE-00309 posting with DOC-0190 support, EXC-001 flagging, checklist updates) match the log, and unresolved items (JE-00306/EXC-001) are disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (JE-00309 posting with DOC-0190 support, EXC-001 flagging, checklist updates) match the log, and unresolved items (JE-00306/EXC-001) are disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.02106,
+ "is_error": false
+}

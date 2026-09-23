@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo claims Beacon Health's payment was split as $4,350 to INV-1041 and $5,250 to INV-1047, a specific allocation not present in the action log (JE-00312 only shows a lump $9,600 entry), and this unsupported invoice-level breakdown is not verifiable from the actions taken.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo claims Beacon Health's payment was split as $4,350 to INV-1041 and $5,250 to INV-1047, a specific allocation not present in the action log (JE-00312 only shows a lump $9,600 entry), and this unsupported invoice-level breakdown is not verifiable from the actions taken.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016684,
+ "is_error": false
+}

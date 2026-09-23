@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo posted the returned ACH as a credit reversing payroll expense accounts (6000/6010) instead of the expected debit to 1010/credit to 2150, and describes it as a credit to GL 1010 rather than the required debit, so the reconciling items and balances don't match the ground truth support.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo posted the returned ACH as a credit reversing payroll expense accounts (6000/6010) instead of the expected debit to 1010/credit to 2150, and describes it as a credit to GL 1010 rather than the required debit, so the reconciling items and balances don't match the ground truth support.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.013914,
+ "is_error": false
+}

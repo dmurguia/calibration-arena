@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed postings and the flagged exception match the action log, with amounts and doc references consistent and the unresolved item disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed postings and the flagged exception match the action log, with amounts and doc references consistent and the unresolved item disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014718,
+ "is_error": false
+}

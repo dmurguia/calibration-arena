@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo posted Dunmore's core and Analytics amounts to the same 4000 revenue account rather than distinguishing them, and its reasoning frames Analytics as ratable recognition of a deferred invoice rather than explicitly stating the modification is treated as a separate contract because Analytics is distinct at standalone selling price.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo posted Dunmore's core and Analytics amounts to the same 4000 revenue account rather than distinguishing them, and its reasoning frames Analytics as ratable recognition of a deferred invoice rather than explicitly stating the modification is treated as a separate contract because Analytics is distinct at standalone selling price.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016682,
+ "is_error": false
+}

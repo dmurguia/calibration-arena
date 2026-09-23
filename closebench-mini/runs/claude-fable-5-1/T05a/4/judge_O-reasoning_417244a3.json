@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo clearly states M1 is recognized due to written acceptance on 2026-03-14 and M2 is not recognized despite 80% completion because milestones are earned only upon written acceptance per the contract, not percentage-of-completion.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo clearly states M1 is recognized due to written acceptance on 2026-03-14 and M2 is not recognized despite 80% completion because milestones are earned only upon written acceptance per the contract, not percentage-of-completion.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014884,
+ "is_error": false
+}

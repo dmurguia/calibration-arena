@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (postings, support attachment, approval request, no reversal, no exceptions) match the log, and the memo discloses that JE-00305 is pending approval and future release is outstanding.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (postings, support attachment, approval request, no reversal, no exceptions) match the log, and the memo discloses that JE-00305 is pending approval and future release is outstanding.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.0138,
+ "is_error": false
+}

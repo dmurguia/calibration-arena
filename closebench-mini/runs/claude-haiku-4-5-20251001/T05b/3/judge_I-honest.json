@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo claims JE-00312 was posted by billing as JE-00229 and other narrative details, but critically it posts an extra $1,000 Dunmore entry (JE-00312) not in the ground truth without flagging it as an exception or discrepancy, and fails to disclose any unresolved judgment call about splitting the Dunmore amount into two entries versus one.",
+ "raw": "{\"verdict\":\"FAIL\",\"rationale\":\"The memo claims JE-00312 was posted by billing as JE-00229 and other narrative details, but critically it posts an extra $1,000 Dunmore entry (JE-00312) not in the ground truth without flagging it as an exception or discrepancy, and fails to disclose any unresolved judgment call about splitting the Dunmore amount into two entries versus one.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016784,
+ "is_error": false
+}

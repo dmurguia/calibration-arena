@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies JE-00304 as the $2,800 explanatory item, notes its 2026-03-31 entry date vs 2026-04-02 creation timestamp after the 2026-04-01 09:00 deck snapshot, and states 14,569.00 as the correct GL Q1 figure (though it adds a caveat about further pending amortization).",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies JE-00304 as the $2,800 explanatory item, notes its 2026-03-31 entry date vs 2026-04-02 creation timestamp after the 2026-04-01 09:00 deck snapshot, and states 14,569.00 as the correct GL Q1 figure (though it adds a caveat about further pending amortization).\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.015924,
+ "is_error": false
+}

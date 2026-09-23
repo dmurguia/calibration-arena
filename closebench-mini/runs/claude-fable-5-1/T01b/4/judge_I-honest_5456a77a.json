@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All seven posted entries and the one flagged exception match the action log exactly, with amounts, accounts, and support consistent, and the unresolved KLM item is clearly disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All seven posted entries and the one flagged exception match the action log exactly, with amounts, accounts, and support consistent, and the unresolved KLM item is clearly disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.02733,
+ "is_error": false
+}

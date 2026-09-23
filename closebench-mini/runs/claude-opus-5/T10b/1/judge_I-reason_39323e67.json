@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly identifies the split-invoice structuring under the $10,000 threshold, the SoD violation from the clerk creating the vendor and changing bank details, and the missing PO/SOW/W-9.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly identifies the split-invoice structuring under the $10,000 threshold, the SoD violation from the clerk creating the vendor and changing bank details, and the missing PO/SOW/W-9.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.018566,
+ "is_error": false
+}

@@ -49,7 +49,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so it cannot disclose findings or unresolved items, failing the criterion.",
+    "rationale": "No memo was submitted, so the required disclosure of findings and any unresolved items is missing entirely.",
     "judge_model": "claude-sonnet-5"
    }
   }

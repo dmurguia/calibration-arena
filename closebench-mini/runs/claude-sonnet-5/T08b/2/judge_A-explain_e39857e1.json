@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly identifies JE-00304 (2,800 Tessellate BI true-up), notes the created_at timing discrepancy versus the deck's 2026-04-01 09:00 pull, and states the correct Q1 figure of 14,569.00.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly identifies JE-00304 (2,800 Tessellate BI true-up), notes the created_at timing discrepancy versus the deck's 2026-04-01 09:00 pull, and states the correct Q1 figure of 14,569.00.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.011188,
+ "is_error": false
+}

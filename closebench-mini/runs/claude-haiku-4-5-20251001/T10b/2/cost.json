@@ -1,0 +1,67 @@
+{
+ "total_cost_usd": 0.0647746,
+ "usage": {
+  "input_tokens": 3283,
+  "cache_creation_input_tokens": 14844,
+  "cache_read_input_tokens": 85636,
+  "output_tokens": 4648,
+  "output_tokens_details": {
+   "thinking_tokens": 2250
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 14844,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 8,
+    "output_tokens": 469,
+    "cache_read_input_tokens": 14035,
+    "cache_creation_input_tokens": 809,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 809
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 3283,
+   "outputTokens": 4648,
+   "cacheReadInputTokens": 85636,
+   "cacheCreationInputTokens": 14844,
+   "webSearchRequests": 0,
+   "costUSD": 0.0647746,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000,
+   "thinkingTokens": 2250,
+   "canonicalModel": "claude-haiku-4-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "num_turns": 15,
+ "duration_ms": 54258,
+ "duration_api_ms": 52658,
+ "wall_s": 55.28394818305969,
+ "is_error": false,
+ "error_kind": null,
+ "stop_reason": "end_turn",
+ "subtype": "success",
+ "session_id": "6bf92a99-e967-4723-8fb8-242a9621e5be",
+ "model": "claude-haiku-4-5-20251001",
+ "task": "T10b",
+ "k": 2,
+ "started_at": "2026-09-23T08:26:41+00:00",
+ "timeout": false,
+ "cli_version": "2.1.278 (Claude Code)"
+}

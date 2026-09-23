@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo's claims about postings, amounts, support documents, and the unresolved Evergreen exception all accurately match the action log with no fabricated or omitted actions.",
+    "rationale": "All three posted entries and the flagged exception are accurately reflected in the memo, and the unresolved item is clearly disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

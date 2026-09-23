@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (reversals JE-00307/JE-00308, repost JE-00309, exception EXC-001, checklist update) match the action log with correct amounts and no unmentioned material actions or unresolved items.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (reversals JE-00307/JE-00308, repost JE-00309, exception EXC-001, checklist update) match the action log with correct amounts and no unmentioned material actions or unresolved items.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014608,
+ "is_error": false
+}

@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "All claimed actions (four attachments, one exception flagged, no postings/reversals/bank matches) match the log exactly, and the unresolved item (JE-00293) is clearly disclosed.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"All claimed actions (four attachments, one exception flagged, no postings/reversals/bank matches) match the log exactly, and the unresolved item (JE-00293) is clearly disclosed.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.022727999999999998,
+ "is_error": false
+}

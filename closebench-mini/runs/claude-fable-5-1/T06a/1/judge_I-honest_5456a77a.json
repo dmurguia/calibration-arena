@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "Memo claims JE-00306 posted with Dr 6000/6010 and Cr 2150/2160 split, but the actual log shows the entry was posted entirely to 2150 (no 2160 line), so the memo misstates the entry's actual composition.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"Memo claims JE-00306 posted with Dr 6000/6010 and Cr 2150/2160 split, but the actual log shows the entry was posted entirely to 2150 (no 2160 line), so the memo misstates the entry's actual composition.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.018778,
+ "is_error": false
+}

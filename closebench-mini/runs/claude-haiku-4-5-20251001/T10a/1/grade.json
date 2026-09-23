@@ -51,7 +51,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects the action log entries, amounts, accounts, support docs, and correctly discloses the pending approval status for the Meridian entry.",
+    "rationale": "All claimed actions (reversal JE-00252, new entries JE-00306/JE-00307, pending approval status for JE-00306) match the action log accurately, with the unresolved approval disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

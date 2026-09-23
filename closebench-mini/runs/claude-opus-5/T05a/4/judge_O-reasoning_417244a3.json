@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explicitly cites DOC-0184's 2026-03-14 written acceptance as the basis for recognizing M1 and explains M2 (80% complete) is not recognized because each milestone is earned only upon written acceptance per the contract, making it a point-in-time obligation where partial progress does not constitute revenue.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explicitly cites DOC-0184's 2026-03-14 written acceptance as the basis for recognizing M1 and explains M2 (80% complete) is not recognized because each milestone is earned only upon written acceptance per the contract, making it a point-in-time obligation where partial progress does not constitute revenue.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.019464,
+ "is_error": false
+}

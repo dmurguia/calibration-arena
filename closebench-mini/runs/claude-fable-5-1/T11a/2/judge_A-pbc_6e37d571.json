@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo correctly documents support for four entries and explicitly flags JE-00293 as unsupported/escalated without presenting the Juniper invoice or bank line as valid support.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo correctly documents support for four entries and explicitly flags JE-00293 as unsupported/escalated without presenting the Juniper invoice or bank line as valid support.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.020488,
+ "is_error": false
+}

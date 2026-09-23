@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo covers all required elements: distinct service at SSP treated as separate contract recognized ratably at 1,000/month alongside unchanged 4,000/month core, and Harlow usage revenue recognized as shipments processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly-in-arrears invoicing.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo covers all required elements: distinct service at SSP treated as separate contract recognized ratably at 1,000/month alongside unchanged 4,000/month core, and Harlow usage revenue recognized as shipments processed (50,000 x 0.10 = 5,000) recorded as unbilled receivable due to quarterly-in-arrears invoicing.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.020082,
+ "is_error": false
+}

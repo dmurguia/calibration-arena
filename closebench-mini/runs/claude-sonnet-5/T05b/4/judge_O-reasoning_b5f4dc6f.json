@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo explains Analytics as a distinct performance obligation at SSP recognized ratably at $1,000/month alongside the unchanged $4,000/month core, and explains Harlow's $5,000 (50,000 x $0.10) is recognized as shipments are processed and recorded as unbilled receivable due to quarterly-in-arrears invoicing.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo explains Analytics as a distinct performance obligation at SSP recognized ratably at $1,000/month alongside the unchanged $4,000/month core, and explains Harlow's $5,000 (50,000 x $0.10) is recognized as shipments are processed and recorded as unbilled receivable due to quarterly-in-arrears invoicing.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.017012,
+ "is_error": false
+}

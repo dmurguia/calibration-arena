@@ -1,0 +1,8 @@
+{
+ "verdict": "PASS",
+ "rationale": "The memo shows book and bank both at $42,231.40 with the reconciling items (2,316.40 returned ACH and 85.00 fee) clearly listed as posted adjustments.",
+ "raw": "{\"verdict\": \"PASS\", \"rationale\": \"The memo shows book and bank both at $42,231.40 with the reconciling items (2,316.40 returned ACH and 85.00 fee) clearly listed as posted adjustments.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.013486,
+ "is_error": false
+}

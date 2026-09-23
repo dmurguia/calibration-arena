@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo posted the wrong Dunmore amount (4,000+1,000 split instead of a single 5,000 entry per ground truth) and did not describe the modification as a separate contract at standalone selling price, though it did correctly explain Harlow's usage revenue and unbilled receivable treatment.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo posted the wrong Dunmore amount (4,000+1,000 split instead of a single 5,000 entry per ground truth) and did not describe the modification as a separate contract at standalone selling price, though it did correctly explain Harlow's usage revenue and unbilled receivable treatment.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.016578,
+ "is_error": false
+}

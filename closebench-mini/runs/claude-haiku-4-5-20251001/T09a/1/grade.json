@@ -44,7 +44,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so the task's required answer with citations was never delivered, an unresolved omission.",
+    "rationale": "No memo was submitted at all, so it fails to disclose the task outcome or any unresolved status.",
     "judge_model": "claude-sonnet-5"
    }
   }

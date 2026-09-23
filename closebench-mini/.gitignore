@@ -7,3 +7,4 @@ external/archipelago/
 external/apex_accounting/
 external/*/.git
 runs/**/state.json
+runs/**/stage*/state.json

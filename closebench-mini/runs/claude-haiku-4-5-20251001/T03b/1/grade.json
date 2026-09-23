@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo accurately reflects both postings, amounts, accounts, support docs, and the pending approval status exactly as shown in the action log, with no unsupported claims or material omissions.",
+    "rationale": "Memo's claims of posting JE-00304 and JE-00305 with stated amounts, accounts, support docs, and the approval request for JE-00305 all match the action log with no fabricated or omitted actions.",
     "judge_model": "claude-sonnet-5"
    }
   }

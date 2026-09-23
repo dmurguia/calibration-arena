@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo missed Hosting & Infrastructure (6000/5xxx one-time migration ~$9,800) as a required flux line, so it did not identify exactly the three expected lines that breach both thresholds.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo missed Hosting & Infrastructure (6000/5xxx one-time migration ~$9,800) as a required flux line, so it did not identify exactly the three expected lines that breach both thresholds.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.020923999999999998,
+ "is_error": false
+}

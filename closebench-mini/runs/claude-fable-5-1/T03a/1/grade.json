@@ -65,7 +65,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "Ground truth expects Delmar posted fully to 1220 (9,600) then a separate 6700/1220 amortization entry, but the agent instead posted a single blended JE-00306 splitting 8,800/800 directly, and the memo misrepresents this as compliant policy treatment without disclosing the deviation from the expected two-entry treatment.",
+    "rationale": "Memo claims JE-00306 booked Dr 1220 8,800/Dr 6700 800 as reported, but ground truth expects Dr 1220 9,600 full amount (separate from the 6700/800 credit-to-1220 reversal), indicating the memo's description of its own posting logic doesn't match intended treatment, and it also asserts 'no exceptions were flagged' while omitting that Delmar was split unlike the other four single-line entries without explaining discrepancy with policy amortization mechanics used elsewhere (accrual vs prepaid offset).",
     "judge_model": "claude-sonnet-5"
    }
   }

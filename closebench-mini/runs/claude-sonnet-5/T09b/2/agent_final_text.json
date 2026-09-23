@@ -1,0 +1,3 @@
+{
+ "result": "Consolidated cash memo submitted. Summary:\n\n**Treasury month-end rates (DOC-0200, 2026-03-31):** GBP 1.2500, EUR 1.1000 (USD per unit).\n\n**By entity (GL 1000+1010+1020, period 2026-03):**\n- **US** (USD): $1,676,957.20 local = **$1,676,957.20**\n- **UK** (GBP): \u00a3567,789.56 local \u00d7 1.2500 = **$709,736.95**\n- **DE** (EUR): \u20ac364,136.36 local \u00d7 1.1000 = **$400,550.00**\n\n**Consolidated total cash: $2,787,244.15**\n\nAll figures sourced directly from ledger `get_account_balance` calls for accounts 1000/1010/1020 across US/UK/DE for period 2026-03, translated using Treasury's policy rate document DOC-0200. No entries were needed and no exceptions arose for this reporting request."
+}

@@ -44,7 +44,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo clearly explains M1 revenue is recognized due to written acceptance on 2026-03-14 and M2 is excluded because milestones are earned only on written acceptance (point-in-time), so the 80% progress does not constitute revenue.",
+    "rationale": "The memo explicitly recognizes M1 based on the 2026-03-14 written acceptance and explains M2's ~80% completion is not recognized because the contract requires written acceptance per milestone (point-in-time) rather than percentage-of-completion.",
     "judge_model": "claude-sonnet-5"
    }
   },
@@ -56,7 +56,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All claimed actions (posting JE-00305, requesting approval, attaching support docs, flagging M2 as EXC-001, marking checklist in_progress) match the action log, and the memo discloses unresolved items (pending approval, M2/M3 not recognized).",
+    "rationale": "All claimed actions (JE-00305 posted, approval requested, support attached, exception flagged, checklist updated) match the log, and unresolved items (M2, M3) are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

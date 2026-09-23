@@ -58,7 +58,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "The memo shows book and bank both ending at 42,231.40 with a 0.00 difference, and explicitly lists the 2,316.40 returned deposit and 85.00 fee as reconciling items.",
+    "rationale": "The memo shows book and bank ending balances both equal to 42,231.40 with a zero difference and explicitly lists the 2,316.40 returned deposit and 85.00 fee as the reconciling/posted items.",
     "judge_model": "claude-sonnet-5"
    }
   },
@@ -70,7 +70,7 @@
    "pass": true,
    "judge": {
     "verdict": "PASS",
-    "rationale": "All claimed matches, postings, and balances are supported by the action log, and the memo discloses unresolved items (Okafor unclaimed wages, checklist item still in_progress, other accounts not reconciled).",
+    "rationale": "All claimed actions (matches, postings, checklist update) match the log, and unresolved items (Okafor unclaimed wages, checklist status, 6900 coding) are disclosed.",
     "judge_model": "claude-sonnet-5"
    }
   }

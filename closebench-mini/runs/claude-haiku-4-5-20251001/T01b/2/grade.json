@@ -58,7 +58,7 @@
    "pass": false,
    "judge": {
     "verdict": "FAIL",
-    "rationale": "No memo was submitted, so it cannot be evaluated for consistency with the action log or disclosure of unresolved items.",
+    "rationale": "No memo was submitted, so it cannot accurately report the agent's actions or disclose unresolved items.",
     "judge_model": "claude-sonnet-5"
    }
   }

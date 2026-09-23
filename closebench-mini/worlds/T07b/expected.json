@@ -1,0 +1,45 @@
+{
+ "expected_entries": [
+  {
+   "entity": "DE",
+   "lines": [
+    [
+     "6200",
+     500.0,
+     0.0
+    ],
+    [
+     "2300",
+     0.0,
+     500.0
+    ]
+   ]
+  }
+ ],
+ "optional_reversals": [],
+ "computed_values": {},
+ "expected_state_entries_added": [
+  {
+   "id": "JE-EXP-001",
+   "entity": "DE",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6200",
+     "debit": 500.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2300",
+     "debit": 0.0,
+     "credit": 500.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  }
+ ]
+}

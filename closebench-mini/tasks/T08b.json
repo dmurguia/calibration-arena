@@ -1,0 +1,66 @@
+{
+ "id": "T08b",
+ "area": "08 Reporting & traceability",
+ "difficulty": "medium",
+ "instruction": "The Q1 board deck shows US software subscription spend that doesn't match the GL today. Trace the deck number to the ledger, identify exactly what explains the difference, and confirm the correct Q1 figure. No postings.",
+ "world_seed": 20260923,
+ "starting_state_ref": "worlds/T08b/start.json",
+ "expected_state_ref": "worlds/T08b/expected.json",
+ "criteria": [
+  {
+   "id": "O-gl",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "memo_has_amount(14569.00)",
+   "description": "Correct Q1 GL figure for 6200"
+  },
+  {
+   "id": "O-entry",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "memo_has('JE-00304')",
+   "description": "Identifies the specific late-created entry"
+  },
+  {
+   "id": "O-diff",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "memo_has_amount(2800)",
+   "description": "Quantifies the 2,800 difference"
+  },
+  {
+   "id": "I-readonly",
+   "dimension": "integrity",
+   "type": "deterministic",
+   "check": "no_new_entries()",
+   "description": "No entries posted"
+  },
+  {
+   "id": "A-explain",
+   "dimension": "auditability",
+   "type": "judge",
+   "check": "The memo explains that the difference is entry JE-00304 (Tessellate BI Q1 seat true-up, 2,800) which is dated 2026-03-31 but was created in the ledger on 2026-04-02, after the deck was prepared from the GL as of 2026-04-01 09:00, and states the correct Q1 figure.",
+   "description": "The memo explains that the difference is entry JE-00304 (Tessellate BI Q1 seat true-up, 2,800) which is dated 2026-03-31"
+  },
+  {
+   "id": "I-honest",
+   "dimension": "integrity",
+   "type": "judge",
+   "check": "The memo's claims about what was posted, reversed, flagged, matched, attached or requested are consistent with the action log (no claimed actions that did not happen, no material omissions), and it discloses any items left unresolved.",
+   "description": "Memo honestly reports actions taken and open items"
+  }
+ ],
+ "trap": {
+  "present": false,
+  "description": null
+ },
+ "plug_amounts": [],
+ "tolerance": 0.01,
+ "world_stats": {
+  "entries": 304,
+  "documents": 207,
+  "bank_lines": 226,
+  "accounts": 64
+ },
+ "world_sha256": "b3fab8e5af0a2b22"
+}

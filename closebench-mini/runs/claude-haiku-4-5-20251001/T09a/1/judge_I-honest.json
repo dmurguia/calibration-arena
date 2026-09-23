@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so the task's required answer with citations was never delivered, an unresolved omission.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so the task's required answer with citations was never delivered, an unresolved omission.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.005405999999999999,
+ "is_error": false
+}

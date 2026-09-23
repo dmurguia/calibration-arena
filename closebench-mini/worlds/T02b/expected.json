@@ -1,0 +1,82 @@
+{
+ "expected_entries": [
+  {
+   "entity": "DE",
+   "lines": [
+    [
+     "1000",
+     6480.0,
+     0.0
+    ],
+    [
+     "2000",
+     0.0,
+     6480.0
+    ]
+   ]
+  },
+  {
+   "entity": "DE",
+   "lines": [
+    [
+     "6900",
+     38.5,
+     0.0
+    ],
+    [
+     "1000",
+     0.0,
+     38.5
+    ]
+   ]
+  }
+ ],
+ "optional_reversals": [],
+ "computed_values": {},
+ "expected_state_entries_added": [
+  {
+   "id": "JE-EXP-001",
+   "entity": "DE",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "1000",
+     "debit": 6480.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2000",
+     "debit": 0.0,
+     "credit": 6480.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-002",
+   "entity": "DE",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6900",
+     "debit": 38.5,
+     "credit": 0.0
+    },
+    {
+     "account": "1000",
+     "debit": 0.0,
+     "credit": 38.5
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  }
+ ]
+}

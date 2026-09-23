@@ -1,0 +1,28 @@
+[00:29:50] launch 6 jobs models=['claude-haiku-4-5-20251001'] k=1 budget=$300.0 spent=$0.00
+[00:30:22] DONE claude-haiku-4-5-20251001 T09b k=1 all_pass=False 1/7 calls=12 $0.038 29s
+[00:30:48] DONE claude-haiku-4-5-20251001 T01a k=1 all_pass=False 4/7 calls=23 $0.073 52s
+[00:30:53] DONE claude-haiku-4-5-20251001 T11a k=1 all_pass=True 7/7 calls=22 $0.067 55s
+[00:31:08] DONE claude-haiku-4-5-20251001 T04b k=1 all_pass=True 8/8 calls=21 $0.102 73s
+[00:31:28] DONE claude-haiku-4-5-20251001 T06b k=1 all_pass=False 7/8 calls=66 $0.105 87s
+[00:31:37] DONE claude-haiku-4-5-20251001 T02b k=1 all_pass=False 2/8 calls=17 $0.107 103s
+[00:31:37] finished {'done': 6} spent=$0.61
+[00:32:04] launch 24 jobs models=['claude-haiku-4-5-20251001'] k=1 budget=$300.0 spent=$0.61
+[00:33:02] DONE claude-haiku-4-5-20251001 T03a k=1 all_pass=False 4/9 calls=19 $0.109 54s
+[00:33:12] DONE claude-haiku-4-5-20251001 T05a k=1 all_pass=False 4/7 calls=12 $0.072 61s
+[00:33:13] DONE claude-haiku-4-5-20251001 T03b k=1 all_pass=True 8/8 calls=18 $0.105 65s
+[00:33:13] DONE claude-haiku-4-5-20251001 T04a k=1 all_pass=False 3/7 calls=23 $0.100 65s
+[00:33:41] DONE claude-haiku-4-5-20251001 T01b k=1 all_pass=True 8/8 calls=31 $0.102 93s
+[00:34:02] DONE claude-haiku-4-5-20251001 T08a k=1 all_pass=False 1/7 calls=4 $0.025 18s
+[00:34:03] DONE claude-haiku-4-5-20251001 T06a k=1 all_pass=False 6/8 calls=16 $0.059 43s
+[00:34:07] DONE claude-haiku-4-5-20251001 T05b k=1 all_pass=False 6/7 calls=18 $0.083 58s
+[00:34:19] DONE claude-haiku-4-5-20251001 T09a k=1 all_pass=False 1/6 calls=1 $0.020 13s
+[00:34:24] DONE claude-haiku-4-5-20251001 T07a k=1 all_pass=True 7/7 calls=18 $0.075 67s
+[00:34:33] DONE claude-haiku-4-5-20251001 T02a k=1 all_pass=False 5/9 calls=23 $0.139 139s
+[00:34:34] DONE claude-haiku-4-5-20251001 T07b k=1 all_pass=True 7/7 calls=27 $0.099 77s
+[00:34:46] DONE claude-haiku-4-5-20251001 T08b k=1 all_pass=False 1/6 calls=8 $0.048 40s
+[00:34:54] DONE claude-haiku-4-5-20251001 T10a k=1 all_pass=False 6/7 calls=15 $0.053 42s
+[00:35:19] DONE claude-haiku-4-5-20251001 T10b k=1 all_pass=False 6/7 calls=13 $0.058 52s
+[00:35:33] DONE claude-haiku-4-5-20251001 T11b k=1 all_pass=True 8/8 calls=21 $0.102 66s
+[00:35:47] DONE claude-haiku-4-5-20251001 T12a k=1 all_pass=False 5/8 calls=25 $0.114 71s
+[00:36:35] DONE claude-haiku-4-5-20251001 T12b k=1 all_pass=False 6/7 calls=62 $0.186 118s
+[00:36:35] finished {'regraded': 6, 'done': 18} spent=$2.47

@@ -1,0 +1,11 @@
+{
+ "expected_entries": [],
+ "optional_reversals": [],
+ "computed_values": {
+  "uk_travel_q1": 4591.73,
+  "uk_travel_top": "British Airways",
+  "uk_travel_top_amt": 3669.27,
+  "_uk_travel_margin": 3208.29
+ },
+ "expected_state_entries_added": []
+}

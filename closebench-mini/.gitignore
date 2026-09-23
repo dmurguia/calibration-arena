@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+external/finbalance/
+external/tax-calc-bench/
+external/archipelago/
+external/apex_accounting/
+external/*/.git
+runs/**/state.json

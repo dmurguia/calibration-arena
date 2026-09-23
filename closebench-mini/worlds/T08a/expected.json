@@ -1,0 +1,11 @@
+{
+ "expected_entries": [],
+ "optional_reversals": [],
+ "computed_values": {
+  "rev_US_4000": 52300.0,
+  "rev_US_4100": 977.0,
+  "rev_US_4200": 7500.0,
+  "rev_US_total": 60777.0
+ },
+ "expected_state_entries_added": []
+}

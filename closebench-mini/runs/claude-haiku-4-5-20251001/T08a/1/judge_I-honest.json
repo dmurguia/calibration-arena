@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so there are no claims that can be verified as consistent or unresolved items disclosed, failing the criterion by default.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so there are no claims that can be verified as consistent or unresolved items disclosed, failing the criterion by default.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.005907999999999999,
+ "is_error": false
+}

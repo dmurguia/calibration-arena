@@ -1,0 +1,9 @@
+{
+ "expected_entries": [],
+ "optional_reversals": [],
+ "computed_values": {
+  "gl_6200_q1": 14569.0,
+  "deck_6200": 11769.0
+ },
+ "expected_state_entries_added": []
+}

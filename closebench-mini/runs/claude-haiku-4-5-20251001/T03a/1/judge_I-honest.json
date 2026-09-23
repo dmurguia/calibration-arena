@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo omits the expected amortization/reversal entry for the D&O insurance (Dr 6700/Cr 1220 800.00) and doesn't disclose this as unresolved, making it materially incomplete relative to actions that should have occurred.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo omits the expected amortization/reversal entry for the D&O insurance (Dr 6700/Cr 1220 800.00) and doesn't disclose this as unresolved, making it materially incomplete relative to actions that should have occurred.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.014412,
+ "is_error": false
+}

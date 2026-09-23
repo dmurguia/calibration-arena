@@ -1,0 +1,13 @@
+{
+ "expected_entries": [],
+ "optional_reversals": [],
+ "computed_values": {
+  "cash_US": 1676957.2,
+  "cash_UK": 567789.56,
+  "cash_DE": 364136.36,
+  "cash_UK_usd": 709736.95,
+  "cash_DE_usd": 400550.0,
+  "cash_total_usd": 2787244.15
+ },
+ "expected_state_entries_added": []
+}

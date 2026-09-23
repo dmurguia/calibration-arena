@@ -1,0 +1,267 @@
+{
+ "expected_entries": [
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6300",
+     84.6,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     84.6
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6300",
+     212.0,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     212.0
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6310",
+     96.4,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     96.4
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6200",
+     365.0,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     365.0
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "1500",
+     2349.0,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     2349.0
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6600",
+     43.18,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     43.18
+    ]
+   ]
+  },
+  {
+   "entity": "UK",
+   "lines": [
+    [
+     "6410",
+     780.0,
+     0.0
+    ],
+    [
+     "2900",
+     0.0,
+     780.0
+    ]
+   ]
+  }
+ ],
+ "optional_reversals": [],
+ "computed_values": {},
+ "expected_state_entries_added": [
+  {
+   "id": "JE-EXP-001",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6300",
+     "debit": 84.6,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 84.6
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-002",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6300",
+     "debit": 212.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 212.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-003",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6310",
+     "debit": 96.4,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 96.4
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-004",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6200",
+     "debit": 365.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 365.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-005",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "1500",
+     "debit": 2349.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 2349.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-006",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6600",
+     "debit": 43.18,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 43.18
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  },
+  {
+   "id": "JE-EXP-007",
+   "entity": "UK",
+   "date": "2026-03-31",
+   "period": "2026-03",
+   "memo": "expected",
+   "agent": true,
+   "lines": [
+    {
+     "account": "6410",
+     "debit": 780.0,
+     "credit": 0.0
+    },
+    {
+     "account": "2900",
+     "debit": 0.0,
+     "credit": 780.0
+    }
+   ],
+   "support": [],
+   "status": "posted"
+  }
+ ]
+}

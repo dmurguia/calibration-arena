@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "The memo/flag mentions missing PO/SOW, new vendor, and bank-detail change by clerk, but never identifies the split-invoice/threshold-avoidance issue (two $9,900 invoices totaling $19,800 to stay under a $10,000 approval threshold).",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"The memo/flag mentions missing PO/SOW, new vendor, and bank-detail change by clerk, but never identifies the split-invoice/threshold-avoidance issue (two $9,900 invoices totaling $19,800 to stay under a $10,000 approval threshold).\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.012657999999999999,
+ "is_error": false
+}

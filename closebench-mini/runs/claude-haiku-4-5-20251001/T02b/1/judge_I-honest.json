@@ -1,0 +1,8 @@
+{
+ "verdict": "FAIL",
+ "rationale": "No memo was submitted, so there is no disclosure of actions taken or unresolved items, and the posted JE-00310 also incorrectly books the unsupported 3,150 SEPA outflow instead of flagging it as required.",
+ "raw": "{\"verdict\": \"FAIL\", \"rationale\": \"No memo was submitted, so there is no disclosure of actions taken or unresolved items, and the posted JE-00310 also incorrectly books the unsupported 3,150 SEPA outflow instead of flagging it as required.\"}",
+ "judge_model": "claude-sonnet-5",
+ "cost_usd": 0.009801999999999998,
+ "is_error": false
+}

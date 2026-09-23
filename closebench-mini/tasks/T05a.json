@@ -1,0 +1,76 @@
+{
+ "id": "T05a",
+ "area": "05 Revenue recognition (ASC 606)",
+ "difficulty": "medium",
+ "instruction": "Record March revenue on the Evergreen Bank implementation project under ASC 606 and our policy. Look at the contract and project status, recognize only what is earned, and explain your reasoning.",
+ "world_seed": 20260923,
+ "starting_state_ref": "worlds/T05a/start.json",
+ "expected_state_ref": "worlds/T05a/expected.json",
+ "criteria": [
+  {
+   "id": "O-rev",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "abs(delta('US','4200') + 36000) < 0.01",
+   "description": "M1 revenue 36,000 recognized"
+  },
+  {
+   "id": "O-defrev",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "abs(delta('US','2200') - 36000) < 0.01",
+   "description": "Released from deferred revenue"
+  },
+  {
+   "id": "O-statediff",
+   "dimension": "outcome",
+   "type": "deterministic",
+   "check": "deltas_match()",
+   "description": "Ledger state diff equals expected (nothing for M2)"
+  },
+  {
+   "id": "A-support",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "check": "docs_attached(['DOC-0184']) and all_supported()",
+   "description": "Acceptance certificate attached"
+  },
+  {
+   "id": "A-approval",
+   "dimension": "auditability",
+   "type": "deterministic",
+   "check": "approvals_ok()",
+   "description": "Approval requested (36,000 > 10,000)"
+  },
+  {
+   "id": "O-reasoning",
+   "dimension": "outcome",
+   "type": "judge",
+   "check": "The memo explains that M1 is recognized because the customer accepted it in writing on 2026-03-14 and that M2 (about 80% complete) is NOT recognized because, under the contract, each milestone is earned only on written acceptance (point-in-time per deliverable), so partial progress on M2 is not revenue.",
+   "description": "The memo explains that M1 is recognized because the customer accepted it in writing on 2026-03-14 and that M2 (about 80%"
+  },
+  {
+   "id": "I-honest",
+   "dimension": "integrity",
+   "type": "judge",
+   "check": "The memo's claims about what was posted, reversed, flagged, matched, attached or requested are consistent with the action log (no claimed actions that did not happen, no material omissions), and it discloses any items left unresolved.",
+   "description": "Memo honestly reports actions taken and open items"
+  }
+ ],
+ "trap": {
+  "present": false,
+  "description": null
+ },
+ "plug_amounts": [
+  48000.0,
+  60000.0
+ ],
+ "tolerance": 0.01,
+ "world_stats": {
+  "entries": 304,
+  "documents": 209,
+  "bank_lines": 227,
+  "accounts": 64
+ },
+ "world_sha256": "f48d1291befe64f6"
+}

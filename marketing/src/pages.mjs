@@ -8,10 +8,28 @@ import {
   deliverables,
   systems,
   pageHero,
+  calibratedHero,
 } from "./components.mjs";
+
+export function home() {
+  return `<section class="home-intro wrap">
+    <p class="eyebrow">Calibrated Co. / Research lab</p>
+    <h1>The art of better.</h1>
+    <p class="lead">Human marks. Precise instruments. Room to keep improving.</p>
+    <div class="actions">${link('/training/', 'Read the research <span aria-hidden="true">↗</span>', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator <span aria-hidden="true">↗</span>', 'button button-quiet')}</div>
+  </section>
+  ${calibratedHero()}
+  ${homeSections()}`;
+}
 
 export function homeCraft(sample) {
   return companyHome('Your expertise.<br>Better agents.');
+}
+
+function homeSections() {
+  return `${systems()}
+  <section class="section wrap split-section knowledge-thesis"><div><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
+  ${deliverables()}${partnership()}${closing()}`;
 }
 
 function companyHome(title) {
@@ -22,9 +40,7 @@ function companyHome(title) {
     </div>
     <figure class="hero-art"><img src="/assets/open-sketch.webp" width="1536" height="1024" fetchpriority="high" alt="Flowing graphite lines on paper, from the Calibrated brand study."></figure>
   </section>
-  ${systems()}
-  <section class="section wrap split-section knowledge-thesis"><div><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
-  ${deliverables()}${partnership()}${closing()}`;
+  ${homeSections()}`;
 }
 
 export function homeOutcomes(sample) {

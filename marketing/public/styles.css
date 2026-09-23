@@ -19,6 +19,14 @@
   font-weight: 400;
   font-display: swap;
 }
+/* Same file under its full family name: the hero canvas draws its code in "IBM Plex Mono". */
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/assets/IBMPlexMono-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 :root {
   --paper: #f4f1e9;
   --chalk: #faf9f6;
@@ -2120,4 +2128,119 @@ form > .caption {
   .systems-band h2 { max-width: 280px; margin: auto; }
   .workflow-study li { grid-template-columns: 1fr; gap: 12px; }
   .affiliation-list { gap: 24px; justify-content: space-between; }
+}
+
+/* Homepage intro and the "sketch finds syntax" hero (public/calibrated-hero.mjs). */
+.home-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 88px 0 64px;
+}
+.home-intro .eyebrow {
+  margin: 0;
+  color: var(--graphite);
+  letter-spacing: 0.08em;
+}
+.home-intro h1 {
+  font-size: clamp(52px, 5.8vw, 88px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 36px 0 24px;
+  text-wrap: balance;
+}
+.home-intro .lead {
+  font-size: 21px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+.home-intro .actions {
+  gap: 16px;
+  margin-top: 34px;
+  justify-content: center;
+}
+.home-intro .button {
+  min-height: 0;
+  padding: 13px 20px;
+  border-color: var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+  gap: 0.3em;
+  transition:
+    background-color 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.home-intro .button:hover {
+  background: var(--leather);
+  border-color: var(--leather);
+  color: var(--paper);
+}
+.home-intro .button-quiet {
+  border-color: #46464355;
+}
+.home-intro .button-quiet:hover {
+  background: #4646430d;
+  border-color: #46464355;
+  color: var(--ink);
+}
+.home-intro .button:focus-visible {
+  outline: 3px solid var(--graphite);
+  outline-offset: 5px;
+}
+/* Reserve the module's scroll track (scrollLength 230vh, floor 480px × 2.3) before it mounts,
+   so nothing below moves. Nothing above this may set overflow or transform: it breaks sticky. */
+.cal-hero-mount {
+  position: relative;
+  max-width: 1800px;
+  margin-inline: auto;
+  height: max(230vh, 1104px);
+  min-height: 480px;
+}
+.cal-hero-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.cal-hero-panel {
+  position: sticky;
+  top: 0;
+  height: 70vh;
+  min-height: 480px;
+  overflow: hidden;
+  background: var(--paper);
+  border-block: 1px solid #46464333;
+}
+.cal-hero-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.92;
+}
+@media (scripting: none) {
+  .cal-hero-mount {
+    height: auto;
+  }
+  .cal-hero-fallback {
+    position: static;
+  }
+}
+.cal-hero-mount + .systems-band {
+  border-top: 0;
+}
+/* Break the same way before and after the webfont swaps in, so the intro (and the tall hero
+   below it) doesn't shift on phones. Without this, 412px and 430px widths reflow on swap. */
+@media (max-width: 480px) {
+  .home-intro h1 {
+    max-width: 5em;
+  }
+  .home-intro .actions {
+    flex-direction: column;
+    align-items: center;
+  }
 }

@@ -60,6 +60,21 @@ export function systems() {
   return `<section class="systems-band"><div class="wrap"><h2>We improve agents working in the systems you use.</h2><ul class="systems-list" aria-label="Systems expertise">${names.map(name => `<li>${name}</li>`).join('')}</ul></div></section>`;
 }
 
+// Mount point for public/calibrated-hero.mjs, enhanced by site.mjs. The static sketch is the
+// no-JS view and covers the panel until the canvas is ready. styles.css reserves the scroll
+// track height (.cal-hero-mount) so mounting causes no layout shift; keep it in sync with
+// panelHeight, scrollLength and the module's 480px minHeight.
+export const heroOptions = {
+  image: "/assets/open-sketch.webp",
+  driver: "scroll",
+  panelHeight: 70,
+  scrollLength: 230,
+  trace: 4,
+};
+export function calibratedHero(options = heroOptions) {
+  return `<div class="cal-hero-mount" data-calibrated-hero="${esc(JSON.stringify(options))}"><div class="cal-hero-fallback"><div class="cal-hero-panel"><img src="${esc(options.image)}" width="1536" height="1024" fetchpriority="high" alt="An open graphite sketch of flowing lines on paper, from the Calibrated brand study."></div></div></div>`;
+}
+
 export function pageHero(kicker, title, body, extra = "") {
   return `<section class="page-hero wrap">${label(kicker)}<h1>${title}</h1><p class="lead">${body}</p>${extra}</section>`;
 }

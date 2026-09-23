@@ -31,6 +31,23 @@ matchMedia("(min-width: 901px)").addEventListener("change", (event) => {
   if (event.matches && menu) closeMenu();
 });
 
+const heroRoot = document.querySelector("[data-calibrated-hero]");
+if (heroRoot) {
+  // Loaded only on pages with the hero. The static sketch stays over the panel until the module
+  // has sized its canvas and drawn a frame; if the image can't be read, the sketch simply stays.
+  import("./calibrated-hero.mjs").then(({ mountCalibratedHero }) => {
+    const fallback = heroRoot.querySelector(".cal-hero-fallback");
+    mountCalibratedHero(heroRoot, JSON.parse(heroRoot.dataset.calibratedHero));
+    const canvas = heroRoot.querySelector(".cal-hero canvas");
+    const ready = new MutationObserver(() => {
+      if (!canvas.style.width) return;
+      ready.disconnect();
+      requestAnimationFrame(() => requestAnimationFrame(() => fallback?.remove()));
+    });
+    ready.observe(canvas, { attributes: true, attributeFilter: ["style"] });
+  });
+}
+
 const example = document.querySelector("[data-demo]");
 if (example) {
   // Embedded at build time from the repository's authored fixture. No request or loading state.

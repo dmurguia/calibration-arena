@@ -34,16 +34,7 @@ export async function build({ includeReview = true } = {}) {
     JSON.parse(await readFile(path.join(root, `evaluation/run-${number}-result.json`), 'utf8'))
   ));
   const allRoutes = [
-    [
-      "/",
-      site.defaultDirection === "craft"
-        ? "Your expertise. Better agents"
-        : "Hone your agents",
-      site.defaultDirection === "craft"
-        ? pages.homeCraft(sample)
-        : pages.homeOutcomes(sample),
-      "home",
-    ],
+    ["/", "The art of better", pages.home(), "home"],
     [
       "/directions/craft/",
       "Your expertise. Better agents",

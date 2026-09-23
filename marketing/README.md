@@ -41,7 +41,7 @@ marketing/
   dist/                Generated static site (ignored)
 ```
 
-Edit copy in `src/pages.mjs` and shared sections in `src/components.mjs`. Change `defaultDirection` in `src/config.mjs` to `craft` or `outcomes`. CSS lives in `public/styles.css`. The build renders complete HTML for every route, so search crawlers and visitors do not need JavaScript to read the pages. JavaScript enhances navigation and the brief form.
+Edit copy in `src/pages.mjs` and shared sections in `src/components.mjs`. CSS lives in `public/styles.css`. The build renders complete HTML for every route, so search crawlers and visitors do not need JavaScript to read the pages. JavaScript enhances navigation, the brief form and the homepage hero.
 
 ## What works now
 

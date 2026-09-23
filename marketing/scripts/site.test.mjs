@@ -115,7 +115,10 @@ test("deployment contains the current branded site and excludes internal review 
     const routes = await build({ includeReview: false });
     assert.equal(routes.length, 9);
     const home = await readFile(path.join(root, "dist/index.html"), "utf8");
-    assert.match(home, /Hone your agents/);
+    assert.match(home, /<h1>The art of better\.<\/h1>/);
+    // intro and CTAs sit above the hero in normal flow; the next section follows its track
+    assert.match(home, /class="home-intro[\s\S]*Become a collaborator[\s\S]*data-calibrated-hero=[\s\S]*class="systems-band"/);
+    await access(path.join(root, "dist/calibrated-hero.mjs"));
     assert.match(home, /assets\/calibrated-wordmark-ink.svg/);
     assert.match(home, /assets\/open-sketch.webp/);
     assert.match(await readFile(path.join(root, "dist/contact/index.html"), "utf8"), /mailto:david@corsac.ai/);

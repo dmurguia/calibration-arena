@@ -17,6 +17,20 @@ def identity(user_id="user_1", email="clerk@example.com", verified=True, name="A
     return pilot_clerk.ClerkIdentity(user_id, email, verified, name)
 
 
+def test_blank_authorized_parties_fall_back_to_cors_and_local_origins(monkeypatch):
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", " \t\n")
+    monkeypatch.setenv("ARENA_CORS_ORIGINS", "https://pilot.example, https://preview.example")
+
+    assert pilot_clerk.authorized_parties() == [
+        "https://pilot.example",
+        "https://preview.example",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8021",
+        "http://127.0.0.1:8021",
+    ]
+
+
 def exchange(client, guest_token=None):
     return client.post(
         "/api/pilot/auth/clerk",

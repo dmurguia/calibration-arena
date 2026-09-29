@@ -13,8 +13,10 @@ def clerk_enabled() -> bool:
 
 def authorized_parties() -> list[str]:
     configured = os.getenv("CLERK_AUTHORIZED_PARTIES")
-    if configured is not None:
-        return [origin.strip() for origin in configured.split(",") if origin.strip()]
+    if configured:
+        parties = [origin.strip() for origin in configured.split(",") if origin.strip()]
+        if parties:
+            return parties
     origins = [
         origin.strip()
         for origin in os.getenv("ARENA_CORS_ORIGINS", "").split(",")

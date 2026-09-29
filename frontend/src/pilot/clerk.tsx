@@ -31,10 +31,12 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
 }
 
 export function ClerkBridge({
+  ready,
   me,
   refresh,
   onError,
 }: {
+  ready: boolean
   me: Me | null
   refresh: () => Promise<void>
   onError: (message: string) => void
@@ -44,7 +46,7 @@ export function ClerkBridge({
   const clearingSignedOut = useRef(false)
 
   useEffect(() => {
-    if (!isLoaded) return
+    if (!ready || !isLoaded) return
     if (isSignedIn) {
       clearingSignedOut.current = false
       if (me?.account?.provider === 'clerk' || exchanging.current) return
@@ -76,7 +78,7 @@ export function ClerkBridge({
     void refresh().catch(error => {
       onError(error instanceof Error ? error.message : 'Could not refresh your session.')
     })
-  }, [getToken, isLoaded, isSignedIn, me?.account, onError, refresh])
+  }, [getToken, isLoaded, isSignedIn, me?.account, onError, ready, refresh])
 
   return null
 }

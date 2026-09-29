@@ -41,7 +41,7 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh }}>{clerkEnabled && <ClerkBridge me={me} refresh={refresh} onError={setError} />}<div className="pilot">
+  return <Context.Provider value={{ me, config, cases, refresh }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
     <div className="p-mobile-header"><Link className="p-brand" to="/"><DialMark size={26} /><span>Calibrated</span></Link><button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}

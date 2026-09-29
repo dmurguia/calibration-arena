@@ -1,4 +1,4 @@
-.PHONY: setup seed dev-backend dev-frontend build test ratings benchmarks-validate benchmarks-build benchmarks-check
+.PHONY: setup seed dev-backend dev-frontend build test ratings benchmarks-validate benchmarks-build benchmarks-check benchmarks-report
 
 setup:
 	pip install -r backend/requirements.txt
@@ -30,3 +30,6 @@ benchmarks-build:
 
 benchmarks-check:
 	cd backend && python -m pipeline.benchmarks check-sources
+
+benchmarks-report:
+	cd backend && python -m pipeline.benchmarks report

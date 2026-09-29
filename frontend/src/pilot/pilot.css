@@ -135,3 +135,13 @@
 .p-brief p:not(.p-eyebrow){font-size:var(--cal-text-body-sm);line-height:var(--cal-leading-reading)}
 .p-method p,.p-narrow>p,.p-lead{font-size:var(--cal-text-body-sm);line-height:var(--cal-leading-reading);color:var(--cal-text-secondary)}
 .p-method h2{font-size:clamp(24px,2.4vw,32px);line-height:var(--cal-leading-h3)}
+.p-clerk-auth{margin:var(--cal-space-6) 0}
+.p-clerk-auth .cl-cardBox{max-width:480px}
+/* Clerk widgets (sign-in page and account modal): flat, square, leather hover.
+   Doubled classes out-rank Clerk's runtime styles without !important. */
+.cl-formButtonPrimary.cl-formButtonPrimary{box-shadow:none!important;font-weight:400;transition:background-color var(--cal-duration-fast) var(--cal-ease)}
+.cl-formButtonPrimary.cl-formButtonPrimary::after{display:none}
+.cl-formButtonPrimary.cl-formButtonPrimary:hover{background-color:var(--cal-leather)}
+.cl-socialButtonsIconButton.cl-socialButtonsIconButton,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton,.cl-formFieldInput.cl-formFieldInput{box-shadow:none;border:1px solid var(--cal-rule-strong)}
+.cl-socialButtonsIconButton.cl-socialButtonsIconButton:hover,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton:hover{background-color:var(--cal-hover-wash)}
+.cl-formFieldInput.cl-formFieldInput:focus{outline:var(--cal-focus-ring);outline-offset:2px}

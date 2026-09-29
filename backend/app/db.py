@@ -43,6 +43,9 @@ _COLUMN_BACKFILL: dict[str, dict[str, str]] = {
         "provenance": "VARCHAR(40) NOT NULL DEFAULT ''",
         "submitted_version": "VARCHAR(60) NOT NULL DEFAULT ''",
     },
+    "pilot_accounts": {
+        "clerk_user_id": "VARCHAR",
+    },
 }
 
 
@@ -57,3 +60,13 @@ def _ensure_columns() -> None:
             for col, ddl in cols.items():
                 if col not in existing:
                     conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+        account_tables = {
+            row[0] for row in conn.exec_driver_sql(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
+        if "pilot_accounts" in account_tables:
+            conn.exec_driver_sql(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_pilot_accounts_clerk_user_id "
+                "ON pilot_accounts (clerk_user_id)"
+            )

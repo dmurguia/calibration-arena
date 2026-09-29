@@ -1,5 +1,16 @@
 # Local CLI testing and hosted API sharing
 
+## Sign-in (Clerk)
+
+Create a Clerk application and enable Email (code), Google, and Microsoft sign-in. Copy
+the publishable key (`pk_…`) to Vercel as `VITE_CLERK_PUBLISHABLE_KEY`, and the secret
+key (`sk_…`) to the Railway backend as `CLERK_SECRET_KEY`. Set
+`CLERK_AUTHORIZED_PARTIES` on Railway to the exact Vercel frontend origin. A production
+Clerk instance needs its own Google and Microsoft OAuth credentials and the DNS records
+Clerk provides for the chosen domain. Existing password accounts link automatically on
+first sign-in with the same verified email. With no Clerk keys, the pilot falls back to
+password sign-in for local development.
+
 Current operating choice, 15 September 2026: David tests the flow on his Mac using existing subscription CLI sign-ins. The shared website uses direct OpenAI and Anthropic APIs on Railway. Vercel serves the frontend. These are separate backend configurations, not a per-user billing switch.
 
 | Use | Frontend/API destination | Inference | Credentials |

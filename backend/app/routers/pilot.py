@@ -23,7 +23,9 @@ from ..pilot_accounts import (
     enforce_rate_limit, hash_password,
     login_is_limited, record_login_failure, require_dummy_password_work,
     record_admin_failure, reset_limits as reset_rate_limits, verify_password,
+    UNUSABLE_PASSWORD,
 )
+from .. import pilot_clerk
 from ..pilot_usage import usage_tokens
 from ..pilot_models import pool_labels
 from ..pilot_leaderboard import build_leaderboard
@@ -105,6 +107,10 @@ class Signup(Strict):
     @classmethod
     def normalize_email(cls, value):
         return value.strip().lower() if isinstance(value, str) else value
+
+
+class ClerkExchange(Strict):
+    guest_token: str | None = Field(default=None, max_length=256)
 
 
 class Login(Strict):
@@ -292,6 +298,7 @@ def config():
         "prompt_starters": STARTERS,
         "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()],
         "accounts_enabled": True,
+        "auth_provider": "clerk" if pilot_clerk.clerk_enabled() else "password",
         "leaderboard_public": os.getenv("PILOT_PUBLIC_LEADERBOARD") == "1",
     }
     if inference_backend() == "pool":
@@ -407,31 +414,31 @@ def account_participant(p: Participant, email: str):
     return {"id": p.id, **p.profile, "email": email}
 
 
-@router.post("/auth/signup")
-def signup(body: Signup, request: Request, authorization: str = Header(default=""), db: Session = Depends(get_db)):
-    enforce_rate_limit(request, "signup", 20, 60 * 60)
-    email = str(body.email).strip().lower()
-    if db.scalar(select(PilotAccount).where(PilotAccount.email == email)):
-        raise HTTPException(409, "An account with this email already exists. Sign in instead.")
+def resolve_guest_from_token(raw_token: str, db: Session) -> Participant | None:
+    if not raw_token:
+        return None
+    try:
+        candidate = participant(authorization=f"Bearer {raw_token}", db=db)
+    except HTTPException:
+        return None
+    return candidate if db.get(PilotAccount, candidate.id) is None else None
 
-    guest_participant = None
-    if authorization.startswith("Bearer "):
-        try:
-            candidate = participant(authorization=authorization, db=db)
-        except HTTPException:
-            candidate = None
-        if candidate is not None and db.get(PilotAccount, candidate.id) is None:
-            guest_participant = candidate
 
+def create_or_claim_participant(
+    db: Session, *, name: str, research_consent: bool,
+    guest_participant: Participant | None = None, role: str | None = None,
+    experience: str | None = None, framework: str | None = None,
+    source: str = "direct", provider: str | None = None,
+) -> tuple[Participant, str]:
     stamp = now()
     if guest_participant is None:
         profile = dict(
-            name=body.name, role=body.role or "Not supplied",
-            experience=body.experience or "Not supplied",
-            framework=body.framework or "Not supplied", followup=False,
-            research_consent=body.research_consent, source="direct",
-            consent_version="pilot-research-v1" if body.research_consent else None,
-            consent_at=stamp if body.research_consent else None,
+            name=name, role=role or "Not supplied",
+            experience=experience or "Not supplied",
+            framework=framework or "Not supplied", followup=False,
+            research_consent=research_consent, source=source,
+            consent_version="pilot-research-v1" if research_consent else None,
+            consent_at=stamp if research_consent else None,
             publication_consent=False, training_consent=False, identity="account",
             dataset=os.getenv("PILOT_DATASET", "preview"),
         )
@@ -442,21 +449,48 @@ def signup(body: Signup, request: Request, authorization: str = Header(default="
         )
         db.add(p)
         db.flush()
-        emit(db, p, "enrolled", data={"source": "direct", "identity": "account"})
+        enrolled_data = {"source": source, "identity": "account"}
+        if provider:
+            enrolled_data["provider"] = provider
+        emit(db, p, "enrolled", data=enrolled_data)
         emit(db, p, "visit")
     else:
         p = guest_participant
-        profile = {**p.profile, "name": body.name, "identity": "account",
-                   "research_consent": body.research_consent,
-                   "consent_version": "pilot-research-v1" if body.research_consent else None,
-                   "consent_at": stamp if body.research_consent else None,
+        profile = {**p.profile, "name": name, "identity": "account",
+                   "research_consent": research_consent,
+                   "consent_version": "pilot-research-v1" if research_consent else None,
+                   "consent_at": stamp if research_consent else None,
                    "profile_updated_at": stamp}
-        for field in ("role", "experience", "framework"):
-            if getattr(body, field) is not None:
-                profile[field] = getattr(body, field)
+        for field, value in (("role", role), ("experience", experience), ("framework", framework)):
+            if value is not None:
+                profile[field] = value
         p.profile = profile
         p.token_hash = hashlib.sha256(secrets.token_urlsafe(32).encode()).hexdigest()
         emit(db, p, "account_claimed")
+    return p, stamp
+
+
+def require_password_auth(message: str = "Password sign-in has been replaced. Use Sign in to continue."):
+    if pilot_clerk.clerk_enabled():
+        raise HTTPException(410, message)
+
+
+@router.post("/auth/signup")
+def signup(body: Signup, request: Request, authorization: str = Header(default=""), db: Session = Depends(get_db)):
+    require_password_auth()
+    enforce_rate_limit(request, "signup", 20, 60 * 60)
+    email = str(body.email).strip().lower()
+    if db.scalar(select(PilotAccount).where(PilotAccount.email == email)):
+        raise HTTPException(409, "An account with this email already exists. Sign in instead.")
+
+    guest_participant = resolve_guest_from_token(
+        authorization[7:] if authorization.startswith("Bearer ") else "", db,
+    )
+    p, stamp = create_or_claim_participant(
+        db, name=body.name, research_consent=body.research_consent,
+        guest_participant=guest_participant, role=body.role,
+        experience=body.experience, framework=body.framework,
+    )
 
     account = PilotAccount(
         participant_id=p.id, email=email, password_hash=hash_password(body.password),
@@ -468,8 +502,45 @@ def signup(body: Signup, request: Request, authorization: str = Header(default="
     return {"token": raw, "participant": account_participant(p, email)}
 
 
+@router.post("/auth/clerk")
+def clerk_exchange(body: ClerkExchange, request: Request, db: Session = Depends(get_db)):
+    if not pilot_clerk.clerk_enabled():
+        raise HTTPException(404, "Not found.")
+    enforce_rate_limit(request, "clerk-exchange", 60, 3600)
+    identity = pilot_clerk.verify_clerk_request(request)
+    account = db.scalar(select(PilotAccount).where(PilotAccount.clerk_user_id == identity.user_id))
+    if account is not None:
+        p = db.get(Participant, account.participant_id)
+    else:
+        if not identity.email_verified:
+            raise HTTPException(403, "Verify your email address to continue.")
+        account = db.scalar(select(PilotAccount).where(PilotAccount.email == identity.email))
+        if account is not None:
+            if account.clerk_user_id is not None:
+                raise HTTPException(409, "This email is already linked to another sign-in.")
+            account.clerk_user_id = identity.user_id
+            p = db.get(Participant, account.participant_id)
+            emit(db, p, "account_linked", data={"provider": "clerk"})
+        else:
+            guest_participant = resolve_guest_from_token(body.guest_token or "", db)
+            p, stamp = create_or_claim_participant(
+                db, name=identity.name, research_consent=False,
+                guest_participant=guest_participant, source="direct", provider="clerk",
+            )
+            account = PilotAccount(
+                participant_id=p.id, email=identity.email,
+                password_hash=UNUSABLE_PASSWORD, clerk_user_id=identity.user_id,
+                created_at=stamp,
+            )
+            db.add(account)
+    raw = create_session(db, p)
+    db.commit()
+    return {"token": raw, "participant": account_participant(p, account.email)}
+
+
 @router.post("/auth/login")
 def login(body: Login, request: Request, db: Session = Depends(get_db)):
+    require_password_auth()
     email = str(body.email).strip().lower()
     if login_is_limited(request, email):
         raise HTTPException(429, "Too many attempts. Try again in a few minutes.")
@@ -503,6 +574,7 @@ def logout(authorization: str = Header(default=""), p=Depends(participant), db: 
 
 @router.post("/auth/reset")
 def reset_password(body: PasswordReset, request: Request, db: Session = Depends(get_db)):
+    require_password_auth()
     enforce_rate_limit(request, "password-reset", 10, 60 * 60)
     digest = hashlib.sha256(body.token.encode()).hexdigest()
     account = db.scalar(select(PilotAccount).where(
@@ -542,7 +614,7 @@ def me(p=Depends(participant), db: Session = Depends(get_db)):
     budget = account.token_budget if account and account.token_budget is not None else int(os.getenv(default_budget, "200000" if account else "30000"))
     return {
         "participant": {"id": p.id, **p.profile},
-        "account": {"email": account.email} if account else None,
+        "account": {"email": account.email, "provider": "clerk" if account.clerk_user_id else "password"} if account else None,
         "usage": {"used": used, "budget": budget, "remaining": max(0, budget - used)},
         "runs": [public_run(r) for r in runs],
     }
@@ -877,6 +949,7 @@ def founder_export(request: Request, x_pilot_admin: str = Header(default=""), db
 
 @router.post("/founder/reset-link")
 def founder_reset_link(body: ResetLinkRequest, request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+    require_password_auth("Password resets are handled by the sign-in provider.")
     require_admin(x_pilot_admin, request)
     email = str(body.email).strip().lower()
     account = db.scalar(select(PilotAccount).where(PilotAccount.email == email))

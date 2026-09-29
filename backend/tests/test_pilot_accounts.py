@@ -63,6 +63,19 @@ def test_login_errors_logout_and_expiry(client):
     assert client.get("/api/pilot/me", headers=auth(account["token"])).status_code == 401
 
 
+def test_guest_rate_limit_uses_trusted_proxy_hop(client, monkeypatch):
+    reset_limits()
+    monkeypatch.setenv("ARENA_TRUST_PROXY", "1")
+    monkeypatch.setenv("ARENA_PROXY_HOPS", "1")
+    for index in range(21):
+        response = client.post(
+            "/api/pilot/guests",
+            headers={"X-Forwarded-For": f"192.0.2.{index + 1}, 203.0.113.9"},
+            json={},
+        )
+        assert response.status_code == (429 if index == 20 else 200)
+
+
 def test_login_rate_limit_and_founder_endpoints(client, monkeypatch):
     reset_limits()
     for index in range(10):

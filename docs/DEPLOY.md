@@ -26,6 +26,37 @@ environment needed once this is wired — push to `main` and both redeploy.
    | `ARENA_CORS_ORIGIN_REGEX` | `https://.*\.vercel\.app` | Vercel preview deploys |
    | `ARENA_AUTO_SEED` | `1` (default) | first boot on an empty volume seeds the demo roster/boards |
 
+### Pilot accounts release (PR #19)
+
+Set these variables on Railway for the pilot:
+
+```text
+ARENA_TRUST_PROXY=1
+ARENA_PROXY_HOPS=1
+PILOT_ADMIN_TOKEN=<at least 24 random characters>
+PILOT_TOKEN_BUDGET=200000
+PILOT_GUEST_TOKEN_BUDGET=30000
+PILOT_GLOBAL_DAILY_TOKENS=3000000
+PILOT_PUBLIC_LEADERBOARD=0
+```
+
+`ARENA_TRUST_PROXY=1` is required on Railway; otherwise every user appears to
+come from the same proxy IP and rate limits become global. For pool inference,
+optionally set `ARENA_INFERENCE_BACKEND=pool` and `PILOT_MODELS` to a
+comma-separated list of `provider:model` entries, and configure the matching
+provider API keys.
+
+Tighten preview CORS to the project deployment domain and allow the production
+origins:
+
+```text
+ARENA_CORS_ORIGIN_REGEX=https://calibration-arena-[a-z0-9-]+-davidmurguia-6787s-projects\.vercel\.app
+ARENA_CORS_ORIGINS=https://calibrationarena.ai,https://calibration-arena.vercel.app
+```
+
+Vercel PR previews call the production Railway API, so new backend endpoints
+are available in previews only after the backend is deployed.
+
 5. **Settings → Networking → Generate Domain** — this is the public API URL
    the frontend needs.
 

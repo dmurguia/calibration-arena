@@ -110,8 +110,14 @@ def reset_limits():
 def client_ip(request: Request) -> str:
     if os.getenv("ARENA_TRUST_PROXY") == "1":
         forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded.strip():
-            return forwarded.split(",", 1)[0].strip()
+        parts = [part.strip() for part in forwarded.split(",") if part.strip()]
+        if parts:
+            try:
+                hops = max(1, int(os.getenv("ARENA_PROXY_HOPS", "1")))
+            except ValueError:
+                hops = 1
+            if len(parts) >= hops:
+                return parts[-hops]
     return request.client.host if request.client else "unknown"
 
 

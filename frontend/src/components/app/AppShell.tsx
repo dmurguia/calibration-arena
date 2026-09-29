@@ -10,7 +10,7 @@ import {
   LogOutIcon,
   UserRoundIcon,
 } from 'lucide-react'
-import { DialMark } from '../brand/DialMark'
+import { CalibratedMark } from '../brand/CalibratedMark'
 import { SearchModal } from './SearchModal'
 import { AuthModal } from './AuthModal'
 import { useAuth } from '../../lib/auth'
@@ -60,7 +60,7 @@ export function AppShell({ children }: AppShellProps) {
       <aside className="sticky top-0 z-20 hidden h-screen w-[236px] shrink-0 flex-col border-r border-hairline bg-panel md:flex">
         <div className="border-b border-hairline px-5 py-5">
           <Link to="/" className="flex items-center gap-2.5 text-ink">
-            <DialMark size={26} title="Calibrated Co." />
+            <CalibratedMark size={26} title="Calibrated Co." />
             <span className="leading-tight">
               <span className="block text-[14px] font-extrabold tracking-tight">Calibration Arena</span>
               <span className="block text-[10px] font-medium text-muted">by Calibrated Co.</span>
@@ -187,7 +187,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="fixed inset-x-0 top-0 z-30 border-b border-hairline bg-panel md:hidden">
         <div className="flex items-center justify-between px-4 py-2.5">
           <Link to="/" className="flex items-center gap-2 text-ink">
-            <DialMark size={20} title="Calibrated Co." />
+            <CalibratedMark size={20} title="Calibrated Co." />
             <span className="text-[12px] font-extrabold tracking-tight">Calibration Arena</span>
           </Link>
           <button

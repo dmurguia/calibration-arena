@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from 'lucide-react'
-import { DialMark } from '../brand/DialMark'
+import { CalibratedMark } from '../brand/CalibratedMark'
 
 export function ReportTeaser() {
   return (
@@ -38,7 +38,7 @@ export function ReportTeaser() {
         <div className="mx-auto w-full max-w-[360px] rounded-[4px] border border-hairline bg-card px-8 py-9 shadow-lift">
           <div className="flex items-center justify-between border-b-2 border-ink pb-2">
             <span className="flex items-center gap-2 text-ink">
-              <DialMark size={16} />
+              <CalibratedMark size={16} />
               <span className="text-[11px] font-extrabold tracking-tight">Calibrated Co.</span>
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted">Issue #1</span>

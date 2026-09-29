@@ -12,7 +12,7 @@ function ErrorMessage({ message }: { message: string }) {
 
 interface AuthResult { token: string }
 
-export function SignIn({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
+export function SignIn({ onSignedIn, embedded = false }: { onSignedIn: () => Promise<void>; embedded?: boolean }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,21 +26,23 @@ export function SignIn({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
       const result = await call<AuthResult>('/auth/login', { email, password })
       setToken(result.token)
       await onSignedIn()
-      navigate('/')
+      if (!embedded) navigate('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not sign in.')
     } finally {
       setBusy(false)
     }
   }
-  return <AuthPage title="Sign in.">
-    <p className="p-lead">Your notebook follows your account across devices.</p>
-    <form className="p-card" onSubmit={submit}>
+  const form = <form className="p-card" onSubmit={submit}>
       <label>Email<input type="email" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>
       <label>Password<input type="password" required maxLength={256} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} /></label>
       <ErrorMessage message={error} />
       <button className="p-button" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
     </form>
+  if (embedded) return form
+  return <AuthPage title="Sign in.">
+    <p className="p-lead">Your notebook follows your account across devices.</p>
+    {form}
     <p className="p-fine">Forgot your password? Ask the Calibrated team for a reset link.</p>
     <p className="p-fine">New here? <Link to="/signup">Create an account</Link>.</p>
   </AuthPage>

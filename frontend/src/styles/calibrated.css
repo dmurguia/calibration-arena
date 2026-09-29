@@ -1,0 +1,96 @@
+/* Calibrated Co. design system — brand kit 3.0 (September 2026).
+   Source of truth: the "Calibrated Co." Design System artifact and brand/calibrated.
+   Six colors only; no additional accents. Flat and square: no radius, no shadows. */
+
+@font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/ArchivoBlack-Regular.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('/fonts/IBMPlexSans-Variable.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/IBMPlexMono-Regular.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2')}
+
+:root{
+  /* Palette */
+  --cal-ink:#464643;
+  --cal-paper:#F4F1E9;
+  --cal-graphite:#656460;
+  --cal-steel:#929698;
+  --cal-leather:#70543E;
+  --cal-white:#FAF9F6;
+  /* Hairlines: charcoal at low alpha */
+  --cal-rule:#46464333;
+  --cal-rule-strong:#46464355;
+  --cal-rule-faint:#46464322;
+  --cal-hover-wash:#4646430d;
+  /* Semantic */
+  --cal-background:var(--cal-paper);
+  --cal-surface:var(--cal-white);
+  --cal-surface-inverse:var(--cal-ink);
+  --cal-text:var(--cal-ink);
+  --cal-text-secondary:var(--cal-graphite);
+  --cal-text-inverse:var(--cal-paper);
+  --cal-action:var(--cal-ink);
+  --cal-action-text:var(--cal-paper);
+  --cal-action-hover:var(--cal-leather);
+  --cal-accent:var(--cal-leather);
+  --cal-focus:var(--cal-graphite);
+  --cal-focus-inverse:var(--cal-paper);
+  --cal-material:var(--cal-steel);
+
+  /* Type roles */
+  --cal-font-identity:'Archivo Black',sans-serif;
+  --cal-font-display:'IBM Plex Sans',sans-serif;
+  --cal-font-body:'IBM Plex Sans',sans-serif;
+  --cal-font-mono:'IBM Plex Mono',monospace;
+  --cal-text-hero:clamp(52px,5.8vw,88px);
+  --cal-text-h2:clamp(32px,3.5vw,50px);
+  --cal-text-h3:25px;
+  --cal-text-lead:21px;
+  --cal-text-body:18px;
+  --cal-text-body-sm:16px;
+  --cal-text-note:15px;
+  --cal-text-ui:14px;
+  --cal-text-meta:13px;
+  --cal-text-eyebrow:11px;
+  --cal-text-micro:10px;
+  --cal-text-code:16px;
+  --cal-text-code-sm:14px;
+  --cal-leading-hero:1.1;
+  --cal-leading-heading:1.15;
+  --cal-leading-h3:1.25;
+  --cal-leading-body:1.5;
+  --cal-leading-reading:1.6;
+  --cal-leading-code:1.8;
+  --cal-tracking-heading:-.015em;
+  --cal-tracking-eyebrow:.08em;
+  --cal-tracking-wordmark:-.04em;
+  --cal-weight-regular:400;
+  --cal-weight-emphasis:500;
+
+  /* Space (exact, not snapped) */
+  --cal-space-1:6px;
+  --cal-space-2:10px;
+  --cal-space-3:14px;
+  --cal-space-4:18px;
+  --cal-space-5:24px;
+  --cal-space-6:32px;
+  --cal-space-7:42px;
+  --cal-space-8:56px;
+  --cal-space-9:80px;
+  --cal-gutter:4.2%;
+  --cal-measure:65ch;
+
+  /* Shape, rules, states */
+  --cal-radius:0;
+  --cal-shadow:none;
+  --cal-rule-width:1px;
+  --cal-button-pad:13px 20px;
+  --cal-button-pad-sm:10px 14px;
+  --cal-focus-ring:3px solid var(--cal-focus);
+  --cal-focus-offset:5px;
+  --cal-underline-offset:5px;
+
+  /* Motion: calm, measured */
+  --cal-ease:cubic-bezier(.4,0,.2,1);
+  --cal-duration-fast:160ms;
+  --cal-duration:300ms;
+  --cal-duration-slow:600ms;
+}

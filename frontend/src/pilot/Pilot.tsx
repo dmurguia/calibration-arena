@@ -110,7 +110,7 @@ function CaseLibrary() {
 function CaseStart() {
   const { caseId } = useParams(); const { cases, me, refresh } = usePilot(); const navigate = useNavigate()
   const c = cases.find(c => c.id === caseId); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
-  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const start = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { if (!me) await beginGuest(refresh); const run = await call<Run>('/runs', { case_id: caseId, independent_first: false }); await refresh(); navigate(`/session/${run.id}`) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
   if (!c) return <NotFound />
   return <div className="p-narrow"><Link className="p-back" to="/"><ChevronLeft size={15} /> Arena</Link><Eyebrow>{c.topic} · {c.minutes} minutes</Eyebrow><h1>{c.title}</h1><p className="p-lead">Compare two responses, choose a preference, and see the explanation.</p><div className="p-brief"><Eyebrow>Case facts · synthetic company</Eyebrow><p>{c.brief}</p></div>
     <form onSubmit={start}><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Opening case…' : 'Compare responses'} <ArrowRight size={16} /></button></form>

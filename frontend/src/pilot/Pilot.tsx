@@ -1,11 +1,13 @@
 import { createContext, FormEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2 } from 'lucide-react'
 import { DialMark } from '../components/brand/DialMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
 import { call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
+import { clerkEnabled, ClerkBridge } from './clerk'
 import Leaderboard from './Leaderboard'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -39,7 +41,7 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh }}><div className="pilot">
+  return <Context.Provider value={{ me, config, cases, refresh }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
     <div className="p-mobile-header"><Link className="p-brand" to="/"><DialMark size={26} /><span>Calibrated</span></Link><button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
@@ -53,18 +55,60 @@ export default function Pilot() {
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
-      <div className="p-sidebar-account">{me?.account ? <><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></> : <><NavLink to="/signin">Sign in</NavLink><NavLink to="/signup">Create account</NavLink></>}</div>
+      {clerkEnabled
+        ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
+        : <div className="p-sidebar-account">{me?.account ? <><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></> : <><NavLink to="/signin">Sign in</NavLink><NavLink to="/signup">Create account</NavLink></>}</div>}
       <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Corsac</span></div>
     </aside>
     <div className="p-main-column">
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
-      <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} /><Route path="/leaderboard" element={<Leaderboard />} />
+      {clerkEnabled ? <>
+        <Route path="/signin/*" element={<ClerkAuthPage title="Sign in."><ClerkSignIn routing="path" path="/signin" signUpUrl="/signup" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
+        <Route path="/signup/*" element={<ClerkAuthPage title="Keep your notebook."><ClerkSignUp routing="path" path="/signup" signInUrl="/signin" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
+        <Route path="/reset" element={<Navigate to="/signin" replace />} />
+      </> : <>
+        <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} />
+      </>}
+      <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
     <footer className="p-footer"><span>Calibrated · Built by Corsac</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
   </div></div></Context.Provider>
+}
+
+function ClerkAuthPage({ title, children }: { title: string; children: ReactNode }) {
+  return <div className="p-narrow">
+    <Eyebrow>Your Calibrated account</Eyebrow>
+    <h1>{title}</h1>
+    <p className="p-lead">Your notebook follows your account across devices.</p>
+    <div className="p-clerk-auth">{children}</div>
+  </div>
+}
+
+function ClerkAccountBlock({ account, refresh }: { account: Me['account']; refresh: () => Promise<void> }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const clerk = useClerk()
+  const navigate = useNavigate()
+
+  if (!isLoaded) return <div className="p-sidebar-account"><span>Loading account…</span></div>
+  if (isSignedIn) return <div className="p-sidebar-account">
+    <span>{account?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'Signed in'}</span>
+    <button onClick={() => clerk.openUserProfile()}>Manage account</button>
+    <button onClick={async () => {
+      try { await call('/auth/logout') } catch { /* token may already be expired */ }
+      clearToken()
+      await clerk.signOut()
+      await refresh()
+      navigate('/')
+    }}>Sign out</button>
+  </div>
+  return <div className="p-sidebar-account">
+    <NavLink to="/signin">Sign in</NavLink>
+    <NavLink to="/signup">Create account</NavLink>
+  </div>
 }
 
 function Home() {

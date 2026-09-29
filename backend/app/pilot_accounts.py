@@ -22,6 +22,10 @@ class PilotAccount(Base):
     token_budget: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reset_hash: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
     reset_expires_at: Mapped[str | None] = mapped_column(String, nullable=True)
+    clerk_user_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True, unique=True)
+
+
+UNUSABLE_PASSWORD = "!clerk"
 
 
 class PilotSession(Base):

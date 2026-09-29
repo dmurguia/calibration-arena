@@ -153,6 +153,8 @@ has a broken native `cryptography`, and this app needs no asymmetric crypto), de
 both as `httpOnly` cookie and bearer token; the SPA uses the bearer path
 (localStorage) so the Vite dev origin works without cookie gymnastics.
 Email delivery is the placeholder seam: dev mode returns the code in the response/UI.
+The separate pilot uses Clerk with a backend session exchange; see
+`docs/pilot/LOCAL-AND-HOSTED.md` → “Sign-in (Clerk)”.
 
 ## 6. Scale path (deliberately deferred, seams in place)
 

@@ -71,8 +71,16 @@ async def local_inference_boundary(request: Request, call_next):
                 or request.headers.get("sec-fetch-site") == "cross-site"
                 or request.headers.get("x-forwarded-for")
                 or request.headers.get("forwarded")):
-            return JSONResponse({"detail": "Local model access is available only from this computer."}, status_code=403)
-    return await call_next(request)
+            response = JSONResponse({"detail": "Local model access is available only from this computer."}, status_code=403)
+        else:
+            response = await call_next(request)
+    else:
+        response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    if request.url.path.startswith("/api/pilot"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 app.include_router(pilot.router)

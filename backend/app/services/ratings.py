@@ -16,12 +16,12 @@ ANCHOR = 1200.0
 SCALE = 400.0  # Elo-style: +400 rating ≈ 10x BT strength
 
 # (winner_model_id, loser_model_id, weight)
-Pair = tuple[int, int, float]
+Pair = tuple[int | str, int | str, float]
 
 
 @dataclass
 class RatingRow:
-    model_id: int
+    model_id: int | str
     rating: float
     ci_low: float
     ci_high: float
@@ -35,14 +35,14 @@ def _normalize(pairs: list) -> list[Pair]:
     return [(p[0], p[1], float(p[2]) if len(p) > 2 else 1.0) for p in pairs]
 
 
-def _fit_bt(pairs: list[Pair], iters: int = 200, tol: float = 1e-9) -> dict[int, float]:
+def _fit_bt(pairs: list[Pair], iters: int = 200, tol: float = 1e-9) -> dict[int | str, float]:
     """Fit Bradley-Terry strengths from weighted (winner, loser, w) pairs via MM.
 
     Returns strengths normalized to geometric mean 1.0.
     """
-    models: set[int] = set()
-    wins: dict[int, float] = defaultdict(float)
-    games: dict[tuple[int, int], float] = defaultdict(float)
+    models: set[int | str] = set()
+    wins: dict[int | str, float] = defaultdict(float)
+    games: dict[tuple[int | str, int | str], float] = defaultdict(float)
     for w, l, wt in pairs:
         if wt <= 0:
             continue
@@ -105,14 +105,14 @@ def compute_ratings(
 
     strengths = _fit_bt(pairs)
 
-    wins: dict[int, int] = defaultdict(int)
-    losses: dict[int, int] = defaultdict(int)
+    wins: dict[int | str, int] = defaultdict(int)
+    losses: dict[int | str, int] = defaultdict(int)
     for w, l, _ in pairs:
         wins[w] += 1
         losses[l] += 1
 
     # Bootstrap CI on the rating scale.
-    samples: dict[int, list[float]] = defaultdict(list)
+    samples: dict[int | str, list[float]] = defaultdict(list)
     rng = random.Random(seed)
     for _ in range(max(bootstrap_rounds, 0)):
         resample = [pairs[rng.randrange(len(pairs))] for _ in range(len(pairs))]

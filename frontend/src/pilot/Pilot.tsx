@@ -4,10 +4,13 @@ import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, F
 import { DialMark } from '../components/brand/DialMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
-import { call, Case, CaseAssignment, Config, Draft, Me, Run, saveToken, token } from './api'
+import { call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
+import { Reset, SignIn, SignUp } from './Account'
+import Leaderboard from './Leaderboard'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
+import './accounts.css'
 
 const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void> }>({ me: null, config: null, cases: [], refresh: async () => {} })
 const usePilot = () => useContext(Context)
@@ -25,7 +28,14 @@ export default function Pilot() {
   const [ready, setReady] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
-  const refresh = async () => { if (token()) setMe(await call<Me>('/me')) }
+  const navigate = useNavigate()
+  const refresh = async () => {
+    if (!token()) { setMe(null); return }
+    try { setMe(await call<Me>('/me')) } catch (error) {
+      if (!token()) setMe(null)
+      else throw error
+    }
+  }
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
@@ -42,12 +52,15 @@ export default function Pilot() {
         <NavLink to="/record"><BookOpen size={16} />Notebook</NavLink>
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
-      <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink><span>Built by Corsac</span></div>
+      {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
+      <div className="p-sidebar-account">{me?.account ? <><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></> : <><NavLink to="/signin">Sign in</NavLink><NavLink to="/signup">Create account</NavLink></>}</div>
+      <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Corsac</span></div>
     </aside>
     <div className="p-main-column">
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
+      <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} /><Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
     <footer className="p-footer"><span>Calibrated · Built by Corsac</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
@@ -274,40 +287,46 @@ function RetryComposer({ run }: { run: Run }) {
 
 function Notebook() {
   const { me } = usePilot()
-  return <div className="p-narrow"><Eyebrow>Your notebook · this browser</Eyebrow><h1>{me ? `${me.participant.name}’s review desk.` : 'A place for your judgment.'}</h1><p className="p-lead">Return to a case, revisit your reasoning, or pick up where you left off.</p>
+  return <div className="p-narrow"><Eyebrow>Your notebook</Eyebrow><h1>{me ? `${me.participant.name}’s review desk.` : 'A place for your judgment.'}</h1><p className="p-lead">Return to a case, revisit your reasoning, or pick up where you left off.</p>
     {!me ? <div className="p-card"><p>Your first question or case starts your notebook. No password or background form needed.</p><Link className="p-button" to="/case/insurance-cutoff">Start a case <ArrowRight size={16} /></Link></div> : <>
       <div className="p-notebook-meta"><span>{me.runs.filter(r => r.status === 'completed').length} completed reviews</span><span>{me.participant.role} · {me.participant.experience}</span><span>{me.participant.identity === 'guest' ? 'Guest · background not yet supplied' : 'Self-reported background'}</span></div>
       {!me.runs.length && <p>No reviews yet. <Link to="/">Choose your first case.</Link></p>}
       {me.runs.map(r => <Link key={r.id} className="p-notebook-row" to={`/session/${r.id}`}><span><span className="p-meta">{r.kind === 'ask' ? 'Question' : r.mode === 'authored-fixture' ? 'Practice example' : 'Close example'} · {date(r.created_at)} · {r.mode === 'local-cli' ? 'Local CLI responses' : r.mode === 'authored-fixture' ? 'Authored fixtures' : r.mode === 'frozen-model-pair' ? 'Frozen model responses' : 'Live model responses'}</span><h3>{r.title}</h3>{r.kind === 'ask' && <p>{r.brief.slice(0, 130)}</p>}</span><span>{r.status === 'completed' ? 'See reveal' : r.status === 'failed' ? 'Request failed' : 'Continue'} <ArrowUpRight size={15} /></span></Link>)}
-      <p className="p-fine">Saved on Calibrated and linked to this browser. Clearing browser storage or changing devices starts a new identity; this is not a verified account. Contact the Calibrated team to withdraw or have your data removed.</p>
+      <p className="p-fine">{me?.account ? 'Saved to your Calibrated account and available across devices.' : <>Saved in this browser — <Link to="/signup">create an account</Link> to keep your notebook across devices. Contact the Calibrated team to withdraw or have your data removed.</>}</p>
     </>}
   </div>
 }
 
 function Method() {
-  const { config } = usePilot()
+  const { config, me } = usePilot()
   return <div className="p-narrow p-method"><Eyebrow>Calibrated · Accounting</Eyebrow><h1>How comparisons work</h1><p className="p-lead">Bring a question, compare two drafts, and decide what you would use.</p>
     <h2>One workspace, two sources of drafts</h2><p>Ask an accounting question in your own words. The editable question suggestions request fresh answers from both models. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
     <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
     <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
     <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
-    <h2>Your notebook</h2><p>Your comparisons and judgments are saved for this browser. Use the same browser to return to your work; cross-device sign-in is not available.</p>
+    <h2>Your notebook</h2><p>{me?.account ? 'Your comparisons and judgments follow your account across devices.' : <>Your comparisons and judgments are saved in this browser. <Link to="/signup">Create an account</Link> to keep your notebook across devices.</>}</p>
     <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
   </div>
 }
 
 function NotFound() { return <div className="p-narrow"><h1>Page not found.</h1><p>The practice room has the current cases and your notebook has your saved work.</p><Link className="p-button" to="/">Go to practice</Link></div> }
 
-interface ExportData { schema_version: string; participants: (Me['participant'] & { created_at: string; source: string; dataset?: string; research_consent?: boolean })[]; runs: (Run & { participant_id: string })[]; events: { participant_id: string; run_id?: string; name: string; at: string; data?: { position?: string; category?: string; note?: string; after_reveal?: boolean } }[] }
+interface ExportData { schema_version: string; participants: (Me['participant'] & { created_at: string; source: string; dataset?: string; research_consent?: boolean; account_email?: string | null; token_budget?: number | null })[]; runs: (Run & { participant_id: string })[]; events: { participant_id: string; run_id?: string; name: string; at: string; data?: { position?: string; category?: string; note?: string; after_reveal?: boolean } }[] }
+interface FounderLeaderboard { rows: { rank: number; model_id: string; rating: number; ci_low: number; ci_high: number; wins: number; losses: number; votes: number }[]; total_votes: number; participants: number; note: string }
 function Founder() {
-  const [key, setKey] = useState(''); const [data, setData] = useState<ExportData | null>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
-  const load = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { setData(await call<ExportData>('/founder/export', undefined, { 'X-Pilot-Admin': key })); setKey('') } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const [key, setKey] = useState(''); const [data, setData] = useState<ExportData | null>(null); const [leaderboard, setLeaderboard] = useState<FounderLeaderboard | null>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [resetEmail, setResetEmail] = useState(''); const [resetPath, setResetPath] = useState(''); const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({})
+  const load = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { const headers = { 'X-Pilot-Admin': key }; const [exported, rankings] = await Promise.all([call<ExportData>('/founder/export', undefined, headers), call<FounderLeaderboard>('/founder/leaderboard', undefined, headers)]); setData(exported); setLeaderboard(rankings) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const issueReset = async (e: FormEvent) => { e.preventDefault(); setError(''); try { const result = await call<{ reset_path: string }>('/founder/reset-link', { email: resetEmail }, { 'X-Pilot-Admin': key }); setResetPath(`${window.location.origin}${result.reset_path}`) } catch (e) { setError(errorText(e)) } }
+  const setBudget = async (participantId: string) => { setError(''); try { const value = Number(budgetInputs[participantId]); await call(`/founder/participants/${participantId}/budget`, { token_budget: value }, { 'X-Pilot-Admin': key }); setData(current => current ? { ...current, participants: current.participants.map(p => p.id === participantId ? { ...p, token_budget: value } : p) } : current) } catch (e) { setError(errorText(e)) } }
   const download = () => { const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `calibrated-private-pilot-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(url) }
   return <div className="p-workspace"><Eyebrow>Private · review records</Eyebrow><h1>Comparisons and judgments.</h1><p className="p-lead">Inspect real participation and raw judgments. Authored drafts remain fixtures, even when reviewed by real people.</p>
     <form className="p-card" onSubmit={load}><label>Private founder token<input type="password" value={key} onChange={e => setKey(e.target.value)} required autoComplete="off" /></label><p className="p-fine">Uses PILOT_ADMIN_TOKEN from the server. The token is never persisted in this browser.</p><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Loading…' : 'Open private records'}</button></form>
     {data && <><div className="p-actions"><button className="p-secondary" onClick={download}>Export private raw JSON</button><span className="p-fine">Contains contact details and questions. Do not publish.</span></div>
+      <form className="p-card" onSubmit={issueReset}><h2>Issue a password reset</h2><label>Account email<input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required /></label><button className="p-secondary">Issue reset link</button>{resetPath && <p className="p-fine">Reset path: <a href={resetPath}>{resetPath}</a></p>}</form>
+      {leaderboard && <section className="p-card"><h2>Preference leaderboard</h2><p className="p-fine">{leaderboard.total_votes} votes · {leaderboard.participants} participants</p><div className="p-leaderboard-table"><table><thead><tr><th>Rank</th><th>Model</th><th>Rating</th><th>Wins</th><th>Losses</th><th>Votes</th></tr></thead><tbody>{leaderboard.rows.map(row => <tr key={row.model_id}><td>{row.rank}</td><th scope="row">{row.model_id}</th><td>{row.rating}</td><td>{row.wins}</td><td>{row.losses}</td><td>{row.votes}</td></tr>)}</tbody></table></div></section>}
       <div className="p-founder-summary"><span>{data.participants.length} browser profiles</span><span>{data.runs.filter(r => r.status === 'completed').length} completed judgments</span><span>{data.runs.filter(r => r.status !== 'completed').length} incomplete / failed</span></div>
       {data.participants.map(p => { const runs = data.runs.filter(r => r.participant_id === p.id); const days = new Set(data.events.filter(e => e.participant_id === p.id && ['visit', 'session_started', 'judgment_completed'].includes(e.name)).map(e => e.at.slice(0, 10))); return <section className="p-card" key={p.id}><h2>{p.name}</h2><p>{p.role} · {p.experience} · {p.framework} · source: {p.source} · dataset: {p.dataset || 'preview'}</p><p className="p-fine">{runs.filter(r => r.status === 'completed').length} completed · {days.size} UTC activity days · {p.followup ? `Follow-up permitted: ${p.email}` : 'No follow-up permission'} · Research reuse: {p.research_consent ? 'opted in' : 'not opted in'}</p>
+        {p.account_email && <div className="p-founder-budget"><p className="p-fine">Account: {p.account_email} · budget override: {p.token_budget ?? 'default'}</p><input type="number" min="0" value={budgetInputs[p.id] ?? p.token_budget ?? ''} placeholder="Token budget" onChange={e => setBudgetInputs(values => ({ ...values, [p.id]: e.target.value }))} /><button className="p-secondary" onClick={() => setBudget(p.id)}>Set budget</button></div>}
         {runs.map(r => <details className="p-own" key={r.id}><summary>{r.title} · {r.status} · {r.mode} · {date(r.created_at)}</summary><p>{r.brief}</p><p>Independent conclusion: {r.conclusion || 'Not submitted / Ask'}</p>{r.judgment && <><p>Preference: {labels[r.judgment.preference]} · A: {(r.judgment.a ? labels[r.judgment.a] : 'Not collected')} · B: {(r.judgment.b ? labels[r.judgment.b] : 'Not collected')} · Confidence: {r.judgment.confidence || 'Not collected'} · {Math.round((r.judgment.decision_ms ?? 0) / 1000)} seconds</p><p>Reasons: {r.judgment.reasons.join(', ')}</p><p>Explanation: {r.judgment.rationale || 'None'}</p><p>Correction: {r.judgment.correction || 'None'}</p></>}{data.events.filter(e => e.run_id === r.id && e.name === 'issue_reported').map((e, i) => <p key={i}>Reported issue · {e.data?.position?.toUpperCase()} · {e.data?.category} · {e.data?.note || 'No note'} · {e.data?.after_reveal ? 'After reveal' : 'Before reveal'} · unverified</p>)}<p>Usefulness: {r.feedback?.usefulness || 'Not submitted'} · {r.feedback?.note}</p><p className="p-fine">Events: {data.events.filter(e => e.run_id === r.id).map(e => `${e.name} (${new Date(e.at).toLocaleTimeString()})`).join(' → ')}</p></details>)}
       </section> })}</>}
   </div>

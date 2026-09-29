@@ -6,8 +6,8 @@ import secrets
 from copy import deepcopy
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, model_validator
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator, model_validator
 from sqlalchemy import JSON, String, select, func, update
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
@@ -18,6 +18,15 @@ from ..pilot_tasks import TASKS, case_task
 from ..pilot_examples import STARTERS
 from ..pilot_audit import GenerationFailure, text_hash
 from ..pilot_study import Assignment, ClosePack, assign_cases, assigned_case
+from ..pilot_accounts import (
+    PilotAccount, PilotSession, PilotUsage, admin_check_allowed, client_ip,
+    enforce_rate_limit, hash_password,
+    login_is_limited, record_login_failure, require_dummy_password_work,
+    record_admin_failure, reset_limits as reset_rate_limits, verify_password,
+)
+from ..pilot_usage import usage_tokens
+from ..pilot_models import pool_labels
+from ..pilot_leaderboard import build_leaderboard
 
 router = APIRouter(prefix="/api/pilot", tags=["pilot"])
 
@@ -81,6 +90,49 @@ class Guest(Strict):
     research_consent: bool = False
     source: str = Field(default="direct", max_length=100)
     invite_code: str = Field(default="", max_length=200)
+
+
+class Signup(Strict):
+    name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    password: str = Field(min_length=10, max_length=256)
+    role: str | None = Field(default=None, max_length=100)
+    experience: str | None = Field(default=None, max_length=100)
+    framework: str | None = Field(default=None, max_length=100)
+    research_consent: bool = False
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, value):
+        return value.strip().lower() if isinstance(value, str) else value
+
+
+class Login(Strict):
+    email: EmailStr
+    password: str = Field(max_length=256)
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, value):
+        return value.strip().lower() if isinstance(value, str) else value
+
+
+class PasswordReset(Strict):
+    token: str = Field(min_length=1, max_length=256)
+    password: str = Field(min_length=10, max_length=256)
+
+
+class Budget(Strict):
+    token_budget: int = Field(ge=0)
+
+
+class ResetLinkRequest(Strict):
+    email: EmailStr
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, value):
+        return value.strip().lower() if isinstance(value, str) else value
 
 
 class Start(Strict):
@@ -172,14 +224,40 @@ def emit(db, p, name, run=None, data=None):
     db.add(Event(id=secrets.token_hex(16), participant_id=p.id, run_id=run.id if run else None, name=name, at=now(), data=data or {}))
 
 
+def create_session(db: Session, p: Participant) -> str:
+    raw = secrets.token_urlsafe(32)
+    stamp = now()
+    days = max(1, int(os.getenv("PILOT_SESSION_DAYS", "30")))
+    expires = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    db.add(PilotSession(
+        id=secrets.token_hex(16), participant_id=p.id,
+        token_hash=hashlib.sha256(raw.encode()).hexdigest(),
+        created_at=stamp, expires_at=expires, last_seen_at=stamp,
+    ))
+    return raw
+
+
 def participant(authorization: str = Header(default=""), db: Session = Depends(get_db)):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Start a comparison to save your work.")
     digest = hashlib.sha256(authorization[7:].encode()).hexdigest()
+    session = db.scalar(select(PilotSession).where(
+        PilotSession.token_hash == digest,
+        PilotSession.revoked_at.is_(None),
+        PilotSession.expires_at > now(),
+    ))
+    if session is not None:
+        p = db.get(Participant, session.participant_id)
+        if p is not None:
+            seen = datetime.fromisoformat(session.last_seen_at)
+            if seen < datetime.now(timezone.utc) - timedelta(minutes=5):
+                session.last_seen_at = now()
+                db.commit()
+            return p
     p = db.scalar(select(Participant).where(Participant.token_hash == digest))
-    if p is None:
-        raise HTTPException(401, "This browser session is no longer available. Begin again or contact the Calibrated team.")
-    return p
+    if p is not None and db.get(PilotAccount, p.id) is None:
+        return p
+    raise HTTPException(401, "This browser session is no longer available. Begin again or contact the Calibrated team.")
 
 
 def owned(db, p, run_id):
@@ -206,7 +284,37 @@ def public_run(run):
 
 @router.get("/config")
 def config():
-    return {"ask_mode": "live" if live_ready() else "fixture", "invite_required": False, "inference_backend": inference_backend(), "consent_version": "pilot-research-v1", "prompt_starters": STARTERS, "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()]}
+    result = {
+        "ask_mode": "live" if live_ready() else "fixture",
+        "invite_required": False,
+        "inference_backend": inference_backend(),
+        "consent_version": "pilot-research-v1",
+        "prompt_starters": STARTERS,
+        "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()],
+        "accounts_enabled": True,
+        "leaderboard_public": os.getenv("PILOT_PUBLIC_LEADERBOARD") == "1",
+    }
+    if inference_backend() == "pool":
+        result["models"] = pool_labels()
+    return result
+
+
+@router.get("/leaderboard")
+def public_leaderboard(task_type: str | None = None, db: Session = Depends(get_db)):
+    if os.getenv("PILOT_PUBLIC_LEADERBOARD") != "1":
+        raise HTTPException(404, "Not found.")
+    runs = db.scalars(select(Run).where(Run.status == "completed")).all()
+    return build_leaderboard(runs, task_type)
+
+
+@router.get("/founder/leaderboard")
+def founder_leaderboard(
+    request: Request, task_type: str | None = None,
+    x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db),
+):
+    require_admin(x_pilot_admin, request)
+    runs = db.scalars(select(Run).where(Run.status == "completed")).all()
+    return build_leaderboard(runs, task_type)
 
 
 @router.get("/cases")
@@ -281,7 +389,8 @@ def enroll(body: Profile, db: Session = Depends(get_db)):
 
 
 @router.post("/guests")
-def guest(body: Guest, db: Session = Depends(get_db)):
+def guest(body: Guest, request: Request, db: Session = Depends(get_db)):
+    enforce_rate_limit(request, "guest", 20, 60 * 60)
     raw = secrets.token_urlsafe(32)
     profile = dict(name="Guest", role="Not supplied", experience="Not supplied", framework="Not supplied", followup=False,
                    research_consent=body.research_consent, source=body.source, consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None,
@@ -292,6 +401,125 @@ def guest(body: Guest, db: Session = Depends(get_db)):
     emit(db, p, "visit")
     db.commit()
     return {"token": raw, "participant": {"id": p.id, **p.profile}}
+
+
+def account_participant(p: Participant, email: str):
+    return {"id": p.id, **p.profile, "email": email}
+
+
+@router.post("/auth/signup")
+def signup(body: Signup, request: Request, authorization: str = Header(default=""), db: Session = Depends(get_db)):
+    enforce_rate_limit(request, "signup", 20, 60 * 60)
+    email = str(body.email).strip().lower()
+    if db.scalar(select(PilotAccount).where(PilotAccount.email == email)):
+        raise HTTPException(409, "An account with this email already exists. Sign in instead.")
+
+    guest_participant = None
+    if authorization.startswith("Bearer "):
+        try:
+            candidate = participant(authorization=authorization, db=db)
+        except HTTPException:
+            candidate = None
+        if candidate is not None and db.get(PilotAccount, candidate.id) is None:
+            guest_participant = candidate
+
+    stamp = now()
+    if guest_participant is None:
+        profile = dict(
+            name=body.name, role=body.role or "Not supplied",
+            experience=body.experience or "Not supplied",
+            framework=body.framework or "Not supplied", followup=False,
+            research_consent=body.research_consent, source="direct",
+            consent_version="pilot-research-v1" if body.research_consent else None,
+            consent_at=stamp if body.research_consent else None,
+            publication_consent=False, training_consent=False, identity="account",
+            dataset=os.getenv("PILOT_DATASET", "preview"),
+        )
+        p = Participant(
+            id=secrets.token_hex(16),
+            token_hash=hashlib.sha256(secrets.token_urlsafe(32).encode()).hexdigest(),
+            created_at=stamp, profile=profile,
+        )
+        db.add(p)
+        db.flush()
+        emit(db, p, "enrolled", data={"source": "direct", "identity": "account"})
+        emit(db, p, "visit")
+    else:
+        p = guest_participant
+        profile = {**p.profile, "name": body.name, "identity": "account",
+                   "research_consent": body.research_consent,
+                   "consent_version": "pilot-research-v1" if body.research_consent else None,
+                   "consent_at": stamp if body.research_consent else None,
+                   "profile_updated_at": stamp}
+        for field in ("role", "experience", "framework"):
+            if getattr(body, field) is not None:
+                profile[field] = getattr(body, field)
+        p.profile = profile
+        p.token_hash = hashlib.sha256(secrets.token_urlsafe(32).encode()).hexdigest()
+        emit(db, p, "account_claimed")
+
+    account = PilotAccount(
+        participant_id=p.id, email=email, password_hash=hash_password(body.password),
+        created_at=stamp,
+    )
+    db.add(account)
+    raw = create_session(db, p)
+    db.commit()
+    return {"token": raw, "participant": account_participant(p, email)}
+
+
+@router.post("/auth/login")
+def login(body: Login, request: Request, db: Session = Depends(get_db)):
+    email = str(body.email).strip().lower()
+    if login_is_limited(request, email):
+        raise HTTPException(429, "Too many attempts. Try again in a few minutes.")
+    account = db.scalar(select(PilotAccount).where(PilotAccount.email == email))
+    if account is None:
+        require_dummy_password_work(body.password)
+        valid = False
+    else:
+        valid = verify_password(body.password, account.password_hash)
+    if not valid:
+        record_login_failure(request, email)
+        raise HTTPException(401, "Email or password is incorrect.")
+    p = db.get(Participant, account.participant_id)
+    raw = create_session(db, p)
+    db.commit()
+    return {"token": raw, "participant": account_participant(p, account.email)}
+
+
+@router.post("/auth/logout")
+def logout(authorization: str = Header(default=""), p=Depends(participant), db: Session = Depends(get_db)):
+    if authorization.startswith("Bearer "):
+        digest = hashlib.sha256(authorization[7:].encode()).hexdigest()
+        session = db.scalar(select(PilotSession).where(
+            PilotSession.token_hash == digest, PilotSession.participant_id == p.id,
+        ))
+        if session is not None and session.revoked_at is None:
+            session.revoked_at = now()
+            db.commit()
+    return {"ok": True}
+
+
+@router.post("/auth/reset")
+def reset_password(body: PasswordReset, request: Request, db: Session = Depends(get_db)):
+    enforce_rate_limit(request, "password-reset", 10, 60 * 60)
+    digest = hashlib.sha256(body.token.encode()).hexdigest()
+    account = db.scalar(select(PilotAccount).where(
+        PilotAccount.reset_hash == digest,
+        PilotAccount.reset_expires_at > now(),
+    ))
+    if account is None:
+        raise HTTPException(400, "This reset link is invalid or expired.")
+    account.password_hash = hash_password(body.password)
+    account.reset_hash = None
+    account.reset_expires_at = None
+    stamp = now()
+    db.execute(update(PilotSession).where(PilotSession.participant_id == account.participant_id).values(revoked_at=stamp))
+    p = db.get(Participant, account.participant_id)
+    raw = create_session(db, p)
+    db.commit()
+    return {"token": raw, "participant": account_participant(p, account.email)}
 
 
 @router.post("/profile")
@@ -307,7 +535,17 @@ def enrich_profile(body: Profile, p=Depends(participant), db: Session = Depends(
 @router.get("/me")
 def me(p=Depends(participant), db: Session = Depends(get_db)):
     runs = db.scalars(select(Run).where(Run.participant_id == p.id).order_by(Run.created_at.desc())).all()
-    return {"participant": {"id": p.id, **p.profile}, "runs": [public_run(r) for r in runs]}
+    account = db.get(PilotAccount, p.id)
+    used = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
+                     .where(PilotUsage.participant_id == p.id)) or 0
+    default_budget = "PILOT_TOKEN_BUDGET" if account else "PILOT_GUEST_TOKEN_BUDGET"
+    budget = account.token_budget if account and account.token_budget is not None else int(os.getenv(default_budget, "200000" if account else "30000"))
+    return {
+        "participant": {"id": p.id, **p.profile},
+        "account": {"email": account.email} if account else None,
+        "usage": {"used": used, "budget": budget, "remaining": max(0, budget - used)},
+        "runs": [public_run(r) for r in runs],
+    }
 
 
 @router.post("/events")
@@ -336,6 +574,37 @@ def conversation_revealed(db, run):
                if (r.data.get('root_run_id') or r.id) == root)
 
 
+def budget_for(db, p):
+    account = db.get(PilotAccount, p.id)
+    default = os.getenv("PILOT_TOKEN_BUDGET", "200000") if account else os.getenv("PILOT_GUEST_TOKEN_BUDGET", "30000")
+    return account.token_budget if account and account.token_budget is not None else int(default)
+
+
+def check_live_budget(db, p):
+    start_of_day = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    today = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
+                      .where(PilotUsage.at >= start_of_day)) or 0
+    if today >= int(os.getenv("PILOT_GLOBAL_DAILY_TOKENS", "3000000")):
+        raise HTTPException(503, "Live comparisons are paused for today. Practice examples are still available.")
+    used = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
+                     .where(PilotUsage.participant_id == p.id)) or 0
+    if used >= budget_for(db, p):
+        account = db.get(PilotAccount, p.id)
+        suffix = "Contact the Calibrated team to extend it." if account else "Create an account or contact the Calibrated team to extend it."
+        raise HTTPException(402, f"You've used this account's included model tokens. {suffix}")
+
+
+def record_attempt_usage(db, participant_id, run_id, attempts):
+    for attempt in attempts:
+        input_tokens, output_tokens = usage_tokens(attempt)
+        if input_tokens or output_tokens:
+            db.add(PilotUsage(
+                id=secrets.token_hex(16), participant_id=participant_id, run_id=run_id,
+                model_id=str(attempt.get("requested_model") or attempt.get("model_id") or "unknown"),
+                input_tokens=input_tokens, output_tokens=output_tokens, at=now(),
+            ))
+
+
 @router.post("/runs")
 async def start(body: Start, p=Depends(participant), db: Session = Depends(get_db)):
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
@@ -357,7 +626,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     turn_number = 1
     source_artifact = None
     if source and body.continuation_mode == 'compare':
-        if source.data['mode'] not in ('direct', 'local-cli', 'openrouter'):
+        if source.data['mode'] not in ('direct', 'local-cli', 'openrouter', 'pool'):
             raise HTTPException(422, 'Start an open question to compare model conversations.')
         turn_number = source.data.get('turn_number', 1) + 1
         pair_order = [d['model_id'] for d in source.data['drafts']]
@@ -402,6 +671,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             raise HTTPException(422, "Describe a new question in at least 15 characters, or enter a follow-up.")
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
+        check_live_budget(db, p)
         data = {"kind": "ask", "case_id": None, "title": TASKS[body.task_type]["label"], "brief": body.question,
                 "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4", "drafts": [], "privacy_ack": body.privacy_ack,
                 "task_type": body.task_type, "routing": "explicit-user-selection",
@@ -422,6 +692,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
     db.commit()
     if not body.case_id:
+        attempts = []
         try:
             drafts = await generate(body.question, body.task_type, history=pair_histories or history) if history or pair_histories else await generate(body.question, body.task_type)
             attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
@@ -435,10 +706,12 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             run.status = "review"
             emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
         except ValueError as exc:
-            run.data = {**data, 'generation_attempts': exc.attempts if isinstance(exc, GenerationFailure) else [],
+            attempts = exc.attempts if isinstance(exc, GenerationFailure) else []
+            run.data = {**data, 'generation_attempts': attempts,
                         'generation_error_type': type(exc).__name__}
             run.status = "failed"
             emit(db, p, "generation_failed", run)
+        record_attempt_usage(db, p.id, run.id, attempts)
         db.commit()
     return public_run(run)
 
@@ -575,17 +848,57 @@ def feedback(run_id: str, body: Feedback, p=Depends(participant), db: Session = 
 
 
 def export_data(db):
+    accounts = {account.participant_id: account for account in db.scalars(select(PilotAccount)).all()}
     return {"schema_version": "pilot-export-v2", "exported_at": now(), "notice": "PRIVATE pilot records. Check each participant research_consent before research reuse. No publication or training rights granted. Identity is self-reported. Authored fixtures are not model runs.",
             "close_packs": [{'id': pack.id, 'sha256': pack.sha256, 'created_at': pack.created_at, 'active': pack.active, 'data': pack.data} for pack in db.scalars(select(ClosePack))],
             "assignments": [{k: getattr(a, k) for k in ('id', 'participant_id', 'pack_id', 'case_id', 'ordinal', 'created_at', 'run_id', 'exposure')} for a in db.scalars(select(Assignment))],
-            "participants": [{"id": p.id, "created_at": p.created_at, **p.profile} for p in db.scalars(select(Participant)).all()],
+            "participants": [{"id": p.id, "created_at": p.created_at, **p.profile,
+                              "account_email": accounts[p.id].email if p.id in accounts else None,
+                              "token_budget": accounts[p.id].token_budget if p.id in accounts else None}
+                             for p in db.scalars(select(Participant)).all()],
             "runs": [{**r.data, "id": r.id, "participant_id": r.participant_id, "created_at": r.created_at, "status": r.status} for r in db.scalars(select(Run)).all()],
             "events": [{"id": e.id, "participant_id": e.participant_id, "run_id": e.run_id, "name": e.name, "at": e.at, "data": e.data} for e in db.scalars(select(Event)).all()]}
 
 
-@router.get("/founder/export")
-def founder_export(x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+def require_admin(x_pilot_admin: str, request: Request):
+    if not admin_check_allowed(request):
+        raise HTTPException(429, "Too many attempts. Try again in a few minutes.")
     expected = os.getenv("PILOT_ADMIN_TOKEN", "")
     if len(expected) < 24 or expected.startswith("PLACEHOLDER") or not secrets.compare_digest(x_pilot_admin, expected):
+        record_admin_failure(request)
         raise HTTPException(403, "Founder review requires the configured private admin token.")
+
+
+@router.get("/founder/export")
+def founder_export(request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+    require_admin(x_pilot_admin, request)
     return export_data(db)
+
+
+@router.post("/founder/reset-link")
+def founder_reset_link(body: ResetLinkRequest, request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+    require_admin(x_pilot_admin, request)
+    email = str(body.email).strip().lower()
+    account = db.scalar(select(PilotAccount).where(PilotAccount.email == email))
+    if account is None:
+        raise HTTPException(404, "No account exists with this email.")
+    raw = secrets.token_urlsafe(32)
+    expiry = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    account.reset_hash = hashlib.sha256(raw.encode()).hexdigest()
+    account.reset_expires_at = expiry
+    db.commit()
+    return {"reset_path": f"/reset#token={raw}", "expires_at": expiry}
+
+
+@router.post("/founder/participants/{participant_id}/budget")
+def founder_set_budget(
+    participant_id: str, body: Budget, request: Request,
+    x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db),
+):
+    require_admin(x_pilot_admin, request)
+    account = db.get(PilotAccount, participant_id)
+    if account is None:
+        raise HTTPException(404, "Account not found.")
+    account.token_budget = body.token_budget
+    db.commit()
+    return {"participant_id": participant_id, "token_budget": account.token_budget}

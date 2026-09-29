@@ -42,6 +42,10 @@ ANTHROPIC_API_KEY=<Anthropic API key>
 OPENAI_MODEL=<verified OpenAI API model ID>
 ANTHROPIC_MODEL=<verified Anthropic API model ID>
 PILOT_MAX_OUTPUT_TOKENS=2000
+PILOT_TOKEN_BUDGET=200000
+PILOT_GUEST_TOKEN_BUDGET=30000
+PILOT_GLOBAL_DAILY_TOKENS=3000000
+PILOT_PUBLIC_LEADERBOARD=0
 ```
 
 The placeholders are instructions, not working values. Enrollment is public; `PILOT_INVITE_CODE` is no longer required and existing values are ignored. Retain/configure `PILOT_ADMIN_TOKEN` and `ARENA_DATABASE_URL` on durable storage. Use a separate participant dataset from local QA. Set `ARENA_LEGACY_API=0`, `ARENA_AUTO_SEED=0`, and `ARENA_DEV_LOGIN_CODE=0`. Set `ARENA_CORS_ORIGINS` to the exact Vercel frontend HTTPS origin. Do not import the old prototype's wildcard preview-origin or synthetic-seeding settings.
@@ -64,9 +68,15 @@ A Vercel Preview deployment is still a hosted browser app. If it points at the s
 
 ## 4. Compare different models
 
-The implemented direct adapter selects one OpenAI model via `OPENAI_MODEL` and one Anthropic model via `ANTHROPIC_MODEL`. Change either ID on Railway and deploy the change to use that new pair for subsequent open prompts. Verify each candidate supports this app's text endpoint/configuration and the account has access. API model availability and CLI model availability are separate; a CLI alias is not automatically a valid API ID.
+The implemented direct adapter selects one OpenAI model via `OPENAI_MODEL` and one Anthropic model via `ANTHROPIC_MODEL`. For a configurable rotating pool, use `ARENA_INFERENCE_BACKEND=pool` and provide at least two unique entries:
 
-No new key is required per model when the existing provider account/project key already has access. The current code does not provide an admin model picker, a rotating pool, or OpenAI-vs-OpenAI / Anthropic-vs-Anthropic pairing. Those would require a small pair-configuration extension, not more credentials pasted into the frontend.
+```dotenv
+PILOT_MODELS=anthropic:claude-opus-4-1,openai:gpt-5,openrouter:google/gemini-2.5-pro
+```
+
+The pool requires the corresponding `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, and/or `OPENROUTER_API_KEY`. The first turn samples two distinct entries; follow-ups retain that pair. Verify each candidate supports this app's text endpoint/configuration and the account has access. API model availability and CLI model availability are separate; a CLI alias is not automatically a valid API ID.
+
+No new key is required per model when the existing provider account/project key already has access. Keep provider keys only in the backend environment; never add them to frontend variables.
 
 For the first friend collection, keep a fixed pair. Open-prompt records preserve requested/resolved models where available. Frozen shared cases keep their original outputs even if environment model IDs later change; changing their pair requires generating a new approved pack/version. Do not relabel old outputs or pool votes from different configurations as one comparison. Local CLI testing checks the journey, not equivalence to API results.
 

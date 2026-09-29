@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from copy import deepcopy
 from datetime import date
 from hashlib import sha256
 from html.parser import HTMLParser
@@ -12,6 +13,7 @@ import re
 import sys
 
 import httpx
+from pipeline.boards import ADAPTERS, BOARDS_DIR, MODELS, WEIGHTS, sync_registry
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -242,6 +244,222 @@ def validate(registry: object) -> list[str]:
     return errors
 
 
+def _valid_full_date(value: object) -> bool:
+    if not isinstance(value, str) or len(value) != 10:
+        return False
+    try:
+        return date.fromisoformat(value).isoformat() == value
+    except ValueError:
+        return False
+
+
+def _load_board_files(boards_dir: Path) -> tuple[list[dict], list[str]]:
+    boards = []
+    errors = []
+    for path in sorted(Path(boards_dir).glob("*.json")):
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{path.name}: unable to read board: {exc}")
+            continue
+        if not isinstance(value, dict):
+            errors.append(f"{path.name}: board must be an object")
+            continue
+        boards.append({**value, "_file_stem": path.stem})
+    return boards, errors
+
+
+def _load_models_file(models_path: Path) -> tuple[dict, list[str]]:
+    try:
+        value = json.loads(Path(models_path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {}, [f"{Path(models_path).name}: unable to read models: {exc}"]
+    if not isinstance(value, dict):
+        return {}, [f"{Path(models_path).name}: models file must be an object"]
+    return value, []
+
+
+def validate_boards(registry: dict, boards: list[dict], models: dict) -> list[str]:
+    errors: list[str] = []
+    registry_benchmarks = registry.get("benchmarks", []) if isinstance(registry, dict) else []
+    registry_by_id = {
+        benchmark.get("id"): benchmark for benchmark in registry_benchmarks
+        if isinstance(benchmark, dict) and isinstance(benchmark.get("id"), str)
+    }
+
+    model_records = models.get("models") if isinstance(models, dict) else None
+    if not isinstance(model_records, list):
+        errors.append("models.json must contain a models list")
+        model_records = []
+    model_ids: set[str] = set()
+    for index, model in enumerate(model_records):
+        prefix = f"models[{index}]"
+        if not isinstance(model, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        model_id = model.get("id")
+        if not isinstance(model_id, str) or not ID_PATTERN.fullmatch(model_id):
+            errors.append(f"{prefix}.id must be a lowercase alphanumeric hyphenated slug")
+        elif model_id in model_ids:
+            errors.append(f"{prefix}.id is duplicated: {model_id}")
+        else:
+            model_ids.add(model_id)
+        if not isinstance(model.get("name"), str) or not model["name"].strip():
+            errors.append(f"{prefix}.name must be a non-empty string")
+        if model.get("org") is not None and not isinstance(model.get("org"), str):
+            errors.append(f"{prefix}.org must be a string or null")
+        if model.get("weights") not in WEIGHTS:
+            errors.append(f"{prefix}.weights has unknown value: {model.get('weights')!r}")
+        if model.get("weights_basis") not in ("publisher", "family", "conflict", "none"):
+            errors.append(f"{prefix}.weights_basis has unknown value: {model.get('weights_basis')!r}")
+        reported = model.get("weights_reported")
+        if not isinstance(reported, dict):
+            errors.append(f"{prefix}.weights_reported must be an object")
+        elif any(value not in ("open", "closed") for value in reported.values()):
+            errors.append(f"{prefix}.weights_reported values must be open or closed")
+
+    board_ids: set[str] = set()
+    for index, board in enumerate(boards):
+        prefix = f"boards[{index}]"
+        if not isinstance(board, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        board_id = board.get("benchmark_id")
+        board_error_start = len(errors)
+        if not isinstance(board_id, str) or not board_id:
+            errors.append(f"{prefix}.benchmark_id must be a non-empty string")
+        else:
+            if board_id in board_ids:
+                errors.append(f"{prefix}.benchmark_id is duplicated: {board_id}")
+            board_ids.add(board_id)
+            benchmark = registry_by_id.get(board_id)
+            if benchmark is None:
+                errors.append(f"{board_id}: benchmark_id is not in registry")
+            elif benchmark.get("results_status") not in ("leaderboard", "snapshot", "archived"):
+                errors.append(f"{board_id}: registry results_status does not allow a model board")
+        file_stem = board.get("_file_stem")
+        if isinstance(board_id, str) and file_stem is not None and file_stem != board_id:
+            errors.append(f"{board_id}: board file stem does not match benchmark_id ({file_stem})")
+        if not _is_https(board.get("source_url")):
+            errors.append(f"{prefix}.source_url must start with https://")
+        adapter = board.get("adapter")
+        if not isinstance(adapter, str) or adapter not in ADAPTERS:
+            errors.append(f"{prefix}.adapter has unknown value: {adapter!r}")
+        if not _valid_full_date(board.get("retrieved")):
+            errors.append(f"{prefix}.retrieved must be a full ISO date")
+        if board.get("as_of") is not None and not _valid_full_date(board.get("as_of")):
+            errors.append(f"{prefix}.as_of must be a full ISO date or null")
+
+        metrics = board.get("metrics")
+        metric_keys: set[str] = set()
+        if not isinstance(metrics, list) or not metrics:
+            errors.append(f"{prefix}.metrics must be a non-empty list")
+            metrics = []
+        for metric_index, metric in enumerate(metrics):
+            metric_prefix = f"{prefix}.metrics[{metric_index}]"
+            if not isinstance(metric, dict):
+                errors.append(f"{metric_prefix} must be an object")
+                continue
+            key = metric.get("key")
+            if not isinstance(key, str) or not key:
+                errors.append(f"{metric_prefix}.key must be a non-empty string")
+            elif key in metric_keys:
+                errors.append(f"{metric_prefix}.key is duplicated: {key}")
+            else:
+                metric_keys.add(key)
+            if not isinstance(metric.get("label"), str) or not metric["label"].strip():
+                errors.append(f"{metric_prefix}.label must be a non-empty string")
+            if metric.get("unit") != "%":
+                errors.append(f"{metric_prefix}.unit must be %")
+        primary_key = metrics[0].get("key") if metrics and isinstance(metrics[0], dict) else None
+        if not isinstance(primary_key, str):
+            primary_key = None
+
+        entries = board.get("entries")
+        if not isinstance(entries, list) or not entries:
+            errors.append(f"{prefix}.entries must be a non-empty list")
+            entries = []
+        costs = []
+        for entry_index, entry in enumerate(entries):
+            entry_prefix = f"{prefix}.entries[{entry_index}]"
+            if not isinstance(entry, dict):
+                errors.append(f"{entry_prefix} must be an object")
+                costs.append(None)
+                continue
+            model_id = entry.get("model")
+            if not isinstance(model_id, str) or model_id not in model_ids:
+                errors.append(f"{entry_prefix}.model is not present in models.json: {model_id!r}")
+            if not isinstance(entry.get("label"), str) or not entry["label"].strip():
+                errors.append(f"{entry_prefix}.label must be a non-empty string")
+            if entry.get("config") is not None and not isinstance(entry.get("config"), str):
+                errors.append(f"{entry_prefix}.config must be a string or null")
+
+            scores = entry.get("scores")
+            if not isinstance(scores, dict):
+                errors.append(f"{entry_prefix}.scores must be an object")
+                scores = {}
+            unknown_score_keys = set(scores) - metric_keys
+            if unknown_score_keys:
+                errors.append(f"{entry_prefix}.scores contains unknown metric keys: {', '.join(sorted(map(str, unknown_score_keys)))}")
+            if primary_key not in scores:
+                errors.append(f"{entry_prefix}.scores must include the primary metric {primary_key!r}")
+            for key, value in scores.items():
+                if not isinstance(value, (int, float)) or isinstance(value, bool):
+                    errors.append(f"{entry_prefix}.scores.{key} must be a number")
+
+            if "ci" in entry:
+                confidence = entry["ci"]
+                if not isinstance(confidence, dict):
+                    errors.append(f"{entry_prefix}.ci must be an object")
+                else:
+                    unknown_ci_keys = set(confidence) - metric_keys
+                    if unknown_ci_keys:
+                        errors.append(f"{entry_prefix}.ci contains unknown metric keys: {', '.join(sorted(map(str, unknown_ci_keys)))}")
+                    for key, interval in confidence.items():
+                        if (
+                            not isinstance(interval, list)
+                            or len(interval) != 2
+                            or any(not isinstance(bound, (int, float)) or isinstance(bound, bool) for bound in interval)
+                            or interval[0] > interval[1]
+                        ):
+                            errors.append(f"{entry_prefix}.ci.{key} must be a [lo, hi] numeric interval with lo <= hi")
+            cost = entry.get("cost")
+            costs.append(cost)
+            if cost is not None and (
+                not isinstance(cost, (int, float)) or isinstance(cost, bool) or cost < 0
+            ):
+                errors.append(f"{entry_prefix}.cost must be a non-negative number or null")
+
+        cost_label = board.get("cost_label")
+        if cost_label is not None and not isinstance(cost_label, str):
+            errors.append(f"{prefix}.cost_label must be a string or null")
+        every_cost_null = all(cost is None for cost in costs)
+        if (cost_label is None) != every_cost_null:
+            errors.append(f"{prefix}.cost_label must be null iff every entry cost is null")
+
+        if (
+            len(errors) == board_error_start
+            and isinstance(board_id, str)
+            and board_id in registry_by_id
+            and isinstance(registry_by_id[board_id].get("results"), dict)
+        ):
+            synced_registry = deepcopy(registry)
+            public_board = {key: value for key, value in board.items() if key != "_file_stem"}
+            try:
+                sync_registry(synced_registry, public_board)
+            except (IndexError, KeyError, StopIteration, TypeError, ValueError) as exc:
+                errors.append(f"{board_id}: cannot sync registry results from board: {exc}")
+            else:
+                synced_benchmark = next(
+                    item for item in synced_registry["benchmarks"] if item.get("id") == board_id
+                )
+                if synced_benchmark.get("results") != registry_by_id[board_id].get("results"):
+                    errors.append(
+                        f"{board_id}: registry results out of sync with board; run python -m pipeline.boards"
+                    )
+    return errors
+
+
 def _flags(benchmark: dict, catalog_updated: date) -> list[str]:
     flags: list[str] = []
     verified = _parse_date(benchmark.get("last_verified"))
@@ -288,7 +506,7 @@ def _benchmark_results(benchmark: dict) -> str:
     return _cell(label)
 
 
-def render_doc(registry: dict, built_benchmarks: list[dict]) -> str:
+def render_doc(registry: dict, built_benchmarks: list[dict], boards: list[dict]) -> str:
     catalog_date = registry["catalog_updated"]
     benchmarks = registry["benchmarks"]
     products = registry["products"]
@@ -328,6 +546,31 @@ def render_doc(registry: dict, built_benchmarks: list[dict]) -> str:
                 _cell(benchmark["relevance"]),
             )) + " |")
         lines.append("")
+    lines.extend([
+        "## Model boards",
+        "",
+        "| Benchmark | As-of | Models | Metric | Top entry |",
+        "| --- | --- | ---: | --- | --- |",
+    ])
+    registry_by_id = {benchmark["id"]: benchmark for benchmark in benchmarks}
+    for board in boards:
+        benchmark = registry_by_id[board["benchmark_id"]]
+        metric = board["metrics"][0]
+        top = board["entries"][0]
+        score = top["scores"][metric["key"]]
+        score_text = f"{format(score, 'g')}{metric['unit']}"
+        top_label = top["label"] + (f" ({top['config']})" if top.get("config") else "")
+        as_of = board["as_of"] or f"retrieved {board['retrieved']}"
+        lines.append("| " + " | ".join((
+            _linked_benchmark(benchmark),
+            _cell(as_of),
+            str(len({entry["model"] for entry in board["entries"]})),
+            _cell(metric["label"]),
+            _cell(f"{top_label} — {score_text}"),
+        )) + " |")
+    if not boards:
+        lines.append("| — | — | 0 | — | — |")
+    lines.append("")
     lines.extend(["## Awaiting public results", ""])
     awaiting_benchmarks = [
         benchmark for benchmark in benchmarks
@@ -360,7 +603,29 @@ def render_doc(registry: dict, built_benchmarks: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def build_outputs(registry: dict, built_path: Path, doc_path: Path) -> None:
+def build_outputs(
+    registry: dict,
+    built_path: Path,
+    doc_path: Path,
+    *,
+    boards_dir: Path = BOARDS_DIR,
+    models_path: Path = MODELS,
+) -> None:
+    boards, board_errors = _load_board_files(boards_dir)
+    models_data, models_errors = _load_models_file(models_path)
+    if board_errors or models_errors:
+        raise ValueError("\n".join(board_errors + models_errors))
+    models = models_data.get("models")
+    if not isinstance(models, list):
+        raise ValueError("models.json must contain a models list")
+    registry_order = {
+        benchmark["id"]: index for index, benchmark in enumerate(registry["benchmarks"])
+    }
+    boards.sort(key=lambda board: registry_order.get(board.get("benchmark_id"), len(registry_order)))
+    public_boards = [
+        {key: value for key, value in board.items() if key != "_file_stem"}
+        for board in boards
+    ]
     catalog_date = date.fromisoformat(registry["catalog_updated"])
     by_results_status = {status: 0 for status in RESULTS_STATUSES}
     for benchmark in registry["benchmarks"]:
@@ -386,11 +651,13 @@ def build_outputs(registry: dict, built_path: Path, doc_path: Path) -> None:
         },
         "benchmarks": entries,
         "products": registry["products"],
+        "models": models,
+        "boards": public_boards,
     }
     built_path.parent.mkdir(parents=True, exist_ok=True)
     built_path.write_text(json.dumps(built, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     doc_path.parent.mkdir(parents=True, exist_ok=True)
-    doc_path.write_text(render_doc(registry, entries), encoding="utf-8")
+    doc_path.write_text(render_doc(registry, entries, public_boards), encoding="utf-8")
 
 
 class _VisibleTextParser(HTMLParser):
@@ -533,6 +800,12 @@ def main(argv: list[str] | None = None) -> int:
 
     registry = _load_registry()
     errors = validate(registry)
+    if args.command in ("validate", "build"):
+        boards, board_load_errors = _load_board_files(BOARDS_DIR)
+        models, model_load_errors = _load_models_file(MODELS)
+        errors.extend(board_load_errors)
+        errors.extend(model_load_errors)
+        errors.extend(validate_boards(registry, boards, models))
     if args.command == "validate" or errors:
         for error in errors:
             print(error)

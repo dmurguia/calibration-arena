@@ -23,13 +23,13 @@
       "results_status": "leaderboard",
       "results": {
         "as_of": "2026-09-29",
-        "metric": "Mean Criteria@3",
-        "leader": "Claude-Fable-5 (Max)",
-        "leader_score": "56.4%",
-        "models_evaluated": 9,
+        "metric": "Mean score",
+        "leader": "Opus 5.5 (Max)",
+        "leader_score": "61.8%",
+        "models_evaluated": 32,
         "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
         "source_type": "first_party",
-        "note": "Best Pass^8 is 2.6% (GPT-5.6-Sol); best Pass@8 is 21.5% (paper abstract)."
+        "note": "Best Pass^8 is 2.6% (GPT-5.6-Sol); best Pass@8 is 21.5% (paper abstract). $/run comes from the publisher's cost study (7 models); cost-study rows whose score differs from the current leaderboard are left without cost."
       },
       "links": {
         "leaderboard": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
@@ -97,11 +97,11 @@
       "relevance_note": "Broad model coverage on accounting tasks, but questions and grader are unpublished, so scores cannot be reproduced.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-23",
+        "as_of": "2026-09-29",
         "metric": "Overall accuracy",
         "leader": "Grok 4.5",
         "leader_score": "84.2%",
-        "models_evaluated": 49,
+        "models_evaluated": 55,
         "source_url": "https://www.dualentry.com/accounting-ai-benchmark",
         "source_type": "vendor_report",
         "note": "Page JSON-LD date (2026-02-20) predates listed models; no explicit as-of date for scores. as_of is our fetch date."
@@ -813,14 +813,14 @@
       "relevance_note": "Large expert-written tax set with a held-out test split.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
-        "metric": "Answer correctness; stepwise reasoning",
-        "leader": null,
-        "leader_score": null,
-        "models_evaluated": null,
+        "as_of": "2026-09-01",
+        "metric": "Accuracy",
+        "leader": "Muse Spark 1.2",
+        "leader_score": "80.38%",
+        "models_evaluated": 133,
         "source_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
         "source_type": "first_party",
-        "note": "Key takeaways cite Muse Spark 1.2 at 92.72% stepwise reasoning and 68.03% answer correctness."
+        "note": "Board shows overall accuracy. Key takeaways cite Muse Spark 1.2 at 92.72% stepwise reasoning and 68.03% answer correctness."
       },
       "links": {
         "leaderboard": "https://www.vals.ai/benchmarks/tax_eval_v2"
@@ -849,11 +849,11 @@
       "relevance_note": "Document extraction from scanned financial documents.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-08-12",
+        "as_of": "2026-09-01",
         "metric": "Accuracy",
         "leader": "Claude Opus 5",
         "leader_score": "72.06%",
-        "models_evaluated": null,
+        "models_evaluated": 88,
         "source_url": "https://www.vals.ai/benchmarks/mortgage_tax",
         "source_type": "first_party",
         "note": null
@@ -923,14 +923,14 @@
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
+        "as_of": "2026-09-26",
         "metric": "Accuracy",
-        "leader": null,
-        "leader_score": null,
-        "models_evaluated": null,
+        "leader": "Gemini 3.8 Flash",
+        "leader_score": "61.44%",
+        "models_evaluated": 70,
         "source_url": "https://vals.ai/benchmarks/fabv2",
         "source_type": "first_party",
-        "note": "Vals key takeaways name Muse Spark 1.2 at 60.60%; a third-party aggregator reports Gemini 3.8 Flash at 61.4%. Check the source."
+        "note": "Cost is Vals' reported USD per test."
       },
       "links": {
         "leaderboard": "https://vals.ai/benchmarks/fabv2",
@@ -960,11 +960,11 @@
       "relevance_note": "Archived by Vals because top results saturated.",
       "results_status": "archived",
       "results": {
-        "as_of": null,
+        "as_of": "2026-08-12",
         "metric": "Accuracy",
         "leader": "Claude Opus 5",
         "leader_score": "73.19%",
-        "models_evaluated": null,
+        "models_evaluated": 122,
         "source_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
         "source_type": "first_party",
         "note": "Final published results; no longer updated."
@@ -1034,10 +1034,10 @@
       "results_status": "leaderboard",
       "results": {
         "as_of": "2026-09-17",
-        "metric": "Mean rubric score (two-judge mean)",
+        "metric": "Final answer accuracy",
         "leader": "Muse Spark 1.1",
-        "leader_score": "53.4%",
-        "models_evaluated": null,
+        "leader_score": "53.36%",
+        "models_evaluated": 29,
         "source_url": "https://bigfinancebench.com/",
         "source_type": "vendor_report",
         "note": null
@@ -1616,9 +1616,9 @@
       "results": {
         "as_of": "2026-09-29",
         "metric": "Mean score",
-        "leader": "Fable 5 Max",
-        "leader_score": "53.2%",
-        "models_evaluated": null,
+        "leader": "Sonnet 5.5 (Max)",
+        "leader_score": "83.7%",
+        "models_evaluated": 47,
         "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
         "source_type": "first_party",
         "note": null

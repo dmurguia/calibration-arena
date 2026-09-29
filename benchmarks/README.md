@@ -71,6 +71,18 @@ Computed at build time against `catalog_updated`, so rebuilds are deterministic:
 A registry change is a normal PR: the diff of `registry.json` is the audit trail of what changed
 between snapshots and who reviewed it.
 
+## Model boards
+
+Publisher adapters copy structured leaderboard data into dated per-benchmark snapshots; they do not
+rerun, rescale, or compare results across benchmarks. Weight labels record their basis: `publisher`
+means stated by a benchmark publisher, `family` is a curated rule for a well-established model
+family, `conflict` means publishers disagree and the status is therefore `unknown`, and `none`
+means there is no report or family rule. Cost is shown only when the publisher reports it.
+
+Frontier charts are within-benchmark only and must never be compared across benchmarks. Boards use
+the same refresh cadence as the registry. Publisher page changes can break an adapter, in which case
+fetching fails loudly: fix the adapter and regenerate the snapshot; never hand-edit a board snapshot.
+
 ## Adding a benchmark
 
 1. Add an object to `benchmarks` with every required key (see an existing entry and the enums in

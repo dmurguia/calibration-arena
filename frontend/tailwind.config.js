@@ -1,54 +1,51 @@
-const spruce = {
-  DEFAULT: '#1d2a24',
-  hover: '#2c3f35',
-}
-
-const needle = {
-  DEFAULT: '#c14a24',
-  tint: '#f5e4dc',
-}
-
-const moss = {
-  DEFAULT: '#dbe7d0',
-  // Kept for pre-redesign components (Chip green tone, trap pass banner).
-  tint: '#eaf2e3',
-}
+// Calibrated Co. palette (brand kit 3.0). Six colors only; legacy names alias into it.
+const ink = { DEFAULT: '#464643', hover: '#70543E' }
+const leather = { DEFAULT: '#70543E', tint: '#FAF9F6' }
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        paper: '#f4f3ef',
-        panel: '#e9e8e2',
-        card: '#faf9f6',
-        hairline: '#d6d4cc',
-        ink: '#1c1e1a',
-        muted: '#6d7069',
-        // Deep spruce — primary accent and the painterly-card dark.
-        spruce,
-        // Needle orange — gauge needle, movement-down, PRODUCT chips, uncalibrated.
-        needle,
-        // Pale moss — pass states.
-        moss,
-        // Aliases kept so existing utility names resolve to the current palette.
-        forest: spruce,
-        rust: needle,
+        paper: '#F4F1E9',
+        panel: '#F4F1E9',
+        card: '#FAF9F6',
+        hairline: '#46464333',
+        ink: '#464643',
+        muted: '#656460',
+        graphite: '#656460',
+        steel: '#929698',
+        leather,
+        chalk: '#FAF9F6',
+        // Legacy names kept so existing utilities resolve to the Calibrated palette.
+        spruce: ink,
+        forest: ink,
+        needle: leather,
+        rust: leather,
+        moss: { DEFAULT: '#FAF9F6', tint: '#FAF9F6' },
       },
       fontFamily: {
-        display: ['Newsreader', 'Georgia', 'serif'],
-        sans: ['"Schibsted Grotesk"', 'system-ui', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+        identity: ['"Archivo Black"', 'sans-serif'],
+        display: ['"IBM Plex Sans"', 'sans-serif'],
+        sans: ['"IBM Plex Sans"', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       borderRadius: {
-        xl: '12px',
+        none: '0',
+        sm: '0',
+        DEFAULT: '0',
+        md: '0',
+        lg: '0',
+        xl: '0',
+        '2xl': '0',
+        '3xl': '0',
       },
       boxShadow: {
-        whisper: '0 1px 2px rgba(28, 30, 26, 0.04), 0 1px 1px rgba(28, 30, 26, 0.03)',
-        lift: '0 2px 10px rgba(28, 30, 26, 0.07)',
+        whisper: 'none',
+        lift: 'none',
       },
       transitionTimingFunction: {
-        resolve: 'cubic-bezier(0.23, 1, 0.32, 1)',
+        resolve: 'cubic-bezier(.4,0,.2,1)',
       },
     },
   },

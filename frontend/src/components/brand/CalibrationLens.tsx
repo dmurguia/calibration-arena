@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
- * The engraving ships locally at frontend/public/engraving.jpg — an
- * industrial-era San Francisco countinghouse: bookkeepers and a master
- * craftsman at work, precision instruments on the desk, a factory skyline
- * behind them. The CDN copy is used only if that file is missing.
+ * The ground is the Calibrated Co. hero art "The first mark" (brand kit 3.0):
+ * open, overlapping graphite strokes gathering into a curve. It ships locally
+ * at frontend/public/brand/the-first-mark.webp; the older engraving is the
+ * fallback only if that file is missing.
  */
-const LOCAL_ENGRAVING = '/engraving.jpg'
-const FALLBACK_ENGRAVING =
-  'https://cdn.magicpatterns.com/patterns/generated-images/7ecb6c02-17f3-4947-bf66-517102656cc1.jpg'
+const LOCAL_ENGRAVING = '/brand/the-first-mark.webp'
+const FALLBACK_ENGRAVING = '/engraving.jpg'
 
 interface CalibrationLensProps {
   /** Lens radius in px. */
@@ -92,16 +91,16 @@ const money = (n: number) =>
 function ReadoutBlock({ r }: { r: Readout }) {
   return (
     <div className="border-t border-ink/30 pt-2">
-      <p className="truncate font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink">
+      <p className="truncate font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink">
         {r.name}
       </p>
-      <p className="mt-1 font-mono text-[20px] font-semibold leading-none tabular-nums text-ink">
+      <p className="mt-1 font-mono text-[20px] font-medium leading-none tabular-nums text-ink">
         {r.score}
         <span className="ml-1.5 text-[12px] font-normal text-muted">±{r.ci}</span>
       </p>
       <p className="mt-1.5 font-mono text-[11px] tabular-nums text-muted">
         RANK {String(r.rank).padStart(2, '0')}
-        <span className={r.delta > 0 ? 'text-spruce' : r.delta < 0 ? 'text-needle' : ''}>
+        <span className={r.delta > 0 ? 'text-ink' : r.delta < 0 ? 'text-needle' : ''}>
           {r.delta > 0 ? ` ▲${r.delta}` : r.delta < 0 ? ` ▼${Math.abs(r.delta)}` : ' —'}
         </span>
         <span className="ml-3">WIN {(r.winRate * 100).toFixed(1)}%</span>
@@ -127,7 +126,7 @@ function JournalBlock({ e, n }: { e: JournalEntry; n: number }) {
           <span className="shrink-0">{money(l.debit ?? l.credit ?? 0)}</span>
         </p>
       ))}
-      <p className="mt-1 flex justify-between gap-3 border-t border-ink/20 pt-1 text-spruce">
+      <p className="mt-1 flex justify-between gap-3 border-t border-ink/20 pt-1 text-ink">
         <span>{dr === cr ? 'FOOTS ✓' : 'OUT OF BALANCE'}</span>
         <span className="shrink-0">
           {money(dr)} | {money(cr)}
@@ -138,7 +137,7 @@ function JournalBlock({ e, n }: { e: JournalEntry; n: number }) {
 }
 
 /**
- * The signature interaction, and the page's ground. A period engraving sits far
+ * The signature interaction, and the page's ground. The brand's graphite drawing sits far
  * back behind everything; the pointer carries a small calibration lens that
  * locally resolves the drawing into the ledger behind it: model ratings and
  * journal entries that foot. The ledger fills the whole viewport in slow-falling
@@ -266,7 +265,7 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
       {/* the lens edge — one hairline ring, flat */}
       {point ? (
         <span
-          className="absolute rounded-full border border-needle/50"
+          className="absolute rounded-full border border-leather/60"
           style={{
             left: point.x - radius,
             top: point.y - radius,

@@ -36,9 +36,10 @@
 .bm-detail dt{font:10px/1.8 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.8px;color:#737b6b}
 .bm-detail dd{margin:0;color:#34402f}
 .bm-flags{display:flex;flex-wrap:wrap;gap:6px}.bm-flags span{font:10px 'IBM Plex Mono',monospace;padding:3px 7px;border-radius:3px;background:#f2ecd9;color:#6e5d29}
-.bm-links,.bm-detail dd{display:flex;flex-wrap:wrap;gap:6px 16px}
-.bm-page a[target=_blank]{display:inline-flex;align-items:center;gap:3px;text-decoration:underline;text-underline-offset:3px}
+.bm-links{display:flex;flex-wrap:wrap;gap:6px 16px}
+.bm-page a[target=_blank]{display:inline;text-decoration:underline;text-underline-offset:3px}
 .bm-page a[target=_blank]:hover{color:#ac4827}
+.bm-page a[target=_blank] svg{display:inline-block;vertical-align:-1px;margin-left:2px}
 .bm-empty{padding:30px 8px;color:#6a7163}
 .bm-awaiting{margin:56px 0 0;padding:34px;background:#f5ebe3;border:1px solid #e7d2c4;border-radius:4px}
 .bm-awaiting .p-eyebrow{color:#8f3f20}.bm-awaiting h2{margin-top:10px}.bm-awaiting>p:not(.p-eyebrow){max-width:720px;color:#5d4c42}

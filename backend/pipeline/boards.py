@@ -347,7 +347,7 @@ ADAPTERS: dict[str, Callable[[str], dict]] = {
 }
 
 
-def build_board(benchmark_id: str, page: str, retrieved: str) -> dict:
+def build_board(benchmark_id: str, page: str, retrieved: str) -> tuple[dict, list[dict]]:
     source = SOURCES[benchmark_id]
     parsed = ADAPTERS[source["adapter"]](page)
     if source["adapter"] == "apex_accounting":

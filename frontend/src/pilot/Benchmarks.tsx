@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, Search } from 'lucide-react'
+import BenchmarkBoards, { Board, ModelRec } from './BenchmarkBoards'
 import './benchmarks.css'
 
 type ResultsStatus = 'leaderboard' | 'snapshot' | 'archived' | 'unpublished' | 'unknown'
@@ -12,7 +13,7 @@ interface Benchmark {
   links: Partial<Record<'home' | 'leaderboard' | 'paper' | 'data' | 'code', string>>; first_published: string; last_verified: string; notes: string | null; flags: Flag[]
 }
 interface Product { id: string; name: string; url: string; status: 'published' | 'claim_only' | 'none_found'; claim: string | null; claim_source: string | null; benchmark_ids: string[]; last_verified: string }
-interface Catalog { catalog_updated: string; review_after_days: number; results_stale_after_days: number; counts: { benchmarks: number; by_results_status: Record<ResultsStatus, number> }; benchmarks: Benchmark[]; products: Product[] }
+interface Catalog { catalog_updated: string; review_after_days: number; results_stale_after_days: number; counts: { benchmarks: number; by_results_status: Record<ResultsStatus, number> }; benchmarks: Benchmark[]; products: Product[]; models?: ModelRec[]; boards?: Board[] }
 
 const DOMAINS: Record<string, string> = { accounting: 'Accounting & close', audit: 'Audit', tax: 'Tax', financial_analysis: 'Financial analysis', modeling_spreadsheets: 'Modeling & spreadsheets', investment_banking: 'Investment banking', financial_nlp: 'Financial NLP', reporting_xbrl: 'Reporting & XBRL', exams_knowledge: 'Exams & knowledge', general_work: 'General work' }
 const STATUS: Record<ResultsStatus, string> = { leaderboard: 'Live leaderboard', snapshot: 'One-time results', archived: 'Archived', unpublished: 'No public results', unknown: 'Results unverified' }
@@ -106,6 +107,12 @@ export default function Benchmarks() {
         <div><b>{data.counts.by_results_status.snapshot + data.counts.by_results_status.archived}</b><span>one-time or archived results</span></div>
         <div><b>{awaiting.length + quiet.length}</b><span>awaiting public results</span></div>
         <div><b>{monthLabel(data.catalog_updated)}</b><span>catalog updated</span></div>
+      </div>
+      {!!data.boards?.length && <BenchmarkBoards boards={data.boards} models={data.models ?? []} benchmarks={data.benchmarks} />}
+
+      <div className="bm-directory-head">
+        <p className="p-eyebrow">Directory</p>
+        <h2>All {data.counts.benchmarks} benchmarks, with or without model results</h2>
       </div>
       <div className="bm-filters" role="search">
         <label className="bm-search"><Search size={15} aria-hidden /><span className="sr-only">Search benchmarks</span><input type="search" placeholder="Search benchmarks, publishers, models" value={query} onChange={e => setQuery(e.target.value)} /></label>

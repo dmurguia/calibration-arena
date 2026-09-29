@@ -41,7 +41,7 @@ export function SignIn({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
       <ErrorMessage message={error} />
       <button className="p-button" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
     </form>
-    <p><Link to="/reset">Reset your password</Link></p>
+    <p className="p-fine">Forgot your password? Ask the Calibrated team for a reset link.</p>
     <p className="p-fine">New here? <Link to="/signup">Create an account</Link>.</p>
   </AuthPage>
 }

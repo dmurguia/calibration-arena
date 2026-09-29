@@ -14,7 +14,9 @@ import remarkGfm from 'remark-gfm'
 import './pilot.css'
 import './accounts.css'
 
-const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void> }>({ me: null, config: null, cases: [], refresh: async () => {} })
+type SignInReason = 'ask' | 'button'
+const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
+const pendingKey = 'calibrated.pendingQuestion'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -29,6 +31,7 @@ export default function Pilot() {
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [signIn, setSignIn] = useState<SignInReason | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
   const refresh = async () => {
@@ -41,9 +44,9 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><Link className="p-brand" to="/" aria-label="Calibrated Co. home"><img src="/brand/calibrated-horizontal-ink.svg" alt="Calibrated Co." /></Link><button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div>
+    <div className="p-mobile-header"><Link className="p-brand" to="/" aria-label="Calibrated Co. home"><img src="/brand/calibrated-horizontal-ink.svg" alt="Calibrated Co." /></Link><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
       <Link className="p-brand" to="/" aria-label="Calibrated Co. home"><img src="/brand/calibrated-horizontal-ink.svg" alt="Calibrated Co." /></Link>
@@ -57,10 +60,11 @@ export default function Pilot() {
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
       {clerkEnabled
         ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
-        : <div className="p-sidebar-account">{me?.account ? <><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></> : <><NavLink to="/signin">Sign in</NavLink><NavLink to="/signup">Create account</NavLink></>}</div>}
+        : me?.account && <div className="p-sidebar-account"><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></div>}
       <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Corsac</span></div>
     </aside>
     <div className="p-main-column">
+    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
@@ -75,7 +79,23 @@ export default function Pilot() {
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
     <footer className="p-footer"><span>Calibrated · Built by Corsac</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
-  </div></div></Context.Provider>
+  </div></div>
+  <SignInDialog reason={signIn} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
+}
+
+function SignInDialog({ reason, signedIn, onClose, refresh }: { reason: SignInReason | null; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  const location = useLocation()
+  useEffect(() => { const d = dialog.current; if (reason && !signedIn) { if (!d?.open) d?.showModal() } else d?.close() }, [reason, signedIn])
+  useEffect(() => { if (signedIn && reason) onClose() }, [signedIn])
+  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn) sessionStorage.removeItem(pendingKey); onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
+    <div className="p-signin-head"><Eyebrow>Your Calibrated account</Eyebrow><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
+    <h2 id="signin-title">{reason === 'ask' ? 'Sign in to compare.' : 'Sign in.'}</h2>
+    <p className="p-signin-note">{reason === 'ask' ? 'Your question is saved. Once you’re signed in, both models answer it.' : 'Your notebook follows your account across devices.'}</p>
+    {reason && (clerkEnabled
+      ? <div className="p-signin-clerk"><ClerkSignIn routing="hash" withSignUp fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} /></div>
+      : <div className="p-signin-legacy"><SignIn embedded onSignedIn={refresh} /><p className="p-fine">New here? <Link to="/signup" onClick={() => dialog.current?.close()}>Create an account</Link>.</p></div>)}
+  </dialog>
 }
 
 function ClerkAuthPage({ title, children }: { title: string; children: ReactNode }) {
@@ -105,10 +125,7 @@ function ClerkAccountBlock({ account, refresh }: { account: Me['account']; refre
       navigate('/')
     }}>Sign out</button>
   </div>
-  return <div className="p-sidebar-account">
-    <NavLink to="/signin">Sign in</NavLink>
-    <NavLink to="/signup">Create account</NavLink>
-  </div>
+  return null
 }
 
 function Home() {
@@ -163,25 +180,29 @@ function CaseStart() {
 }
 
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
-  const { config, me, refresh } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState('')
+  const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
+  const [question, setQuestion] = useState(() => sessionStorage.getItem(pendingKey) ?? '')
   const [starterId, setStarterId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const form = useRef<HTMLFormElement>(null)
+  // A question sent while signed out waits here; it goes out once the account is ready.
+  useEffect(() => { if (me?.account && sessionStorage.getItem(pendingKey)) form.current?.requestSubmit() }, [me?.account])
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
+    if (!me?.account) { sessionStorage.setItem(pendingKey, question); openSignIn('ask'); return }
+    sessionStorage.removeItem(pendingKey)
     setBusy(true); onBusy?.(true); window.scrollTo({ top: 0 })
     try {
-      if (!me) await beginGuest(refresh)
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', source_example_id: starterId })
       await refresh(); navigate(`/session/${run.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
     {!busy && <><Eyebrow>Accounting</Eyebrow><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">Compare two answers to an accounting question.</p></>}
-    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form className="p-composer" onSubmit={submit}>
+    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Accounting prompt</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} placeholder="Describe the question, paste a draft, or ask about a close issue…" />
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder="Describe the question, paste a draft, or ask about a close issue…" />
       <div className="p-composer-bottom"><span>{config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>

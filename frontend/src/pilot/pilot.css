@@ -145,3 +145,26 @@
 .cl-socialButtonsIconButton.cl-socialButtonsIconButton,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton,.cl-formFieldInput.cl-formFieldInput{box-shadow:none;border:1px solid var(--cal-rule-strong)}
 .cl-socialButtonsIconButton.cl-socialButtonsIconButton:hover,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton:hover{background-color:var(--cal-hover-wash)}
 .cl-formFieldInput.cl-formFieldInput:focus{outline:var(--cal-focus-ring);outline-offset:2px}
+
+/* Sign in lives top right; the sign-in dialog opens only from it or from sending a question. */
+.p-topbar{display:flex;justify-content:flex-end;padding:20px 32px 0}
+.p-signin-button{display:inline-flex;align-items:center;min-height:44px;padding:var(--cal-button-pad);border:var(--cal-rule-width) solid var(--cal-ink);border-radius:var(--cal-radius);background:transparent;color:var(--cal-ink);font:var(--cal-weight-regular) var(--cal-text-ui)/1.2 var(--cal-font-body);transition:background-color var(--cal-duration-fast) var(--cal-ease),color var(--cal-duration-fast) var(--cal-ease),border-color var(--cal-duration-fast) var(--cal-ease)}
+.p-signin-button:hover{background:var(--cal-action-hover);border-color:var(--cal-action-hover);color:var(--cal-text-inverse)}
+.p-mobile-actions{display:flex;align-items:center;gap:6px}
+.p-mobile-actions .p-signin-button{min-height:40px;padding:var(--cal-button-pad-sm)}
+.p-mobile-header .p-mobile-actions>button:last-child{padding:5px;color:var(--cal-graphite)}
+.p-arena-page{min-height:calc(100vh - 124px)}
+.p-signin-dialog{margin:auto;width:min(440px,calc(100vw - 32px));max-height:90dvh;overflow:auto;padding:32px;border:1px solid var(--cal-rule);border-radius:0;background:var(--cal-white);color:var(--cal-ink);box-shadow:none}
+.p-signin-dialog::backdrop{background:#46464366}
+.p-signin-dialog[open]{animation:arena-reveal .25s ease-out}
+.p-signin-head{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.p-signin-head .p-eyebrow{margin:0}
+.p-signin-close{width:44px;height:44px;display:grid;place-items:center;margin-right:-12px;color:var(--cal-graphite);background:transparent;border:0}
+.p-signin-close:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
+.pilot .p-signin-dialog h2,.p-signin-dialog h2{font:400 30px/1.2 var(--cal-font-display);letter-spacing:var(--cal-tracking-heading);margin:6px 0 10px}
+.p-signin-note{font-size:var(--cal-text-note);line-height:1.5;color:var(--cal-text-secondary);margin:0 0 20px}
+.p-signin-clerk .cl-rootBox,.p-signin-clerk .cl-cardBox{width:100%;max-width:none}
+.p-signin-clerk .cl-cardBox{border:0!important}
+.p-signin-clerk .cl-card{padding:0;background:transparent}
+.p-signin-legacy .p-card{margin:0}
+@media(max-width:760px){.p-topbar{display:none}.p-signin-dialog{padding:24px}.p-arena-page{min-height:calc(100dvh - 160px)}}

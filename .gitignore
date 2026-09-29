@@ -1,15 +1,32 @@
-backend/designarena.db
-backend/arena.db
-backend/.env
+# Python
 backend/__pycache__/
 **/__pycache__/
+.pytest_cache/
+.venv/
+
+# Node / build output
 frontend/node_modules/
 frontend/dist/
 frontend/*.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
-.pytest_cache/
 
-.venv/
-backend/*.db-shm
-backend/*.db-wal
+# Databases (hold pilot participant data - never commit)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Env files: ignore every real one at any depth, keep only templates.
+# Deny-by-default so a new service cannot leak a key by being forgotten here.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs and traces (LLM prompt/response logs can contain keys and personal data)
+*.log
+
+# macOS
+.DS_Store

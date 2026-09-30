@@ -91,7 +91,7 @@ body {
 }
 .scroll-quiet::-webkit-scrollbar-thumb {
   background: #46464355;
-  border-radius: 0;
+  border-radius: var(--cal-radius-sm);
 }
 .scroll-quiet::-webkit-scrollbar-track {
   background: transparent;

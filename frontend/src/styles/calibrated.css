@@ -1,6 +1,7 @@
 /* Calibrated Co. design system — brand kit 3.0 (September 2026).
    Source of truth: the "Calibrated Co." Design System artifact and brand/calibrated.
-   Six colors only; no additional accents. Flat and square: no radius, no shadows. */
+   Six colors only; no additional accents or shadows. Arena UI uses rounded
+   rectangles, following the September 2026 product design update. */
 
 @font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/ArchivoBlack-Regular.woff2') format('woff2')}
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('/fonts/IBMPlexSans-Variable.woff2') format('woff2')}
@@ -79,7 +80,10 @@
   --cal-measure:65ch;
 
   /* Shape, rules, states */
-  --cal-radius:0;
+  --cal-radius-sm:8px;
+  --cal-radius-md:12px;
+  --cal-radius-lg:20px;
+  --cal-radius:var(--cal-radius-md);
   --cal-shadow:none;
   --cal-rule-width:1px;
   --cal-button-pad:13px 20px;

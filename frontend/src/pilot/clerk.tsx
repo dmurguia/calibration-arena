@@ -38,12 +38,12 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
         fontFamilyButtons: "'IBM Plex Sans', sans-serif",
         fontFamilyMono: "'IBM Plex Mono', monospace",
         fontWeight: { normal: 400, medium: 500, semibold: 500, bold: 500 },
-        borderRadius: '0',
+        borderRadius: '12px',
       },
       elements: {
         // The page already carries the eyebrow, title and lead; Clerk's own header would repeat it.
         header: { display: 'none' },
-        cardBox: { boxShadow: 'none', border: '1px solid #46464333' },
+        cardBox: { boxShadow: 'none', border: '1px solid #46464333', borderRadius: '20px' },
         footer: { backgroundImage: 'none', background: '#F4F1E9' },
       },
       // Shadows, the button sheen and leather hover are flattened in pilot.css (.cl-* rules).

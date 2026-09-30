@@ -3,11 +3,11 @@
 .p-sidebar-account button:hover{text-decoration:underline}
 .p-sidebar-usage{font:10px var(--cal-font-mono);color:var(--cal-graphite);margin:16px 0 0;overflow-wrap:anywhere}
 .p-filter{display:flex;align-items:center;gap:12px;margin:28px 0 14px;font-size:12px}
-.p-filter select{border:1px solid var(--cal-rule);border-radius:0;background:var(--cal-white);padding:9px 13px;font:inherit}
+.p-filter select{border:1px solid var(--cal-rule);border-radius:var(--cal-radius);background:var(--cal-white);padding:9px 13px;font:inherit}
 .p-leaderboard-table{overflow-x:auto}
 .p-leaderboard-table table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
 .p-leaderboard-table th,.p-leaderboard-table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--cal-rule-faint)}
 .p-leaderboard-table th{font-weight:500}
 .p-founder-budget{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0;padding-top:12px;border-top:1px solid var(--cal-rule-faint)}
-.p-founder-budget input{width:160px;border:1px solid var(--cal-rule);border-radius:0;background:var(--cal-white);padding:9px 10px;font:inherit}
+.p-founder-budget input{width:160px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius);background:var(--cal-white);padding:9px 10px;font:inherit}
 .p-founder-budget .p-secondary{min-height:36px;padding:8px 14px}

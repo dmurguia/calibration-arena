@@ -13,16 +13,25 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
 import './accounts.css'
+import { encodeAsset, financeAssetMaxBytes, financeWorkflows } from './financeWorkflows'
+import { FinanceTaskAssets } from './FinanceTaskAssets'
 
 type SignInReason = 'ask' | 'button'
 const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
 const pendingKey = 'calibrated.pendingQuestion'
+const pendingWorkflowKey = 'calibrated.pendingWorkflow'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 const labels: Record<string, string> = { a: 'Draft A', b: 'Draft B', tie: 'Equivalent', neither: 'Neither', unsure: 'Insufficient evidence', ready: 'Ready to approve', revise: 'Needs revision' }
 
 function Eyebrow({ children }: { children: ReactNode }) { return <p className="p-eyebrow">{children}</p> }
+function ArenaBrand() {
+  return <Link className="p-brand" to="/" aria-label="Calibration Arena by Calibrated Co. home">
+    <span className="p-brand-name">Calibration Arena</span>
+    <span className="p-brand-attribution"><span>by</span><CalibratedMark size={24} /><span>Calibrated Co.</span></span>
+  </Link>
+}
 function ErrorNote({ message }: { message: string }) { return message ? <p className="p-error" role="alert">{message}</p> : null }
 export default function Pilot() {
   const [me, setMe] = useState<Me | null>(null)
@@ -46,11 +55,11 @@ export default function Pilot() {
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
   return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><Link className="p-brand" to="/" aria-label="Calibrated Co. home"><img src="/brand/calibrated-horizontal-ink.svg" alt="Calibrated Co." /></Link><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
+    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
-      <Link className="p-brand" to="/" aria-label="Calibrated Co. home"><img src="/brand/calibrated-horizontal-ink.svg" alt="Calibrated Co." /></Link>
-      <div className="p-area"><span>WORKSPACE</span><strong><BookOpen size={15} />Accounting</strong></div>
+      <ArenaBrand />
+      <div className="p-area"><span>WORKSPACE</span><strong><BookOpen size={15} />Finance</strong></div>
       <nav aria-label="Main navigation">
         <NavLink to="/" end onClick={() => setMenuOpen(false)}><Plus size={16} />New comparison</NavLink>
         <NavLink to="/cases"><FileText size={16} />Close examples</NavLink>
@@ -61,7 +70,7 @@ export default function Pilot() {
       {clerkEnabled
         ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
         : me?.account && <div className="p-sidebar-account"><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></div>}
-      <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Corsac</span></div>
+      <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside>
     <div className="p-main-column">
     {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
@@ -78,7 +87,7 @@ export default function Pilot() {
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
-    <footer className="p-footer"><span>Calibrated · Built by Corsac</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
+    <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
   </div></div>
   <SignInDialog reason={signIn} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
@@ -179,35 +188,98 @@ function CaseStart() {
   </div>
 }
 
+const promptTeasers = [
+  'Ask Calibration Arena to explain a budget variance…',
+  'Ask Calibration Arena to stress-test a cash flow forecast…',
+  'Ask Calibration Arena to review a month-end close issue…',
+  'Ask Calibration Arena to frame a board update…',
+]
+
+function usePromptTeaser(active: boolean) {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (!active) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let timer: number | undefined
+    const update = () => {
+      window.clearInterval(timer)
+      if (reducedMotion.matches) setIndex(0)
+      else if (!document.hidden) timer = window.setInterval(() => setIndex(i => (i + 1) % promptTeasers.length), 6000)
+    }
+    update()
+    reducedMotion.addEventListener('change', update)
+    document.addEventListener('visibilitychange', update)
+    return () => {
+      window.clearInterval(timer)
+      reducedMotion.removeEventListener('change', update)
+      document.removeEventListener('visibilitychange', update)
+    }
+  }, [active])
+  return promptTeasers[index]
+}
+
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
   const [question, setQuestion] = useState(() => sessionStorage.getItem(pendingKey) ?? '')
-  const [starterId, setStarterId] = useState<string | null>(null)
+  const [workflowId, setWorkflowId] = useState<string | null>(() => sessionStorage.getItem(pendingWorkflowKey))
+  const [files, setFiles] = useState<Record<string, File>>({})
+  const workflow = financeWorkflows.find(task => task.id === workflowId)
+  const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const [promptFocused, setPromptFocused] = useState(false)
+  const placeholder = usePromptTeaser(!question && !promptFocused && !busy)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
-  useEffect(() => { if (me?.account && sessionStorage.getItem(pendingKey)) form.current?.requestSubmit() }, [me?.account])
+  // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
+  useEffect(() => { if (me?.account && sessionStorage.getItem(pendingKey) && !missingAssets.length) form.current?.requestSubmit() }, [me?.account])
+  const selectWorkflow = (id: string) => {
+    const task = financeWorkflows.find(candidate => candidate.id === id)!
+    if (id !== workflowId) setFiles({})
+    setWorkflowId(id); setQuestion(task.prompt); setError('')
+    sessionStorage.removeItem(pendingKey); sessionStorage.removeItem(pendingWorkflowKey)
+    document.getElementById('open-prompt')?.focus()
+  }
+  const attachFile = (role: string, file: File | null) => {
+    setError('')
+    if (file && (!/\.(csv|xlsx|pdf|txt)$/i.test(file.name) || !file.size || file.size > financeAssetMaxBytes)) {
+      setError('Choose a non-empty CSV, XLSX, text-based PDF or TXT file up to 2 MB.'); return
+    }
+    setFiles(current => {
+      const next = { ...current }
+      if (file) next[role] = file
+      else delete next[role]
+      return next
+    })
+  }
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
+    if (missingAssets.length) { setError(`Add ${missingAssets.map(asset => asset.label.toLowerCase()).join(' and ')} before comparing.`); return }
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
-    if (!me?.account) { sessionStorage.setItem(pendingKey, question); openSignIn('ask'); return }
+    if (!me?.account) {
+      sessionStorage.setItem(pendingKey, question)
+      if (workflowId) sessionStorage.setItem(pendingWorkflowKey, workflowId)
+      else sessionStorage.removeItem(pendingWorkflowKey)
+      openSignIn('ask'); return
+    }
     sessionStorage.removeItem(pendingKey)
+    sessionStorage.removeItem(pendingWorkflowKey)
     setBusy(true); onBusy?.(true); window.scrollTo({ top: 0 })
     try {
-      const run = await call<Run>('/runs', { question, task_type: 'accounting-question', source_example_id: starterId })
+      const assets = await Promise.all((workflow?.assets ?? []).map(async asset => ({ name: files[asset.role].name, role: asset.role, content_base64: await encodeAsset(files[asset.role]) })))
+      const run = await call<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets })
       await refresh(); navigate(`/session/${run.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Eyebrow>Accounting</Eyebrow><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">Compare two answers to an accounting question.</p></>}
+    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. — for finance professionals</p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
-      <label htmlFor="open-prompt" className="sr-only">Accounting prompt</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder="Describe the question, paste a draft, or ask about a close issue…" />
-      <div className="p-composer-bottom"><span>{config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy}><ArrowUp size={19} /></button></div>
+      <label htmlFor="open-prompt" className="sr-only">Finance question</label>
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />
+      {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
+      <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
-    <div className="p-type-samples"><span>Try a question</span>{config?.prompt_starters?.map(c => <button key={c.id} type="button" onClick={() => { setQuestion(c.brief); setStarterId(c.id); setError(''); document.getElementById('open-prompt')?.focus() }}>{c.title}<ArrowUpRight size={12} /></button>)}</div>
-    {starterId && <p className="p-sample-note">Edit the facts as needed. Both models will answer the prompt above.</p>}
+    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><task.icon size={18} aria-hidden="true" /><span>{task.label}</span></button>)}</div>
     </>}
   </div>
 }
@@ -310,7 +382,7 @@ function Session() {
     <div className="p-session-top"><span>Accounting · {run.title}</span><Link to="/record">Notebook <ArrowUpRight size={13} /></Link></div>
     {!!run.history?.length && <details className="p-thread-history"><summary>Earlier messages ({run.history.length})</summary>{run.history.map((m, i) => m.role === 'user' ? <section className="p-question" key={i}><Eyebrow>Prompt</Eyebrow><p>{m.content}</p></section> : <div className="p-history-answer" key={i}><Eyebrow>Selected response</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</details>}
     {!!run.conversation?.length && <details className="p-thread-history"><summary>Earlier turns · A and B</summary><div className="p-drafts">{run.conversation.map(thread => <div key={thread.position}><h3>Response {thread.position.toUpperCase()}</h3>{thread.messages.map((m, i) => <div key={i} className={m.role === 'user' ? 'p-question' : 'p-history-answer'}><Eyebrow>{m.role === 'user' ? 'Prompt' : 'Response'}</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</div>)}</div></details>}
-    <section className="p-question"><Eyebrow>{run.kind === 'ask' ? 'Prompt' : run.mode === 'authored-fixture' ? 'Practice · authored responses' : 'Close example'}</Eyebrow><p>{run.brief}</p>{run.source_run_id && <Link className="p-text-link" to={`/session/${run.source_run_id}`}>Previous comparison <ArrowUpRight size={12} /></Link>}</section>
+    <section className="p-question"><Eyebrow>{run.kind === 'ask' ? 'Prompt' : run.mode === 'authored-fixture' ? 'Practice · authored responses' : 'Close example'}</Eyebrow><p>{run.brief}</p>{!!run.attachments?.length && <ul className="p-source-files" aria-label="Source files">{run.attachments.map(file => <li key={file.role}><FileText size={14} />{file.name}</li>)}</ul>}{run.source_run_id && <Link className="p-text-link" to={`/session/${run.source_run_id}`}>Previous comparison <ArrowUpRight size={12} /></Link>}</section>
     {run.status === 'conclusion' && <div className="p-independent"><h2>Compare the responses.</h2><button className="p-button" disabled={busy} onClick={() => save('skip-conclusion', {})}>Show responses <ArrowRight size={16} /></button>
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
@@ -364,11 +436,12 @@ function Notebook() {
 
 function Method() {
   const { config, me } = usePilot()
-  return <div className="p-narrow p-method"><Eyebrow>Calibrated · Accounting</Eyebrow><h1>How comparisons work</h1><p className="p-lead">Bring a question, compare two drafts, and decide what you would use.</p>
-    <h2>One workspace, two sources of drafts</h2><p>Ask an accounting question in your own words. The editable question suggestions request fresh answers from both models. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
+  return <div className="p-narrow p-method"><Eyebrow>Calibrated · Finance</Eyebrow><h1>How comparisons work</h1><p className="p-lead">Bring a question, compare two drafts, and decide what you would use.</p>
+    <h2>One workspace, two sources of drafts</h2><p>Ask a finance or accounting question in your own words, or choose a finance task to prefill an editable prompt and add its required source files. Both models receive the same question and extracted file contents. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
     <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
     <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
     <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to two configured models through OpenRouter with zero-data-retention routing requested.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
+    <p>For finance tasks, extracted file text, file names and file fingerprints are saved with your comparison. Original files are not retained. Readable text from PDFs and values or formulas from spreadsheets are included; images are not interpreted and formulas are not recalculated. Required uploads and format checks do not establish the correctness of the source data.</p>
     <h2>Your notebook</h2><p>{me?.account ? 'Your comparisons and judgments follow your account across devices.' : <>Your comparisons and judgments are saved in this browser. <Link to="/signup">Create an account</Link> to keep your notebook across devices.</>}</p>
     <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
   </div>

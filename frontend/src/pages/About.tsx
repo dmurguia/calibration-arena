@@ -55,7 +55,7 @@ export function About() {
               <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-muted">
                 Calibration Arena · by Calibrated Co. · {seasonMeta.season}
               </p>
-              <p className="text-[11.5px] text-muted/80">a Corsac company</p>
+              <p className="text-[11.5px] text-muted/80">by Calibrated Co.</p>
             </div>
           </footer>
         </div>

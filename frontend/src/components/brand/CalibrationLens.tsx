@@ -146,6 +146,7 @@ function JournalBlock({ e, n }: { e: JournalEntry; n: number }) {
 export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLensProps) {
   const root = useRef<HTMLDivElement | null>(null)
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
+  const [overControl, setOverControl] = useState(false)
   const [pinned, setPinned] = useState(false)
   const [src, setSrc] = useState(LOCAL_ENGRAVING)
 
@@ -177,6 +178,7 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
 
     const settle = () => {
+      setOverControl(false)
       if (noHover.matches || reduced.matches) {
         setPinned(true)
         setPoint({ x: window.innerWidth * 0.82, y: window.innerHeight * 0.28 })
@@ -200,8 +202,11 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
     const onMove = (e: PointerEvent) => {
       const box = root.current?.getBoundingClientRect()
       setPoint({ x: e.clientX - (box?.left ?? 0), y: e.clientY - (box?.top ?? 0) })
+      setOverControl(e.target instanceof Element && !!e.target.closest(
+        'a, button, input, textarea, select, summary, [role="button"], [role="link"], [contenteditable="true"]',
+      ))
     }
-    const onLeave = () => setPoint(null)
+    const onLeave = () => { setPoint(null); setOverControl(false) }
     window.addEventListener('pointermove', onMove)
     document.documentElement.addEventListener('pointerleave', onLeave)
     return () => {
@@ -210,8 +215,9 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
     }
   }, [pinned])
 
-  // Solid through most of the lens, with a short feather at the rim so the
-  // ledger dissolves back into paper instead of cutting off.
+  // A translucent lens with a feathered rim. Controls take precedence, so the
+  // decorative ledger and ring fade away when the pointer reaches a click target.
+  const lensOpacity = overControl ? 0 : 0.45
   const mask = point
     ? `radial-gradient(circle at ${point.x}px ${point.y}px, #000 0 ${radius - 14}px, transparent ${radius}px)`
     : 'radial-gradient(circle at -600px -600px, #000 0 1px, transparent 2px)'
@@ -231,8 +237,8 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
 
       {/* 3 — the ledger, clipped to the lens (2) */}
       <div
-        className="absolute inset-0 bg-paper"
-        style={{ WebkitMaskImage: mask, maskImage: mask }}
+        className="absolute inset-0 bg-paper transition-opacity duration-[var(--cal-duration-fast)] ease-[var(--cal-ease)] motion-reduce:transition-none"
+        style={{ WebkitMaskImage: mask, maskImage: mask, opacity: lensOpacity }}
       >
         <div className="flex h-full w-full gap-6 px-6">
           {columns.map((col, c) => (
@@ -265,8 +271,9 @@ export function CalibrationLens({ radius = 78, intensity = 0.13 }: CalibrationLe
       {/* the lens edge — one hairline ring, flat */}
       {point ? (
         <span
-          className="absolute rounded-full border border-leather/60"
+          className="absolute rounded-full border border-leather/60 transition-opacity duration-[var(--cal-duration-fast)] ease-[var(--cal-ease)] motion-reduce:transition-none"
           style={{
+            opacity: lensOpacity,
             left: point.x - radius,
             top: point.y - radius,
             width: radius * 2,

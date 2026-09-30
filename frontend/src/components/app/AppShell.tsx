@@ -178,7 +178,7 @@ export function AppShell({ children }: AppShellProps) {
             </div>
           )}
           <p className="mt-2 px-1 font-mono text-[8.5px] uppercase tracking-[0.14em] text-muted/80">
-            a Corsac company
+            by Calibrated Co.
           </p>
         </div>
       </aside>

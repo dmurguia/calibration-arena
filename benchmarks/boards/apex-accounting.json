@@ -1,0 +1,742 @@
+{
+  "benchmark_id": "apex-accounting",
+  "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
+  "adapter": "apex_accounting",
+  "as_of": null,
+  "retrieved": "2026-09-29",
+  "metrics": [
+    {
+      "key": "mean-score",
+      "label": "Mean score",
+      "unit": "%"
+    },
+    {
+      "key": "pass-1",
+      "label": "Pass@1",
+      "unit": "%"
+    }
+  ],
+  "cost_label": "USD per run (publisher cost study, subset of models)",
+  "entries": [
+    {
+      "model": "opus5-5",
+      "label": "Opus 5.5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 14.8,
+        "mean-score": 61.8
+      },
+      "ci": {
+        "pass-1": [
+          9.9,
+          19.7
+        ],
+        "mean-score": [
+          57.8,
+          65.8
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5-1",
+      "label": "Fable 5.1",
+      "config": "Max",
+      "scores": {
+        "pass-1": 11.7,
+        "mean-score": 61
+      },
+      "ci": {
+        "pass-1": [
+          7.4,
+          16.0
+        ],
+        "mean-score": [
+          57.3,
+          64.7
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5-5",
+      "label": "Opus 5.5",
+      "config": "Medium",
+      "scores": {
+        "pass-1": 12.7,
+        "mean-score": 59.9
+      },
+      "ci": {
+        "pass-1": [
+          8.1,
+          17.3
+        ],
+        "mean-score": [
+          56.2,
+          63.6
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6astra",
+      "label": "GPT-6 Astra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 11.9,
+        "mean-score": 57.9
+      },
+      "ci": {
+        "pass-1": [
+          7.4,
+          16.4
+        ],
+        "mean-score": [
+          54.1,
+          61.7
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5",
+      "label": "Fable 5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 9.8,
+        "mean-score": 56.4
+      },
+      "ci": {
+        "pass-1": [
+          5.8,
+          13.8
+        ],
+        "mean-score": [
+          52.8,
+          60.0
+        ]
+      },
+      "cost": 36.0
+    },
+    {
+      "model": "opus5",
+      "label": "Opus 5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 10.5,
+        "mean-score": 54.5
+      },
+      "ci": {
+        "pass-1": [
+          6.6,
+          14.4
+        ],
+        "mean-score": [
+          50.6,
+          58.4
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-3",
+      "label": "Muse Spark 1.3",
+      "config": "Max",
+      "scores": {
+        "pass-1": 10.8,
+        "mean-score": 53.5
+      },
+      "ci": {
+        "pass-1": [
+          6.9,
+          14.7
+        ],
+        "mean-score": [
+          49.8,
+          57.2
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3",
+      "label": "GLM-5.3",
+      "config": "Max",
+      "scores": {
+        "pass-1": 9.2,
+        "mean-score": 53.1
+      },
+      "ci": {
+        "pass-1": [
+          5.9,
+          12.5
+        ],
+        "mean-score": [
+          49.4,
+          56.8
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-1",
+      "label": "Muse Spark 1.1",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 7.7,
+        "mean-score": 52.6
+      },
+      "ci": {
+        "pass-1": [
+          4.6,
+          10.8
+        ],
+        "mean-score": [
+          49.0,
+          56.2
+        ]
+      },
+      "cost": 4.24
+    },
+    {
+      "model": "gemini3-8flash",
+      "label": "Gemini 3.8 Flash",
+      "config": "High",
+      "scores": {
+        "pass-1": 8.7,
+        "mean-score": 51.7
+      },
+      "ci": {
+        "pass-1": [
+          5.0,
+          12.4
+        ],
+        "mean-score": [
+          47.8,
+          55.6
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT-5.6 Sol",
+      "config": "Max",
+      "scores": {
+        "mean-score": 51.5,
+        "pass-1": 8.4
+      },
+      "ci": {
+        "mean-score": [
+          47.6,
+          55.4
+        ],
+        "pass-1": [
+          4.9,
+          11.9
+        ]
+      },
+      "cost": 33.2
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT-5.6 Sol",
+      "config": "Max · Pro",
+      "scores": {
+        "pass-1": 9.6,
+        "mean-score": 51.5
+      },
+      "ci": {
+        "pass-1": [
+          5.5,
+          13.7
+        ],
+        "mean-score": [
+          47.6,
+          55.4
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-2",
+      "label": "Muse Spark 1.2",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 8.9,
+        "mean-score": 51.4
+      },
+      "ci": {
+        "pass-1": [
+          5.3,
+          12.5
+        ],
+        "mean-score": [
+          47.4,
+          55.4
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": "Max",
+      "scores": {
+        "pass-1": 6.2,
+        "mean-score": 49.9
+      },
+      "ci": {
+        "pass-1": [
+          3.5,
+          8.9
+        ],
+        "mean-score": [
+          46.3,
+          53.5
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-5",
+      "label": "GPT-5.5",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 6.2,
+        "mean-score": 48.2
+      },
+      "ci": {
+        "pass-1": [
+          3.2,
+          9.2
+        ],
+        "mean-score": [
+          44.6,
+          51.8
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4-1flash",
+      "label": "DeepSeek-V4.1-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 7.8,
+        "mean-score": 48.1
+      },
+      "ci": {
+        "pass-1": [
+          4.4,
+          11.2
+        ],
+        "mean-score": [
+          44.5,
+          51.7
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-8",
+      "label": "Opus 4.8",
+      "config": "Max",
+      "scores": {
+        "pass-1": 4.2,
+        "mean-score": 48
+      },
+      "ci": {
+        "pass-1": [
+          1.7,
+          6.7
+        ],
+        "mean-score": [
+          44.4,
+          51.6
+        ]
+      },
+      "cost": 15.82
+    },
+    {
+      "model": "gpt5-4",
+      "label": "GPT-5.4",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 5.3,
+        "mean-score": 46.8
+      },
+      "ci": {
+        "pass-1": [
+          2.6,
+          8.0
+        ],
+        "mean-score": [
+          43.0,
+          50.6
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-7",
+      "label": "Grok 4.7",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 4.2,
+        "mean-score": 46.7
+      },
+      "ci": {
+        "pass-1": [
+          2.4,
+          6.0
+        ],
+        "mean-score": [
+          43.6,
+          49.8
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": "High",
+      "scores": {
+        "pass-1": 4.5,
+        "mean-score": 43.7
+      },
+      "ci": {
+        "pass-1": [
+          2.2,
+          6.8
+        ],
+        "mean-score": [
+          40.2,
+          47.2
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-6",
+      "label": "Opus 4.6",
+      "config": "Max",
+      "scores": {
+        "pass-1": 4.4,
+        "mean-score": 43.3
+      },
+      "ci": {
+        "pass-1": [
+          1.7,
+          7.1
+        ],
+        "mean-score": [
+          39.8,
+          46.8
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-2",
+      "label": "GLM-5.2",
+      "config": null,
+      "scores": {
+        "mean-score": 42.7,
+        "pass-1": 4
+      },
+      "ci": {
+        "mean-score": [
+          39.0,
+          46.4
+        ],
+        "pass-1": [
+          2.2,
+          5.8
+        ]
+      },
+      "cost": 3.75
+    },
+    {
+      "model": "glm5-2",
+      "label": "GLM-5.2",
+      "config": "Max",
+      "scores": {
+        "pass-1": 4.4,
+        "mean-score": 42.7
+      },
+      "ci": {
+        "pass-1": [
+          2.2,
+          6.6
+        ],
+        "mean-score": [
+          39.0,
+          46.4
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6terra",
+      "label": "GPT-5.6 Terra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 6,
+        "mean-score": 40.3
+      },
+      "ci": {
+        "pass-1": [
+          3.4,
+          8.6
+        ],
+        "mean-score": [
+          36.4,
+          44.2
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik2-7code",
+      "label": "Kimi K2.7 Code",
+      "config": "High",
+      "scores": {
+        "pass-1": 1.9,
+        "mean-score": 39.6
+      },
+      "ci": {
+        "pass-1": [
+          0.4,
+          3.4
+        ],
+        "mean-score": [
+          36.2,
+          43.0
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "minimaxm3",
+      "label": "MiniMax-M3",
+      "config": "High",
+      "scores": {
+        "pass-1": 2.2,
+        "mean-score": 39.1
+      },
+      "ci": {
+        "pass-1": [
+          1.0,
+          3.4
+        ],
+        "mean-score": [
+          35.8,
+          42.4
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6luna",
+      "label": "GPT-5.6 Luna",
+      "config": "Max",
+      "scores": {
+        "pass-1": 4.4,
+        "mean-score": 38
+      },
+      "ci": {
+        "pass-1": [
+          1.8,
+          7.0
+        ],
+        "mean-score": [
+          34.1,
+          41.9
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik2-7code",
+      "label": "Kimi K2.7 Code",
+      "config": "Auto",
+      "scores": {
+        "mean-score": 37,
+        "pass-1": 2.9
+      },
+      "ci": {
+        "mean-score": [
+          33.7,
+          40.3
+        ],
+        "pass-1": [
+          1.2,
+          4.6
+        ]
+      },
+      "cost": 1.72
+    },
+    {
+      "model": "gemini3-1pro",
+      "label": "Gemini 3.1 Pro",
+      "config": "High",
+      "scores": {
+        "pass-1": 3.1,
+        "mean-score": 34
+      },
+      "ci": {
+        "pass-1": [
+          1.0,
+          5.2
+        ],
+        "mean-score": [
+          31,
+          37
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "inkling",
+      "label": "Inkling",
+      "config": "High",
+      "scores": {
+        "pass-1": 0.8,
+        "mean-score": 24.4
+      },
+      "ci": {
+        "pass-1": [
+          -0.1,
+          1.7
+        ],
+        "mean-score": [
+          21.6,
+          27.2
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "qwen3-5",
+      "label": "Qwen3.5",
+      "config": null,
+      "scores": {
+        "pass-1": 0,
+        "mean-score": 24.4
+      },
+      "ci": {
+        "pass-1": [
+          0,
+          0
+        ],
+        "mean-score": [
+          21.5,
+          27.3
+        ]
+      },
+      "cost": 0.68
+    },
+    {
+      "model": "nemotron3ultra",
+      "label": "Nemotron 3 Ultra",
+      "config": "High",
+      "scores": {
+        "pass-1": 0.3,
+        "mean-score": 22.9
+      },
+      "ci": {
+        "pass-1": [
+          -0.1,
+          0.7
+        ],
+        "mean-score": [
+          19.9,
+          25.9
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv3-2",
+      "label": "DeepSeek-V3.2",
+      "config": null,
+      "scores": {
+        "pass-1": 1.1,
+        "mean-score": 20.7
+      },
+      "ci": {
+        "pass-1": [
+          0.3,
+          1.9
+        ],
+        "mean-score": [
+          17.9,
+          23.5
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-1",
+      "label": "GLM-5.1",
+      "config": null,
+      "scores": {
+        "pass-1": 1.2,
+        "mean-score": 18.6
+      },
+      "ci": {
+        "pass-1": [
+          -0.1,
+          2.5
+        ],
+        "mean-score": [
+          14.3,
+          22.9
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3flash",
+      "label": "GLM-5.3-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 1.7,
+        "mean-score": 10.8
+      },
+      "ci": {
+        "pass-1": [
+          0.3,
+          3.1
+        ],
+        "mean-score": [
+          8.0,
+          13.6
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gptoss120b",
+      "label": "GPT-OSS-120B",
+      "config": "High",
+      "scores": {
+        "pass-1": 0,
+        "mean-score": 2.1
+      },
+      "ci": {
+        "pass-1": [
+          0,
+          0
+        ],
+        "mean-score": [
+          1.1,
+          3.1
+        ]
+      },
+      "cost": null
+    }
+  ]
+}

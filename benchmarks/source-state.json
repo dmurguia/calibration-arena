@@ -1,0 +1,536 @@
+{
+  "https://accounting.penrose.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://accounting.penrose.com/",
+    "status": 200,
+    "text_sha256": "91937d0c25324ea4269f0aa545c7f433403058cf4a9bbe9a19e8b19fc68fed00"
+  },
+  "https://aclanthology.org/2024.acl-short.42/": {
+    "checked": "2026-09-29",
+    "final_url": "https://aclanthology.org/2024.acl-short.42/",
+    "status": 200,
+    "text_sha256": "4ba7ee14244176c5b9187b6816d44f0e657b623c8f9a923d4f402fc6e1adb360"
+  },
+  "https://aclanthology.org/2025.acl-long.766/": {
+    "checked": "2026-09-29",
+    "final_url": "https://aclanthology.org/2025.acl-long.766/",
+    "status": 200,
+    "text_sha256": "5152c158d5ca856ea6f903776c94db8908a07e240e803842617267fe1221ea3f"
+  },
+  "https://agenticaccountingindex.com/methodology": {
+    "checked": "2026-09-29",
+    "final_url": "https://agenticaccountingindex.com/methodology",
+    "status": 200,
+    "text_sha256": "a5d89fd92e4e67dec050a034013df405a578ed9a7afd291137746004650b4386"
+  },
+  "https://artificialanalysis.ai/evaluations/gdpval-aa": {
+    "checked": "2026-09-29",
+    "final_url": "https://artificialanalysis.ai/evaluations/gdpval-aa",
+    "status": 200,
+    "text_sha256": "4b054fd3597f7d62d67d66bd08e3484dd6501bcfc7f54285b69bbb821b368127"
+  },
+  "https://artificialanalysis.ai/models/capabilities/finance-and-accounting": {
+    "checked": "2026-09-29",
+    "final_url": "https://artificialanalysis.ai/models/capabilities/finance-and-accounting",
+    "status": 200,
+    "text_sha256": "c7728e387d9abf106b254d6cabe38b769fecbff6208cca7ac97f0eb8231ee637"
+  },
+  "https://arxiv.org/abs/2301.04408": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2301.04408",
+    "status": 200,
+    "text_sha256": "50a3db8f51802e67b2d878fca1c981ee23bcf3f5284a23714535f7713c37abd1"
+  },
+  "https://arxiv.org/abs/2311.11944": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2311.11944",
+    "status": 200,
+    "text_sha256": "5b2b4082b07f4ae5a3cede89c02035f122fcf95a5cb4a0e326fc4e8f5e67affc"
+  },
+  "https://arxiv.org/abs/2402.12659": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2402.12659",
+    "status": 200,
+    "text_sha256": "fe19f4b740cc66c9f7517d932813d76067e06896b46676624536c3f7560fa0d6"
+  },
+  "https://arxiv.org/abs/2506.21031": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2506.21031",
+    "status": 200,
+    "text_sha256": "e2d5fa6afe0e87423b89176ad9852f9cc00b0f7826329038fa3e85938efb633a"
+  },
+  "https://arxiv.org/abs/2507.16126": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2507.16126",
+    "status": 200,
+    "text_sha256": "35cc31f3ec46e83b000fa7703ea4794987f20707fe4b889bc878e5af3be8b75c"
+  },
+  "https://arxiv.org/abs/2507.17186": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2507.17186",
+    "status": 200,
+    "text_sha256": "e3f80a34e1854687acc6af607650e207efd0d287e47b9281cc80ad3631dcc550"
+  },
+  "https://arxiv.org/abs/2509.13160": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2509.13160",
+    "status": 200,
+    "text_sha256": "7acc553ee063f88aae43b0dd2a78368b13826a0e870809fb643ed73dbe2c0d24"
+  },
+  "https://arxiv.org/abs/2510.08886": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2510.08886",
+    "status": 200,
+    "text_sha256": "bdd228cd3e6dcfa9d9015d471a7027d9296424eaa949f246ad4c5b99fb8a8c9f"
+  },
+  "https://arxiv.org/abs/2512.13168": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2512.13168",
+    "status": 200,
+    "text_sha256": "1c42242c5f6a8aed85ef343bd386b899141b192434fd1ea5c2826371e6ea952f"
+  },
+  "https://arxiv.org/abs/2604.05912": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2604.05912",
+    "status": 200,
+    "text_sha256": "ecfe8c7323f9514b266b2be7f46a98fb6d01eeeb4fd8ae56ee2af47c03283cd7"
+  },
+  "https://arxiv.org/abs/2605.22664": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2605.22664",
+    "status": 200,
+    "text_sha256": "d5014ab07661267c88c7de66eec4d7252963e0b034a77dc246e5d01106ed8ca2"
+  },
+  "https://arxiv.org/abs/2605.29586": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2605.29586",
+    "status": 200,
+    "text_sha256": "dbed06fec7a0dbba8f66e3ad22707e1c030ee794fe0b54e513b048d062ccee10"
+  },
+  "https://arxiv.org/abs/2606.15949": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2606.15949",
+    "status": 200,
+    "text_sha256": "84ac60d29379de6672b87586652674deb79715b3a3bd277dc2454f1865b8681d"
+  },
+  "https://arxiv.org/abs/2607.27189": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2607.27189",
+    "status": 200,
+    "text_sha256": "90c5b6e0cca9c039d0f01fdc5d8b48b3795f0549dc0c1647aa01de7c549a9213"
+  },
+  "https://arxiv.org/abs/2609.14811": {
+    "checked": "2026-09-29",
+    "final_url": "https://arxiv.org/abs/2609.14811",
+    "status": 200,
+    "text_sha256": "9f68eddecdcc671dad2789f19243008ee2043c5b56c82cb224a5fc7137435ad8"
+  },
+  "https://benchlm.ai/benchmarks/emb": {
+    "checked": "2026-09-29",
+    "final_url": "https://benchlm.ai/benchmarks/emb",
+    "status": 200,
+    "text_sha256": "d5a9a91ba57c8b53b41a3826d8bcc955768a3b3e7588cba351be06d1d0b7b4f9"
+  },
+  "https://bigfinancebench.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://bigfinancebench.com/",
+    "status": 200,
+    "text_sha256": "ac5bd3ec7ed39e5eeb1332bec248a5bf70f9e16acfb51a2f49c0a8465cea84b8"
+  },
+  "https://campfire.ai/accounting-intelligence": {
+    "checked": "2026-09-29",
+    "final_url": "https://campfire.ai/accounting-intelligence",
+    "status": 200,
+    "text_sha256": "fa9ed49890cd3a9364bb652318dea0061dd964c679ccd444248e6c40fd24130a"
+  },
+  "https://campfire.ai/blog/introducing-accounting-intelligence": {
+    "checked": "2026-09-29",
+    "final_url": "https://campfire.ai/blog/introducing-accounting-intelligence",
+    "status": 200,
+    "text_sha256": "1bab791dd28b8370cb0b715aefd8770744007b0e9c82d9612afc50031aa7fafa"
+  },
+  "https://digits.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://digits.com/",
+    "status": 200,
+    "text_sha256": "feeaf2180187283aaa3b294f3adc0d39f82ad6e3765e05decbc18207b8a87e79"
+  },
+  "https://digits.com/blog/frontier-models-now-beat-human-accountants/": {
+    "checked": "2026-09-29",
+    "final_url": "https://digits.com/blog/frontier-models-now-beat-human-accountants/",
+    "status": 200,
+    "text_sha256": "1f4a87da437d847aacf1c607004df85faa9384713b70ed515a90a444df57c644"
+  },
+  "https://digits.com/downloads/beyond-the-hype-evaluating-llms-vs-digits-agl.pdf": {
+    "checked": "2026-09-29",
+    "final_url": "https://digits.com/downloads/beyond-the-hype-evaluating-llms-vs-digits-agl.pdf",
+    "status": 200,
+    "text_sha256": "4a2dfe6ae0e750679f5a787cec2ecb3b0970753251d3a7ff377fe24315215cca"
+  },
+  "https://entendre.ai/research/taxbench/": {
+    "checked": "2026-09-29",
+    "final_url": "https://entendre.ai/research/taxbench/",
+    "status": 200,
+    "text_sha256": "e6f22bd9c1da40c466ca6fc1140be1607bcd11ed38bf0b35b9d1e879a89b339c"
+  },
+  "https://financebenchmark.ai/benchmarks": {
+    "checked": "2026-09-29",
+    "final_url": "https://financebenchmark.ai/benchmarks",
+    "status": 200,
+    "text_sha256": "a907e960d039ac5ecc0a14f68f36b50872b12afb39c4cbb1eb8c04e4384b345b"
+  },
+  "https://financebenchmark.ai/methodology": {
+    "checked": "2026-09-29",
+    "final_url": "https://financebenchmark.ai/methodology",
+    "status": 200,
+    "text_sha256": "3312855eb604d68bb3c1cfd8b922581814a035b0b099c4f9f5f2a2eaaa906370"
+  },
+  "https://fineval.readthedocs.io/en/latest/index.html": {
+    "checked": "2026-09-29",
+    "final_url": "https://fineval.readthedocs.io/en/latest/index.html",
+    "status": 200,
+    "text_sha256": "0869ed23dfc57b3601d2c10199bd705c2eb01c57c4dc296e21332cea6c19f1be"
+  },
+  "https://github.com/BUPT-Reasoning-Lab/FinanceReasoning": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/BUPT-Reasoning-Lab/FinanceReasoning",
+    "status": 200,
+    "text_sha256": "488c126a84d630fb4aa67df822381376ec78dd28bb862f1af77adcf23062e696"
+  },
+  "https://github.com/Devansh1105/finbalance": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/Devansh1105/finbalance",
+    "status": 200,
+    "text_sha256": "dc417fdfcba61257b38db78828a1cc536de8132870c92c6632a80c69f941870f"
+  },
+  "https://github.com/Handshake-AI-Research/bankertoolbench": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/Handshake-AI-Research/bankertoolbench",
+    "status": 200,
+    "text_sha256": "0b0950ea29850bb7d62d1098cd1fd516491bb9101b6c10b6071aa1ccbc3e576d"
+  },
+  "https://github.com/HiThink-Research/BizFinBench.v2": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/HiThink-Research/BizFinBench.v2",
+    "status": 200,
+    "text_sha256": "f7febd2bb375c83b09c1e9fe5ce613404fa5c5473ff2819e0efeaad83f2370e4"
+  },
+  "https://github.com/KirkHan0920/XBRL-Agent": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/KirkHan0920/XBRL-Agent",
+    "status": 200,
+    "text_sha256": "3b4f29c1b5145ecab59bad06b3e214a5ab425868da1d778f146f5a2cf4fab824"
+  },
+  "https://github.com/NExTplusplus/TAT-QA": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/NExTplusplus/TAT-QA",
+    "status": 200,
+    "text_sha256": "52eb93fdbf0ca7c17775c3a2b89523b3888a343150d98c08f2002da2137136dd"
+  },
+  "https://github.com/Oppugno-Rushi/AuditBench-Benchmarking-LLMs-for-Financial-Auditing": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/Oppugno-Rushi/AuditBench-Benchmarking-LLMs-for-Financial-Auditing",
+    "status": 200,
+    "text_sha256": "332b2696bb3d2b47f0a505a5e4197a04d50d2187692feca304eba317e4063a99"
+  },
+  "https://github.com/RUCKBReasoning/SpreadsheetBench": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/RUCKBReasoning/SpreadsheetBench",
+    "status": 200,
+    "text_sha256": "0f05e62016062e21ddf3e79f34bab3fe0145206fd7459df2cc948f65c3bcfc2f"
+  },
+  "https://github.com/RUCKBReasoning/SpreadsheetBench-2": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/RUCKBReasoning/SpreadsheetBench-2",
+    "status": 200,
+    "text_sha256": "f7ca575476356eca248e5a6dc43c087e8615f052cd229513b136f5f33e4f8b7b"
+  },
+  "https://github.com/SALT-NLP/FLANG": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/SALT-NLP/FLANG",
+    "status": 200,
+    "text_sha256": "873fb5822cc37148a40b7cfc6f1aee23afd89e004b57b806ee13ae019f81ea6a"
+  },
+  "https://github.com/SUFE-AIFLM-Lab/FinEval": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/SUFE-AIFLM-Lab/FinEval",
+    "status": 200,
+    "text_sha256": "f7bacdb7b5f7d989349106b5b8676e6abf2238f002be4d235d535b036a9cc70e"
+  },
+  "https://github.com/SUFE-AIFLM-Lab/FinGAIA": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/SUFE-AIFLM-Lab/FinGAIA",
+    "status": 200,
+    "text_sha256": "6d68996e97cfd3164df8acb31579fc9c48d147198195987cb28f94af297cc28f"
+  },
+  "https://github.com/The-FinAI/FinAuditing": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/The-FinAI/FinAuditing",
+    "status": 200,
+    "text_sha256": "8a304f213b743e271b2af07a15753d1011fa5ae2992f22b0ea8da84192258266"
+  },
+  "https://github.com/The-FinAI/FinTagging/": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/The-FinAI/FinTagging/",
+    "status": 200,
+    "text_sha256": "b67c401e42830a4e8bd2c85832b567640a302682a770e424e722d78d9fcde64e"
+  },
+  "https://github.com/The-FinAI/PIXIU": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/The-FinAI/PIXIU",
+    "status": 200,
+    "text_sha256": "99af5cf0d3cb9735af7c482fba1d766f6fbeb60fa9d2920cd782850701902abf"
+  },
+  "https://github.com/column-tax/tax-calc-bench": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/column-tax/tax-calc-bench",
+    "status": 200,
+    "text_sha256": "d6f5b44647e855bc3d9678c8a95a8700fd37b3cde5ba50bf2727c744d02cb735"
+  },
+  "https://github.com/czyssrs/ConvFinQA": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/czyssrs/ConvFinQA",
+    "status": 200,
+    "text_sha256": "a7e7b89d056c9cad447057cc894c5ceb139855716724ff89f0841c3c3ad31633"
+  },
+  "https://github.com/czyssrs/FinQA": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/czyssrs/FinQA",
+    "status": 200,
+    "text_sha256": "5f7bc541a14365c81a25d8f39bd9ea43be9d895e06aa252a729eca8c5c41489b"
+  },
+  "https://github.com/jianginsight/FinMaster": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/jianginsight/FinMaster",
+    "status": 200,
+    "text_sha256": "3f3569d5bd7414680f790588c0caec7e533865eae2c275a4047a35f177109ef5"
+  },
+  "https://github.com/patronus-ai/financebench/": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/patronus-ai/financebench/",
+    "status": 200,
+    "text_sha256": "d937f2611dc2d28a01e4ad99a0487c017d35ddb179d6a77d280a32ad66a52d79"
+  },
+  "https://github.com/vals-ai/finance-agent": {
+    "checked": "2026-09-29",
+    "final_url": "https://github.com/vals-ai/finance-agent",
+    "status": 200,
+    "text_sha256": "a5f8ae66440f783c747f537d59727d5deb3f544485ac794b625ca0a8d1fa3fb1"
+  },
+  "https://hithink-research.github.io/BizFinBench.v2/": {
+    "checked": "2026-09-29",
+    "final_url": "https://hithink-research.github.io/BizFinBench.v2/",
+    "status": 200,
+    "text_sha256": "859d6e3d5129fb9c33ba6b49aca4e3256eefae1ad684b98881b0757859e4384b"
+  },
+  "https://huggingface.co/datasets/intelligenceconsortium/TaxBench": {
+    "checked": "2026-09-29",
+    "final_url": "https://huggingface.co/datasets/intelligenceconsortium/TaxBench",
+    "status": 200,
+    "text_sha256": "a4bf180c50595040585cc8615921e632ac7bcd2a93ad250306db1002da759dea"
+  },
+  "https://huggingface.co/datasets/kensho/DocFinQA": {
+    "checked": "2026-09-29",
+    "final_url": "https://huggingface.co/datasets/kensho/DocFinQA",
+    "status": 200,
+    "text_sha256": "f73450cc54d17b699f5dd22a3238f8ac98f12305d7edb8e820c89cf025f2522d"
+  },
+  "https://huggingface.co/datasets/kensho/bizbench": {
+    "checked": "2026-09-29",
+    "final_url": "https://huggingface.co/datasets/kensho/bizbench",
+    "status": 200,
+    "text_sha256": "9f22a21b1c3dc1c6f29700a2ef14340dedb0a422210cd447d39a4be1143ed08e"
+  },
+  "https://huggingface.co/datasets/mercor/apex-accounting": {
+    "checked": "2026-09-29",
+    "final_url": "https://huggingface.co/datasets/mercor/apex-accounting",
+    "status": 200,
+    "text_sha256": "d879a25b10aae694e5961eb6adfa395bd878d42b130c6f0bae3605d8c4815a36"
+  },
+  "https://huggingface.co/spaces/TheFinAI/Open-FinLLM-Leaderboard": {
+    "checked": "2026-09-29",
+    "final_url": "https://huggingface.co/spaces/TheFinAI/Open-FinLLM-Leaderboard",
+    "status": 200,
+    "text_sha256": "0bae9dbe585e0c26c70112ce7a908b02bb7e0387aa2693ff4cd284733f206fe5"
+  },
+  "https://ib-bench.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://ib-bench.com/",
+    "status": 200,
+    "text_sha256": "c49431f3a1fecad8c601900dd4bb4c7ba8f99f16c79d129afa9e3e28cfb7b1a4"
+  },
+  "https://jianginsight.github.io/Finmaster_leaderboard/": {
+    "checked": "2026-09-29",
+    "final_url": "https://jianginsight.github.io/Finmaster_leaderboard/",
+    "status": 200,
+    "text_sha256": "238de1214c206b1687bbfa79c28854c7e66c71f620c68ea65808ccafbe120348"
+  },
+  "https://joinhandshake.com/research/benchmarks/bankertool-bench/": {
+    "checked": "2026-09-29",
+    "final_url": "https://joinhandshake.com/research/benchmarks/bankertool-bench/",
+    "status": 200,
+    "text_sha256": "cddce47e3e434b4d2c4042049dec36b56eb742c6896503be680b377083ef31a4"
+  },
+  "https://labs.ramp.com/apex-accounting": {
+    "checked": "2026-09-29",
+    "final_url": "https://labs.ramp.com/apex-accounting",
+    "status": 200,
+    "text_sha256": "7d0c67238b8450d1916849f54709fc419524bc2d916bdeaff8d3a3669dbe7fb4"
+  },
+  "https://labs.ramp.com/ramp-accounting-bench": {
+    "checked": "2026-09-29",
+    "final_url": "https://labs.ramp.com/ramp-accounting-bench",
+    "status": 200,
+    "text_sha256": "7f21551142d63f16b80c13ac3b740a1bce7ef8118e0b7bdc8e17a15a29b50eb5"
+  },
+  "https://nextplusplus.github.io/TAT-QA/": {
+    "checked": "2026-09-29",
+    "final_url": "https://nextplusplus.github.io/TAT-QA/",
+    "status": 200,
+    "text_sha256": "766ecc2a28430faecf08572e9ec5ef0b300b4834e2a1d6558f19225ac5635fb5"
+  },
+  "https://pilot.com/platform/ai-accountant": {
+    "checked": "2026-09-29",
+    "final_url": "https://pilot.com/platform/ai-accountant",
+    "status": 200,
+    "text_sha256": "fc36da21f862b09a2cae1530729fdb93a6769f2c357b42e4056ebdaed5ac757a"
+  },
+  "https://puzzle.io/": {
+    "checked": "2026-09-29",
+    "final_url": "https://puzzle.io/",
+    "status": 200,
+    "text_sha256": "dec88e24450332202f276d150cd1825db99e8f8222a8c2bb0d5953b04b823280"
+  },
+  "https://pypi.org/project/closebench/": {
+    "checked": "2026-09-29",
+    "final_url": "https://pypi.org/project/closebench/",
+    "status": 200,
+    "text_sha256": "3930213bb30975ed5b9bf440d83a3a160dd698249a8beb71708c1adf0928fdc6"
+  },
+  "https://quickbooks.intuit.com/ai-accounting/": {
+    "checked": "2026-09-29",
+    "final_url": "https://quickbooks.intuit.com/ai-accounting/",
+    "status": 200,
+    "text_sha256": "bc293009e97ca58e451569f611bb311e4b938bda5e43250655437246295d7da1"
+  },
+  "https://sites.google.com/view/salt-nlp-flang": {
+    "checked": "2026-09-29",
+    "final_url": "https://sites.google.com/view/salt-nlp-flang",
+    "status": 200,
+    "text_sha256": "682a15649d7adec91ccdd66e2c7afbf678b7ebcafa070a3763544a2aa9713c32"
+  },
+  "https://spreadsheetbench.github.io/": {
+    "checked": "2026-09-29",
+    "final_url": "https://spreadsheetbench.github.io/",
+    "status": 200,
+    "text_sha256": "7e7c327ac1a6e60e916893a7726f57dc4d60aaeb31938d7e60b609a38ea23a2d"
+  },
+  "https://tax.intelligenceconsortium.org/": {
+    "checked": "2026-09-29",
+    "final_url": "https://tax.intelligenceconsortium.org/",
+    "status": 200,
+    "text_sha256": "9ba04bf51519e733e1c9057288123ed8503d9b772cd0586e339c2bd526d2d213"
+  },
+  "https://vals.ai/benchmarks/fabv2": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.vals.ai/benchmarks/fabv2",
+    "status": 200,
+    "text_sha256": "27922bf02649233f3c79f036928e1ec551d31f810c5330a721c7b7ba124863ed"
+  },
+  "https://www.cfabenchmark.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.cfabenchmark.com/",
+    "status": 200,
+    "text_sha256": "a7c3e13c391306311b2f376c3649106edb616248c8e37efc9d1daa5bdaa662c7"
+  },
+  "https://www.chatcpa.io/ai-accuracy": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.chatcpa.io/ai-accuracy",
+    "status": 200,
+    "text_sha256": "bf98499b89247a8b2fdfb7be2528c6f2991e501629b7a51a4bf43fb5d7a033ae"
+  },
+  "https://www.dualentry.com/accounting-ai-benchmark": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.dualentry.com/accounting-ai-benchmark",
+    "status": 200,
+    "text_sha256": "34aae8b7dde97f2754c6e7d56bafabead0d7aeb1b9762e2b3f55c5661af46e8b"
+  },
+  "https://www.financearena.ai/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.financearena.ai/",
+    "status": 200,
+    "text_sha256": "26d8b18e82a264ed66e30099a1741d7db11adcb523f455aa600176cbbe1882b9"
+  },
+  "https://www.getbasis.ai/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.getbasis.ai/",
+    "status": 200,
+    "text_sha256": "a747be6f0513c0641b884f9eb94cb68d75e92526b91efc9ea0443dd8be5c4d97"
+  },
+  "https://www.mercor.com/apex/apex-accounting-leaderboard/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
+    "status": 200,
+    "text_sha256": "8ae44c2d09cf6c76a854e209b6b6efd3396239109c416388fe6952394ae81cef"
+  },
+  "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
+    "status": 200,
+    "text_sha256": "701ee00d4637efeabf3ed3ae4fad028969504a8417013c97d86c6c6a3fa1e41d"
+  },
+  "https://www.meridian.ai/blog/all/bluefin": {
+    "checked": "2026-09-29",
+    "final_url": "https://longitudelabs.com/blog/all/bluefin",
+    "status": 404,
+    "text_sha256": "c88a4b4d0c48b8d0f5cc3b20536aa07bed2de0a0df589a9c4ca616e335347f9d"
+  },
+  "https://www.numeric.io/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.numeric.io/",
+    "status": 200,
+    "text_sha256": "53080eff652f5a3be85d85bf152beb6a0f9393b5910895de038d3c9ac6d75e3a"
+  },
+  "https://www.rillet.com/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.rillet.com/",
+    "status": 200,
+    "text_sha256": "d67a91353086f6c46a227a87fd83821eb2b0cbefc4828dfc0ffd0f2de7d0f434"
+  },
+  "https://www.rillet.com/blog/rillet-accounting-agent-benchmark": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.rillet.com/blog/rillet-accounting-agent-benchmark",
+    "status": 200,
+    "text_sha256": "95283c86b74ebe89ce4cac17dec36739944a2d36f2c0b88709c76678973147b8"
+  },
+  "https://www.rivet.tax/taxbench": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.rivet.tax/taxbench",
+    "status": 200,
+    "text_sha256": "2a66190248d7e56b379b68696c93ae3bb38d6b2aa8494f9d81c2c9cafba62e00"
+  },
+  "https://www.vals.ai/benchmarks/": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.vals.ai/benchmarks/",
+    "status": 200,
+    "text_sha256": "a397ca883539e1fd72a09e0d5a9f0cadd85addf93d05994ca47a2089f163c951"
+  },
+  "https://www.vals.ai/benchmarks/corp_fin_v2": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
+    "status": 200,
+    "text_sha256": "8e0795e440a15cd2ace33fc06c9fee3f2b7ec4fe1e1e6c950372c3f6811e00a6"
+  },
+  "https://www.vals.ai/benchmarks/mortgage_tax": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.vals.ai/benchmarks/mortgage_tax",
+    "status": 200,
+    "text_sha256": "435aed0ca56096e7066b9a4ee062077c0cefa0d4d57869d7501d61110be90283"
+  },
+  "https://www.vals.ai/benchmarks/tax_eval_v2": {
+    "checked": "2026-09-29",
+    "final_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
+    "status": 200,
+    "text_sha256": "39020d5b5a366317fa9a310f658dd339989e43d272b2484f23a5d056005ee74b"
+  }
+}

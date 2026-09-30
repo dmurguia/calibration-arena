@@ -1,0 +1,179 @@
+{
+  "benchmark_id": "taxbench-entendre",
+  "source_url": "https://entendre.ai/research/taxbench/",
+  "adapter": "entendre",
+  "as_of": null,
+  "retrieved": "2026-09-29",
+  "metrics": [
+    {
+      "key": "mean",
+      "label": "Mean score",
+      "unit": "%"
+    }
+  ],
+  "cost_label": null,
+  "entries": [
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": null,
+      "scores": {
+        "mean": 81.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT-5.6 Sol",
+      "config": null,
+      "scores": {
+        "mean": 78.5
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5",
+      "label": "Claude Opus 5",
+      "config": null,
+      "scores": {
+        "mean": 77.5
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-8",
+      "label": "Claude Opus 4.8",
+      "config": null,
+      "scores": {
+        "mean": 76.6
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5",
+      "label": "Claude Fable 5",
+      "config": null,
+      "scores": {
+        "mean": 76.5
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-7",
+      "label": "Claude Opus 4.7",
+      "config": null,
+      "scores": {
+        "mean": 75.6
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6terra",
+      "label": "GPT-5.6 Terra",
+      "config": null,
+      "scores": {
+        "mean": 75.6
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-5",
+      "label": "GPT-5.5",
+      "config": null,
+      "scores": {
+        "mean": 70.9
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6luna",
+      "label": "GPT-5.6 Luna",
+      "config": null,
+      "scores": {
+        "mean": 70.3
+      },
+      "cost": null
+    },
+    {
+      "model": "sonnet5",
+      "label": "Claude Sonnet 5",
+      "config": null,
+      "scores": {
+        "mean": 69.2
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": null,
+      "scores": {
+        "mean": 67.6
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-1pro",
+      "label": "Gemini Pro 3.1",
+      "config": null,
+      "scores": {
+        "mean": 66.8
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-5flash",
+      "label": "Gemini 3.5 Flash",
+      "config": null,
+      "scores": {
+        "mean": 65.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-6flash",
+      "label": "Gemini 3.6 Flash",
+      "config": null,
+      "scores": {
+        "mean": 64.9
+      },
+      "cost": null
+    },
+    {
+      "model": "qwen3-7plus",
+      "label": "Qwen 3.7 Plus",
+      "config": null,
+      "scores": {
+        "mean": 62.0
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4pro",
+      "label": "DeepSeek V4 Pro",
+      "config": null,
+      "scores": {
+        "mean": 58.7
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik2-6",
+      "label": "Kimi K2.6",
+      "config": null,
+      "scores": {
+        "mean": 57.0
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-2",
+      "label": "GLM 5.2",
+      "config": null,
+      "scores": {
+        "mean": 47.9
+      },
+      "cost": null
+    }
+  ]
+}

@@ -1,0 +1,602 @@
+{
+  "benchmark_id": "bigfinancebench",
+  "source_url": "https://bigfinancebench.com/",
+  "adapter": "bigfinancebench",
+  "as_of": "2026-09-17",
+  "retrieved": "2026-09-29",
+  "metrics": [
+    {
+      "key": "answer",
+      "label": "Final answer accuracy",
+      "unit": "%"
+    },
+    {
+      "key": "rubric",
+      "label": "Rubric score",
+      "unit": "%"
+    }
+  ],
+  "cost_label": "USD per question (publisher-reported)",
+  "entries": [
+    {
+      "model": "musespark1-1",
+      "label": "Muse Spark 1.1",
+      "config": null,
+      "scores": {
+        "answer": 53.36,
+        "rubric": 67.1
+      },
+      "ci": {
+        "answer": [
+          50.45,
+          56.14
+        ],
+        "rubric": [
+          64.96,
+          69.01
+        ]
+      },
+      "cost": 0.171
+    },
+    {
+      "model": "gpt6astra",
+      "label": "GPT-6 Astra",
+      "config": null,
+      "scores": {
+        "answer": 49.46,
+        "rubric": 63.6
+      },
+      "ci": {
+        "answer": [
+          46.25,
+          52.35
+        ],
+        "rubric": [
+          61.4,
+          65.61
+        ]
+      },
+      "cost": 0.558
+    },
+    {
+      "model": "opus5",
+      "label": "Claude Opus 5",
+      "config": null,
+      "scores": {
+        "answer": 46.06,
+        "rubric": 61.81
+      },
+      "ci": {
+        "answer": [
+          43.07,
+          49.1
+        ],
+        "rubric": [
+          59.72,
+          63.86
+        ]
+      },
+      "cost": 1.707
+    },
+    {
+      "model": "fable5",
+      "label": "Claude Fable 5",
+      "config": null,
+      "scores": {
+        "answer": 45.22,
+        "rubric": 59.52
+      },
+      "ci": {
+        "answer": [
+          42.24,
+          48.22
+        ],
+        "rubric": [
+          57.44,
+          61.54
+        ]
+      },
+      "cost": 2.211
+    },
+    {
+      "model": "gpt5-5",
+      "label": "GPT-5.5",
+      "config": null,
+      "scores": {
+        "answer": 44.31,
+        "rubric": 58.76
+      },
+      "ci": {
+        "answer": [
+          41.25,
+          47.23
+        ],
+        "rubric": [
+          56.56,
+          60.77
+        ]
+      },
+      "cost": 0.474
+    },
+    {
+      "model": "gemini3-6flash",
+      "label": "Gemini 3.6 Flash",
+      "config": null,
+      "scores": {
+        "answer": 44.31,
+        "rubric": 63.88
+      },
+      "ci": {
+        "answer": [
+          41.22,
+          47.41
+        ],
+        "rubric": [
+          61.76,
+          66.07
+        ]
+      },
+      "cost": 0.444
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT-5.6 Sol",
+      "config": null,
+      "scores": {
+        "answer": 44.23,
+        "rubric": 55.68
+      },
+      "ci": {
+        "answer": [
+          41.22,
+          47.11
+        ],
+        "rubric": [
+          53.48,
+          57.57
+        ]
+      },
+      "cost": 0.192
+    },
+    {
+      "model": "gemini3-5flash",
+      "label": "Gemini 3.5 Flash",
+      "config": null,
+      "scores": {
+        "answer": 42.22,
+        "rubric": 65.44
+      },
+      "ci": {
+        "answer": [
+          39.33,
+          45.15
+        ],
+        "rubric": [
+          63.35,
+          67.61
+        ]
+      },
+      "cost": 0.704
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": null,
+      "scores": {
+        "answer": 41.67,
+        "rubric": 60.73
+      },
+      "ci": {
+        "answer": [
+          38.74,
+          44.5
+        ],
+        "rubric": [
+          58.58,
+          62.67
+        ]
+      },
+      "cost": 0.281
+    },
+    {
+      "model": "opus4-7",
+      "label": "Claude Opus 4.7",
+      "config": null,
+      "scores": {
+        "answer": 41.46,
+        "rubric": 58.84
+      },
+      "ci": {
+        "answer": [
+          38.47,
+          44.18
+        ],
+        "rubric": [
+          56.56,
+          60.83
+        ]
+      },
+      "cost": 1.261
+    },
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": null,
+      "scores": {
+        "answer": 40.97,
+        "rubric": 58.59
+      },
+      "ci": {
+        "answer": [
+          38.33,
+          43.79
+        ],
+        "rubric": [
+          56.65,
+          60.54
+        ]
+      },
+      "cost": 0.308
+    },
+    {
+      "model": "opus4-8",
+      "label": "Claude Opus 4.8",
+      "config": null,
+      "scores": {
+        "answer": 40.62,
+        "rubric": 55.66
+      },
+      "ci": {
+        "answer": [
+          37.66,
+          43.7
+        ],
+        "rubric": [
+          53.62,
+          57.74
+        ]
+      },
+      "cost": 1.381
+    },
+    {
+      "model": "gpt5-6terra",
+      "label": "GPT-5.6 Terra",
+      "config": null,
+      "scores": {
+        "answer": 39.64,
+        "rubric": 50.58
+      },
+      "ci": {
+        "answer": [
+          36.6,
+          42.42
+        ],
+        "rubric": [
+          48.51,
+          52.54
+        ]
+      },
+      "cost": 0.11
+    },
+    {
+      "model": "sonnet5",
+      "label": "Claude Sonnet 5",
+      "config": null,
+      "scores": {
+        "answer": 39.4,
+        "rubric": 56.1
+      },
+      "ci": {
+        "answer": [
+          36.51,
+          42.22
+        ],
+        "rubric": [
+          53.87,
+          58.03
+        ]
+      },
+      "cost": 1.843
+    },
+    {
+      "model": "sonnet4-6",
+      "label": "Claude Sonnet 4.6",
+      "config": null,
+      "scores": {
+        "answer": 38.37,
+        "rubric": 58.55
+      },
+      "ci": {
+        "answer": [
+          35.47,
+          41.4
+        ],
+        "rubric": [
+          56.37,
+          60.53
+        ]
+      },
+      "cost": 1.675
+    },
+    {
+      "model": "qwen3-6max",
+      "label": "Qwen 3.6 Max",
+      "config": null,
+      "scores": {
+        "answer": 36.78,
+        "rubric": 44.21
+      },
+      "ci": {
+        "answer": [
+          33.85,
+          39.55
+        ],
+        "rubric": [
+          42.02,
+          46.44
+        ]
+      },
+      "cost": 0.491
+    },
+    {
+      "model": "gpt5-6luna",
+      "label": "GPT-5.6 Luna",
+      "config": null,
+      "scores": {
+        "answer": 36.1,
+        "rubric": 49.86
+      },
+      "ci": {
+        "answer": [
+          33.21,
+          38.9
+        ],
+        "rubric": [
+          47.84,
+          51.78
+        ]
+      },
+      "cost": 0.043
+    },
+    {
+      "model": "glm5-1",
+      "label": "GLM 5.1",
+      "config": null,
+      "scores": {
+        "answer": 35.67,
+        "rubric": 54.88
+      },
+      "ci": {
+        "answer": [
+          32.76,
+          38.36
+        ],
+        "rubric": [
+          52.74,
+          57.06
+        ]
+      },
+      "cost": 0.313
+    },
+    {
+      "model": "deepseekv4pro",
+      "label": "DeepSeek V4 Pro",
+      "config": null,
+      "scores": {
+        "answer": 35.63,
+        "rubric": 53.26
+      },
+      "ci": {
+        "answer": [
+          32.87,
+          38.47
+        ],
+        "rubric": [
+          51.22,
+          55.25
+        ]
+      },
+      "cost": 0.037
+    },
+    {
+      "model": "gemini3-1pro",
+      "label": "Gemini 3.1 Pro",
+      "config": null,
+      "scores": {
+        "answer": 34.9,
+        "rubric": 40.7
+      },
+      "ci": {
+        "answer": [
+          32.18,
+          37.61
+        ],
+        "rubric": [
+          38.7,
+          42.71
+        ]
+      },
+      "cost": 0.147
+    },
+    {
+      "model": "minimaxm3",
+      "label": "MiniMax M3",
+      "config": null,
+      "scores": {
+        "answer": 31.56,
+        "rubric": 48.92
+      },
+      "ci": {
+        "answer": [
+          28.83,
+          34.25
+        ],
+        "rubric": [
+          46.8,
+          50.97
+        ]
+      },
+      "cost": 0.053
+    },
+    {
+      "model": "qwen3-627b",
+      "label": "Qwen 3.6 27B",
+      "config": null,
+      "scores": {
+        "answer": 30.01,
+        "rubric": 47.28
+      },
+      "ci": {
+        "answer": [
+          27.42,
+          32.36
+        ],
+        "rubric": [
+          45.11,
+          49.38
+        ]
+      },
+      "cost": 0.279
+    },
+    {
+      "model": "gemini3-5flashlite",
+      "label": "Gemini 3.5 Flash-Lite",
+      "config": null,
+      "scores": {
+        "answer": 29.03,
+        "rubric": 44.77
+      },
+      "ci": {
+        "answer": [
+          26.62,
+          31.66
+        ],
+        "rubric": [
+          42.72,
+          46.83
+        ]
+      },
+      "cost": 0.043
+    },
+    {
+      "model": "kimik2-6",
+      "label": "Kimi K2.6",
+      "config": null,
+      "scores": {
+        "answer": 26.58,
+        "rubric": 45.18
+      },
+      "ci": {
+        "answer": [
+          24.19,
+          28.99
+        ],
+        "rubric": [
+          42.98,
+          47.24
+        ]
+      },
+      "cost": 0.282
+    },
+    {
+      "model": "gemini3flash",
+      "label": "Gemini 3 Flash",
+      "config": null,
+      "scores": {
+        "answer": 26.17,
+        "rubric": 43.02
+      },
+      "ci": {
+        "answer": [
+          23.71,
+          28.77
+        ],
+        "rubric": [
+          40.82,
+          45.19
+        ]
+      },
+      "cost": 0.076
+    },
+    {
+      "model": "nemotron3ultra",
+      "label": "Nemotron 3 Ultra",
+      "config": null,
+      "scores": {
+        "answer": 21.89,
+        "rubric": 39.17
+      },
+      "ci": {
+        "answer": [
+          19.49,
+          24.3
+        ],
+        "rubric": [
+          37.09,
+          41.21
+        ]
+      },
+      "cost": 0.641
+    },
+    {
+      "model": "gemma431bit",
+      "label": "Gemma 4 31B-IT",
+      "config": null,
+      "scores": {
+        "answer": 20.78,
+        "rubric": 34.75
+      },
+      "ci": {
+        "answer": [
+          18.52,
+          22.93
+        ],
+        "rubric": [
+          32.84,
+          36.6
+        ]
+      },
+      "cost": 0.022
+    },
+    {
+      "model": "gpt5-4mini",
+      "label": "GPT-5.4 Mini",
+      "config": null,
+      "scores": {
+        "answer": 6.59,
+        "rubric": 22.35
+      },
+      "ci": {
+        "answer": [
+          5.5,
+          7.78
+        ],
+        "rubric": [
+          21.0,
+          23.93
+        ]
+      },
+      "cost": 0.019
+    },
+    {
+      "model": "mistrallarge3",
+      "label": "Mistral Large 3",
+      "config": null,
+      "scores": {
+        "answer": 6.5,
+        "rubric": 12.96
+      },
+      "ci": {
+        "answer": [
+          5.28,
+          7.78
+        ],
+        "rubric": [
+          11.94,
+          14.01
+        ]
+      },
+      "cost": 0.017
+    }
+  ]
+}

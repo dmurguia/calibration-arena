@@ -16,6 +16,7 @@ from ..pilot_cases import CASES, snapshot
 from ..pilot_inference import generate, live_ready, inference_backend
 from ..pilot_tasks import TASKS, case_task
 from ..pilot_examples import STARTERS
+from ..pilot_assets import AssetUpload, prepare_assets, model_prompt
 from ..pilot_audit import GenerationFailure, text_hash
 from ..pilot_study import Assignment, ClosePack, assign_cases, assigned_case
 from ..pilot_accounts import (
@@ -152,6 +153,8 @@ class Start(Strict):
     source_example_id: str | None = Field(default=None, max_length=100)
     privacy_ack: bool = False  # Historical acknowledgement only; never inferred from submission.
     task_type: Literal["accounting-question", "journal-entry", "treatment-memo", "workpaper-review"] = "accounting-question"
+    workflow_id: str | None = Field(default=None, max_length=100)
+    assets: list[AssetUpload] = Field(default_factory=list, max_length=2)
 
     @model_validator(mode='after')
     def context_fields(self):
@@ -279,6 +282,9 @@ def public_run(run):
     visible = run.status in ("review", "completed")
     result = {"id": run.id, "status": run.status, "created_at": run.created_at,
               **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id")}}
+    result['workflow_id'] = data.get('workflow_id')
+    result['attachments'] = [{k: document[k] for k in ('name', 'role', 'size', 'sha256')}
+                             for document in data.get('input_documents', [])]
     if data.get('pair_histories'):
         result['conversation'] = [{'position': 'ab'[i], 'messages': data['pair_histories'].get(model, [])} for i, model in enumerate(data['pair_order'])]
     result['identity_exposed'] = bool(data.get('identity_exposed'))
@@ -691,6 +697,18 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     example = next((e for e in STARTERS if e['id'] == body.source_example_id), None)
     if body.source_example_id and not example:
         raise HTTPException(422, 'Unknown prompt starter.')
+    if body.case_id and (body.workflow_id or body.assets):
+        raise HTTPException(422, 'Attachments belong to a new finance question, not a fixed practice case.')
+    workflow_id = body.workflow_id
+    try:
+        if retry and not body.workflow_id and not body.assets:
+            documents = retry.data.get('input_documents', [])
+            workflow_id = retry.data.get('workflow_id')
+        else:
+            documents = prepare_assets(body.workflow_id, body.assets)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
+    effective_prompt = model_prompt(body.question, documents)
     history = []
     pair_histories = {}
     pair_order = []
@@ -706,11 +724,11 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             raise HTTPException(422, 'A conversation requires two distinct model IDs.')
         for d in source.data['drafts']:
             pair_histories[d['model_id']] = [*source.data.get('pair_histories', {}).get(d['model_id'], source.data.get('history', [])),
-                {'role': 'user', 'content': source.data['brief']}, {'role': 'assistant', 'content': d['text']}]
+                {'role': 'user', 'content': source.data.get('model_prompt', source.data['brief'])}, {'role': 'assistant', 'content': d['text']}]
         identity_exposed = conversation_revealed(db, source)
     elif source and body.continuation_mode == 'followup':
         selected = source.data['drafts']['ab'.index(body.source_position)]
-        history = [*source.data.get('history', []), {'role': 'user', 'content': source.data['brief']},
+        history = [*source.data.get('history', []), {'role': 'user', 'content': source.data.get('model_prompt', source.data['brief'])},
                    {'role': 'assistant', 'content': selected['text']}]
         turn_number = source.data.get('turn_number', 1) + 1
         source_artifact = {'artifact_id': selected.get('artifact_id'), 'text_sha256': text_hash(selected['text'])}
@@ -721,9 +739,9 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         pair_histories = retry.data.get('pair_histories', {})
         pair_order = retry.data.get('pair_order', [])
         identity_exposed = retry.data.get('identity_exposed', False)
-    if pair_histories and (turn_number > 5 or any(sum(len(m['content']) for m in h) + len(body.question) > 40000 for h in pair_histories.values())):
+    if pair_histories and (turn_number > 5 or any(sum(len(m['content']) for m in h) + len(effective_prompt) > 40000 for h in pair_histories.values())):
         raise HTTPException(422, 'This comparison reached its limit (5 turns or 40,000 characters). Finish and reveal, or start a new question.')
-    if turn_number > 20 or sum(len(m['content']) for m in history) + len(body.question) > 40000:
+    if turn_number > 20 or sum(len(m['content']) for m in history) + len(effective_prompt) > 40000:
         raise HTTPException(422, 'This conversation reached its context limit (20 turns or 40,000 characters). Start a new question; the notebook keeps this conversation.')
     if body.case_id:
         case = next((c for c in CASES if c["id"] == body.case_id), None)
@@ -745,6 +763,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
         check_live_budget(db, p)
         data = {"kind": "ask", "case_id": None, "title": TASKS[body.task_type]["label"], "brief": body.question,
+                "workflow_id": workflow_id, "input_documents": documents, "model_prompt": effective_prompt,
                 "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4", "drafts": [], "privacy_ack": body.privacy_ack,
                 "task_type": body.task_type, "routing": "explicit-user-selection",
                 "source_run_id": source.id if source else retry.data.get('source_run_id') if retry else None,
@@ -766,7 +785,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     if not body.case_id:
         attempts = []
         try:
-            drafts = await generate(body.question, body.task_type, history=pair_histories or history) if history or pair_histories else await generate(body.question, body.task_type)
+            drafts = await generate(effective_prompt, body.task_type, history=pair_histories or history) if history or pair_histories else await generate(effective_prompt, body.task_type)
             attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
             if pair_order:
                 if set(pair_order) != {d['model_id'] for d in drafts}:

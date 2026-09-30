@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { XIcon } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
-import { DialMark } from '../brand/DialMark'
+import { CalibratedMark } from '../brand/CalibratedMark'
 import { AuthPanel } from './AuthPanel'
 
 const reasons: Record<string, { title: string; body: string }> = {
@@ -57,7 +57,7 @@ export function AuthModal() {
           <XIcon className="h-4 w-4" />
         </button>
 
-        <DialMark size={26} className="text-ink" title="Calibrated Co." />
+        <CalibratedMark size={26} className="text-ink" title="Calibrated Co." />
         <div className="mt-4" id="auth-title">
           <AuthPanel title={reason.title} body={reason.body} onDone={dismissAuth} />
         </div>

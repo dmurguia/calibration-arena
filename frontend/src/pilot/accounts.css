@@ -1,13 +1,13 @@
-.p-sidebar-account{display:flex;flex-direction:column;gap:8px;padding:15px 0;border-top:1px solid #dedbd4;font-size:11px;overflow-wrap:anywhere}
-.p-sidebar-account button{align-self:flex-start;border:0;background:transparent;padding:0;color:#73776b;font:inherit;cursor:pointer}
+.p-sidebar-account{display:flex;flex-direction:column;gap:8px;padding:15px 0;border-top:1px solid var(--cal-rule);font-size:11px;overflow-wrap:anywhere}
+.p-sidebar-account button{align-self:flex-start;border:0;background:transparent;padding:0;color:var(--cal-graphite);font:inherit;cursor:pointer}
 .p-sidebar-account button:hover{text-decoration:underline}
-.p-sidebar-usage{font:10px 'IBM Plex Mono',monospace;color:#787d70;margin:16px 0 0;overflow-wrap:anywhere}
+.p-sidebar-usage{font:10px var(--cal-font-mono);color:var(--cal-graphite);margin:16px 0 0;overflow-wrap:anywhere}
 .p-filter{display:flex;align-items:center;gap:12px;margin:28px 0 14px;font-size:12px}
-.p-filter select{border:1px solid #cbd0c5;border-radius:20px;background:#fffefb;padding:9px 13px;font:inherit}
+.p-filter select{border:1px solid var(--cal-rule);border-radius:var(--cal-radius);background:var(--cal-white);padding:9px 13px;font:inherit}
 .p-leaderboard-table{overflow-x:auto}
 .p-leaderboard-table table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
-.p-leaderboard-table th,.p-leaderboard-table td{text-align:left;padding:12px 10px;border-bottom:1px solid #e0ded7}
-.p-leaderboard-table th{font-weight:600}
-.p-founder-budget{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0;padding-top:12px;border-top:1px solid #e0ded7}
-.p-founder-budget input{width:160px;border:1px solid #bcc5b3;border-radius:3px;background:#fffefb;padding:9px 10px;font:inherit}
+.p-leaderboard-table th,.p-leaderboard-table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--cal-rule-faint)}
+.p-leaderboard-table th{font-weight:500}
+.p-founder-budget{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0;padding-top:12px;border-top:1px solid var(--cal-rule-faint)}
+.p-founder-budget input{width:160px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius);background:var(--cal-white);padding:9px 10px;font:inherit}
 .p-founder-budget .p-secondary{min-height:36px;padding:8px 14px}

@@ -98,9 +98,15 @@ a.bm-await-card:hover{border-color:#c98f6d}
 .bd-grid{stroke:#e2e4dc}.bd-tick{font:10px 'IBM Plex Mono',monospace;fill:#7a8070}.bd-axis{font:11px 'Schibsted Grotesk',sans-serif;fill:#4f584a}
 .bd-front{fill:none;stroke:#c0632f;stroke-width:1.5;stroke-dasharray:5 4}
 .bd-dot{stroke:#fcfbf7;stroke-width:1.5;opacity:.85;cursor:pointer;outline:none}.bd-dot:hover,.bd-dot:focus{opacity:1;stroke:#1b1f18}
-.bd-dot-front{opacity:1;stroke:#1b1f18;stroke-width:1.2}
 .bd-dot-label{font:11px 'Schibsted Grotesk',sans-serif;fill:#1f2f24;paint-order:stroke;stroke:#fcfbf7;stroke-width:3px}
 .bd-dot-label-hover{font-weight:600}
+.bd-mark{cursor:pointer;outline:none}
+.bd-mark-ring{fill:#fff;stroke-width:2}
+.bd-ring-closed{stroke:#1d382e}.bd-ring-open{stroke:#c0632f}.bd-ring-unknown{stroke:#a3a89b}
+.bd-mark:hover .bd-mark-ring,.bd-mark:focus .bd-mark-ring{stroke-width:3}
+.bd-mark-initials{font:600 9px 'Schibsted Grotesk',sans-serif;fill:#1b1f18;letter-spacing:.02em}
+.bd-pill rect{fill:#fff;stroke:#d9d6cb}
+.bd-pill text{font:500 10.5px 'Schibsted Grotesk',sans-serif;fill:#1f2f24}
 .bd-table-wrap{overflow-x:auto;margin-top:12px}
 .bd-table{width:100%;border-collapse:collapse;font-size:12px}
 .bd-table th{font:9px 'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:#6a7163;text-align:left;padding:8px;border-bottom:1px solid #cfd4c7;white-space:nowrap}

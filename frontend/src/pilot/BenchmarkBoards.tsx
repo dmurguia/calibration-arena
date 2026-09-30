@@ -17,6 +17,9 @@ const BASIS: Record<ModelRec['weights_basis'], string> = { publisher: 'as report
 const SOURCE: Record<string, string> = { first_party: 'Publisher', vendor_report: 'Vendor report', paper: 'Paper', mirror: 'Third-party mirror' }
 const TOP = 15
 const MIN_COST_POINTS = 5
+const LOGOS = new Set(['openai', 'google', 'anthropic', 'xai', 'meta', 'alibaba', 'deepseek', 'zhipu-ai', 'mistral', 'moonshot-ai', 'ai21-labs', 'nvidia', 'xiaomi', 'minimax', 'cohere', 'poolside', 'ant-group', 'tencent', 'inception', 'arcee-ai'])
+const orgSlug = (org: string) => org.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+const initials = (org: string) => org.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
 function dateLabel(value: string) {
   const [y, m, d] = value.split('-').map(Number)
@@ -81,13 +84,20 @@ function Scatter({ rows, costLabel, metricLabel }: { rows: Row[]; costLabel: str
   const xticks = [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100].filter(t => Math.log10(t) >= x0 && Math.log10(t) <= x1)
   const yticks = Array.from({ length: (y1 - y0) / 10 + 1 }, (_, i) => y0 + i * 10)
   const onFront = new Set(front)
-  const placed: { x: number; y: number; w: number }[] = []
-  const labels = front.flatMap(p => {
-    const text = p.m?.name ?? p.e.label, w = text.length * 6.6, x = sx(p.e.cost!) + 9
-    for (const y of [sy(p.score) - 8, sy(p.score) + 18]) {
-      if (x + w <= W - R && placed.every(q => Math.abs(q.y - y) > 16 || x > q.x + q.w || q.x > x + w)) {
-        placed.push({ x, y, w })
-        return [{ p, text, x, y }]
+  const MR = 13, LH = 17
+  const placed = front.map(p => ({ x: sx(p.e.cost!) - MR, y: sy(p.score) - MR, w: MR * 2, h: MR * 2 }))
+  const free = (b: { x: number; y: number; w: number; h: number }) => b.x >= L && b.x + b.w <= W - R && b.y >= 0 &&
+    placed.every(q => b.x >= q.x + q.w || q.x >= b.x + b.w || b.y >= q.y + q.h || q.y >= b.y + b.h)
+  const labels = [...front].sort((a, b) => b.score - a.score).flatMap(p => {
+    const text = p.m?.name ?? p.e.label, w = text.length * 6 + 12, cx = sx(p.e.cost!), cy = sy(p.score)
+    const spots = [
+      { x: cx - w / 2, y: cy - MR - LH - 3 }, { x: cx - w / 2, y: cy + MR + 3 },
+      { x: cx + MR + 4, y: cy - LH / 2 }, { x: cx - MR - 4 - w, y: cy - LH / 2 },
+    ]
+    for (const b of spots.map(s => ({ ...s, w, h: LH }))) {
+      if (free(b)) {
+        placed.push(b)
+        return [{ p, text, ...b }]
       }
     }
     return []
@@ -101,13 +111,27 @@ function Scatter({ rows, costLabel, metricLabel }: { rows: Row[]; costLabel: str
       <text x={(L + W - R) / 2} y={H - 8} textAnchor="middle" className="bd-axis">{costLabel} (log scale)</text>
       <text x={14} y={(T + H - B) / 2} textAnchor="middle" transform={`rotate(-90 14 ${(T + H - B) / 2})`} className="bd-axis">{metricLabel}</text>
       <polyline points={front.map(p => `${sx(p.e.cost!)},${sy(p.score)}`).join(' ')} className="bd-front" />
-      {pts.map(p => <circle key={`${p.e.label}|${p.e.config}`} cx={sx(p.e.cost!)} cy={sy(p.score)} r={onFront.has(p) ? 6 : 4.5}
-        className={`bd-dot bd-fill-${p.weights}${onFront.has(p) ? ' bd-dot-front' : ''}`} tabIndex={0}
+      {pts.filter(p => !onFront.has(p)).map(p => <circle key={`${p.e.label}|${p.e.config}`} cx={sx(p.e.cost!)} cy={sy(p.score)} r={4.5}
+        className={`bd-dot bd-fill-${p.weights}`} tabIndex={0}
         onMouseEnter={() => setHover(p)} onMouseLeave={() => setHover(null)} onFocus={() => setHover(p)} onBlur={() => setHover(null)}>
         <title>{`${entryName(p.e)}: ${pct(p.score)} at ${money(p.e.cost!)}`}</title>
       </circle>)}
-      {labels.map(l => <text key={`l${l.p.e.label}|${l.p.e.config}`} x={l.x} y={l.y} className="bd-dot-label">{l.text}</text>)}
-      {hover && !labels.some(l => l.p === hover) && <text x={sx(hover.e.cost!) + 9} y={sy(hover.score) - 8} className="bd-dot-label bd-dot-label-hover">{entryName(hover.e)}</text>}
+      {front.map(p => {
+        const cx = sx(p.e.cost!), cy = sy(p.score), org = p.m?.org
+        return <g key={`m${p.e.label}|${p.e.config}`} className="bd-mark" tabIndex={0}
+          onMouseEnter={() => setHover(p)} onMouseLeave={() => setHover(null)} onFocus={() => setHover(p)} onBlur={() => setHover(null)}>
+          <title>{`${entryName(p.e)}: ${pct(p.score)} at ${money(p.e.cost!)}`}</title>
+          <circle cx={cx} cy={cy} r={MR} className={`bd-mark-ring bd-ring-${p.weights}`} />
+          {org && LOGOS.has(orgSlug(org))
+            ? <image href={`/logos/${orgSlug(org)}.svg`} x={cx - 8} y={cy - 8} width={16} height={16} />
+            : <text x={cx} y={cy + 3.5} textAnchor="middle" className="bd-mark-initials">{initials(org ?? p.e.label)}</text>}
+        </g>
+      })}
+      {labels.map(l => <g key={`l${l.p.e.label}|${l.p.e.config}`} className="bd-pill">
+        <rect x={l.x} y={l.y} width={l.w} height={l.h} rx={3} />
+        <text x={l.x + l.w / 2} y={l.y + 12} textAnchor="middle">{l.text}</text>
+      </g>)}
+      {hover && !labels.some(l => l.p === hover) && <text x={sx(hover.e.cost!) + (onFront.has(hover) ? MR + 4 : 9)} y={sy(hover.score) - 8} className="bd-dot-label bd-dot-label-hover">{entryName(hover.e)}</text>}
     </svg>
     <figcaption>{hover ? <><b>{entryName(hover.e)}</b> · {pct(hover.score)} · {money(hover.e.cost!)}</> : <>The line joins models no other model beats on both score and cost. {pts.length} of {rows.length} models have a published cost.</>}</figcaption>
   </figure>

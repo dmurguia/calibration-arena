@@ -1,0 +1,522 @@
+{
+  "benchmark_id": "apex-agents-ib",
+  "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
+  "adapter": "apex_agents",
+  "as_of": null,
+  "retrieved": "2026-09-29",
+  "metrics": [
+    {
+      "key": "mean-score",
+      "label": "Mean score",
+      "unit": "%"
+    },
+    {
+      "key": "pass-1",
+      "label": "Pass@1",
+      "unit": "%"
+    }
+  ],
+  "cost_label": null,
+  "entries": [
+    {
+      "model": "sonnet5-5",
+      "label": "Sonnet 5.5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 75.5,
+        "mean-score": 83.7
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5-5",
+      "label": "Opus 5.5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 73.5,
+        "mean-score": 81.3
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-7flash",
+      "label": "Gemini 3.7 Flash",
+      "config": "High",
+      "scores": {
+        "pass-1": 67.8,
+        "mean-score": 79.4
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-6",
+      "label": "Grok 4.6",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 65.3,
+        "mean-score": 77.3
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5-1",
+      "label": "Fable 5.1",
+      "config": "Max",
+      "scores": {
+        "pass-1": 68.6,
+        "mean-score": 77.1
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5",
+      "label": "Opus 5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 65.8,
+        "mean-score": 77
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6astra",
+      "label": "GPT-6 Astra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 64.7,
+        "mean-score": 75.1
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5",
+      "label": "Fable 5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 63.6,
+        "mean-score": 74.5
+      },
+      "cost": null
+    },
+    {
+      "model": "qwen3-8max",
+      "label": "Qwen3.8-Max",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 63.3,
+        "mean-score": 74.3
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-8flash",
+      "label": "Gemini 3.8 Flash",
+      "config": "High",
+      "scores": {
+        "pass-1": 64.3,
+        "mean-score": 72.9
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5-1",
+      "label": "Fable 5.1",
+      "config": "High",
+      "scores": {
+        "pass-1": 59.7,
+        "mean-score": 71.8
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6terra",
+      "label": "GPT-5.6 Terra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 58.2,
+        "mean-score": 71.8
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": "High",
+      "scores": {
+        "pass-1": 56.2,
+        "mean-score": 70.5
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-3",
+      "label": "Muse Spark 1.3",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 58.6,
+        "mean-score": 70.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-5",
+      "label": "GPT-5.5",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 55.1,
+        "mean-score": 70.3
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6sol",
+      "label": "GPT-6 Sol",
+      "config": "Max",
+      "scores": {
+        "pass-1": 54.3,
+        "mean-score": 68.7
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-7",
+      "label": "Grok 4.7",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 54.6,
+        "mean-score": 68.7
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-4",
+      "label": "GPT-5.4",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 52.4,
+        "mean-score": 68.2
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4flash",
+      "label": "DeepSeek-V4-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 55.3,
+        "mean-score": 67.5
+      },
+      "cost": null
+    },
+    {
+      "model": "sonnet5",
+      "label": "Sonnet 5",
+      "config": "Max",
+      "scores": {
+        "pass-1": 54.5,
+        "mean-score": 67.4
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3flash",
+      "label": "GLM-5.3-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 52.8,
+        "mean-score": 66.8
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3",
+      "label": "GLM-5.3",
+      "config": "Max",
+      "scores": {
+        "pass-1": 56.6,
+        "mean-score": 66.2
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5-5",
+      "label": "Opus 5.5",
+      "config": "Medium",
+      "scores": {
+        "pass-1": 52.5,
+        "mean-score": 65.7
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT-5.6 Sol",
+      "config": "Max · Pro",
+      "scores": {
+        "pass-1": 51.4,
+        "mean-score": 65.2
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-8",
+      "label": "Opus 4.8",
+      "config": "Max",
+      "scores": {
+        "pass-1": 48.9,
+        "mean-score": 64.4
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": "Max",
+      "scores": {
+        "pass-1": 50.6,
+        "mean-score": 64
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-6flash",
+      "label": "Gemini 3.6 Flash",
+      "config": "High",
+      "scores": {
+        "pass-1": 46.9,
+        "mean-score": 63.4
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-7",
+      "label": "Opus 4.7",
+      "config": "Max",
+      "scores": {
+        "pass-1": 49.2,
+        "mean-score": 63.1
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4pro0813",
+      "label": "DeepSeek-V4-Pro-0813",
+      "config": "Max",
+      "scores": {
+        "pass-1": 47.3,
+        "mean-score": 62.3
+      },
+      "cost": null
+    },
+    {
+      "model": "qwen3-827b",
+      "label": "Qwen 3.8 27B",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 47.5,
+        "mean-score": 62.2
+      },
+      "cost": null
+    },
+    {
+      "model": "opus4-6",
+      "label": "Opus 4.6",
+      "config": "Max",
+      "scores": {
+        "pass-1": 46.3,
+        "mean-score": 61.8
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-2",
+      "label": "GLM-5.2",
+      "config": "Max",
+      "scores": {
+        "pass-1": 45.2,
+        "mean-score": 61.1
+      },
+      "cost": null
+    },
+    {
+      "model": "sonnet5-5",
+      "label": "Sonnet 5.5",
+      "config": "Medium",
+      "scores": {
+        "pass-1": 44.6,
+        "mean-score": 59.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6luna",
+      "label": "GPT-6 Luna",
+      "config": "Max",
+      "scores": {
+        "pass-1": 44.3,
+        "mean-score": 59
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt5-6luna",
+      "label": "GPT-5.6 Luna",
+      "config": "Max",
+      "scores": {
+        "pass-1": 43,
+        "mean-score": 57.8
+      },
+      "cost": null
+    },
+    {
+      "model": "sonnet4-6",
+      "label": "Sonnet 4.6",
+      "config": "High",
+      "scores": {
+        "pass-1": 43,
+        "mean-score": 57.6
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-1",
+      "label": "GLM-5.1",
+      "config": null,
+      "scores": {
+        "pass-1": 40.9,
+        "mean-score": 56.8
+      },
+      "cost": null
+    },
+    {
+      "model": "minimaxm3",
+      "label": "MiniMax-M3",
+      "config": "High",
+      "scores": {
+        "pass-1": 37.7,
+        "mean-score": 53.5
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik2-7code",
+      "label": "Kimi K2.7 Code",
+      "config": "High",
+      "scores": {
+        "pass-1": 37.6,
+        "mean-score": 53.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-1pro",
+      "label": "Gemini 3.1 Pro",
+      "config": "High",
+      "scores": {
+        "pass-1": 35.3,
+        "mean-score": 52.5
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-2",
+      "label": "Muse Spark 1.2",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 36.4,
+        "mean-score": 51.7
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4-1flash",
+      "label": "DeepSeek-V4.1-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 39.5,
+        "mean-score": 50.4
+      },
+      "cost": null
+    },
+    {
+      "model": "inkling",
+      "label": "Inkling",
+      "config": "High",
+      "scores": {
+        "pass-1": 33.8,
+        "mean-score": 48.8
+      },
+      "cost": null
+    },
+    {
+      "model": "musespark1-1",
+      "label": "Muse Spark 1.1",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 31.8,
+        "mean-score": 46.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-5flashlite",
+      "label": "Gemini 3.5 Flash Lite",
+      "config": "High",
+      "scores": {
+        "pass-1": 29.3,
+        "mean-score": 46.1
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-5flash",
+      "label": "Gemini 3.5 Flash",
+      "config": "High",
+      "scores": {
+        "pass-1": 27.5,
+        "mean-score": 44.3
+      },
+      "cost": null
+    },
+    {
+      "model": "qwen3-5",
+      "label": "Qwen3.5",
+      "config": null,
+      "scores": {
+        "pass-1": 24.9,
+        "mean-score": 40.3
+      },
+      "cost": null
+    },
+    {
+      "model": "nemotron3ultra",
+      "label": "Nemotron 3 Ultra",
+      "config": "High",
+      "scores": {
+        "pass-1": 22.7,
+        "mean-score": 38.3
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv3-2",
+      "label": "DeepSeek-V3.2",
+      "config": null,
+      "scores": {
+        "pass-1": 21.3,
+        "mean-score": 35.1
+      },
+      "cost": null
+    },
+    {
+      "model": "gptoss120b",
+      "label": "GPT-OSS-120B",
+      "config": "High",
+      "scores": {
+        "pass-1": 4.4,
+        "mean-score": 8.3
+      },
+      "cost": null
+    }
+  ]
+}

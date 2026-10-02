@@ -1,7 +1,6 @@
 export const site = {
   name: "Calibrated Co.",
   domain: "calibrated.co",
-  defaultDirection: "outcomes",
   description:
     "Hone your agents with your company’s expertise. Training data, evaluations and reinforcement learning environments for knowledge work.",
 };

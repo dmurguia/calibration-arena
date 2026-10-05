@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibrated</title>
+<meta name="description" content="Calibrated runs a live arena of licensed CPAs who measure AI models against the public accounting benchmarks and real close work, show where a model loses points and why, and produce the tasks and grading that move the score.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ---------- tokens: slate instrument palette (light first) ---------- */
+:root{
+  --paper:#eef0ef; --panel:#e3e6e4; --card:#f7f8f7; --hair:#cdd2cf;
+  --ink:#1a1d1c; --muted:#5f6663; --steel:#8f958f;
+  --gun:#202523; --gun-hover:#2c3330; --on-gun:#eef0ef; --gun-hair:rgba(238,240,239,.16); --gun-muted:rgba(238,240,239,.62);
+  --oxide:#b8451f; --oxide-tint:#f3e1d8;
+  --sage:#d5e0d6; --sage-ink:#2f4a34;
+  --dither:rgba(26,29,28,.06);
+  --shadow:0 1px 2px rgba(26,29,28,.04),0 1px 1px rgba(26,29,28,.03);
+  --lift:0 2px 12px rgba(26,29,28,.08);
+  --btn-bg:#202523; --btn-ink:#eef0ef; --btn-hover:#2c3330;
+  --code-bg:#e3e6e4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#181b1a; --panel:#1f2322; --card:#222726; --hair:#333937;
+    --ink:#eceeed; --muted:#a2a9a5; --steel:#6b726e;
+    --gun:#0f1211; --gun-hover:#181c1b; --on-gun:#eceeed; --gun-hair:rgba(236,238,237,.14); --gun-muted:rgba(236,238,237,.6);
+    --oxide:#d9673d; --oxide-tint:#3a2418;
+    --sage:#24372a; --sage-ink:#b9d4be;
+    --dither:rgba(236,238,237,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+    --lift:0 2px 14px rgba(0,0,0,.4);
+    --btn-bg:#eceeed; --btn-ink:#181b1a; --btn-hover:#ffffff;
+    --code-bg:#1f2322;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#181b1a; --panel:#1f2322; --card:#222726; --hair:#333937;
+  --ink:#eceeed; --muted:#a2a9a5; --steel:#6b726e;
+  --gun:#0f1211; --gun-hover:#181c1b; --on-gun:#eceeed; --gun-hair:rgba(236,238,237,.14); --gun-muted:rgba(236,238,237,.6);
+  --oxide:#d9673d; --oxide-tint:#3a2418;
+  --sage:#24372a; --sage-ink:#b9d4be;
+  --dither:rgba(236,238,237,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --lift:0 2px 14px rgba(0,0,0,.4);
+  --btn-bg:#eceeed; --btn-ink:#181b1a; --btn-hover:#ffffff;
+  --code-bg:#1f2322;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--oxide-tint);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--oxide);outline-offset:3px}
+img,svg{max-width:100%}
+.serif{font-family:"Newsreader",Georgia,"Times New Roman",serif;font-weight:500;font-optical-sizing:auto;text-wrap:balance}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+@media(min-width:1024px){.wrap{padding:0 40px}}
+h1,h2,h3,h4,p{margin:0}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* page texture: pixel-dither clusters at the edges, never behind body copy */
+.dither{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    repeating-linear-gradient(to right,var(--dither) 0 6px,transparent 6px 12px),
+    repeating-linear-gradient(to bottom,var(--dither) 0 6px,transparent 6px 12px);
+  -webkit-mask:radial-gradient(60% 50% at 0% 0%,#000 0,transparent 60%),radial-gradient(50% 45% at 100% 100%,#000 0,transparent 60%);
+  mask:radial-gradient(60% 50% at 0% 0%,#000 0,transparent 60%),radial-gradient(50% 45% at 100% 100%,#000 0,transparent 60%);
+  opacity:.9}
+main,header,footer{position:relative;z-index:1}
+
+/* eyebrow + specimen chips */
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:12px}
+.eyebrow .n{color:var(--ink)}
+.eyebrow .rule{display:inline-block;width:32px;height:1px;background:var(--hair)}
+.chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--hair);background:color-mix(in srgb,var(--card) 70%,transparent);padding:4px 8px;font-family:"IBM Plex Mono",monospace;font-size:10px;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.chip b{opacity:.5;font-weight:400}
+.chip.oxide{border-color:color-mix(in srgb,var(--oxide) 40%,transparent);color:var(--oxide);background:var(--oxide-tint)}
+.chip.sage{border-color:color-mix(in srgb,var(--sage-ink) 30%,transparent);color:var(--sage-ink);background:var(--sage)}
+.chip.light{border-color:var(--gun-hair);color:var(--gun-muted);background:transparent}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:11px 18px;font-weight:600;font-size:14px;border:1px solid transparent;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease;white-space:nowrap}
+.btn.primary{background:var(--btn-bg);color:var(--btn-ink)}
+.btn.primary:hover{background:var(--btn-hover)}
+.btn.ghost{background:transparent;border-color:var(--hair);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.light{background:transparent;border-color:var(--gun-hair);color:var(--on-gun)}
+.btn.light:hover{border-color:var(--on-gun)}
+.btn.onlight{background:var(--on-gun);color:var(--gun)}
+.btn.onlight:hover{background:#fff}
+.btn svg{width:14px;height:14px}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--hair)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.brand .co{font-weight:400;color:var(--muted);font-size:13px;margin-left:2px}
+.navlinks{display:none;gap:26px;font-size:13.5px;color:var(--muted)}
+.navlinks a:hover{color:var(--ink)}
+@media(min-width:900px){.navlinks{display:flex}}
+.navcta{display:flex;gap:8px;align-items:center}
+.navcta .btn{padding:8px 14px;font-size:13px}
+.theme{width:34px;height:34px;border-radius:8px;border:1px solid var(--hair);background:transparent;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.theme:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 48px;border-bottom:1px solid var(--hair)}
+@media(min-width:1024px){.hero{padding:88px 0 64px}}
+.hero-grid{display:grid;gap:40px;align-items:center}
+@media(min-width:1024px){.hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px}}
+.hero h1{font-size:44px;line-height:1.05;letter-spacing:-.015em;margin-top:22px;max-width:12ch}
+@media(min-width:640px){.hero h1{font-size:60px}}
+@media(min-width:1024px){.hero h1{font-size:68px}}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--oxide)}
+.hero .lede{margin-top:22px;max-width:56ch;font-size:16.5px;line-height:1.6;color:var(--muted)}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero .fine{margin-top:16px;font-size:12.5px;color:var(--muted)}
+.hero .fine a{border-bottom:1px solid var(--hair)}
+.hero .fine a:hover{border-color:var(--ink)}
+
+/* the instrument: gauge + panel ledger */
+.instrument{position:relative;border:1px solid var(--hair);background:var(--card);border-radius:12px;box-shadow:var(--lift);padding:18px 18px 16px}
+.instrument .frame-label{position:absolute;top:-11px;left:16px}
+.instrument .frame-label2{position:absolute;top:-11px;right:16px}
+.inst-top{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--hair)}
+@media(max-width:480px){.inst-top{grid-template-columns:1fr}}
+.gauge{width:150px;height:150px;display:block;margin:0 auto}
+.gauge .tick{stroke:var(--ink);opacity:.45}
+.gauge .tick.major{opacity:.9}
+.gauge .ring{stroke:var(--ink);opacity:.9}
+.gauge .needle{stroke:var(--oxide);transform-origin:60px 60px;transform:rotate(-118deg);transition:transform 1.6s cubic-bezier(.23,1,.32,1)}
+.gauge.settled .needle{transform:rotate(30deg)}
+.gauge .hub{fill:var(--ink)}
+.gauge .arc{stroke:var(--sage-ink);opacity:.35;fill:none}
+.readout .big{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:54px;line-height:1;letter-spacing:-.01em}
+.readout .cap{margin-top:6px;font-size:12.5px;color:var(--muted);max-width:26ch}
+.readout .tag{margin-top:10px}
+.ledger{margin-top:14px}
+.ledger table{width:100%;border-collapse:collapse;font-size:12.5px}
+.ledger th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:0 0 8px;border-bottom:1px solid var(--hair)}
+.ledger td{padding:9px 0;border-bottom:1px solid var(--hair);vertical-align:middle}
+.ledger tr:last-child td{border-bottom:0}
+.ledger td.r,.ledger th.r{text-align:right}
+.ledger .who{font-weight:600}
+.ledger .role{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.bar{display:inline-block;height:6px;background:var(--steel);vertical-align:middle;margin-right:8px;border-radius:1px}
+.bar.top{background:var(--sage-ink)}
+.bar.low{background:var(--oxide)}
+.hidden-id{display:inline-block;width:64px;height:10px;vertical-align:middle;background-color:var(--panel);
+  background-image:repeating-linear-gradient(to right,color-mix(in srgb,var(--ink) 50%,transparent) 0 4px,transparent 4px 8px),repeating-linear-gradient(to bottom,color-mix(in srgb,var(--ink) 50%,transparent) 0 4px,transparent 4px 8px);
+  background-blend-mode:multiply;opacity:.55;border-radius:1px}
+.inst-foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+
+/* resolve: elements arrive slightly blurred then sharpen; visible at rest */
+.resolve{animation:resolve .5s cubic-bezier(.23,1,.32,1) both}
+@keyframes resolve{0%{filter:blur(3px) contrast(1.3);opacity:.35}100%{filter:blur(0) contrast(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.resolve{animation:none}.gauge .needle{transition:none;transform:rotate(52deg)}}
+
+/* ---------- trust strip ---------- */
+.strip{border-bottom:1px solid var(--hair);background:var(--panel)}
+.strip .wrap{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-top:14px;padding-bottom:14px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.strip .dot{width:3px;height:3px;background:var(--steel);border-radius:50%}
+
+/* ---------- sections ---------- */
+section{padding:72px 0;border-bottom:1px solid var(--hair)}
+@media(min-width:1024px){section{padding:96px 0}}
+section.alt{background:var(--panel)}
+.h2{font-size:32px;line-height:1.12;letter-spacing:-.01em;margin-top:16px;max-width:22ch}
+@media(min-width:768px){.h2{font-size:42px}}
+.sub{margin-top:16px;max-width:60ch;color:var(--muted);font-size:15.5px}
+.sub a{border-bottom:1px solid var(--hair)}
+.sub a:hover{border-color:var(--ink)}
+
+/* comparison table */
+.compare{margin-top:40px;border:1px solid var(--hair);border-radius:12px;overflow:hidden;background:var(--card);overflow-x:auto}
+.compare table{width:100%;border-collapse:collapse;min-width:640px;font-size:14px}
+.compare th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--muted);text-align:left;padding:14px 18px;border-bottom:1px solid var(--hair);background:var(--panel)}
+.compare th.us{color:var(--ink)}
+.compare td{padding:16px 18px;border-bottom:1px solid var(--hair);vertical-align:top;line-height:1.5}
+.compare tr:last-child td{border-bottom:0}
+.compare td:first-child{color:var(--muted);font-size:13px;width:22%}
+.compare td.us{background:color-mix(in srgb,var(--sage) 35%,transparent);font-weight:500}
+.compare td.them{color:var(--muted)}
+.compare .note{display:block;margin-top:4px;font-size:12px;color:var(--muted);font-weight:400}
+
+/* offering grid */
+.grid3{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin-top:40px}
+@media(min-width:768px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.cell{background:var(--card);padding:26px 24px 28px;display:flex;flex-direction:column;gap:12px;min-height:220px}
+.cell h3{font-size:17px;font-weight:600;letter-spacing:-.005em}
+.cell p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.cell .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cell .out{margin-top:auto;padding-top:12px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--ink)}
+.cell .out span{color:var(--muted)}
+
+/* verticals */
+.verts{display:grid;gap:18px;margin-top:40px}
+@media(min-width:900px){.verts{grid-template-columns:repeat(3,1fr)}}
+.vert{border:1px solid var(--hair);border-radius:12px;background:var(--card);padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.vert.live{border-color:color-mix(in srgb,var(--ink) 40%,transparent)}
+.vert .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.vert h3{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:28px;letter-spacing:-.01em}
+.vert ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13.5px}
+.vert li{display:flex;gap:10px;align-items:flex-start;color:var(--ink)}
+.vert li::before{content:"";width:4px;height:4px;background:var(--steel);margin-top:9px;flex:none}
+.vert .lic{margin-top:auto;padding-top:12px;border-top:1px solid var(--hair);font-size:12px;color:var(--muted)}
+.vert .lic b{color:var(--ink);font-weight:600}
+
+/* ladder / loop */
+.ladder{display:grid;gap:28px;margin-top:40px;align-items:start}
+@media(min-width:1024px){.ladder{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px}}
+.steps{border-top:1px solid var(--hair)}
+.step{display:grid;grid-template-columns:44px 1fr auto;gap:14px;padding:18px 0;border-bottom:1px solid var(--hair);align-items:start}
+.step .i{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);padding-top:3px}
+.step h4{font-size:15.5px;font-weight:600}
+.step p{margin-top:4px;font-size:13.5px;color:var(--muted);max-width:52ch}
+.step .w{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-top:4px}
+.step .w.oxide{color:var(--oxide)}
+.step .w.sage{color:var(--sage-ink)}
+.frame{border:1px solid var(--hair);border-radius:12px;background:var(--card);box-shadow:var(--lift);overflow:hidden}
+.frame .chrome{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--hair);background:var(--panel)}
+.frame .chrome i{width:8px;height:8px;border-radius:50%;background:var(--hair);display:inline-block}
+.frame .chrome span{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.frame .body{padding:18px}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.doc{border:1px solid var(--hair);background:var(--paper);padding:12px;font-size:11.5px;line-height:1.5;min-height:150px}
+.doc .t{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.doc table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.doc td{padding:2px 0;border-bottom:1px dotted var(--hair)}
+.doc td.r{text-align:right}
+.doc .bad{color:var(--oxide)}
+.verdict{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+
+/* board preview */
+.board{margin-top:40px;display:grid;gap:28px;align-items:start}
+@media(min-width:1024px){.board{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px}}
+.rows{border-top:1px solid var(--hair)}
+.row{display:grid;grid-template-columns:28px 170px 1fr 64px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair);font-size:13px}
+@media(max-width:560px){.row{grid-template-columns:24px 120px 1fr 54px}}
+.row .rk{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+.row .nm{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row .nm .chip{padding:3px 6px;font-size:9px}
+.row .bw{height:10px;background:var(--steel);border-radius:1px}
+.row .bw.ox{background:var(--oxide)}
+.row .sc{text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.row.empty{color:var(--muted)}
+.row.empty .bw{background:transparent;border:1px dashed var(--hair);height:10px}
+.row.empty .nm{font-weight:400;font-style:italic}
+.stats{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden}
+@media(min-width:560px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{background:var(--card);padding:22px 20px}
+.stat .v{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:44px;line-height:1;letter-spacing:-.01em}
+.stat .c{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--muted);line-height:1.45}
+
+/* two audiences — the ink-wash pair */
+.pair{display:grid;gap:20px;margin-top:40px}
+@media(min-width:900px){.pair{grid-template-columns:1fr 1fr}}
+.wash{position:relative;border-radius:12px;overflow:hidden;background:var(--gun);color:var(--on-gun);padding:32px 30px 34px;min-height:420px;display:flex;flex-direction:column;box-shadow:var(--lift);border:1px solid color-mix(in srgb,var(--gun) 60%,var(--hair))}
+.wash::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 10% 0%,rgba(255,255,255,.07),transparent 55%),
+    radial-gradient(80% 60% at 100% 100%,rgba(255,255,255,.05),transparent 60%),
+    repeating-linear-gradient(115deg,rgba(255,255,255,.018) 0 2px,transparent 2px 7px);}
+.wash>*{position:relative}
+.wash .eyebrow{color:var(--gun-muted)}
+.wash h3{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:30px;line-height:1.15;margin-top:14px;max-width:18ch;letter-spacing:-.01em}
+.wash ul{margin:22px 0 0;padding:18px 0 0;border-top:1px solid var(--gun-hair);list-style:none;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--gun-muted)}
+.wash li{display:flex;gap:10px}
+.wash li::before{content:"";width:4px;height:4px;background:var(--gun-muted);margin-top:8px;flex:none;opacity:.7}
+.wash .act{margin-top:auto;padding-top:26px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.wash .note{margin-top:12px;font-size:11.5px;color:var(--gun-muted)}
+.wash .note a{border-bottom:1px solid var(--gun-hair)}
+
+/* research */
+.pubs{margin-top:36px;border-top:1px solid var(--hair)}
+.pub{display:grid;grid-template-columns:1fr;gap:6px 24px;padding:18px 0;border-bottom:1px solid var(--hair)}
+@media(min-width:768px){.pub{grid-template-columns:150px 1fr auto;align-items:baseline}}
+.pub .d{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pub .t{font-size:16px;font-weight:600}
+.pub .s{display:block;margin-top:3px;font-size:13px;color:var(--muted);font-weight:400;max-width:70ch}
+.pub .k{justify-self:end}
+
+/* founder / company */
+.company{display:grid;gap:32px;margin-top:40px}
+@media(min-width:900px){.company{grid-template-columns:minmax(0,1fr) 380px}}
+.company p+p{margin-top:14px}
+.company .prose{font-size:15px;color:var(--muted);max-width:60ch}
+.company .prose b{color:var(--ink);font-weight:600}
+.sig{margin-top:18px;font-family:"Newsreader",Georgia,serif;font-style:italic;font-size:19px}
+.sig span{display:block;font-family:"Schibsted Grotesk",sans-serif;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:4px}
+.stack{border:1px solid var(--hair);border-radius:12px;background:var(--card);overflow:hidden}
+.stack .it{padding:16px 18px;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start}
+.stack .it:last-child{border-bottom:0}
+.stack .it b{font-size:14px;font-weight:600}
+.stack .it p{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.stack .it a{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--hair);white-space:nowrap}
+.stack .it a:hover{color:var(--ink);border-color:var(--ink)}
+
+/* final cta */
+.final{background:var(--gun);color:var(--on-gun);border-bottom:0}
+.final .h2{color:var(--on-gun)}
+.final .sub{color:var(--gun-muted)}
+.final .ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.final .eyebrow{color:var(--gun-muted)}
+.final .eyebrow .n{color:var(--on-gun)}
+.final .eyebrow .rule{background:var(--gun-hair)}
+.final .mail{margin-top:22px;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em;color:var(--gun-muted)}
+.final .mail a{color:var(--on-gun);border-bottom:1px solid var(--gun-hair)}
+
+footer{background:var(--gun);color:var(--gun-muted);border-top:1px solid var(--gun-hair)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;padding-top:22px;padding-bottom:26px;font-size:12px}
+footer .l{display:flex;flex-wrap:wrap;gap:16px}
+footer a:hover{color:var(--on-gun)}
+footer .mono{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="dither" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Calibrated home">
+      <svg width="26" height="26" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="1.5" opacity=".9"/>
+        <g stroke="currentColor" stroke-width=".9" opacity=".5">
+          <line x1="24" y1="3" x2="24" y2="8"/><line x1="45" y1="24" x2="40" y2="24"/><line x1="24" y1="45" x2="24" y2="40"/><line x1="3" y1="24" x2="8" y2="24"/>
+          <line x1="38.8" y1="9.2" x2="35.3" y2="12.7"/><line x1="38.8" y1="38.8" x2="35.3" y2="35.3"/><line x1="9.2" y1="38.8" x2="12.7" y2="35.3"/><line x1="9.2" y1="9.2" x2="12.7" y2="12.7"/>
+        </g>
+        <line x1="24" y1="24" x2="27.3" y2="10.9" stroke="#b8451f" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="2.4" fill="currentColor"/>
+      </svg>
+      Calibrated <span class="co">Co.</span>
+    </a>
+    <nav class="navlinks" aria-label="Primary">
+      <a href="#difference">Why an arena</a>
+      <a href="#data">Data</a>
+      <a href="#verticals">Verticals</a>
+      <a href="#panel">Panel</a>
+      <a href="#boards">Boards</a>
+      <a href="#research">Research</a>
+      <a href="#company">Company</a>
+    </nav>
+    <div class="navcta">
+      <button class="theme" id="themeToggle" type="button" aria-label="Toggle light or dark theme" title="Theme">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <a class="btn ghost" href="#panel">Join the panel</a>
+      <a class="btn primary" href="#contact">Get data</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow"><span class="n">Expert data</span><span class="rule"></span><span>Accounting · Law · Medicine</span></p>
+      <h1 class="serif resolve">Accounting AI, <em>scored by accountants.</em></h1>
+      <p class="lede">APEX-Accounting, Realm, FinanceQA, TaxCalcBench: the benchmarks exist. Knowing how to use them is the work. Calibrated runs a live arena of licensed CPAs who measure models against the public accounting benchmarks and against real close-and-reconciliation work, tell you which criteria you lose and why, and produce the tasks and grading that move the score. Accounting first. Law and medicine next.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#contact">Get data
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn ghost" href="#boards">See the boards</a>
+        <a class="btn ghost" href="#panel">Join the panel</a>
+      </div>
+      <p class="fine">Every judge is license-verified and scored against hidden known answers each week, so a grade from this panel can be audited. <a href="#difference">How it works</a></p>
+    </div>
+
+    <div class="instrument resolve" aria-label="Benchmark diagnostic: criteria passed by an evaluated model and where it loses points">
+      <span class="chip frame-label"><b>[</b>Diagnostic · Close · 50 tasks<b>]</b></span>
+      <span class="chip oxide frame-label2"><b>[</b>Model hidden<b>]</b></span>
+      <div class="inst-top">
+        <svg class="gauge" id="gauge" viewBox="0 0 120 120" role="img" aria-label="Gauge showing criteria passed by the evaluated model at 61 percent">
+          <circle class="ring" cx="60" cy="60" r="52" fill="none" stroke-width="1.5"/>
+          <path class="arc" d="M 22 88 A 46 46 0 1 1 98 88" stroke-width="6" stroke-linecap="butt"/>
+          <g id="ticks"></g>
+          <line class="needle" x1="60" y1="60" x2="60" y2="16" stroke-width="2.4" stroke-linecap="round"/>
+          <circle class="hub" cx="60" cy="60" r="3.2"/>
+        </svg>
+        <div class="readout">
+          <p class="big serif num" id="bigread">61.3<span style="font-size:.5em;vertical-align:.45em;margin-left:2px">%</span></p>
+          <p class="cap">Criteria passed on a private held-out set, graded by license-verified CPAs.</p>
+          <p class="tag"><span class="chip sage"><b>[</b>1,100 criteria · 2 graders each<b>]</b></span></p>
+        </div>
+      </div>
+      <div class="ledger">
+        <table>
+          <thead><tr><th>Criterion</th><th>Verdict</th><th>Pass rate</th><th class="r">Fix first</th></tr></thead>
+          <tbody>
+            <tr><td class="who">Bank rec · cutoff<span class="role">Timing of in-transit items</span></td><td><span class="chip sage"><b>[</b>Passes<b>]</b></span></td><td class="num"><span class="bar top" style="width:78px"></span>92%</td><td class="r num">—</td></tr>
+            <tr><td class="who">Accrual reversal<span class="role">Prior-period entries not reversed</span></td><td><span class="chip"><b>[</b>Loses<b>]</b></span></td><td class="num"><span class="bar low" style="width:56px"></span>58%</td><td class="r num">#2</td></tr>
+            <tr><td class="who">Intercompany elimination<span class="role">Policy misread, not arithmetic</span></td><td><span class="chip oxide"><b>[</b>Fails<b>]</b></span></td><td class="num"><span class="bar low" style="width:30px"></span>31%</td><td class="r num">#1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="inst-foot"><span>Illustrative diagnostic · real results publish with the first pilot</span><span>Re-run per model release</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<div class="strip" role="note" aria-label="How the panel is kept honest">
+  <div class="wrap">
+    <span>Public benchmarks, graded by licensed CPAs</span><i class="dot"></i>
+    <span>Licenses verified · CPAVerify · State bar · NPI</span><i class="dot"></i>
+    <span>Synthetic matters · zero client data</span><i class="dot"></i>
+    <span>Criteria-level results, not one score</span><i class="dot"></i>
+    <span>Every judge scored weekly</span>
+  </div>
+</div>
+
+<!-- ============ THE DIFFERENCE ============ -->
+<section id="difference">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">The problem</span><span class="rule"></span><span>Why an arena, not a leaderboard</span></p>
+    <h2 class="h2 serif">A benchmark score says how far. It doesn&rsquo;t say where, or why.</h2>
+    <p class="sub">Labs and vertical vendors now buy work product, not trivia: reconcile the accounts, draft the redline, code the encounter. The public benchmarks show how far models still have to go; the best of them clear only about half the criteria on expert-authored accounting tasks. But one number can&rsquo;t tell a team which criteria they lose, whether a miss is a cutoff error or a policy misread, or what data would fix it. Our answer is an arena: licensed CPAs grading live model output against the public benchmarks and against closed-universe close work, criterion by criterion, by judges whose own accuracy is measured.</p>
+
+    <div class="compare">
+      <table>
+        <thead>
+          <tr><th scope="col">Dimension</th><th scope="col">Typical expert-data vendor</th><th scope="col" class="us">Calibrated</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>What you get back</td><td class="them">A leaderboard position and a spreadsheet of scores.</td><td class="us">A criteria-level failure taxonomy, a private held-out set built the same way as the public benchmark, and the tasks and grading that move the score.</td></tr>
+          <tr><td>Who gets in</td><td class="them">Résumé screen, an AI or human interview, a sample task. Once.</td><td class="us">License verified against the registry, then a blind judging session with hidden known-answer checks before anything counts.</td></tr>
+          <tr><td>Quality signal</td><td class="them">Spot QA and inter-annotator agreement, kept internal.</td><td class="us">Per-rater calibration score, peer consensus, and percentile, re-scored every week and delivered with the data.<span class="note">A rating from a 96% judge and a rating from a 71% judge are not the same row.</span></td></tr>
+          <tr><td>Breadth vs. depth</td><td class="them">100+ domains, thousands of practitioners, thin per profession.</td><td class="us">Three licensed professions, deep. The task library is the work itself: journal entries, reconciliations, redlines, chart notes.</td></tr>
+          <tr><td>Source documents</td><td class="them">Client data under NDA, or lightly anonymized real matters.</td><td class="us">Closed-universe synthetic matters with planted issues. Every criterion is fact-anchored, and nothing confidential is ever uploaded.</td></tr>
+          <tr><td>Security &amp; provenance</td><td class="them">Six-figure contractor pools, screen-monitoring tools, identity documents stored at scale.</td><td class="us">Registry-verified, US-licensed reviewers. Synthetic documents only, so there is no client data to breach. The only PII we hold is what a license lookup needs.</td></tr>
+          <tr><td>Public signal</td><td class="them">Private deliverables. The buyer takes the vendor&rsquo;s word for it.</td><td class="us">The same panel keeps public boards where foundation models and vertical products compete blind, so the judges have a track record you can read.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATA / OFFERINGS ============ -->
+<section id="data" class="alt">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">What we deliver</span><span class="rule"></span><span>For labs, data vendors, and vertical AI companies</span></p>
+    <h2 class="h2 serif">We turn a measured panel into training and evaluation data.</h2>
+    <p class="sub">Each engagement is scoped as a deliverable, not hours. Rater calibration metadata is included in every export.</p>
+
+    <div class="grid3">
+      <div class="cell">
+        <span class="k">Grading &amp; preference</span>
+        <h3>Calibrated grading panels</h3>
+        <p>Pairwise preference and rubric grading on model outputs, judged blind by verified practitioners. Every judgment carries the rater&rsquo;s calibration score, trap pass rate, and consensus weight.</p>
+        <p class="out"><span>Output ·</span> weighted preference pairs, per-criterion pass/fail, rater metadata</p>
+      </div>
+      <div class="cell">
+        <span class="k">Evals</span>
+        <h3>Gold-standard eval sets</h3>
+        <p>Closed-universe synthetic matters with planted issues and all-pass rubrics of twenty or more fact-anchored criteria, authored by lead reviewers and graduated through an LLM judge before release.</p>
+        <p class="out"><span>Output ·</span> task directories, documents, rubrics, held-out answer keys</p>
+      </div>
+      <div class="cell">
+        <span class="k">Rubrics &amp; verifiers</span>
+        <h3>Rubric and trap authoring</h3>
+        <p>Lead reviewers write the criteria a seasoned professional would actually check, plus known-answer traps that keep any grading panel, ours or yours, honest over time.</p>
+        <p class="out"><span>Output ·</span> criteria sets, verifier specs, gold items with provenance</p>
+      </div>
+      <div class="cell">
+        <span class="k">SFT &amp; trajectories</span>
+        <h3>Long-horizon work product</h3>
+        <p>Expert-completed deliverables from a terse brief: the close package, the reconciliation workbook, the marked-up agreement. Demonstrations with reasoning traces, not question-and-answer pairs.</p>
+        <p class="out"><span>Output ·</span> demonstrations, traces, deliverable files, expert rationale</p>
+      </div>
+      <div class="cell">
+        <span class="k">Vertical vendors</span>
+        <h3>Certified evaluation</h3>
+        <p>Your product, graded blind by the same panel that grades the frontier models, on a task set your buyers recognize. Private first. Publishing to the public board is your call.</p>
+        <p class="out"><span>Output ·</span> certified report, board listing, quarterly re-run</p>
+      </div>
+      <div class="cell">
+        <span class="k">Channel</span>
+        <h3>Panel capacity for data vendors</h3>
+        <p>Already sourcing CPAs, attorneys, or clinicians for a lab program? Subcontract calibrated capacity with the quality telemetry attached, so your delivery reports carry evidence instead of assurances.</p>
+        <p class="out"><span>Output ·</span> contracted reviewer hours, calibration reports per batch</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VERTICALS ============ -->
+<section id="verticals">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Verticals</span><span class="rule"></span><span>Licensed professions where the work has a right answer</span></p>
+    <h2 class="h2 serif">Three professions. A written standard, a license, and a body qualified to say what&rsquo;s wrong.</h2>
+    <p class="sub">We chose the verticals by an accountability filter: expert-only judgment, high stakes, and a registry we can verify against. Accounting is live. Law and medicine follow the same playbook.</p>
+
+    <div class="verts">
+      <article class="vert live">
+        <div class="head"><h3>Accounting</h3><span class="chip sage"><b>[</b>Live · Season 1<b>]</b></span></div>
+        <ul>
+          <li>Journal entries and accruals</li>
+          <li>Reconciliations and flux analysis</li>
+          <li>Revenue recognition memos (ASC 606)</li>
+          <li>Chart-of-accounts mapping for ERP migrations</li>
+          <li>Tax return preparation review (fast follow)</li>
+        </ul>
+        <p class="lic">License check <b>CPAVerify (NASBA)</b> · Panel weight 1.5× on verification</p>
+      </article>
+      <article class="vert">
+        <div class="head"><h3>Law</h3><span class="chip"><b>[</b>Next<b>]</b></span></div>
+        <ul>
+          <li>Contract redlines and clause-risk review</li>
+          <li>Due-diligence memos from a closed data room</li>
+          <li>Research memos with citation checks</li>
+          <li>Practice-area taxonomy aligned to public legal benchmarks</li>
+        </ul>
+        <p class="lic">License check <b>State bar registries</b> · Task library scaffolded in Corsac</p>
+      </article>
+      <article class="vert">
+        <div class="head"><h3>Medicine</h3><span class="chip"><b>[</b>Roadmap<b>]</b></span></div>
+        <ul>
+          <li>Clinical documentation and chart notes</li>
+          <li>ICD-10 / CPT coding accuracy</li>
+          <li>Pathology and radiology report reasoning</li>
+          <li>Escalation and scope-of-practice judgment</li>
+        </ul>
+        <p class="lic">License check <b>NPI registry + state boards</b> · Strongest certification culture of the three</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANEL / THE LOOP ============ -->
+<section id="panel" class="alt">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">The calibration loop</span><span class="rule"></span><span>How a practitioner becomes a paid panelist</span></p>
+    <h2 class="h2 serif">Get ranked. Get calibrated. Get paid.</h2>
+    <p class="sub">Practitioners never pay. Free blind judging on Calibration Arena keeps the public boards honest and earns a portable credential. Paid work is private and goes to the reviewers whose measured accuracy clears the floor.</p>
+
+    <div class="ladder">
+      <div class="steps" role="list">
+        <div class="step" role="listitem"><span class="i">01</span><div><h4>Verify the license</h4><p>Work email for a verified seat. CPA, bar, or NPI lookup for full weight on the boards and eligibility for paid work.</p></div><span class="w">Weight 1.5×</span></div>
+        <div class="step" role="listitem"><span class="i">02</span><div><h4>Judge five drafts, blind</h4><p>A synthetic matter with planted issues. Five model drafts, authors hidden and shuffled. About five minutes of real professional judgment.</p></div><span class="w">Free</span></div>
+        <div class="step" role="listitem"><span class="i">03</span><div><h4>The hidden calibration check</h4><p>One comparison in every session is against a deliberately broken work product. It scores you, not the model. Votes decided faster than a human can read are recorded but never counted.</p></div><span class="w oxide">Trap</span></div>
+        <div class="step" role="listitem"><span class="i">04</span><div><h4>Earn the credential</h4><p>Calibration score, consensus agreement with verified peers, percentile, and a badge you can carry. Ten minutes a week maintains it.</p></div><span class="w sage">≥ 80% to clear</span></div>
+        <div class="step" role="listitem"><span class="i">05</span><div><h4>Join the paid pool</h4><p>Contracted eval, grading, and authoring work for labs and vendors. Rates set per profession, paid weekly. Lead reviewers author rubrics and traps at a higher rate.</p></div><span class="w">Paid</span></div>
+      </div>
+
+      <div class="frame" aria-label="Product preview: a blind comparison with a hidden calibration check">
+        <div class="chrome"><i></i><i></i><i></i><span>Calibration Arena · Journal entries · Match 3 of 5</span></div>
+        <div class="body">
+          <div class="docs">
+            <div class="doc">
+              <div class="t"><span>Draft A</span><span class="hidden-id" aria-label="author hidden"></span></div>
+              <table>
+                <tr><td>Dr Prepaid insurance</td><td class="r">18,000</td></tr>
+                <tr><td>&nbsp;&nbsp;Cr Cash</td><td class="r">18,000</td></tr>
+                <tr><td>Dr Insurance expense</td><td class="r">1,500</td></tr>
+                <tr><td>&nbsp;&nbsp;Cr Prepaid insurance</td><td class="r">1,500</td></tr>
+              </table>
+              <p style="margin-top:8px;color:var(--muted)">Monthly amortization, 12-month policy from Jul 1.</p>
+            </div>
+            <div class="doc">
+              <div class="t"><span>Draft B</span><span class="hidden-id" aria-label="author hidden"></span></div>
+              <table>
+                <tr><td>Dr Insurance expense</td><td class="r">18,000</td></tr>
+                <tr><td>&nbsp;&nbsp;Cr Cash</td><td class="r">18,000</td></tr>
+                <tr><td class="bad">Dr Prepaid insurance</td><td class="r bad">1,500</td></tr>
+                <tr><td class="bad">&nbsp;&nbsp;Cr Cash</td><td class="r bad">1,200</td></tr>
+              </table>
+              <p style="margin-top:8px;color:var(--oxide)">Entry does not balance. Full premium expensed in period.</p>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="chip oxide"><b>[</b>Calibration check<b>]</b></span>
+            <span>One draft is objectively broken. Picking it costs the reviewer, not the model.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOARDS ============ -->
+<section id="boards">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Public signal</span><span class="rule"></span><span>Calibration Arena</span></p>
+    <h2 class="h2 serif">Foundation models and vertical products, same blind panel.</h2>
+    <p class="sub">The public boards are the proof of the panel. Credential-weighted votes feed a Bradley&ndash;Terry fit with bootstrap confidence intervals. Products compete inside their vertical, carry provenance, and vendors who decline an invitation hold an empty chair. Published boards use verified votes only.</p>
+
+    <div class="board">
+      <div>
+        <div class="rows" aria-label="Board preview, reconciliation">
+          <div class="row"><span class="rk">01</span><span class="nm">Claude Opus 4.8</span><span class="bw" style="width:92%"></span><span class="sc num">1404</span></div>
+          <div class="row"><span class="rk">02</span><span class="nm">GPT-5.5</span><span class="bw" style="width:84%"></span><span class="sc num">1352</span></div>
+          <div class="row"><span class="rk">03</span><span class="nm">Gemini 3 Pro</span><span class="bw" style="width:78%"></span><span class="sc num">1318</span></div>
+          <div class="row"><span class="rk">04</span><span class="nm">Vendor product <span class="chip oxide"><b>[</b>Product<b>]</b></span></span><span class="bw ox" style="width:70%"></span><span class="sc num">1274</span></div>
+          <div class="row"><span class="rk">05</span><span class="nm">Llama 4.2 405B</span><span class="bw" style="width:58%"></span><span class="sc num">1206</span></div>
+          <div class="row empty"><span class="rk">—</span><span class="nm">Invited · declined to participate</span><span class="bw"></span><span class="sc">&nbsp;</span></div>
+        </div>
+        <p class="muted" style="margin-top:12px;font-size:12px">Preview of the reconciliation board with a vendor product row. Season 1 boards publish once the verified panel clears the floor; until then the arena runs on seeded and guest votes that carry no board weight.</p>
+      </div>
+      <div>
+        <div class="stats">
+          <div class="stat"><p class="v serif num">5</p><p class="c">Blind comparisons per session, one of them a hidden known-answer check</p></div>
+          <div class="stat"><p class="v serif num">80%</p><p class="c">Trap accuracy floor to enter the paid pool, with a consensus floor beside it</p></div>
+          <div class="stat"><p class="v serif num">1.5×</p><p class="c">Vote weight for a registry-verified license; named lead reviewers carry 2×</p></div>
+        </div>
+        <p class="muted" style="margin-top:14px;font-size:13px">The boards are not the business. They are how the panel earns a track record in public, so that the private data we sell has a reference you did not have to take on faith.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TWO AUDIENCES ============ -->
+<section id="audiences" class="alt">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Two sides</span><span class="rule"></span><span>One measured panel</span></p>
+    <h2 class="h2 serif">Buyers get evidence. Practitioners get a record.</h2>
+
+    <div class="pair">
+      <article class="wash">
+        <p class="eyebrow">For labs, data vendors &amp; vertical AI</p>
+        <h3>Your evaluators have a track record. Ours is public.</h3>
+        <ul>
+          <li>Scoped deliverables: grading batches, eval sets, rubrics, long-horizon demonstrations.</li>
+          <li>Calibration metadata on every row, so you can re-weight or exclude raters yourself.</li>
+          <li>Synthetic source documents. No client data, no residency problem, no NDA with a firm.</li>
+          <li>Pilot in weeks, not quarters. Founding design partners set the first task library.</li>
+        </ul>
+        <div class="act">
+          <a class="btn onlight" href="#contact">Get data</a>
+          <a class="btn light" href="#data">See deliverables</a>
+        </div>
+        <p class="note">Already run a lab program? Ask about calibrated panel capacity as a subcontract.</p>
+      </article>
+      <article class="wash">
+        <p class="eyebrow">For CPAs, attorneys &amp; clinicians</p>
+        <h3>Get ranked. Get calibrated. Get paid.</h3>
+        <ul>
+          <li>A portable credential earned on measurement, not on a résumé.</li>
+          <li>Paid panel work for the reviewers who clear the calibration floor, paid weekly.</li>
+          <li>See which tools actually hold up against the work you do every day.</li>
+          <li>Ten minutes a week keeps your record current. Every document is synthetic.</li>
+        </ul>
+        <div class="act">
+          <a class="btn onlight" href="https://calibration-arena.vercel.app" rel="noopener">Judge a session</a>
+          <a class="btn light" href="#panel">How the loop works</a>
+        </div>
+        <p class="note">Verification via <a href="https://cpaverify.org" rel="noopener">CPAVerify</a> for accounting. Bar and NPI lookups follow with each vertical.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESEARCH ============ -->
+<section id="research">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Research &amp; reports</span><span class="rule"></span><span>What we publish, and what we build on</span></p>
+    <h2 class="h2 serif">Measurement is only useful if you show your work.</h2>
+    <p class="sub">Our own notes, and the public benchmarks that set the bar we grade against. Where a benchmark already exists, we adopt its structure rather than compete with its corpus.</p>
+
+    <div class="pubs">
+      <div class="pub"><span class="d">Calibrated · in progress</span><span class="t">State of Finance AI, Issue 1<span class="s">Board movement across foundation-model releases, with rater calibration reported alongside every ranking. Generated from captured release events on Calibration Arena.</span></span><span class="k chip"><b>[</b>Report<b>]</b></span></div>
+      <div class="pub"><span class="d">Calibrated · methodology</span><span class="t">Measuring the judges: traps, consensus, and credential weighting<span class="s">How hidden known-answer items, peer agreement on identical pairs, and registry verification combine into a per-rater weight in a Bradley&ndash;Terry fit.</span></span><span class="k chip"><b>[</b>Note<b>]</b></span></div>
+      <div class="pub"><span class="d">Corsac · library</span><span class="t">870 eval packs, 15,600 graded cases<span class="s">The eval library and generation pipeline Calibrated&rsquo;s task sets are produced with: closed-universe documents, all-pass rubrics, vaulted answer keys.</span></span><span class="k chip"><b>[</b>Pipeline<b>]</b></span></div>
+      <div class="pub"><span class="d">Reading we build on</span><span class="t">APEX-Accounting · Realm Tax &amp; Financial · FinanceQA · GDPval · LAB · Vals Finance Agent<span class="s">Public work from Mercor, micro1, AfterQuery, OpenAI, Harvey, and Vals that defines what a professional-work eval looks like. We run the public ones through our panel, build private held-out sets the same way, and report results criterion by criterion. That readout is our product.</span></span><span class="k chip"><b>[</b>Context<b>]</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPANY ============ -->
+<section id="company" class="alt">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Company</span><span class="rule"></span><span>Calibrated Co.</span></p>
+    <h2 class="h2 serif">A watchmaker never trusted a movement because it looked right.</h2>
+    <div class="company">
+      <div>
+        <div class="prose">
+          <p>He put it on a timing rig, measured the error against a known reference, and adjusted until the instrument agreed. That is the whole idea here. The AI industry has built a large workforce of experts to teach and grade models, and almost none of it is on a timing rig.</p>
+          <p>Calibrated builds the rig. <b>Calibration Arena</b> is the public face: practitioners blind-judge AI work product, hidden checks score the judges, and the boards show who holds up. <b>Corsac</b> is the eval engine underneath: a graded library and a pipeline that produces closed-universe tasks with fact-anchored rubrics on demand. The panel that comes out of the arena, with its measured record, is what we sell to labs and vertical vendors.</p>
+          <p>We are starting in accounting because the ledger is the oldest instrument we have for measuring work, and because you cannot hand-wave a debit. Founding design partners are being selected now.</p>
+        </div>
+        <p class="sig">David Murguia<span>Founder, Calibrated Co.</span></p>
+      </div>
+      <div class="stack" aria-label="What we build">
+        <div class="it"><b>Calibration Arena</b><a href="https://calibration-arena.vercel.app" rel="noopener">Open</a><p>Blind judging, calibration checks, credential-weighted public boards. Accounting first.</p></div>
+        <div class="it"><b>Corsac</b><a href="https://corsac.ai" rel="noopener">Open</a><p>Eval control plane: graded library, generation pipeline, vaulted answer keys, expert review routing.</p></div>
+        <div class="it"><b>Calibrated panel</b><a href="#contact">Get data</a><p>Licensed practitioners with a measured record, delivered as grading, evals, rubrics, and demonstrations.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section id="contact" class="final">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">Get data</span><span class="rule"></span><span>Founding design partners · Season 1</span></p>
+    <h2 class="h2 serif">Tell us the work. We&rsquo;ll bring the panel, the documents, and the error bars.</h2>
+    <p class="sub">Two founding seats per vertical. A pilot is one task family, one grading batch, and a calibration report on the reviewers who touched it. If the numbers don&rsquo;t hold up, you keep the report and owe nothing further.</p>
+    <div class="ctas">
+      <a class="btn onlight" id="mailBtn" href="mailto:hello@calibrated.co?subject=Calibrated%20%C2%B7%20Get%20data">Get data
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn light" href="https://calibration-arena.vercel.app" rel="noopener">Judge a session</a>
+    </div>
+    <p class="mail">or write to <a id="mailText" href="mailto:hello@calibrated.co">hello@calibrated.co</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="l">
+      <span class="mono">Calibrated Co. · Calibration Arena · Corsac</span>
+    </div>
+    <div class="l">
+      <a href="#difference">Why an arena</a><a href="#data">Data</a><a href="#panel">Panel</a><a href="#boards">Boards</a><a href="#research">Research</a><a href="#company">Company</a>
+    </div>
+    <span class="mono">© 2026 Calibrated Co.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Contact address: swap once the domain and inbox exist.
+  var CONTACT = 'hello@calibrated.co';
+  var mb = document.getElementById('mailBtn'), mt = document.getElementById('mailText');
+  if (mb) mb.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('Calibrated · Get data');
+  if (mt) { mt.href = 'mailto:' + CONTACT; mt.textContent = CONTACT; }
+
+  // Gauge ticks (drawn, not hand-authored)
+  var g = document.getElementById('ticks');
+  if (g) {
+    var NS = 'http://www.w3.org/2000/svg';
+    for (var i = 0; i < 40; i++) {
+      var major = i % 5 === 0;
+      var a = (-135 + i * (270 / 39)) * Math.PI / 180;
+      var ro = 52, ri = major ? 44 : 47.5;
+      var l = document.createElementNS(NS, 'line');
+      l.setAttribute('x1', 60 + Math.sin(a) * ri); l.setAttribute('y1', 60 - Math.cos(a) * ri);
+      l.setAttribute('x2', 60 + Math.sin(a) * ro); l.setAttribute('y2', 60 - Math.cos(a) * ro);
+      l.setAttribute('class', 'tick' + (major ? ' major' : ''));
+      l.setAttribute('stroke-width', major ? 1.4 : 0.8);
+      g.appendChild(l);
+    }
+  }
+  // Needle settles on load
+  var gauge = document.getElementById('gauge');
+  if (gauge) requestAnimationFrame(function(){ setTimeout(function(){ gauge.classList.add('settled'); }, 120); });
+
+  // Theme toggle: explicit choice stamps data-theme; otherwise system decides.
+  var root = document.documentElement, btn = document.getElementById('themeToggle');
+  try { var saved = localStorage.getItem('calibrated-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch(e){}
+  if (btn) btn.addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = cur ? cur === 'dark' : sysDark;
+    var next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('calibrated-theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

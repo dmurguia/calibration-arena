@@ -73,7 +73,7 @@ export default function Pilot() {
       <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
-        <NavLink to="/cases"><Folder size={16} />My projects</NavLink>
+        <NavLink to="/projects"><Folder size={16} />My projects</NavLink>
         <NavLink to="/record"><BookOpen size={16} />Notebook</NavLink>
         <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
       </nav>
@@ -88,7 +88,7 @@ export default function Pilot() {
     <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}</div>
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
-      <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
+      <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/projects" element={<MyProjects />} /><Route path="/method" element={<Method />} />
       {clerkEnabled ? <>
         <Route path="/signin/*" element={<OpenAuth mode="signin" open={openSignIn} />} />
         <Route path="/signup/*" element={<OpenAuth mode="signup" open={openSignIn} />} />
@@ -544,6 +544,16 @@ function Session() {
 function RetryComposer({ run }: { run: Run }) {
   const navigate = useNavigate(); const [question, setQuestion] = useState(run.brief); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
+}
+
+// Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
+function MyProjects() {
+  const { me } = usePilot()
+  const runs = me?.runs.filter(r => r.kind === 'ask') ?? []
+  return <div className="p-projects"><h1>My projects</h1>
+    {runs.length ? <div className="p-projects-list">{runs.map(r => <Link key={r.id} className="p-notebook-row" to={`/session/${r.id}`}><span><span className="p-meta">{date(r.created_at)}</span><h3>{r.title}</h3><p>{r.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link>)}</div>
+      : <p className="p-projects-empty">No projects yet</p>}
+  </div>
 }
 
 function Notebook() {

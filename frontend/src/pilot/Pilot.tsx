@@ -33,9 +33,10 @@ function Eyebrow({ children }: { children: ReactNode }) { return <p className="p
 // The sidebar shows only the C mark; the mobile header keeps the wordmark since there is no other title there.
 function ArenaBrand({ markOnly = false, inline = false }: { markOnly?: boolean; inline?: boolean }) {
   if (markOnly) return <Link className="p-brand p-brand-mark" to="/" aria-label="Calibration Arena by Calibrated Co. home"><CalibratedMark size={30} /></Link>
+  // The inline wordmark sits beside the sidebar's mark, so it does not repeat the C.
   return <Link className={`p-brand ${inline ? 'p-brand-inline' : ''}`} to="/" aria-label="Calibration Arena by Calibrated Co. home">
     <span className="p-brand-name">Calibration Arena</span>
-    <span className="p-brand-attribution"><span>by</span><CalibratedMark size={24} /><span>Calibrated Co.</span></span>
+    <span className="p-brand-attribution"><span>by</span>{!inline && <CalibratedMark size={24} />}<span>Calibrated Co.</span></span>
   </Link>
 }
 function ErrorNote({ message }: { message: string }) { return message ? <p className="p-error" role="alert">{message}</p> : null }
@@ -84,7 +85,7 @@ export default function Pilot() {
       <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside>
     <div className="p-main-column">
-    {ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}
+    <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}</div>
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
@@ -105,7 +106,7 @@ export default function Pilot() {
 
 // No "Sign in" while Clerk already has a session; the bridge is exchanging it (or reporting why it could not).
 function TopbarSignIn({ onClick }: { onClick: () => void }) {
-  const button = <div className="p-topbar"><button className="p-signin-button" onClick={onClick}>Sign in</button></div>
+  const button = <button className="p-signin-button" onClick={onClick}>Sign in</button>
   if (!clerkEnabled) return button
   return <ClerkTopbarSignIn>{button}</ClerkTopbarSignIn>
 }
@@ -397,7 +398,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub"><ArenaBrand inline /></p></>}
+    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. — for finance professionals</p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Finance question</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />

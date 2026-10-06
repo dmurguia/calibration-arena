@@ -230,12 +230,13 @@
 .p-new-project-blank:hover{color:var(--cal-ink)}
 @media (max-width:760px){.p-new-project-panel{position:static;width:auto;margin:6px 0 8px;box-shadow:none}}
 
-/* Small inline wordmark under the "What are you working on?" heading. */
-.p-prompt-sub{display:flex;justify-content:center;max-width:none}
-.p-brand-inline{flex-direction:row;align-items:baseline;gap:6px;color:var(--cal-text-secondary)}
-.p-brand-inline .p-brand-name{font-size:14px;line-height:1.2;color:var(--cal-ink)}
-.p-brand-inline .p-brand-attribution{font-size:11px;gap:4px}
-.p-brand-inline .p-brand-attribution svg{width:13px;height:13px;align-self:center}
+/* Top bar: wordmark top-left beside the sidebar's centered mark, sign-in on the right. */
+.p-topbar{justify-content:space-between;align-items:center;padding:28px 32px 0;min-height:40px}
+.p-brand-inline{flex-direction:row;align-items:baseline;gap:8px}
+.p-brand-inline .p-brand-name{font-size:22px;line-height:1}
+.p-brand-inline .p-brand-attribution{font-size:12px;gap:5px}
+@media(max-width:760px){.p-topbar{display:none}}
+.p-sidebar>.p-brand-mark{align-self:center;margin:0}
 /* Account button sits above the "Built by" line at the foot of the sidebar. */
 .p-sidebar-account{margin-top:auto}
 .p-sidebar-account .p-account{margin-top:0}

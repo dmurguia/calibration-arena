@@ -176,7 +176,8 @@
 .cl-formButtonPrimary.cl-formButtonPrimary:hover{background-color:var(--cal-leather)}
 .cl-socialButtonsIconButton.cl-socialButtonsIconButton,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton,.cl-formFieldInput.cl-formFieldInput{border-radius:var(--cal-radius);box-shadow:none;border:1px solid var(--cal-rule-strong)}
 .cl-socialButtonsIconButton.cl-socialButtonsIconButton:hover,.cl-socialButtonsBlockButton.cl-socialButtonsBlockButton:hover{background-color:var(--cal-hover-wash)}
-.cl-formFieldInput.cl-formFieldInput:focus{outline:var(--cal-focus-ring);outline-offset:2px}
+/* A darker border plus a soft halo marks the active field without the heavy page focus ring. */
+.cl-formFieldInput.cl-formFieldInput:focus,.cl-formFieldInput.cl-formFieldInput:focus-visible{outline:none;border-color:var(--cal-ink);box-shadow:0 0 0 3px var(--cal-rule-faint)!important}
 
 /* Keep Sign in above the viewport-wide lens; the dialog opens from it or from sending a question. */
 .p-topbar{position:relative;z-index:1;display:flex;justify-content:flex-end;padding:20px 32px 0}

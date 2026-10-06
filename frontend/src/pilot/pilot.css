@@ -199,4 +199,9 @@
 /* Clerk's card is 2px wider than the popup, offset by a -1px margin, and rounds its corners; with no padding each clips the edge buttons and inputs. */
 .p-signin-clerk .cl-card{padding:0;background:transparent;width:100%;max-width:none;box-sizing:border-box;border-radius:0;overflow:visible;margin:0!important}
 .p-signin-legacy .p-card{margin:0}
+.p-signin-clerk .cl-dividerLine{background-color:var(--cal-rule)}
+.p-signin-clerk .cl-dividerText{color:var(--cal-text-secondary)}
+/* Shade fields against the white popup so they read as fillable; lift to white on focus. */
+.p-signin-clerk .cl-formFieldInput.cl-formFieldInput{background-color:var(--cal-paper)}
+.p-signin-clerk .cl-formFieldInput.cl-formFieldInput:focus{background-color:var(--cal-white)}
 @media(max-width:760px){.p-topbar{display:none}.p-signin-dialog{padding:24px}.p-arena-page{min-height:calc(100dvh - 160px)}}

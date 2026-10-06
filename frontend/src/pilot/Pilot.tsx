@@ -121,8 +121,8 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
     onMode(mode === 'signin' ? 'signup' : 'signin')
   }
   return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn) sessionStorage.removeItem(pendingKey); onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
-    <div className="p-signin-head"><Eyebrow>Your Calibrated account</Eyebrow><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
-    <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in.'}</h2>
+    <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
+    <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign In'}</h2>
     <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
     {reason && (clerkEnabled
       ? <div className="p-signin-clerk" onClickCapture={switchMode}>{mode === 'signin'

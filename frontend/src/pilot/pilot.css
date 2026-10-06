@@ -189,11 +189,10 @@
 .p-signin-dialog{margin:auto;width:min(440px,calc(100vw - 32px));max-height:90dvh;overflow:auto;padding:32px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg);background:var(--cal-white);color:var(--cal-ink);box-shadow:none}
 .p-signin-dialog::backdrop{background:#46464366}
 .p-signin-dialog[open]{animation:arena-reveal .25s ease-out}
-.p-signin-head{display:flex;justify-content:space-between;align-items:center;gap:14px}
-.p-signin-head .p-eyebrow{margin:0}
+.p-signin-head{display:flex;justify-content:flex-end;align-items:center;gap:14px}
 .p-signin-close{border-radius:var(--cal-radius-sm);width:44px;height:44px;display:grid;place-items:center;margin-right:-12px;color:var(--cal-graphite);background:transparent;border:0}
 .p-signin-close:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
-.pilot .p-signin-dialog h2,.p-signin-dialog h2{font:400 30px/1.2 var(--cal-font-display);letter-spacing:var(--cal-tracking-heading);margin:6px 0 10px}
+.pilot .p-signin-dialog h2,.p-signin-dialog h2{font:400 30px/1.2 var(--cal-font-display);letter-spacing:var(--cal-tracking-heading);margin:6px 0 10px;text-align:center}
 .p-signin-note{font-size:var(--cal-text-note);line-height:1.5;color:var(--cal-text-secondary);margin:0 0 20px}
 .p-signin-clerk .cl-rootBox,.p-signin-clerk .cl-cardBox{width:100%;max-width:none}
 .p-signin-clerk .cl-cardBox{border:0!important;border-radius:0 0 20px 20px}

@@ -169,8 +169,6 @@
 .p-brief p:not(.p-eyebrow){font-size:var(--cal-text-body-sm);line-height:var(--cal-leading-reading)}
 .p-method p,.p-narrow>p,.p-lead{font-size:var(--cal-text-body-sm);line-height:var(--cal-leading-reading);color:var(--cal-text-secondary)}
 .p-method h2{font-size:clamp(24px,2.4vw,32px);line-height:var(--cal-leading-h3)}
-.p-clerk-auth{margin:var(--cal-space-6) 0}
-.p-clerk-auth .cl-cardBox{max-width:480px}
 /* Clerk widgets (sign-in page and account modal): rounded rectangles, leather hover.
    Doubled classes out-rank Clerk's runtime styles without !important. */
 .cl-formButtonPrimary.cl-formButtonPrimary{border-radius:var(--cal-radius);box-shadow:none!important;font-weight:400;transition:background-color var(--cal-duration-fast) var(--cal-ease)}
@@ -198,7 +196,8 @@
 .pilot .p-signin-dialog h2,.p-signin-dialog h2{font:400 30px/1.2 var(--cal-font-display);letter-spacing:var(--cal-tracking-heading);margin:6px 0 10px}
 .p-signin-note{font-size:var(--cal-text-note);line-height:1.5;color:var(--cal-text-secondary);margin:0 0 20px}
 .p-signin-clerk .cl-rootBox,.p-signin-clerk .cl-cardBox{width:100%;max-width:none}
-.p-signin-clerk .cl-cardBox{border:0!important}
-.p-signin-clerk .cl-card{padding:0;background:transparent}
+.p-signin-clerk .cl-cardBox{border:0!important;border-radius:0 0 20px 20px}
+/* Clerk's card is 2px wider than the popup, offset by a -1px margin, and rounds its corners; with no padding each clips the edge buttons and inputs. */
+.p-signin-clerk .cl-card{padding:0;background:transparent;width:100%;max-width:none;box-sizing:border-box;border-radius:0;overflow:visible;margin:0!important}
 .p-signin-legacy .p-card{margin:0}
 @media(max-width:760px){.p-topbar{display:none}.p-signin-dialog{padding:24px}.p-arena-page{min-height:calc(100dvh - 160px)}}

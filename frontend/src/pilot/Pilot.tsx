@@ -1,4 +1,4 @@
-import { createContext, FormEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2, Library } from 'lucide-react'
@@ -18,9 +18,12 @@ import { encodeAsset, financeAssetMaxBytes, financeWorkflows } from './financeWo
 import { FinanceTaskAssets } from './FinanceTaskAssets'
 
 type SignInReason = 'ask' | 'button'
-const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
+type AuthMode = 'signin' | 'signup'
+const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason, mode?: AuthMode) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
 const pendingKey = 'calibrated.pendingQuestion'
 const pendingWorkflowKey = 'calibrated.pendingWorkflow'
+// Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
+const authModeKey = 'calibrated.authMode'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -42,6 +45,8 @@ export default function Pilot() {
   const [ready, setReady] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
+  const [authMode, setAuthMode] = useState<AuthMode>('signin')
+  const openSignIn = (reason: SignInReason, mode: AuthMode = 'signin') => { setAuthMode(mode); setSignIn(reason) }
   const location = useLocation()
   const navigate = useNavigate()
   const refresh = async () => {
@@ -54,9 +59,11 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
+  // Returning from Google/Microsoft/GitHub lands on #/sso-callback; the popup must be open for Clerk to finish.
+  useEffect(() => { if (clerkEnabled && window.location.hash.includes('sso-callback')) openSignIn('button', (sessionStorage.getItem(authModeKey) as AuthMode | null) ?? 'signin') }, [])
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
+    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
       <ArenaBrand />
@@ -75,13 +82,13 @@ export default function Pilot() {
       <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside>
     <div className="p-main-column">
-    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
+    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button></div>}
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
       {clerkEnabled ? <>
-        <Route path="/signin/*" element={<ClerkAuthPage title="Sign in."><ClerkSignIn routing="path" path="/signin" signUpUrl="/signup" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
-        <Route path="/signup/*" element={<ClerkAuthPage title="Keep your notebook."><ClerkSignUp routing="path" path="/signup" signInUrl="/signin" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
+        <Route path="/signin/*" element={<OpenAuth mode="signin" open={openSignIn} />} />
+        <Route path="/signup/*" element={<OpenAuth mode="signup" open={openSignIn} />} />
         <Route path="/reset" element={<Navigate to="/signin" replace />} />
       </> : <>
         <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} />
@@ -91,31 +98,38 @@ export default function Pilot() {
     </Routes>}</main>
     <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
   </div></div>
-  <SignInDialog reason={signIn} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
+  <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
 
-function SignInDialog({ reason, signedIn, onClose, refresh }: { reason: SignInReason | null; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
+// Old /signin and /signup links open the popup over the home page instead of a separate page.
+function OpenAuth({ mode, open }: { mode: AuthMode; open: (reason: SignInReason, mode: AuthMode) => void }) {
+  useEffect(() => { open('button', mode) }, [])
+  return <Navigate to="/" replace />
+}
+
+function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { reason: SignInReason | null; mode: AuthMode; onMode: (mode: AuthMode) => void; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const location = useLocation()
   useEffect(() => { const d = dialog.current; if (reason && !signedIn) { if (!d?.open) d?.showModal() } else d?.close() }, [reason, signedIn])
   useEffect(() => { if (signedIn && reason) onClose() }, [signedIn])
+  useEffect(() => { if (reason) sessionStorage.setItem(authModeKey, mode) }, [reason, mode])
+  // Clerk's footer link ("Sign up" / "Sign in") would navigate to a page; switch the popup instead.
+  const switchMode = (e: MouseEvent) => {
+    if (!(e.target as HTMLElement).closest('.cl-footerActionLink')) return
+    e.preventDefault(); e.stopPropagation()
+    history.replaceState(null, '', window.location.pathname + window.location.search)
+    onMode(mode === 'signin' ? 'signup' : 'signin')
+  }
   return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn) sessionStorage.removeItem(pendingKey); onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
     <div className="p-signin-head"><Eyebrow>Your Calibrated account</Eyebrow><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
-    <h2 id="signin-title">{reason === 'ask' ? 'Sign in to compare.' : 'Sign in.'}</h2>
-    <p className="p-signin-note">{reason === 'ask' ? 'Your question is saved. Once you’re signed in, both models answer it.' : 'Your notebook follows your account across devices.'}</p>
+    <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in.'}</h2>
+    <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
     {reason && (clerkEnabled
-      ? <div className="p-signin-clerk"><ClerkSignIn routing="hash" withSignUp fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} /></div>
+      ? <div className="p-signin-clerk" onClickCapture={switchMode}>{mode === 'signin'
+        ? <ClerkSignIn key="signin" routing="hash" fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} />
+        : <ClerkSignUp key="signup" routing="hash" fallbackRedirectUrl={location.pathname} signInFallbackRedirectUrl={location.pathname} />}</div>
       : <div className="p-signin-legacy"><SignIn embedded onSignedIn={refresh} /><p className="p-fine">New here? <Link to="/signup" onClick={() => dialog.current?.close()}>Create an account</Link>.</p></div>)}
   </dialog>
-}
-
-function ClerkAuthPage({ title, children }: { title: string; children: ReactNode }) {
-  return <div className="p-narrow">
-    <Eyebrow>Your Calibrated account</Eyebrow>
-    <h1>{title}</h1>
-    <p className="p-lead">Your notebook follows your account across devices.</p>
-    <div className="p-clerk-auth">{children}</div>
-  </div>
 }
 
 function ClerkAccountBlock({ account, refresh }: { account: Me['account']; refresh: () => Promise<void> }) {

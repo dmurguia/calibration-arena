@@ -74,7 +74,7 @@ export default function Pilot() {
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
         <NavLink to="/projects"><Folder size={16} />My projects</NavLink>
-        <NavLink to="/record"><BookOpen size={16} />Notebook</NavLink>
+        <NavLink to="/cases"><BookOpen size={16} />Library</NavLink>
         <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
@@ -289,7 +289,7 @@ function CaseLibrary() {
   }
   const row = (a: CaseAssignment, i: number) => <button className="p-case-row p-assigned-row" onClick={() => open(a)} disabled={!!busy} key={a.id}><span className="p-case-number">{String(i + 1).padStart(2, '0')}</span><div><span className="p-meta">{a.framework}</span><h3>{a.title}</h3></div><span className="p-case-time">{busy === a.id ? 'Opening…' : a.status === 'completed' ? 'Reviewed' : a.run_id ? 'Resume' : 'Compare'}</span><ArrowUpRight size={20} /></button>
   const first = assignments.slice(0, 3)
-  return <div className="p-workspace"><Eyebrow>Finance</Eyebrow><h1>Close examples</h1><p className="p-lead">Compare the same responses to a few month-end questions. Progress stays in this notebook; return to your own questions whenever you like.</p>
+  return <div className="p-workspace"><Eyebrow>Finance</Eyebrow><h1>Library</h1><p className="p-lead">Real-world situations from a synthetic company. Pick one to test your judgment or to train someone on yours.</p>
     {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
     {me && loading && <p role="status">Loading saved progress…</p>}
     {me && !loading && !assignments.length && <p className="p-empty-cases">No shared comparisons have been added yet. <Link to="/">Ask a question</Link> or explore a practice example below.</p>}

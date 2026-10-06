@@ -196,9 +196,12 @@
 .pilot .p-signin-dialog h2,.p-signin-dialog h2{font:400 30px/1.2 var(--cal-font-display);letter-spacing:var(--cal-tracking-heading);margin:6px 0 10px;text-align:center}
 .p-signin-note{font-size:var(--cal-text-note);line-height:1.5;color:var(--cal-text-secondary);margin:0 0 20px}
 .p-signin-clerk .cl-rootBox,.p-signin-clerk .cl-cardBox{width:100%;max-width:none}
-.p-signin-clerk .cl-cardBox{border:0!important;border-radius:0 0 20px 20px}
+.p-signin-clerk .cl-cardBox{border:0!important;border-radius:0 0 20px 20px;overflow:visible}
+.p-signin-clerk .cl-footer{border-radius:0 0 20px 20px;overflow:hidden}
+/* Clerk floats a "Last used" pill half above the first social button; give it headroom instead of clipping it. */
+.p-signin-clerk .cl-lastAuthenticationStrategyBadge.cl-lastAuthenticationStrategyBadge{background:var(--cal-paper);border:1px solid var(--cal-rule-strong);box-shadow:0 0 0 2px var(--cal-background);color:var(--cal-text-secondary);font:400 11px/1 var(--cal-font-body);border-radius:999px}
 /* Clerk's card is 2px wider than the popup, offset by a -1px margin, and rounds its corners; with no padding each clips the edge buttons and inputs. */
-.p-signin-clerk .cl-card{padding:0;background:transparent;width:100%;max-width:none;box-sizing:border-box;border-radius:0;overflow:visible;margin:0!important}
+.p-signin-clerk .cl-card{padding:12px 0 0;background:transparent;width:100%;max-width:none;box-sizing:border-box;border-radius:0;overflow:visible;margin:0!important}
 .p-signin-legacy .p-card{margin:0}
 .p-signin-clerk .cl-dividerLine{background-color:var(--cal-rule)}
 .p-signin-clerk .cl-dividerText{color:var(--cal-text-secondary)}

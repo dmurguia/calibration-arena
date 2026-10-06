@@ -278,3 +278,15 @@
 .p-projects-list{margin-top:28px}
 .p-projects .p-projects-empty{margin:110px 0 0;font-size:15px;color:var(--cal-graphite)}
 .p-projects-list{text-align:left}
+
+/* Project folder in the sidebar: label opens the page, chevron expands the projects beneath. */
+.p-folder-row{position:relative}
+.p-folder-row>a{padding-right:34px}
+.p-folder-row>button{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:var(--cal-radius-sm);background:transparent;color:var(--cal-graphite);transition:transform var(--cal-duration-fast) var(--cal-ease)}
+.p-folder-row>button:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
+.p-folder.is-open .p-folder-row>button{transform:translateY(-50%) rotate(90deg)}
+.p-folder-items{display:flex;flex-direction:column;gap:1px;margin:2px 0 4px;padding-left:22px;max-height:38vh;overflow:auto}
+.p-folder-items>a{display:block;padding:7px 10px;border-radius:var(--cal-radius-sm);font-size:12px;color:var(--cal-graphite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-folder-items>a:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
+.p-folder-items>a.active{background:var(--cal-white);color:var(--cal-ink)}
+.p-folder-more{font-size:11px!important;color:var(--cal-text-secondary)!important}

@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, ChevronRight, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -73,11 +73,10 @@ export default function Pilot() {
       <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
-        <NavLink to="/projects"><Folder size={16} />My projects</NavLink>
+        <ProjectsFolder runs={me?.runs ?? []} onPick={() => setMenuOpen(false)} />
         <NavLink to="/cases"><BookOpen size={16} />Library</NavLink>
         <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
       </nav>
-      {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
       <div className="p-sidebar-account">{clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
@@ -208,6 +207,21 @@ function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?:
     <button className="p-account-trigger" aria-haspopup="menu" aria-expanded={open} aria-controls="account-menu" onClick={() => setOpen(!open)}>
       {avatar}<span className="p-account-name">{label}</span><ChevronsUpDown size={15} />
     </button>
+  </div>
+}
+
+// "My projects" expands like a folder to show the person's projects beneath it; the label itself opens the page.
+const projectsOpenKey = 'calibrated.projectsOpen'
+function ProjectsFolder({ runs, onPick }: { runs: Run[]; onPick: () => void }) {
+  const [open, setOpen] = useState(() => localStorage.getItem(projectsOpenKey) !== '0')
+  const toggle = () => { setOpen(!open); try { localStorage.setItem(projectsOpenKey, open ? '0' : '1') } catch { /* private mode */ } }
+  const projects = runs.filter(r => r.kind === 'ask')
+  return <div className={`p-folder ${open ? 'is-open' : ''}`}>
+    <div className="p-folder-row">
+      <NavLink to="/projects" onClick={onPick}><Folder size={16} />My projects</NavLink>
+      {!!projects.length && <button type="button" aria-label={open ? 'Collapse projects' : 'Expand projects'} aria-expanded={open} onClick={toggle}><ChevronRight size={14} /></button>}
+    </div>
+    {open && !!projects.length && <div className="p-folder-items">{projects.slice(0, 12).map(r => <NavLink key={r.id} to={`/session/${r.id}`} onClick={onPick} title={r.brief}>{r.title || r.brief.slice(0, 48)}</NavLink>)}{projects.length > 12 && <Link to="/projects" onClick={onPick} className="p-folder-more">All {projects.length} projects</Link>}</div>}
   </div>
 }
 

@@ -359,11 +359,15 @@ function usePromptTeaser(active: boolean) {
         if (prev === ' ') return base + 60 + (Math.random() < 0.12 ? 350 : 0)
         return base
       }
-      const step = () => setTyped(n => {
-        if (n < full) { timer = window.setTimeout(step, delay(n + 1)); return n + 1 }
-        timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
-        return n
-      })
+      // Keep the counter outside React state: an updater that schedules timers runs twice under StrictMode.
+      let n = 0
+      setTyped(0)
+      const step = () => {
+        n += 1
+        setTyped(n)
+        if (n < full) timer = window.setTimeout(step, delay(n + 1))
+        else timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
+      }
       timer = window.setTimeout(step, 700)
     }
     run()

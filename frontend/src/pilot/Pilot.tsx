@@ -65,11 +65,11 @@ export default function Pilot() {
   useEffect(() => { if (clerkEnabled && window.location.hash.includes('sso-callback')) openSignIn('button', (sessionStorage.getItem(authModeKey) as AuthMode | null) ?? 'signin') }, [])
   return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
+    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <MobileSignIn onClick={() => openSignIn('button')} />}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
       <ArenaBrand markOnly />
-      <div className="p-area"><span>WORKSPACE</span><strong><BookOpen size={15} />Finance</strong></div>
+      <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
         <NavLink to="/cases"><Folder size={16} />My projects</NavLink>
@@ -78,13 +78,13 @@ export default function Pilot() {
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
-      <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
-      {clerkEnabled
+      <div className="p-sidebar-account">{clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
-        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}
+        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>
+      <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside>
     <div className="p-main-column">
-    <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button>}</div>
+    {ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
@@ -101,6 +101,23 @@ export default function Pilot() {
     <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
   </div></div>
   <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
+}
+
+// No "Sign in" while Clerk already has a session; the bridge is exchanging it (or reporting why it could not).
+function TopbarSignIn({ onClick }: { onClick: () => void }) {
+  const button = <div className="p-topbar"><button className="p-signin-button" onClick={onClick}>Sign in</button></div>
+  if (!clerkEnabled) return button
+  return <ClerkTopbarSignIn>{button}</ClerkTopbarSignIn>
+}
+function MobileSignIn({ onClick }: { onClick: () => void }) {
+  const button = <button className="p-signin-button" onClick={onClick}>Sign in</button>
+  if (!clerkEnabled) return button
+  return <ClerkTopbarSignIn>{button}</ClerkTopbarSignIn>
+}
+function ClerkTopbarSignIn({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  if (!isLoaded || isSignedIn) return null
+  return <>{children}</>
 }
 
 // Clerk leaves its card blank once sign-in or sign-up completes; close straight into the app instead.
@@ -193,6 +210,31 @@ function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?:
   </div>
 }
 
+// The only workspace today is FP&A; clicking it previews the ones planned next.
+const comingWorkspaces = ['Accounting & close', 'Tax', 'Audit & assurance', 'Treasury']
+function WorkspaceSwitcher() {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  return <div className="p-area p-workspace-switcher" ref={root}>
+    <span>WORKSPACE</span>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)}><BookOpen size={15} />FP&amp;A<ChevronsUpDown size={14} /></button>
+    {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
+      <p className="p-workspace-current"><BookOpen size={14} />FP&amp;A<span>Current</span></p>
+      <p className="p-workspace-soon">Coming next</p>
+      <ul>{comingWorkspaces.map(name => <li key={name}>{name}</li>)}</ul>
+      <p className="p-fine">Each workspace brings its own tasks and benchmarks. Tell us which one you need first.</p>
+    </div>}
+  </div>
+}
+
 // "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
 function NewProjectMenu({ onPick }: { onPick: () => void }) {
   const [open, setOpen] = useState(false)
@@ -212,7 +254,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
     <button type="button" className={location.pathname === '/' ? 'active' : ''} aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} />New project</button>
     {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
       <h2>New project</h2>
-      <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" onClick={() => pick(task.id)}><span className="p-new-project-icon"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
+      <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
       <button type="button" className="p-new-project-blank" onClick={() => pick()}><Plus size={14} />Ask your own question</button>
     </div>}
   </div>
@@ -355,7 +397,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. — for finance professionals</p></>}
+    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub"><ArenaBrand inline /></p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Finance question</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />
@@ -363,7 +405,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
       <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
-    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><task.icon size={18} aria-hidden="true" /><span>{task.label}</span></button>)}</div>
+    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
     </>}
   </div>
 }

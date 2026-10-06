@@ -230,10 +230,42 @@
 .p-new-project-blank:hover{color:var(--cal-ink)}
 @media (max-width:760px){.p-new-project-panel{position:static;width:auto;margin:6px 0 8px;box-shadow:none}}
 
-/* Top bar: wordmark on the left beside the sidebar mark, sign-in on the right. */
-.p-topbar{justify-content:space-between;align-items:center;padding:28px 32px 0;min-height:40px}
-.p-brand-inline{flex-direction:row;align-items:baseline;gap:8px}
-.p-brand-inline .p-brand-name{font-size:22px;line-height:1}
-.p-brand-inline .p-brand-attribution{font-size:12px;gap:5px}
-.p-brand-inline .p-brand-attribution svg{width:16px;height:16px;align-self:center}
-@media(max-width:760px){.p-topbar{display:none}}
+/* Small inline wordmark under the "What are you working on?" heading. */
+.p-prompt-sub{display:flex;justify-content:center;max-width:none}
+.p-brand-inline{flex-direction:row;align-items:baseline;gap:6px;color:var(--cal-text-secondary)}
+.p-brand-inline .p-brand-name{font-size:14px;line-height:1.2;color:var(--cal-ink)}
+.p-brand-inline .p-brand-attribution{font-size:11px;gap:4px}
+.p-brand-inline .p-brand-attribution svg{width:13px;height:13px;align-self:center}
+/* Account button sits above the "Built by" line at the foot of the sidebar. */
+.p-sidebar-account{margin-top:auto}
+.p-sidebar-account .p-account{margin-top:0}
+.p-sidebar-account+.p-sidebar-bottom{margin-top:14px}
+
+/* Workflow accents: muted, in the paper/leather family, one per task so they read as a set. */
+[data-tone=gold]{--tone:#A98A3A}
+[data-tone=sage]{--tone:#6F8260}
+[data-tone=slate]{--tone:#5C6C7E}
+[data-tone=clay]{--tone:#A66A4C}
+[data-tone=teal]{--tone:#4F7D78}
+[data-tone=plum]{--tone:#7C5B70}
+.p-tone-tile{display:inline-grid;place-items:center;flex-shrink:0;color:var(--tone,var(--cal-graphite));background:color-mix(in srgb,var(--tone,var(--cal-graphite)) 13%,transparent);border:1px solid color-mix(in srgb,var(--tone,var(--cal-graphite)) 28%,transparent);border-radius:7px}
+.p-finance-tasks .p-tone-tile{width:26px;height:26px;margin-left:-3px}
+.p-finance-tasks button svg{color:inherit}
+.p-finance-tasks button:hover .p-tone-tile,.p-finance-tasks button[aria-pressed=true] .p-tone-tile{background:color-mix(in srgb,var(--tone) 22%,transparent)}
+.p-finance-tasks button[aria-pressed=true]{border-color:var(--tone)}
+.p-new-project-icon.p-tone-tile{border-radius:var(--cal-radius-sm)}
+
+/* Workspace switcher: FP&A today, a tease of the next ones on click. */
+.p-workspace-switcher{position:relative}
+.p-workspace-switcher>button{display:flex;align-items:center;gap:9px;width:100%;margin-top:6px;padding:6px 6px;border:1px solid transparent;border-radius:var(--cal-radius);background:transparent;color:var(--cal-ink);font:400 14px/1.4 var(--cal-font-body);text-align:left}
+.p-workspace-switcher>button>svg:last-child{margin-left:auto;color:var(--cal-graphite)}
+.p-workspace-switcher>button:hover,.p-workspace-switcher>button[aria-expanded=true]{background:var(--cal-hover-wash)}
+.p-workspace-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:50;width:250px;padding:12px 14px 10px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg);background:var(--cal-white);box-shadow:0 16px 40px #46464326}
+.p-workspace-menu p{margin:0}
+.p-workspace-current{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cal-ink);padding-bottom:10px;border-bottom:1px solid var(--cal-rule-faint)}
+.p-workspace-current span{margin-left:auto;font:9px var(--cal-font-mono);letter-spacing:1.2px;text-transform:uppercase;color:var(--cal-graphite)}
+.p-workspace-soon{margin-top:10px!important;font:9px var(--cal-font-mono);letter-spacing:1.4px;color:var(--cal-graphite)}
+.p-workspace-menu ul{list-style:none;margin:6px 0 0;padding:0}
+.p-workspace-menu li{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:var(--cal-graphite)}
+.p-workspace-menu li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cal-rule-strong)}
+.p-workspace-menu .p-fine{margin-top:8px!important;padding-top:10px;border-top:1px solid var(--cal-rule-faint);font-size:11px;line-height:1.5;color:var(--cal-graphite)}

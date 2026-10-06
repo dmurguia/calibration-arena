@@ -211,8 +211,7 @@ function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?:
   </div>
 }
 
-// The only workspace today is FP&A; clicking it previews the ones planned next.
-const comingWorkspaces = ['Accounting & close', 'Tax', 'Audit & assurance', 'Treasury']
+// Finance is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
 function WorkspaceSwitcher() {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
@@ -226,12 +225,10 @@ function WorkspaceSwitcher() {
   }, [open])
   return <div className="p-area p-workspace-switcher" ref={root}>
     <span>WORKSPACE</span>
-    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)}><BookOpen size={15} />FP&amp;A<ChevronsUpDown size={14} /></button>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)}><BookOpen size={15} />Finance<ChevronsUpDown size={14} /></button>
     {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
-      <p className="p-workspace-current"><BookOpen size={14} />FP&amp;A<span>Current</span></p>
-      <p className="p-workspace-soon">Coming next</p>
-      <ul>{comingWorkspaces.map(name => <li key={name}>{name}</li>)}</ul>
-      <p className="p-fine">Each workspace brings its own tasks and benchmarks. Tell us which one you need first.</p>
+      <p className="p-workspace-current"><BookOpen size={14} />Finance<span>Current</span></p>
+      <p className="p-workspace-tease">Don’t see the knowledge work you want? Coming soon.</p>
     </div>}
   </div>
 }

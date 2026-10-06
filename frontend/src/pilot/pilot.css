@@ -281,7 +281,9 @@
 
 /* Project folder in the sidebar: label opens the page, chevron expands the projects beneath. */
 .p-folder-row{position:relative}
-.p-folder-row>a{padding-right:34px}
+.p-folder-row>a{display:flex;align-items:center;gap:11px;padding:10px 34px 10px 10px;border:1px solid transparent;border-radius:var(--cal-radius);font-size:13px;color:var(--cal-graphite)}
+.p-folder-row>a:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
+.p-folder-row>a.active{background:var(--cal-white);color:var(--cal-ink);border-color:var(--cal-rule)}
 .p-folder-row>button{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:var(--cal-radius-sm);background:transparent;color:var(--cal-graphite);transition:transform var(--cal-duration-fast) var(--cal-ease)}
 .p-folder-row>button:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
 .p-folder.is-open .p-folder-row>button{transform:translateY(-50%) rotate(90deg)}

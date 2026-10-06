@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2, Library } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -76,10 +76,10 @@ export default function Pilot() {
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
-      {clerkEnabled
-        ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
-        : me?.account && <div className="p-sidebar-account"><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></div>}
       <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
+      {clerkEnabled
+        ? <ClerkAccountBlock me={me} refresh={refresh} />
+        : me?.account && <AccountMenu name={me.participant.name} email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}
     </aside>
     <div className="p-main-column">
     {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button></div>}
@@ -124,7 +124,8 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
   useEffect(() => { if (reason) sessionStorage.setItem(authModeKey, mode) }, [reason, mode])
   // Clerk's footer link ("Sign up" / "Sign in") would navigate to a page; switch the popup instead.
   const switchMode = (e: MouseEvent) => {
-    if (!(e.target as HTMLElement).closest('.cl-footerActionLink')) return
+    // Only the account prompts; other footer links ("Use another method") share .cl-footerActionLink.
+    if (!(e.target as HTMLElement).closest('.cl-footerAction__signIn .cl-footerActionLink, .cl-footerAction__signUp .cl-footerActionLink')) return
     e.preventDefault(); e.stopPropagation()
     history.replaceState(null, '', window.location.pathname + window.location.search)
     onMode(mode === 'signin' ? 'signup' : 'signin')
@@ -141,25 +142,53 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
   </dialog>
 }
 
-function ClerkAccountBlock({ account, refresh }: { account: Me['account']; refresh: () => Promise<void> }) {
+function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Promise<void> }) {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const clerk = useClerk()
   const navigate = useNavigate()
 
-  if (!isLoaded) return <div className="p-sidebar-account"><span>Loading account…</span></div>
-  if (isSignedIn) return <div className="p-sidebar-account">
-    <span>{account?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'Signed in'}</span>
-    <button onClick={() => clerk.openUserProfile()}>Manage account</button>
-    <button onClick={async () => {
+  if (!isLoaded || !isSignedIn) return null
+  const email = me?.account?.email ?? user?.primaryEmailAddress?.emailAddress ?? ''
+  return <AccountMenu
+    name={user?.fullName || me?.participant.name || email.split('@')[0] || 'Your account'}
+    email={email}
+    imageUrl={user?.hasImage ? user.imageUrl : undefined}
+    onManage={() => clerk.openUserProfile()}
+    onSignOut={async () => {
       try { await call('/auth/logout') } catch { /* token may already be expired */ }
       clearToken()
       await clerk.signOut()
       await refresh()
       navigate('/')
-    }}>Sign out</button>
+    }}
+  />
+}
+
+// Pinned to the bottom of the sidebar while signed in; the card opens upward like a workspace switcher.
+function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name: string; email: string; imageUrl?: string; onManage?: () => void; onSignOut: () => void }) {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  const avatar = <span className="p-account-avatar" aria-hidden="true">{imageUrl ? <img src={imageUrl} alt="" /> : name.charAt(0).toUpperCase()}</span>
+  return <div className="p-account" ref={root}>
+    {open && <div className="p-account-card" id="account-menu" role="menu" aria-label="Account">
+      <div className="p-account-who"><strong>{name}</strong><span>{email}</span></div>
+      {onManage && <button role="menuitem" onClick={() => { setOpen(false); onManage() }}>Manage account</button>}
+      <hr />
+      <button role="menuitem" onClick={() => { setOpen(false); onSignOut() }}><LogOut size={16} />Sign out</button>
+    </div>}
+    <button className="p-account-trigger" aria-haspopup="menu" aria-expanded={open} aria-controls="account-menu" onClick={() => setOpen(!open)}>
+      {avatar}<span className="p-account-name">{name}</span><ChevronsUpDown size={15} />
+    </button>
   </div>
-  return null
 }
 
 function Home() {

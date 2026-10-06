@@ -80,7 +80,7 @@
 .p-sidebar nav>a:hover,.p-sidebar-bottom>a:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
 .p-sidebar nav>a.active{background:var(--cal-white);color:var(--cal-ink);border-color:var(--cal-rule);box-shadow:none}
 .p-area strong{font-weight:400;font-size:14px}
-.p-sidebar-account button,.p-sidebar-recent>a{color:var(--cal-graphite)}
+.p-sidebar-recent>a{color:var(--cal-graphite)}
 .p-sidebar-backdrop{background:#46464350}
 
 /* Arena: composer as a chalk-white panel on paper */

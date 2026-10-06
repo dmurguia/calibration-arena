@@ -205,4 +205,7 @@
 /* Shade fields against the white popup so they read as fillable; lift to white on focus. */
 .p-signin-clerk .cl-formFieldInput.cl-formFieldInput{background-color:var(--cal-paper)}
 .p-signin-clerk .cl-formFieldInput.cl-formFieldInput:focus{background-color:var(--cal-white)}
+/* Verification code boxes: Clerk draws them almost borderless, so give each one a visible box and readable digit. */
+.p-signin-clerk .cl-otpCodeFieldInput.cl-otpCodeFieldInput{background-color:var(--cal-paper);border:1px solid var(--cal-rule-strong);border-radius:var(--cal-radius-sm);box-shadow:none!important;color:var(--cal-ink);font:400 20px/1 var(--cal-font-body);outline:none}
+.p-signin-clerk .cl-otpCodeFieldInput.cl-otpCodeFieldInput:focus,.p-signin-clerk .cl-otpCodeFieldInput.cl-otpCodeFieldInput:focus-visible{background-color:var(--cal-white);border-color:var(--cal-ink);box-shadow:0 0 0 3px var(--cal-rule-faint)!important}
 @media(max-width:760px){.p-topbar{display:none}.p-signin-dialog{padding:24px}.p-arena-page{min-height:calc(100dvh - 160px)}}

@@ -153,7 +153,9 @@ async def generate_local(question, instructions, task_type, *, history=None):
                             'temperature': None, 'note': 'CLI harnesses differ; API generation settings are not matched.'}
                 drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v3', cli=name))
             except Exception as exc:
-                attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
+                # Messages here are our own sanitized strings (stderr is never included), so they are safe to show.
+                attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__,
+                               error=str(exc) if isinstance(exc, ValueError) else 'The request did not complete.')
         if len(drafts) != 2:
             raise GenerationFailure('Both local answers could not be generated. Check CLI sign-in or usage limits and try again.', attempts)
         if any(a.get('hygiene_flags') for a in attempts):

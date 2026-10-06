@@ -288,6 +288,12 @@ def public_run(run):
     if data.get('pair_histories'):
         result['conversation'] = [{'position': 'ab'[i], 'messages': data['pair_histories'].get(model, [])} for i, model in enumerate(data['pair_order'])]
     result['identity_exposed'] = bool(data.get('identity_exposed'))
+    if run.status == 'failed':
+        # Which side failed and the sanitized reason, so a dev or operator does not have to dig through the audit record.
+        # Local CLIs are named; hosted providers stay anonymous so a failed run never hints at the pair.
+        result['failures'] = [{'side': (a.get('request') or {}).get('cli') or 'One model',
+                               'error': a.get('error') or 'The request did not complete.'}
+                              for a in data.get('generation_attempts', []) if a.get('status') == 'failed']
     result["drafts"] = [{"position": "ab"[i], "text": d["text"], **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
     if revealed:
         result.update({k: data.get(k) for k in ("expected", "takeaway", "validation", "judgment", "feedback")})

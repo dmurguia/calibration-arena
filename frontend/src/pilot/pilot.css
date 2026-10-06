@@ -321,3 +321,7 @@
 .p-caret{display:inline-block;width:1.5px;height:1.05em;margin-left:2px;vertical-align:-0.15em;background:var(--cal-ink);animation:p-caret-blink 1.05s steps(1) infinite}
 @keyframes p-caret-blink{50%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.p-caret{animation:none}}
+
+.p-failures{list-style:none;margin:4px 0 16px;padding:10px 14px;border:1px solid var(--cal-rule);border-left:3px solid var(--cal-leather);border-radius:var(--cal-radius-sm);background:var(--cal-white);font-size:13px;color:var(--cal-graphite)}
+.p-failures li+li{margin-top:6px}
+.p-failures strong{font-weight:500;color:var(--cal-ink);margin-right:6px}

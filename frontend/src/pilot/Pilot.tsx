@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, SquarePen, Folder, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -30,8 +30,10 @@ const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: '
 const labels: Record<string, string> = { a: 'Draft A', b: 'Draft B', tie: 'Equivalent', neither: 'Neither', unsure: 'Insufficient evidence', ready: 'Ready to approve', revise: 'Needs revision' }
 
 function Eyebrow({ children }: { children: ReactNode }) { return <p className="p-eyebrow">{children}</p> }
-function ArenaBrand() {
-  return <Link className="p-brand" to="/" aria-label="Calibration Arena by Calibrated Co. home">
+// The sidebar shows only the C mark; the mobile header keeps the wordmark since there is no other title there.
+function ArenaBrand({ markOnly = false, inline = false }: { markOnly?: boolean; inline?: boolean }) {
+  if (markOnly) return <Link className="p-brand p-brand-mark" to="/" aria-label="Calibration Arena by Calibrated Co. home"><CalibratedMark size={30} /></Link>
+  return <Link className={`p-brand ${inline ? 'p-brand-inline' : ''}`} to="/" aria-label="Calibration Arena by Calibrated Co. home">
     <span className="p-brand-name">Calibration Arena</span>
     <span className="p-brand-attribution"><span>by</span><CalibratedMark size={24} /><span>Calibrated Co.</span></span>
   </Link>
@@ -66,11 +68,11 @@ export default function Pilot() {
     <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
-      <ArenaBrand />
+      <ArenaBrand markOnly />
       <div className="p-area"><span>WORKSPACE</span><strong><BookOpen size={15} />Finance</strong></div>
       <nav aria-label="Main navigation">
-        <NavLink to="/" end onClick={() => setMenuOpen(false)}><Plus size={16} />New comparison</NavLink>
-        <NavLink to="/cases"><FileText size={16} />Close examples</NavLink>
+        <NewProjectMenu onPick={() => setMenuOpen(false)} />
+        <NavLink to="/cases"><Folder size={16} />My projects</NavLink>
         <NavLink to="/record"><BookOpen size={16} />Notebook</NavLink>
         <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
       </nav>
@@ -82,7 +84,7 @@ export default function Pilot() {
         : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}
     </aside>
     <div className="p-main-column">
-    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button></div>}
+    <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button>}</div>
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
@@ -191,6 +193,31 @@ function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?:
   </div>
 }
 
+// "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
+function NewProjectMenu({ onPick }: { onPick: () => void }) {
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
+  return <div className="p-new-project" ref={root}>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} />New project</button>
+    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
+      <h2>New project</h2>
+      <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" onClick={() => pick(task.id)}><span className="p-new-project-icon"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
+      <button type="button" className="p-new-project-blank" onClick={() => pick()}><Plus size={14} />Ask your own question</button>
+    </div>}
+  </div>
+}
+
 function Home() {
   const [loading, setLoading] = useState(false)
   return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <CalibrationLens radius={76} intensity={0.10} />}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
@@ -274,8 +301,11 @@ function usePromptTeaser(active: boolean) {
 
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState(() => sessionStorage.getItem(pendingKey) ?? '')
-  const [workflowId, setWorkflowId] = useState<string | null>(() => sessionStorage.getItem(pendingWorkflowKey))
+  const handedWorkflow = financeWorkflows.find(task => task.id === (useLocation().state as { workflow?: string } | null)?.workflow)
+  const [question, setQuestion] = useState(() => handedWorkflow?.prompt ?? sessionStorage.getItem(pendingKey) ?? '')
+  const [workflowId, setWorkflowId] = useState<string | null>(() => handedWorkflow?.id ?? sessionStorage.getItem(pendingWorkflowKey))
+  // Reloads keep history state, so forget the handed-over workflow once it is in the composer.
+  useEffect(() => { if (handedWorkflow) window.history.replaceState({ ...window.history.state, usr: null }, '') }, [])
   const [files, setFiles] = useState<Record<string, File>>({})
   const workflow = financeWorkflows.find(task => task.id === workflowId)
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
@@ -330,7 +360,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
       <label htmlFor="open-prompt" className="sr-only">Finance question</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />
       {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
-      <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
+      <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
     <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><task.icon size={18} aria-hidden="true" /><span>{task.label}</span></button>)}</div>

@@ -78,9 +78,8 @@ def verify_clerk_request(request: Request) -> ClerkIdentity:
             and primary.verification
             and primary.verification.status == "verified"
         )
-        name = f"{user.first_name or ''} {user.last_name or ''}".strip()
-        if not name:
-            name = email.partition("@")[0]
+        # Names are not collected; ignore any that Google or Microsoft supply.
+        name = email.partition("@")[0]
     except Exception as exc:
         raise HTTPException(
             503, "Sign-in is temporarily unavailable. Please try again."

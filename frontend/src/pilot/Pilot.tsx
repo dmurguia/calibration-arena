@@ -79,7 +79,7 @@ export default function Pilot() {
       <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
       {clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
-        : me?.account && <AccountMenu name={me.participant.name} email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}
+        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}
     </aside>
     <div className="p-main-column">
     {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => openSignIn('button')}>Sign in</button></div>}
@@ -151,10 +151,7 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
   if (!isLoaded || !isSignedIn) return null
   const email = me?.account?.email ?? user?.primaryEmailAddress?.emailAddress ?? ''
   return <AccountMenu
-    // Clerk sign-up doesn't ask for a name; only social sign-ins usually bring one.
-    name={user?.fullName || undefined}
     email={email}
-    imageUrl={user?.hasImage ? user.imageUrl : undefined}
     onManage={() => clerk.openUserProfile()}
     onSignOut={async () => {
       try { await call('/auth/logout') } catch { /* token may already be expired */ }
@@ -167,7 +164,8 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
 }
 
 // Pinned to the bottom of the sidebar while signed in; the card opens upward like a workspace switcher.
-function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name?: string; email: string; imageUrl?: string; onManage?: () => void; onSignOut: () => void }) {
+// Pseudonymous by design: no names or profile photos, even when Google or Microsoft supply them.
+function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?: () => void; onSignOut: () => void }) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -178,11 +176,11 @@ function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name?: st
     document.addEventListener('keydown', escape)
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
   }, [open])
-  const label = name || email || 'Your account'
-  const avatar = <span className="p-account-avatar" aria-hidden="true">{imageUrl ? <img src={imageUrl} alt="" /> : label.charAt(0).toUpperCase()}</span>
+  const label = email || 'Your account'
+  const avatar = <span className="p-account-avatar" aria-hidden="true">{label.charAt(0).toUpperCase()}</span>
   return <div className="p-account" ref={root}>
     {open && <div className="p-account-card" id="account-menu" role="menu" aria-label="Account">
-      <div className="p-account-who"><strong>{label}</strong>{name && email && <span>{email}</span>}</div>
+      <div className="p-account-who"><strong>{label}</strong></div>
       {onManage && <button role="menuitem" onClick={() => { setOpen(false); onManage() }}>Manage account</button>}
       <hr />
       <button role="menuitem" onClick={() => { setOpen(false); onSignOut() }}><LogOut size={16} />Sign out</button>

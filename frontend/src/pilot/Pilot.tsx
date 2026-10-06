@@ -151,7 +151,8 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
   if (!isLoaded || !isSignedIn) return null
   const email = me?.account?.email ?? user?.primaryEmailAddress?.emailAddress ?? ''
   return <AccountMenu
-    name={user?.fullName || me?.participant.name || email.split('@')[0] || 'Your account'}
+    // Clerk sign-up doesn't ask for a name; only social sign-ins usually bring one.
+    name={user?.fullName || undefined}
     email={email}
     imageUrl={user?.hasImage ? user.imageUrl : undefined}
     onManage={() => clerk.openUserProfile()}
@@ -166,7 +167,7 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
 }
 
 // Pinned to the bottom of the sidebar while signed in; the card opens upward like a workspace switcher.
-function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name: string; email: string; imageUrl?: string; onManage?: () => void; onSignOut: () => void }) {
+function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name?: string; email: string; imageUrl?: string; onManage?: () => void; onSignOut: () => void }) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -177,16 +178,17 @@ function AccountMenu({ name, email, imageUrl, onManage, onSignOut }: { name: str
     document.addEventListener('keydown', escape)
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
   }, [open])
-  const avatar = <span className="p-account-avatar" aria-hidden="true">{imageUrl ? <img src={imageUrl} alt="" /> : name.charAt(0).toUpperCase()}</span>
+  const label = name || email || 'Your account'
+  const avatar = <span className="p-account-avatar" aria-hidden="true">{imageUrl ? <img src={imageUrl} alt="" /> : label.charAt(0).toUpperCase()}</span>
   return <div className="p-account" ref={root}>
     {open && <div className="p-account-card" id="account-menu" role="menu" aria-label="Account">
-      <div className="p-account-who"><strong>{name}</strong><span>{email}</span></div>
+      <div className="p-account-who"><strong>{label}</strong>{name && email && <span>{email}</span>}</div>
       {onManage && <button role="menuitem" onClick={() => { setOpen(false); onManage() }}>Manage account</button>}
       <hr />
       <button role="menuitem" onClick={() => { setOpen(false); onSignOut() }}><LogOut size={16} />Sign out</button>
     </div>}
     <button className="p-account-trigger" aria-haspopup="menu" aria-expanded={open} aria-controls="account-menu" onClick={() => setOpen(!open)}>
-      {avatar}<span className="p-account-name">{name}</span><ChevronsUpDown size={15} />
+      {avatar}<span className="p-account-name">{label}</span><ChevronsUpDown size={15} />
     </button>
   </div>
 }

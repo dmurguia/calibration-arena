@@ -270,6 +270,11 @@
 
 /* My projects: heading, then either the person's own questions or nothing. */
 .p-projects{max-width:760px;margin:0 auto;padding:36px 24px 60px;text-align:center}
-.p-projects h1{font-size:40px;margin:0 0 28px}
-.p-projects-empty{margin:120px 0 0;font-size:15px;color:var(--cal-graphite)}
+.p-projects h1{font-size:40px;margin:0 0 22px}
+.p-projects-search{display:flex;align-items:center;gap:8px;width:min(420px,100%);margin:0 auto;padding:0 14px;min-height:40px;border:1px solid var(--cal-rule-strong);border-radius:var(--cal-radius);background:var(--cal-white);color:var(--cal-graphite)}
+.p-projects-search:focus-within{border-color:var(--cal-ink);box-shadow:0 0 0 3px var(--cal-rule-faint)}
+.p-projects-search input{flex:1;min-width:0;border:0;background:transparent;font:400 13px/1.4 var(--cal-font-body);color:var(--cal-ink);outline:none}
+.p-projects-search input::placeholder{color:var(--cal-graphite)}
+.p-projects-list{margin-top:28px}
+.p-projects-empty{margin:110px 0 0;font-size:15px;color:var(--cal-graphite)}
 .p-projects-list{text-align:left}

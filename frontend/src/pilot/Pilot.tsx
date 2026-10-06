@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, SquarePen, Folder, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -549,10 +549,14 @@ function RetryComposer({ run }: { run: Run }) {
 // Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
 function MyProjects() {
   const { me } = usePilot()
-  const runs = me?.runs.filter(r => r.kind === 'ask') ?? []
+  const [query, setQuery] = useState('')
+  const all = me?.runs.filter(r => r.kind === 'ask') ?? []
+  const needle = query.trim().toLowerCase()
+  const runs = needle ? all.filter(r => `${r.title} ${r.brief}`.toLowerCase().includes(needle)) : all
   return <div className="p-projects"><h1>My projects</h1>
+    <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
     {runs.length ? <div className="p-projects-list">{runs.map(r => <Link key={r.id} className="p-notebook-row" to={`/session/${r.id}`}><span><span className="p-meta">{date(r.created_at)}</span><h3>{r.title}</h3><p>{r.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link>)}</div>
-      : <p className="p-projects-empty">No projects yet</p>}
+      : <p className="p-projects-empty">{all.length ? 'No projects match' : 'No projects yet'}</p>}
   </div>
 }
 

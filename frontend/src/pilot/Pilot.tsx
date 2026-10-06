@@ -101,6 +101,13 @@ export default function Pilot() {
   <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
 
+// Clerk leaves its card blank once sign-in or sign-up completes; close straight into the app instead.
+function CloseOnClerkSignIn({ onSignedIn }: { onSignedIn: () => void }) {
+  const { isSignedIn } = useAuth()
+  useEffect(() => { if (isSignedIn) onSignedIn() }, [isSignedIn])
+  return null
+}
+
 // Old /signin and /signup links open the popup over the home page instead of a separate page.
 function OpenAuth({ mode, open }: { mode: AuthMode; open: (reason: SignInReason, mode: AuthMode) => void }) {
   useEffect(() => { open('button', mode) }, [])
@@ -110,6 +117,8 @@ function OpenAuth({ mode, open }: { mode: AuthMode; open: (reason: SignInReason,
 function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { reason: SignInReason | null; mode: AuthMode; onMode: (mode: AuthMode) => void; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const location = useLocation()
+  // Set when Clerk finishes; the pending question must survive this close so it can be asked once the session exchange lands.
+  const finishing = useRef(false)
   useEffect(() => { const d = dialog.current; if (reason && !signedIn) { if (!d?.open) d?.showModal() } else d?.close() }, [reason, signedIn])
   useEffect(() => { if (signedIn && reason) onClose() }, [signedIn])
   useEffect(() => { if (reason) sessionStorage.setItem(authModeKey, mode) }, [reason, mode])
@@ -120,12 +129,12 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
     history.replaceState(null, '', window.location.pathname + window.location.search)
     onMode(mode === 'signin' ? 'signup' : 'signin')
   }
-  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn) sessionStorage.removeItem(pendingKey); onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
+  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) sessionStorage.removeItem(pendingKey); finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
     <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
     <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign In'}</h2>
     <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
     {reason && (clerkEnabled
-      ? <div className="p-signin-clerk" onClickCapture={switchMode}>{mode === 'signin'
+      ? <div className="p-signin-clerk" onClickCapture={switchMode}><CloseOnClerkSignIn onSignedIn={() => { finishing.current = true; dialog.current?.close() }} />{mode === 'signin'
         ? <ClerkSignIn key="signin" routing="hash" fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} />
         : <ClerkSignUp key="signup" routing="hash" fallbackRedirectUrl={location.pathname} signInFallbackRedirectUrl={location.pathname} />}</div>
       : <div className="p-signin-legacy"><SignIn embedded onSignedIn={refresh} /><p className="p-fine">New here? <Link to="/signup" onClick={() => dialog.current?.close()}>Create an account</Link>.</p></div>)}

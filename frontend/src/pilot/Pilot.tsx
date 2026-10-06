@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, ChevronRight, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, ChevronRight, Info, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -24,6 +24,7 @@ const pendingKey = 'calibrated.pendingQuestion'
 const pendingWorkflowKey = 'calibrated.pendingWorkflow'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
+const sidebarKey = 'calibrated.sidebarCollapsed'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -47,6 +48,8 @@ export default function Pilot() {
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem(sidebarKey) === '1' } catch { return false } })
+  const toggleCollapsed = () => { setCollapsed(!collapsed); try { localStorage.setItem(sidebarKey, collapsed ? '0' : '1') } catch { /* private mode */ } }
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode>('signin')
   const openSignIn = (reason: SignInReason, mode: AuthMode = 'signin') => { setAuthMode(mode); setSignIn(reason) }
@@ -68,15 +71,17 @@ export default function Pilot() {
     <a className="p-skip" href="#main">Skip to content</a>
     <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <MobileSignIn onClick={() => openSignIn('button')} />}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
-    <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
-      <ArenaBrand markOnly />
+    <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''} ${collapsed ? 'is-collapsed' : ''}`}>
+      <div className="p-sidebar-head"><ArenaBrand markOnly /><button type="button" className="p-sidebar-collapse" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} title={collapsed ? 'Expand' : 'Collapse'} onClick={toggleCollapsed}><PanelLeft size={17} /></button></div>
       <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
         <ProjectsFolder runs={me?.runs ?? []} onPick={() => setMenuOpen(false)} />
-        <NavLink to="/cases"><BookOpen size={16} />Library</NavLink>
-        <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
+        <NavLink to="/cases" title="Library"><BookOpen size={16} /><span>Library</span></NavLink>
+        <NavLink to="/benchmarks" title="Benchmarks"><Library size={16} /><span>Benchmarks</span></NavLink>
+        <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
       </nav>
+      {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`} onClick={() => setMenuOpen(false)}>{r.kind === 'ask' ? (r.title || r.brief.slice(0, 45)) : r.title}</Link>)}</div>}
       {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
       <div className="p-sidebar-account">{clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
@@ -218,7 +223,7 @@ function ProjectsFolder({ runs, onPick }: { runs: Run[]; onPick: () => void }) {
   const projects = runs.filter(r => r.kind === 'ask')
   return <div className={`p-folder ${open ? 'is-open' : ''}`}>
     <div className="p-folder-row">
-      <NavLink to="/projects" onClick={onPick}><Folder size={16} />My projects</NavLink>
+      <NavLink to="/projects" onClick={onPick} title="My projects"><Folder size={16} /><span>My projects</span></NavLink>
       {!!projects.length && <button type="button" aria-label={open ? 'Collapse projects' : 'Expand projects'} aria-expanded={open} onClick={toggle}><ChevronRight size={14} /></button>}
     </div>
     {open && !!projects.length && <div className="p-folder-items">{projects.slice(0, 12).map(r => <NavLink key={r.id} to={`/session/${r.id}`} onClick={onPick} title={r.brief}>{r.title || r.brief.slice(0, 48)}</NavLink>)}{projects.length > 12 && <Link to="/projects" onClick={onPick} className="p-folder-more">All {projects.length} projects</Link>}</div>}
@@ -239,7 +244,7 @@ function WorkspaceSwitcher() {
   }, [open])
   return <div className="p-area p-workspace-switcher" ref={root}>
     <span>WORKSPACE</span>
-    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)}><BookOpen size={15} />Finance<ChevronsUpDown size={14} /></button>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Finance"><BookOpen size={15} /><span>Finance</span><ChevronsUpDown size={14} /></button>
     {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
       <p className="p-workspace-current"><BookOpen size={14} />Finance<span>Current</span></p>
       <p className="p-workspace-tease">Don’t see the knowledge work you want? Coming soon.</p>
@@ -263,7 +268,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
   }, [open])
   const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
   return <div className="p-new-project" ref={root}>
-    <button type="button" className={location.pathname === '/' ? 'active' : ''} aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} />New project</button>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} /><span>New project</span></button>
     {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
       <h2>New project</h2>
       <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
@@ -330,27 +335,34 @@ const promptTeasers = [
   'Ask Calibration Arena to frame a board update…',
 ]
 
+// Types each teaser out character by character, holds it, clears, and moves to the next; plain text under reduced motion.
 function usePromptTeaser(active: boolean) {
   const [index, setIndex] = useState(0)
+  const [typed, setTyped] = useState(0)
+  const [animated, setAnimated] = useState(false)
   useEffect(() => {
     if (!active) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     let timer: number | undefined
-    const update = () => {
-      window.clearInterval(timer)
-      if (reducedMotion.matches) setIndex(0)
-      else if (!document.hidden) timer = window.setInterval(() => setIndex(i => (i + 1) % promptTeasers.length), 6000)
+    const stop = () => window.clearTimeout(timer)
+    const run = () => {
+      stop()
+      if (reducedMotion.matches || document.hidden) { setAnimated(false); setTyped(promptTeasers[index].length); return }
+      setAnimated(true)
+      const full = promptTeasers[index].length
+      const step = () => setTyped(n => {
+        if (n < full) { timer = window.setTimeout(step, 28 + Math.random() * 40); return n + 1 }
+        timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 3200)
+        return n
+      })
+      timer = window.setTimeout(step, 400)
     }
-    update()
-    reducedMotion.addEventListener('change', update)
-    document.addEventListener('visibilitychange', update)
-    return () => {
-      window.clearInterval(timer)
-      reducedMotion.removeEventListener('change', update)
-      document.removeEventListener('visibilitychange', update)
-    }
-  }, [active])
-  return promptTeasers[index]
+    run()
+    reducedMotion.addEventListener('change', run)
+    document.addEventListener('visibilitychange', run)
+    return () => { stop(); reducedMotion.removeEventListener('change', run); document.removeEventListener('visibilitychange', run) }
+  }, [active, index])
+  return { text: promptTeasers[index].slice(0, animated ? typed : undefined), full: promptTeasers[index], animated }
 }
 
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
@@ -365,7 +377,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const [promptFocused, setPromptFocused] = useState(false)
-  const placeholder = usePromptTeaser(!question && !promptFocused && !busy)
+  const teaser = usePromptTeaser(!question && !promptFocused && !busy)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
   // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
@@ -412,7 +424,8 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. • for the finance community</p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Finance question</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={teaser.animated && !promptFocused ? '' : teaser.full} />
+      {teaser.animated && !question && !promptFocused && <span className="p-prompt-teaser" aria-hidden="true">{teaser.text}<i className="p-caret" /></span>}
       {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
       <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />

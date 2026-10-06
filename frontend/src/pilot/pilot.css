@@ -292,3 +292,32 @@
 .p-folder-items>a:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
 .p-folder-items>a.active{background:var(--cal-white);color:var(--cal-ink)}
 .p-folder-more{font-size:11px!important;color:var(--cal-text-secondary)!important}
+
+/* Sidebar head: mark centered, collapse toggle at the right. */
+.p-sidebar-head{display:flex;align-items:center;justify-content:center;position:relative;min-height:40px}
+.p-sidebar-collapse{position:absolute;right:0;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:var(--cal-radius-sm);background:transparent;color:var(--cal-graphite)}
+.p-sidebar-collapse:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
+.p-sidebar-recent{margin:22px 9px 0}
+.p-sidebar-recent>a{font-size:12px}
+.p-sidebar{transition:width var(--cal-duration-fast) var(--cal-ease),flex-basis var(--cal-duration-fast) var(--cal-ease)}
+/* Collapsed rail: icons only, labels and lists hidden, tooltips via title. */
+@media(min-width:761px){
+.p-sidebar.is-collapsed{width:68px;flex-basis:68px;padding-inline:12px}
+.p-sidebar.is-collapsed .p-sidebar-head{flex-direction:column;gap:6px;min-height:0}
+.p-sidebar.is-collapsed .p-sidebar-collapse{position:static;transform:none}
+.p-sidebar.is-collapsed .p-area>span,.p-sidebar.is-collapsed .p-workspace-switcher>button>span,.p-sidebar.is-collapsed .p-workspace-switcher>button>svg:last-child,.p-sidebar.is-collapsed nav span,.p-sidebar.is-collapsed .p-folder-row>button,.p-sidebar.is-collapsed .p-folder-items,.p-sidebar.is-collapsed .p-sidebar-recent,.p-sidebar.is-collapsed .p-sidebar-usage,.p-sidebar.is-collapsed .p-sidebar-bottom>span,.p-sidebar.is-collapsed .p-account-name,.p-sidebar.is-collapsed .p-account-trigger>svg{display:none}
+.p-sidebar.is-collapsed .p-area{margin-inline:0}
+.p-sidebar.is-collapsed .p-workspace-switcher>button,.p-sidebar.is-collapsed nav>a,.p-sidebar.is-collapsed .p-new-project>button,.p-sidebar.is-collapsed .p-folder-row>a{justify-content:center;padding:10px 0}
+.p-sidebar.is-collapsed .p-workspace-menu,.p-sidebar.is-collapsed .p-new-project-panel{left:calc(100% + 14px)}
+.p-sidebar.is-collapsed .p-account-trigger{justify-content:center;padding:7px 0}
+.p-sidebar.is-collapsed .p-account-card{left:0;width:220px;right:auto}
+.p-sidebar.is-collapsed .p-sidebar-bottom{padding-top:10px}
+}
+@media(max-width:760px){.p-sidebar-collapse{display:none}}
+
+/* Typed-out placeholder with a blinking caret; sits over the empty textarea and ignores the pointer. */
+.p-composer{position:relative}
+.p-prompt-teaser{position:absolute;top:0;left:0;right:56px;padding:22px 23px 12px;font:inherit;font-size:16px;line-height:1.65;color:var(--cal-graphite);pointer-events:none;white-space:pre-wrap;overflow-wrap:anywhere}
+.p-caret{display:inline-block;width:1.5px;height:1.05em;margin-left:2px;vertical-align:-0.15em;background:var(--cal-ink);animation:p-caret-blink 1.05s steps(1) infinite}
+@keyframes p-caret-blink{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.p-caret{animation:none}}

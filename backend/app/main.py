@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
+from urllib.parse import urlparse
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -69,12 +71,22 @@ async def local_inference_boundary(request: Request, call_next):
         # allow that navigation, but keep every API call same-site.
         page_load = (request.method == "GET" and not request.url.path.startswith("/api/")
                      and request.headers.get("sec-fetch-mode") == "navigate")
-        if (not request.client or request.client.host not in loopback
-                or request.url.hostname not in loopback
-                or (origin and origin != str(request.base_url).rstrip("/"))
-                or (request.headers.get("sec-fetch-site") == "cross-site" and not page_load)
-                or request.headers.get("x-forwarded-for")
-                or request.headers.get("forwarded")):
+        failed = [name for name, bad in (
+            ("client", not request.client or request.client.host not in loopback),
+            ("hostname", request.url.hostname not in loopback),
+            # Any loopback origin counts as this computer, so a Vite dev server on another port can call the API.
+            ("origin", bool(origin and (urlparse(origin).hostname or "") not in loopback)),
+            ("cross-site", request.headers.get("sec-fetch-site") == "cross-site" and not page_load),
+            ("x-forwarded-for", bool(request.headers.get("x-forwarded-for"))),
+            ("forwarded", bool(request.headers.get("forwarded"))),
+        ) if bad]
+        if failed:
+            logging.getLogger(__name__).warning(
+                "Local boundary rejected %s %s: %s (client=%s origin=%s base=%s sec-fetch-site=%s)",
+                request.method, request.url.path, failed,
+                request.client.host if request.client else None, origin, str(request.base_url),
+                request.headers.get("sec-fetch-site"),
+            )
             response = JSONResponse({"detail": "Local model access is available only from this computer."}, status_code=403)
         else:
             response = await call_next(request)

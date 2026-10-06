@@ -2,6 +2,7 @@
 from datetime import datetime, timezone, timedelta
 import hashlib
 import os
+import re
 import secrets
 from copy import deepcopy
 from typing import Literal
@@ -269,6 +270,14 @@ def participant(authorization: str = Header(default=""), db: Session = Depends(g
     raise HTTPException(401, "This browser session is no longer available. Begin again or contact the Calibrated team.")
 
 
+def auto_title(question: str, fallback: str) -> str:
+    """A readable name from the question itself: its first sentence, trimmed; the person can rename it later."""
+    first = re.split(r"(?<=[.?!])\s|\n", question.strip(), maxsplit=1)[0].strip()
+    if len(first) > 72:
+        first = first[:72].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    return first or fallback
+
+
 def owned(db, p, run_id):
     run = db.get(Run, run_id)
     if run is None or run.participant_id != p.id:
@@ -288,6 +297,7 @@ def public_run(run):
     if data.get('pair_histories'):
         result['conversation'] = [{'position': 'ab'[i], 'messages': data['pair_histories'].get(model, [])} for i, model in enumerate(data['pair_order'])]
     result['identity_exposed'] = bool(data.get('identity_exposed'))
+    result['archived'] = bool(data.get('archived'))
     if run.status == 'failed':
         # Which side failed and the sanitized reason, so a dev or operator does not have to dig through the audit record.
         # Local CLIs are named; hosted providers stay anonymous so a failed run never hints at the pair.
@@ -768,7 +778,8 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
         check_live_budget(db, p)
-        data = {"kind": "ask", "case_id": None, "title": TASKS[body.task_type]["label"], "brief": body.question,
+        inherited = (source or retry) and (source or retry).data.get("title")
+        data = {"kind": "ask", "case_id": None, "title": inherited or auto_title(body.question, TASKS[body.task_type]["label"]), "brief": body.question,
                 "workflow_id": workflow_id, "input_documents": documents, "model_prompt": effective_prompt,
                 "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4", "drafts": [], "privacy_ack": body.privacy_ack,
                 "task_type": body.task_type, "routing": "explicit-user-selection",
@@ -816,6 +827,42 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
 @router.get("/runs/{run_id}")
 def get_run(run_id: str, p=Depends(participant), db: Session = Depends(get_db)):
     return public_run(owned(db, p, run_id))
+
+
+class RunTitle(Strict):
+    title: str = Field(min_length=1, max_length=120)
+
+
+class RunArchive(Strict):
+    archived: bool = True
+
+
+@router.post("/runs/{run_id}/title")
+def rename_run(run_id: str, body: RunTitle, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    title = " ".join(body.title.split())
+    if not title:
+        raise HTTPException(422, "Give the project a name.")
+    # Rename every turn of the conversation so the thread keeps one name.
+    root = run.data.get("root_run_id") or run.id
+    for r in db.scalars(select(Run).where(Run.participant_id == p.id)).all():
+        if r.id == root or r.data.get("root_run_id") == root:
+            r.data = {**r.data, "title": title}
+    emit(db, p, "run_renamed", run)
+    db.commit()
+    return public_run(run)
+
+
+@router.post("/runs/{run_id}/archive")
+def archive_run(run_id: str, body: RunArchive, p=Depends(participant), db: Session = Depends(get_db)):
+    run = owned(db, p, run_id)
+    root = run.data.get("root_run_id") or run.id
+    for r in db.scalars(select(Run).where(Run.participant_id == p.id)).all():
+        if r.id == root or r.data.get("root_run_id") == root:
+            r.data = {**r.data, "archived": body.archived}
+    emit(db, p, "run_archived" if body.archived else "run_unarchived", run)
+    db.commit()
+    return public_run(run)
 
 
 @router.post("/runs/{run_id}/conclusion")

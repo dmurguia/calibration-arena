@@ -276,5 +276,5 @@
 .p-projects-search input{flex:1;min-width:0;border:0;background:transparent;font:400 13px/1.4 var(--cal-font-body);color:var(--cal-ink);outline:none}
 .p-projects-search input::placeholder{color:var(--cal-graphite)}
 .p-projects-list{margin-top:28px}
-.p-projects-empty{margin:110px 0 0;font-size:15px;color:var(--cal-graphite)}
+.p-projects .p-projects-empty{margin:110px 0 0;font-size:15px;color:var(--cal-graphite)}
 .p-projects-list{text-align:left}

@@ -329,10 +329,11 @@ function CaseStart() {
 }
 
 const promptTeasers = [
-  'Ask Calibration Arena to explain a budget variance…',
-  'Ask Calibration Arena to stress-test a cash flow forecast…',
-  'Ask Calibration Arena to review a month-end close issue…',
-  'Ask Calibration Arena to frame a board update…',
+  'Why is gross margin down 4 points this quarter when volume is up?',
+  'Can we recognize an annual SaaS contract up front if it was paid in full?',
+  'Does this prepaid insurance cutoff look right for the August close?',
+  'How should I book an accrual that was recorded twice last month?',
+  'Which intercompany balances still need eliminating before consolidation?',
 ]
 
 // Types each teaser out character by character, holds it, clears, and moves to the next; plain text under reduced motion.
@@ -350,12 +351,20 @@ function usePromptTeaser(active: boolean) {
       if (reducedMotion.matches || document.hidden) { setAnimated(false); setTyped(promptTeasers[index].length); return }
       setAnimated(true)
       const full = promptTeasers[index].length
+      const text = promptTeasers[index]
+      const delay = (n: number) => {
+        const prev = text[n - 1]
+        const base = 70 + Math.random() * 90
+        if (prev === ',' || prev === '?') return base + 260
+        if (prev === ' ') return base + 60 + (Math.random() < 0.12 ? 350 : 0)
+        return base
+      }
       const step = () => setTyped(n => {
-        if (n < full) { timer = window.setTimeout(step, 28 + Math.random() * 40); return n + 1 }
-        timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 3200)
+        if (n < full) { timer = window.setTimeout(step, delay(n + 1)); return n + 1 }
+        timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
         return n
       })
-      timer = window.setTimeout(step, 400)
+      timer = window.setTimeout(step, 700)
     }
     run()
     reducedMotion.addEventListener('change', run)

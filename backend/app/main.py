@@ -65,10 +65,14 @@ async def local_inference_boundary(request: Request, call_next):
     if os.getenv("ARENA_INFERENCE_BACKEND") == "local-cli":
         loopback = {"127.0.0.1", "::1", "localhost"}
         origin = request.headers.get("origin")
+        # Returning from Google/Microsoft sign-in is a cross-site page load of the app shell;
+        # allow that navigation, but keep every API call same-site.
+        page_load = (request.method == "GET" and not request.url.path.startswith("/api/")
+                     and request.headers.get("sec-fetch-mode") == "navigate")
         if (not request.client or request.client.host not in loopback
                 or request.url.hostname not in loopback
                 or (origin and origin != str(request.base_url).rstrip("/"))
-                or request.headers.get("sec-fetch-site") == "cross-site"
+                or (request.headers.get("sec-fetch-site") == "cross-site" and not page_load)
                 or request.headers.get("x-forwarded-for")
                 or request.headers.get("forwarded")):
             response = JSONResponse({"detail": "Local model access is available only from this computer."}, status_code=403)

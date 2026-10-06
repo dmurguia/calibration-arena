@@ -82,7 +82,6 @@ export default function Pilot() {
         <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
       </nav>
       {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`} onClick={() => setMenuOpen(false)}>{r.kind === 'ask' ? (r.title || r.brief.slice(0, 45)) : r.title}</Link>)}</div>}
-      {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
       <div className="p-sidebar-account">{clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
         : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>

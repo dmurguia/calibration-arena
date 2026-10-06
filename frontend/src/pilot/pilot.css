@@ -325,3 +325,10 @@
 .p-failures{list-style:none;margin:4px 0 16px;padding:10px 14px;border:1px solid var(--cal-rule);border-left:3px solid var(--cal-leather);border-radius:var(--cal-radius-sm);background:var(--cal-white);font-size:13px;color:var(--cal-graphite)}
 .p-failures li+li{margin-top:6px}
 .p-failures strong{font-weight:500;color:var(--cal-ink);margin-right:6px}
+
+/* "Ready to choose?" pins to the bottom-right corner in ink, and the follow-up dock leaves room so the two never overlap. */
+.p-floating-vote{left:auto!important;right:28px!important;bottom:28px!important;transform:none!important;background:var(--cal-ink)!important;color:var(--cal-paper)!important;border-color:var(--cal-ink)!important;box-shadow:0 10px 28px #46464333!important}
+.p-floating-vote:hover{background:var(--cal-leather)!important;border-color:var(--cal-leather)!important;transform:translateY(-2px)!important}
+.p-floating-vote svg{color:inherit}
+.p-conversation-dock{margin-bottom:96px}
+@media(max-width:760px){.p-floating-vote{right:16px!important;bottom:16px!important}.p-conversation-dock{margin-bottom:84px}}

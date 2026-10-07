@@ -44,6 +44,7 @@ export default function Pilot() {
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const publicPage = /^\/benchmarks(\/|$)/.test(location.pathname)
   const refresh = async () => {
     if (!token()) { setMe(null); return }
     try { setMe(await call<Me>('/me')) } catch (error) {
@@ -54,9 +55,9 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className={publicPage ? 'pilot p-public' : 'pilot'}>
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
+    {!publicPage && <><div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
     <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
       <ArenaBrand />
@@ -73,9 +74,10 @@ export default function Pilot() {
         ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
         : me?.account && <div className="p-sidebar-account"><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></div>}
       <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
-    </aside>
+    </aside></>}
     <div className="p-main-column">
-    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
+    {publicPage ? <header className="p-public-header"><ArenaBrand /><nav aria-label="Site"><NavLink to="/benchmarks">Benchmarks</NavLink><Link to="/">Practice arena <ArrowUpRight size={13} /></Link></nav></header>
+      : ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
@@ -86,7 +88,7 @@ export default function Pilot() {
       </> : <>
         <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} />
       </>}
-      <Route path="/leaderboard" element={<Leaderboard />} /><Route path="/benchmarks" element={<Benchmarks />} />
+      <Route path="/leaderboard" element={<Leaderboard />} /><Route path="/benchmarks/*" element={<Benchmarks />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
     <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>

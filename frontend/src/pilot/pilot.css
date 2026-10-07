@@ -406,6 +406,21 @@
 .p-question-bubble .p-source-files{margin-top:10px}
 @media(max-width:760px){.p-question-bubble{max-width:94%;padding:14px 18px}}
 /* Responses share one height and scroll inside, so a long answer never pushes the other off the page. */
-.p-drafts .p-draft{max-height:min(72vh,860px)}
+.p-drafts .p-draft{height:min(72vh,860px)}
 .p-drafts .p-draft .p-answer{overflow:auto;min-height:0;overscroll-behavior:contain}
-@media(max-width:760px){.p-drafts .p-draft{max-height:none}.p-drafts .p-draft .p-answer{overflow:visible}}
+@media(max-width:760px){.p-drafts .p-draft{height:auto}.p-drafts .p-draft .p-answer{overflow:visible}}
+
+/* Choosing is in the eye line, centered just above the follow-up composer, and never required. */
+.p-vote-pill-row{display:flex;justify-content:center;margin:0 0 12px}
+.p-vote-pill{display:inline-flex;align-items:center;gap:6px;padding:5px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);box-shadow:0 8px 24px #46464318}
+.p-vote-pill>svg{color:var(--cal-graphite);margin:0 6px}
+.p-vote-pill button{min-height:36px;padding:8px 18px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--cal-ink);font:400 13px/1.2 var(--cal-font-body);cursor:pointer;transition:background-color var(--cal-duration-fast) var(--cal-ease),color var(--cal-duration-fast) var(--cal-ease)}
+.p-vote-pill button:hover{background:var(--cal-ink);color:var(--cal-paper)}
+.p-vote-pill button:disabled{opacity:.45;cursor:not-allowed}
+.p-prefer-button{margin-left:auto;padding:5px 11px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);color:var(--cal-ink);font:400 11px/1.2 var(--cal-font-body);cursor:pointer;white-space:nowrap}
+.p-prefer-button:hover{background:var(--cal-ink);border-color:var(--cal-ink);color:var(--cal-paper)}
+.p-draft header .p-prefer-button+.p-focus-button{margin-left:4px}
+.p-draft header .p-meta{margin-left:auto}
+.p-draft header .p-meta+.p-prefer-button{margin-left:10px}
+.p-conversation-dock{margin-bottom:0}
+.p-floating-vote{display:none!important}

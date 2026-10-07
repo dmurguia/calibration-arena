@@ -398,3 +398,14 @@
 .p-folder-items .p-run-row>a{display:block;padding:7px 30px 7px 10px;border-radius:var(--cal-radius-sm);font-size:12px;color:var(--cal-graphite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p-folder-items .p-run-row>a:hover{background:var(--cal-hover-wash);color:var(--cal-ink)}
 .p-folder-items .p-run-row>a.active{background:var(--cal-white);color:var(--cal-ink)}
+
+/* The person's prompt is a bubble on the right, like the composer's "You" bubble while waiting. */
+.p-question-bubble{margin:24px 0 24px auto;max-width:min(760px,85%);padding:16px 22px;background:var(--cal-paper);border:1px solid var(--cal-rule-faint);border-radius:var(--cal-radius-lg)}
+.p-question-bubble>.p-eyebrow{font-size:10px}
+.p-question-bubble>p:not(.p-eyebrow){font-size:14px;line-height:1.65;margin:6px 0 0}
+.p-question-bubble .p-source-files{margin-top:10px}
+@media(max-width:760px){.p-question-bubble{max-width:94%;padding:14px 18px}}
+/* Responses share one height and scroll inside, so a long answer never pushes the other off the page. */
+.p-drafts .p-draft{max-height:min(72vh,860px)}
+.p-drafts .p-draft .p-answer{overflow:auto;min-height:0;overscroll-behavior:contain}
+@media(max-width:760px){.p-drafts .p-draft{max-height:none}.p-drafts .p-draft .p-answer{overflow:visible}}

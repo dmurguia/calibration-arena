@@ -524,10 +524,20 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
+  const rank = (d: Draft) => d.position === preferred ? 'Your pick' : run.judgment!.preference === 'tie' ? 'Tied' : preferred ? 'Runner-up' : ''
   return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={27} /><div><p>{preferred ? 'Your pick revealed' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
-    <div className="p-result-tabs" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}><span className="p-result-position">{d.position.toUpperCase()}</span><span>{d.author}</span>{d.position === preferred && <span className="p-preferred-label">Preferred</span>}</button>)}</div>
-    <div className="p-result-toolbar"><span>Response {active.position.toUpperCase()}</span><div><button onClick={copy}><Copy size={14} />Copy response</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
-    <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}><DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} /></div>
+    <div className="p-result-stage">
+      <div className="p-result-main" id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
+        <div className="p-result-head">{rank(active) && <span className={`p-result-rank ${active.position === preferred ? 'is-pick' : ''}`}>{rank(active)}</span>}<strong>Response {active.position.toUpperCase()}</strong><span className="p-meta">{active.author}</span></div>
+        <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
+        <div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div>
+      </div>
+      <div className="p-result-rail" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
+        <span className="p-result-rail-top">{rank(d) && <span className={`p-result-rank ${d.position === preferred ? 'is-pick' : ''}`}>{rank(d)}</span>}<span className="p-result-position">{d.position.toUpperCase()}</span></span>
+        <span className="p-result-rail-author">{d.author}</span>
+        <span className="p-result-rail-snippet">{d.text.replace(/[#*_`>|]/g, '').slice(0, 150)}</span>
+      </button>)}</div>
+    </div>
     {message && <p className="p-export-message" role="status">{message}</p>}
   </section>
 }

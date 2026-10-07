@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ChevronRight, ExternalLink, Info, MoreVertical, Pencil, Sparkles, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, Sparkles, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -76,7 +76,7 @@ export default function Pilot() {
       <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
-        <ProjectsFolder runs={me?.runs ?? []} onPick={() => setMenuOpen(false)} />
+        <NavLink to="/projects" onClick={() => setMenuOpen(false)} title="My projects"><Folder size={16} /><span>My projects</span></NavLink>
         <NavLink to="/cases" title="Library"><BookOpen size={16} /><span>Library</span></NavLink>
         <NavLink to="/benchmarks" title="Benchmarks"><Library size={16} /><span>Benchmarks</span></NavLink>
         <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
@@ -261,21 +261,6 @@ function RunRow({ run, className = '', onPick }: { run: Run; className?: string;
   }
   if (editing) return <form className={`p-run-row ${className}`} onSubmit={e => { e.preventDefault(); void save() }}><input autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
   return <div className={`p-run-row ${className}`}><NavLink to={`/session/${run.id}`} onClick={onPick} title={run.brief}>{run.title || run.brief.slice(0, 48)}</NavLink><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
-}
-
-// "My projects" expands like a folder to show the person's projects beneath it; the label itself opens the page.
-const projectsOpenKey = 'calibrated.projectsOpen'
-function ProjectsFolder({ runs, onPick }: { runs: Run[]; onPick: () => void }) {
-  const [open, setOpen] = useState(() => localStorage.getItem(projectsOpenKey) !== '0')
-  const toggle = () => { setOpen(!open); try { localStorage.setItem(projectsOpenKey, open ? '0' : '1') } catch { /* private mode */ } }
-  const projects = runs.filter(r => r.kind === 'ask' && !r.archived)
-  return <div className={`p-folder ${open ? 'is-open' : ''}`}>
-    <div className="p-folder-row">
-      <NavLink to="/projects" onClick={onPick} title="My projects"><Folder size={16} /><span>My projects</span></NavLink>
-      {!!projects.length && <button type="button" aria-label={open ? 'Collapse projects' : 'Expand projects'} aria-expanded={open} onClick={toggle}><ChevronRight size={14} /></button>}
-    </div>
-    {open && !!projects.length && <div className="p-folder-items">{projects.slice(0, 12).map(r => <RunRow key={r.id} run={r} onPick={onPick} />)}{projects.length > 12 && <Link to="/projects" onClick={onPick} className="p-folder-more">All {projects.length} projects</Link>}</div>}
-  </div>
 }
 
 // Finance is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.

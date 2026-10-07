@@ -51,6 +51,7 @@ BENCHMARK_KEYS = {
     "relevance", "relevance_note", "results_status", "results", "links",
     "first_published", "last_verified", "notes",
 }
+OPTIONAL_BENCHMARK_KEYS = {"metric_definitions"}
 PRODUCT_KEYS = {
     "id", "name", "url", "status", "claim", "claim_source", "benchmark_ids",
     "last_verified",
@@ -98,11 +99,23 @@ def validate(registry: object) -> list[str]:
             errors.append(f"{prefix} must be an object")
             continue
         missing = BENCHMARK_KEYS - benchmark.keys()
-        extra = benchmark.keys() - BENCHMARK_KEYS
+        extra = benchmark.keys() - BENCHMARK_KEYS - OPTIONAL_BENCHMARK_KEYS
         if missing:
             errors.append(f"{prefix} missing keys: {', '.join(sorted(missing))}")
         if extra:
             errors.append(f"{prefix} has unexpected keys: {', '.join(sorted(extra))}")
+        if "metric_definitions" in benchmark:
+            definitions = benchmark["metric_definitions"]
+            if not isinstance(definitions, dict) or not definitions:
+                errors.append(f"{prefix}.metric_definitions must be a non-empty object")
+            else:
+                for key, definition in definitions.items():
+                    if not isinstance(key, str):
+                        errors.append(f"{prefix}.metric_definitions keys must be strings")
+                    if not isinstance(definition, str) or not definition.strip():
+                        errors.append(
+                            f"{prefix}.metric_definitions.{key} must be a non-empty string"
+                        )
 
         identifier = benchmark.get("id")
         if not isinstance(identifier, str) or not ID_PATTERN.fullmatch(identifier):
@@ -371,6 +384,23 @@ def validate_boards(registry: dict, boards: list[dict], models: dict) -> list[st
                 errors.append(f"{metric_prefix}.label must be a non-empty string")
             if metric.get("unit") != "%":
                 errors.append(f"{metric_prefix}.unit must be %")
+        if isinstance(board_id, str) and board_id in registry_by_id:
+            definitions = registry_by_id[board_id].get("metric_definitions")
+            if not isinstance(definitions, dict):
+                errors.append(f"{board_id}: metric_definitions must define every board metric")
+            else:
+                definition_keys = set(definitions)
+                undefined = metric_keys - definition_keys
+                unboarded = definition_keys - metric_keys
+                if undefined:
+                    errors.append(
+                        f"{board_id}: board metrics missing definitions: {', '.join(sorted(undefined))}"
+                    )
+                if unboarded:
+                    errors.append(
+                        f"{board_id}: metric_definitions keys are not board metrics: "
+                        f"{', '.join(sorted(map(str, unboarded)))}"
+                    )
         primary_key = metrics[0].get("key") if metrics and isinstance(metrics[0], dict) else None
         if not isinstance(primary_key, str):
             primary_key = None
@@ -457,6 +487,16 @@ def validate_boards(registry: dict, boards: list[dict], models: dict) -> list[st
                     errors.append(
                         f"{board_id}: registry results out of sync with board; run python -m pipeline.boards"
                     )
+    for benchmark in registry_benchmarks:
+        if (
+            isinstance(benchmark, dict)
+            and "metric_definitions" in benchmark
+            and (
+                not isinstance(benchmark.get("id"), str)
+                or benchmark.get("id") not in board_ids
+            )
+        ):
+            errors.append(f"{benchmark.get('id')}: metric_definitions require a model board")
     return errors
 
 

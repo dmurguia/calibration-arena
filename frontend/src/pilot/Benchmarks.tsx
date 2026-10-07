@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ArrowUpRight, Search } from 'lucide-react'
 import BenchmarkBoards, { Board, ModelRec } from './BenchmarkBoards'
 import './benchmarks.css'
@@ -7,7 +8,7 @@ type ResultsStatus = 'leaderboard' | 'snapshot' | 'archived' | 'unpublished' | '
 type Flag = 'review_due' | 'results_stale' | 'undated_results' | 'vendor_published' | 'mirror_source'
 interface Results { as_of: string | null; metric: string | null; leader: string | null; leader_score: string | null; models_evaluated: number | null; source_url: string | null; source_type: string; note: string | null }
 interface Benchmark {
-  id: string; name: string; publisher: string; publisher_type: string; kind: string; domains: string[]; summary: string
+  id: string; name: string; publisher: string; publisher_type: string; kind: string; domains: string[]; summary: string; metric_definitions?: Record<string, string>
   task_format: string; size: string | null; stateful: boolean; grader: string; data_access: string; license: string | null
   relevance: 'core' | 'adjacent' | 'reference'; relevance_note: string; results_status: ResultsStatus; results: Results | null
   links: Partial<Record<'home' | 'leaderboard' | 'paper' | 'data' | 'code', string>>; first_published: string; last_verified: string; notes: string | null; flags: Flag[]
@@ -23,6 +24,9 @@ const GRADER: Record<string, string> = { rubric_llm: 'Rubric · LLM judge', rubr
 const RELEVANCE: Record<string, string> = { core: 'Core', adjacent: 'Adjacent', reference: 'Reference' }
 const FLAGS: Record<Flag, string> = { review_due: 'Needs re-check', results_stale: 'Results over 6 months old', undated_results: 'Source shows no date', vendor_published: 'Vendor-published', mirror_source: 'Via third-party mirror' }
 const SOURCE: Record<string, string> = { first_party: 'Publisher', vendor_report: 'Vendor report', paper: 'Paper', mirror: 'Third-party mirror' }
+const STATUS_HELP: Record<ResultsStatus, string> = { leaderboard: 'The publisher keeps a public ranking and updates it as new models ship.', snapshot: 'Results were published once, in a paper, post or report, and are not kept up to date.', archived: 'There was a leaderboard, but the publisher has stopped updating it or taken it down.', unpublished: 'The benchmark exists, but no model results have been published.', unknown: "We haven't been able to confirm whether public results exist." }
+const ACCESS_HELP: Record<string, string> = { open: 'The tasks and answers can be downloaded.', partial: 'Some data is public, such as a sample or dev split; the rest is held back.', on_request: 'The publisher shares the data on request.', private: 'The data has not been released.', unknown: "We couldn't determine whether the data is available." }
+const RELEVANCE_HELP: Record<string, string> = { core: 'Closest to the accounting and close work Calibration Arena studies.', adjacent: 'A related finance or accounting skill, but narrower or less like day-to-day work.', reference: 'Background context, such as knowledge tests or earlier research.' }
 const LINKS: [keyof Benchmark['links'], string][] = [['leaderboard', 'Leaderboard'], ['home', 'Site'], ['paper', 'Paper'], ['data', 'Data'], ['code', 'Code']]
 const CONTACT = 'https://github.com/dmurguia/calibration-arena/issues/new?title=Benchmark%20listing%3A%20'
 
@@ -43,13 +47,13 @@ function Row({ b }: { b: Benchmark }) {
     <summary>
       <div className="bm-name"><strong>{b.name}</strong><span>{b.publisher}</span></div>
       <div className="bm-area">{b.domains.map(d => DOMAINS[d]).join(' · ')}<span>{FORMAT[b.task_format]}{b.stateful ? ' · stateful' : ''}</span></div>
-      <div><span className={`bm-access bm-access-${b.data_access}`}>{ACCESS[b.data_access]}</span></div>
+      <div><span className={`bm-access bm-access-${b.data_access}`} title={ACCESS_HELP[b.data_access]}>{ACCESS[b.data_access]}</span></div>
       <div className="bm-result">
-        <span className={`bm-status bm-status-${b.results_status}`}>{STATUS[b.results_status]}</span>
-        {r?.leader_score && <span className="bm-leader">{r.leader ? `${r.leader} · ` : 'Top score · '}<b>{r.leader_score}</b></span>}
-        {r && <span className="bm-asof">{r.as_of ? `as of ${monthLabel(r.as_of)}` : 'no date on source'}</span>}
+        <span className={`bm-status bm-status-${b.results_status}`} title={STATUS_HELP[b.results_status]}>{STATUS[b.results_status]}</span>
+        {r?.leader_score && <span className="bm-leader">{r.leader ? `${r.leader} · ` : 'Top score · '}<b>{r.leader_score}</b>{r.metric && <span className="bm-metric"> {r.metric}</span>}</span>}
+        {r && <span className="bm-asof" title={r.as_of ? undefined : `The source shows no date. We last checked it on ${monthLabel(b.last_verified)}.`}>{r.as_of ? `As of ${monthLabel(r.as_of)}` : `Undated · checked ${monthLabel(b.last_verified)}`}</span>}
       </div>
-      <div><span className={`bm-rel bm-rel-${b.relevance}`}>{RELEVANCE[b.relevance]}</span></div>
+      <div><span className={`bm-rel bm-rel-${b.relevance}`} title={RELEVANCE_HELP[b.relevance]}>{RELEVANCE[b.relevance]}</span></div>
     </summary>
     <div className="bm-detail">
       <p>{b.summary}</p>
@@ -70,7 +74,20 @@ function Row({ b }: { b: Benchmark }) {
   </details>
 }
 
+type Section = 'leaderboards' | 'all' | 'awaiting' | 'method'
+const SECTIONS: Record<string, Section> = { '': 'leaderboards', all: 'all', awaiting: 'awaiting', method: 'method' }
+
+function Glossary() {
+  return <dl className="bm-glossary" id="labels">
+    <dt>Published results</dt><dd>{(Object.keys(STATUS) as ResultsStatus[]).map(k => <p key={k}><b>{STATUS[k]}.</b> {STATUS_HELP[k]}</p>)}</dd>
+    <dt>Data</dt><dd>{Object.keys(ACCESS).map(k => <p key={k}><b>{ACCESS[k]}.</b> {ACCESS_HELP[k]}</p>)}</dd>
+    <dt>Relevance</dt><dd>{Object.keys(RELEVANCE).map(k => <p key={k}><b>{RELEVANCE[k]}.</b> {RELEVANCE_HELP[k]}</p>)}</dd>
+  </dl>
+}
+
 export default function Benchmarks() {
+  const location = useLocation()
+  const section = SECTIONS[location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')]
   const [data, setData] = useState<Catalog | null>(null)
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
@@ -82,6 +99,14 @@ export default function Benchmarks() {
   useEffect(() => {
     fetch('/benchmarks.json').then(res => { if (!res.ok) throw new Error(); return res.json() }).then(setData).catch(() => setError('The benchmark catalog is unavailable right now.'))
   }, [])
+  useEffect(() => {
+    const id = decodeURIComponent(location.hash.slice(1))
+    if (!data || !id) return
+    const el = document.getElementById(id)
+    if (el instanceof HTMLDetailsElement) el.open = true
+    const frame = requestAnimationFrame(() => el?.scrollIntoView({ block: 'start' }))
+    return () => cancelAnimationFrame(frame)
+  }, [data, location.hash, section])
   const rows = useMemo(() => {
     if (!data) return []
     const q = query.trim().toLowerCase()
@@ -94,26 +119,33 @@ export default function Benchmarks() {
   const awaiting = data?.benchmarks.filter(b => b.results_status === 'unpublished' || b.results_status === 'unknown') ?? []
   const quiet = data?.products.filter(p => p.status !== 'published') ?? []
   const filtered = !!(query || domain || status || access || relevance || agentic)
+  if (!section) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
   return <div className="p-workspace bm-page">
-    <p className="p-eyebrow">Public benchmarks · Finance &amp; accounting</p>
-    <h1>Every public AI benchmark for finance and accounting, in one place.</h1>
-    <p className="p-lead">We track who publishes each benchmark, whether its data is open, how it's graded, and when its results were last checked. Every score links to its original source. We don't re-run or re-rank other people's benchmarks.</p>
+    <header className="bm-intro">
+      <p className="p-eyebrow">Finance &amp; accounting AI benchmarks</p>
+      <h1 className="bm-title">Which models lead each public finance and accounting benchmark</h1>
+      {data && <p className="bm-tally">
+        <span><b>{data.counts.benchmarks}</b> benchmarks tracked</span>
+        <span><b>{data.counts.by_results_status.leaderboard}</b> live leaderboards</span>
+        <Link to="/benchmarks/awaiting"><b>{awaiting.length + quiet.length}</b> awaiting public results</Link>
+        <span>Updated {monthLabel(data.catalog_updated)}</span>
+      </p>}
+      <p className="bm-promise">Every score is the publisher's own, linked to its source. We don't re-run, rescale or combine them.</p>
+    </header>
+    <nav className="bm-tabs" aria-label="Benchmark sections">
+      <NavLink to="/benchmarks" end>Leaderboards</NavLink>
+      <NavLink to="/benchmarks/all">All benchmarks{data && <span>{data.counts.benchmarks}</span>}</NavLink>
+      <NavLink to="/benchmarks/awaiting">Awaiting results{data && <span>{awaiting.length + quiet.length}</span>}</NavLink>
+      <NavLink to="/benchmarks/method">How we maintain this</NavLink>
+    </nav>
     {error && <p className="p-error" role="alert">{error}</p>}
     {!data && !error && <p className="p-loading" role="status">Loading the catalog…</p>}
-    {data && <>
-      <div className="bm-stats">
-        <div><b>{data.counts.benchmarks}</b><span>benchmarks &amp; indexes</span></div>
-        <div><b>{data.counts.by_results_status.leaderboard}</b><span>live leaderboards</span></div>
-        <div><b>{data.counts.by_results_status.snapshot + data.counts.by_results_status.archived}</b><span>one-time or archived results</span></div>
-        <div><b>{awaiting.length + quiet.length}</b><span>awaiting public results</span></div>
-        <div><b>{monthLabel(data.catalog_updated)}</b><span>catalog updated</span></div>
-      </div>
-      {!!data.boards?.length && <BenchmarkBoards boards={data.boards} models={data.models ?? []} benchmarks={data.benchmarks} />}
+    {data && section === 'leaderboards' && (data.boards?.length
+      ? <BenchmarkBoards boards={data.boards} models={data.models ?? []} benchmarks={data.benchmarks} />
+      : <p className="bm-empty">No model boards are published yet. <Link to="/benchmarks/all">Browse all benchmarks</Link>.</p>)}
 
-      <div className="bm-directory-head">
-        <p className="p-eyebrow">Directory</p>
-        <h2>All {data.counts.benchmarks} benchmarks, with or without model results</h2>
-      </div>
+    {data && section === 'all' && <section aria-labelledby="directory">
+      <h2 id="directory" className="bm-section-title">All {data.counts.benchmarks} benchmarks, with or without model results</h2>
       <div className="bm-filters" role="search">
         <label className="bm-search"><Search size={15} aria-hidden /><span className="sr-only">Search benchmarks</span><input type="search" placeholder="Search benchmarks, publishers, models" value={query} onChange={e => setQuery(e.target.value)} /></label>
         <label>Area<select value={domain} onChange={e => setDomain(e.target.value)}><option value="">All areas</option>{Object.entries(DOMAINS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
@@ -122,39 +154,45 @@ export default function Benchmarks() {
         <label>Relevance<select value={relevance} onChange={e => setRelevance(e.target.value)}><option value="">Any relevance</option>{Object.entries(RELEVANCE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         <label className="bm-check"><input type="checkbox" checked={agentic} onChange={e => setAgentic(e.target.checked)} />Agentic or stateful only</label>
       </div>
-      <p className="p-fine" aria-live="polite">{filtered ? `${rows.length} of ${data.benchmarks.length} shown` : `${data.benchmarks.length} listed`}. Select a row for methodology, license and sources.</p>
+      <p className="bm-count" aria-live="polite">{filtered ? `${rows.length} of ${data.benchmarks.length} shown` : `${data.benchmarks.length} listed`}. Select a row for methodology, license and sources. <Link to="/benchmarks/method#labels">What the labels mean</Link></p>
       <div className="bm-table" role="list">
         <div className="bm-head" aria-hidden><span>Benchmark</span><span>Area &amp; format</span><span>Data</span><span>Published results</span><span>Relevance</span></div>
         {rows.map(b => <div role="listitem" key={b.id}><Row b={b} /></div>)}
         {!rows.length && <p className="bm-empty">No benchmarks match these filters.</p>}
       </div>
+    </section>}
 
-      <section className="bm-awaiting" aria-labelledby="awaiting">
-        <p className="p-eyebrow">Awaiting public results</p>
-        <h2 id="awaiting">Built, or claimed, but not yet published.</h2>
-        <p>These benchmarks exist, or these products make accuracy claims, but we couldn't find public model results with a method we could check. If you publish results, we'll list them with a link back to you.</p>
-        <div className="bm-awaiting-grid">
-          {awaiting.map(b => <a key={b.id} href={`#${b.id}`} className="bm-await-card" onClick={() => { const el = document.getElementById(b.id) as HTMLDetailsElement | null; if (el) el.open = true }}>
-            <span className="bm-await-kind">Benchmark · {STATUS[b.results_status]}</span><strong>{b.name}</strong><span>{b.publisher}</span></a>)}
-          {quiet.map(p => <div key={p.id} className="bm-await-card">
-            <span className="bm-await-kind">Product · {p.status === 'claim_only' ? 'Accuracy claim, no public evaluation' : 'No public evaluation found'}</span>
-            <strong><Ext href={p.url}>{p.name}</Ext></strong>
-            {p.claim && p.claim_source && <span>{p.claim} <Ext href={p.claim_source}>source</Ext></span>}
-            <span className="bm-asof">Checked {monthLabel(p.last_verified)}</span>
-          </div>)}
-        </div>
-        <a className="p-secondary" href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a>
-      </section>
+    {data && section === 'awaiting' && <section className="bm-awaiting" aria-labelledby="awaiting">
+      <h2 id="awaiting" className="bm-section-title">Built, or claimed, but not yet published</h2>
+      <p>These benchmarks exist, or these products make accuracy claims, but we couldn't find public model results with a method we could check. If you publish results, we'll list them with a link back to you.</p>
+      <h3>Benchmarks without public results <span>{awaiting.length}</span></h3>
+      <div className="bm-awaiting-grid">
+        {awaiting.map(b => <Link key={b.id} to={{ pathname: '/benchmarks/all', hash: b.id }} className="bm-await-card">
+          <span className="bm-await-kind" title={STATUS_HELP[b.results_status]}>{STATUS[b.results_status]}</span><strong>{b.name}</strong><span>{b.publisher}</span></Link>)}
+      </div>
+      <h3>Products with no public evaluation <span>{quiet.length}</span></h3>
+      <div className="bm-awaiting-grid">
+        {quiet.map(p => <div key={p.id} className="bm-await-card">
+          <span className="bm-await-kind">{p.status === 'claim_only' ? 'Accuracy claim, no public evaluation' : 'No public evaluation found'}</span>
+          <strong><Ext href={p.url}>{p.name}</Ext></strong>
+          {p.claim && p.claim_source && <span>{p.claim} <Ext href={p.claim_source}>source</Ext></span>}
+          <span className="bm-asof">Checked {monthLabel(p.last_verified)}</span>
+        </div>)}
+      </div>
+      <a className="p-secondary" href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a>
+    </section>}
 
-      <section className="bm-method" aria-labelledby="method">
-        <h2 id="method">How this list is maintained</h2>
-        <ul>
-          <li><b>Publishers own their results.</b> We copy the headline figure, metric and date as stated at the linked source, and label where it came from: the publisher, a vendor report, a paper, or a third-party mirror.</li>
-          <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
-          <li><b>Freshness is visible.</b> Every source is re-checked on a schedule. Rows not re-verified within {data.review_after_days} days, or leaderboards whose results are more than {data.results_stale_after_days} days old, are flagged.</li>
-          <li><b>Open data.</b> The full catalog is available as <a href="/benchmarks.json">benchmarks.json</a>. Reuse it with attribution to the original publishers.</li>
-        </ul>
-      </section>
-    </>}
+    {data && section === 'method' && <section className="bm-method" aria-labelledby="method">
+      <h2 id="method" className="bm-section-title">How we maintain this list</h2>
+      <ul>
+        <li><b>Publishers own their results.</b> We copy the headline figure, metric and date as stated at the linked source, and label where it came from: the publisher, a vendor report, a paper, or a third-party mirror.</li>
+        <li><b>One board per benchmark.</b> Each board keeps its publisher's metric. We never combine boards into a single score, because they use different tasks, graders and metrics.</li>
+        <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
+        <li><b>Freshness is visible.</b> Every source is re-checked on a schedule. Rows not re-verified within {data.review_after_days} days, or leaderboards whose results are more than {data.results_stale_after_days} days old, are flagged.</li>
+        <li><b>Open data.</b> The full catalog is available as <a href="/benchmarks.json">benchmarks.json</a>. Reuse it with attribution to the original publishers.</li>
+      </ul>
+      <h3>What the labels mean</h3>
+      <Glossary />
+    </section>}
   </div>
 }

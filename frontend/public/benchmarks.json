@@ -30,6 +30,10 @@
         "accounting"
       ],
       "summary": "Long-horizon month-end close tasks (reconciliations, accruals, postings, reports) executed by agents across accounting software, spreadsheets, PDFs and mail.",
+      "metric_definitions": {
+        "mean-score": "Average share of each task's rubric criteria the model met, as judged by the publisher's LLM grader.",
+        "pass-1": "Share of tasks where the model met every rubric criterion on a single attempt."
+      },
       "task_format": "agentic",
       "size": "160 private tasks in 10 worlds, 2,186 criteria; public dev set of 10 tasks / 89 criteria",
       "stateful": true,
@@ -98,6 +102,9 @@
         "accounting"
       ],
       "summary": "Task-oriented accounting questions against a provisioned chart of accounts: classification, journal entries, AP, AR, bank reconciliation, reporting, month-end close and knowledge.",
+      "metric_definitions": {
+        "accuracy": "Share of the 101 questions answered correctly, graded pass/fail by deterministic checks."
+      },
       "task_format": "agentic",
       "size": "101 questions in 8 categories",
       "stateful": true,
@@ -369,6 +376,10 @@
         "investment_banking"
       ],
       "summary": "Investment-banking analyst tasks executed by agents across files and applications.",
+      "metric_definitions": {
+        "mean-score": "Average share of each task's rubric criteria the model met, as judged by the publisher's LLM grader.",
+        "pass-1": "Share of tasks where the model met every rubric criterion on a single attempt."
+      },
       "task_format": "agentic",
       "size": null,
       "stateful": true,
@@ -474,6 +485,10 @@
         "investment_banking"
       ],
       "summary": "Finance questions written by subject-matter experts, scored against expert rubrics by two LLM judges.",
+      "metric_definitions": {
+        "answer": "Share of questions where the model's final answer is correct.",
+        "rubric": "Average score against expert-written rubrics, from two LLM judges."
+      },
       "task_format": "qa",
       "size": "928 questions",
       "stateful": false,
@@ -975,6 +990,9 @@
         "tax"
       ],
       "summary": "CPA-authored tax-year 2025 Form 1040 scenarios scored against line-level atomic rubrics.",
+      "metric_definitions": {
+        "mean": "Average score across Form 1040 scenarios, each graded against line-level rubric items written by CPAs."
+      },
       "task_format": "generation",
       "size": null,
       "stateful": false,
@@ -1129,6 +1147,9 @@
         "financial_analysis"
       ],
       "summary": "Analyst research tasks where agents search the web and SEC EDGAR to answer questions about public companies.",
+      "metric_definitions": {
+        "accuracy": "Share of research questions answered correctly, graded against expert rubrics by an LLM judge."
+      },
       "task_format": "agentic",
       "size": "927 expert-reviewed questions",
       "stateful": false,
@@ -1167,6 +1188,9 @@
         "tax"
       ],
       "summary": "Tax questions scored on answer correctness and on stepwise reasoning against expert reasoning.",
+      "metric_definitions": {
+        "accuracy": "Vals' overall accuracy, combining answer correctness and stepwise reasoning against expert answers."
+      },
       "task_format": "qa",
       "size": "1,500+ questions",
       "stateful": false,
@@ -2123,6 +2147,9 @@
         "financial_analysis"
       ],
       "summary": "Long-context comprehension of credit agreements.",
+      "metric_definitions": {
+        "accuracy": "Share of questions about credit agreements answered correctly against the answer key."
+      },
       "task_format": "document_qa",
       "size": null,
       "stateful": false,
@@ -2199,6 +2226,9 @@
         "tax"
       ],
       "summary": "Semantic and numerical extraction from image-based property-tax certificates.",
+      "metric_definitions": {
+        "accuracy": "Share of extraction questions answered correctly against the answer key."
+      },
       "task_format": "extraction",
       "size": "1,258 documents",
       "stateful": false,

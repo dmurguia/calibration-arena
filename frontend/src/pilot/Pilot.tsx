@@ -1,7 +1,7 @@
-import { createContext, FormEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Copy, ChevronLeft, BookOpen, ArrowUp, Plus, FileText, PanelLeft, X, Info, Download, Maximize2, Minimize2, Library } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, Sparkles, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -14,23 +14,30 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
 import './accounts.css'
-import { encodeAsset, financeAssetMaxBytes, financeWorkflows } from './financeWorkflows'
+import { encodeAsset, financeAssetMaxBytes, financeWorkflows, type FinanceWorkflow } from './financeWorkflows'
 import { FinanceTaskAssets } from './FinanceTaskAssets'
 
 type SignInReason = 'ask' | 'button'
-const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
+type AuthMode = 'signin' | 'signup'
+const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason, mode?: AuthMode) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
 const pendingKey = 'calibrated.pendingQuestion'
 const pendingWorkflowKey = 'calibrated.pendingWorkflow'
+// Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
+const authModeKey = 'calibrated.authMode'
+const sidebarKey = 'calibrated.sidebarCollapsed'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 const labels: Record<string, string> = { a: 'Draft A', b: 'Draft B', tie: 'Equivalent', neither: 'Neither', unsure: 'Insufficient evidence', ready: 'Ready to approve', revise: 'Needs revision' }
 
 function Eyebrow({ children }: { children: ReactNode }) { return <p className="p-eyebrow">{children}</p> }
-function ArenaBrand() {
-  return <Link className="p-brand" to="/" aria-label="Calibration Arena by Calibrated Co. home">
+// The sidebar shows only the C mark; the mobile header keeps the wordmark since there is no other title there.
+function ArenaBrand({ markOnly = false, inline = false }: { markOnly?: boolean; inline?: boolean }) {
+  if (markOnly) return <Link className="p-brand p-brand-mark" to="/" aria-label="Calibration Arena by Calibrated Co. home"><CalibratedMark size={30} /></Link>
+  // The inline wordmark sits beside the sidebar's mark, so it does not repeat the C.
+  return <Link className={`p-brand ${inline ? 'p-brand-inline' : ''}`} to="/" aria-label="Calibration Arena by Calibrated Co. home">
     <span className="p-brand-name">Calibration Arena</span>
-    <span className="p-brand-attribution"><span>by</span><CalibratedMark size={24} /><span>Calibrated Co.</span></span>
+    <span className="p-brand-attribution"><span>by</span>{!inline && <CalibratedMark size={24} />}<span>Calibrated Co.</span></span>
   </Link>
 }
 function ErrorNote({ message }: { message: string }) { return message ? <p className="p-error" role="alert">{message}</p> : null }
@@ -41,7 +48,11 @@ export default function Pilot() {
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem(sidebarKey) === '1' } catch { return false } })
+  const toggleCollapsed = () => { setCollapsed(!collapsed); try { localStorage.setItem(sidebarKey, collapsed ? '0' : '1') } catch { /* private mode */ } }
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
+  const [authMode, setAuthMode] = useState<AuthMode>('signin')
+  const openSignIn = (reason: SignInReason, mode: AuthMode = 'signin') => { setAuthMode(mode); setSignIn(reason) }
   const location = useLocation()
   const navigate = useNavigate()
   const refresh = async () => {
@@ -54,34 +65,36 @@ export default function Pilot() {
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
-  return <Context.Provider value={{ me, config, cases, refresh, openSignIn: setSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
+  // Returning from Google/Microsoft/GitHub lands on #/sso-callback; the popup must be open for Clerk to finish.
+  useEffect(() => { if (clerkEnabled && window.location.hash.includes('sso-callback')) openSignIn('button', (sessionStorage.getItem(authModeKey) as AuthMode | null) ?? 'signin') }, [])
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className="pilot">
     <a className="p-skip" href="#main">Skip to content</a>
-    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button>}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
+    <div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <MobileSignIn onClick={() => openSignIn('button')} />}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
-    <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''}`}>
-      <ArenaBrand />
-      <div className="p-area"><span>WORKSPACE</span><strong><BookOpen size={15} />Finance</strong></div>
+    <aside id="pilot-sidebar" className={`p-sidebar ${menuOpen ? 'is-open' : ''} ${collapsed ? 'is-collapsed' : ''}`}>
+      <div className="p-sidebar-head"><ArenaBrand markOnly /><button type="button" className="p-sidebar-collapse" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} title={collapsed ? 'Expand' : 'Collapse'} onClick={toggleCollapsed}><PanelLeft size={17} /></button></div>
+      <WorkspaceSwitcher />
       <nav aria-label="Main navigation">
-        <NavLink to="/" end onClick={() => setMenuOpen(false)}><Plus size={16} />New comparison</NavLink>
-        <NavLink to="/cases"><FileText size={16} />Close examples</NavLink>
-        <NavLink to="/record"><BookOpen size={16} />Notebook</NavLink>
-        <NavLink to="/benchmarks"><Library size={16} />Benchmarks</NavLink>
+        <NewProjectMenu onPick={() => setMenuOpen(false)} />
+        <NavLink to="/projects" onClick={() => setMenuOpen(false)} title="My projects"><Folder size={16} /><span>My projects</span></NavLink>
+        <NavLink to="/cases" title="Library"><BookOpen size={16} /><span>Library</span></NavLink>
+        <NavLink to="/benchmarks" title="Benchmarks"><Library size={16} /><span>Benchmarks</span></NavLink>
+        <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
       </nav>
-      {!!me?.runs.length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.slice(0, 5).map(r => <Link key={r.id} to={`/session/${r.id}`}>{r.kind === 'ask' ? r.brief.slice(0, 45) : r.title}</Link>)}</div>}
-      {me?.usage && <p className="p-sidebar-usage">{me.usage.used.toLocaleString()} of {me.usage.budget.toLocaleString()} tokens used</p>}
-      {clerkEnabled
-        ? <ClerkAccountBlock account={me?.account ?? null} refresh={refresh} />
-        : me?.account && <div className="p-sidebar-account"><span>{me.account.email}</span><button onClick={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }}>Sign out</button></div>}
-      <div className="p-sidebar-bottom"><NavLink to="/method"><Info size={15} />How it works</NavLink>{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
+      {!!me?.runs.filter(r => !r.archived).length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.filter(r => !r.archived).slice(0, 5).map(r => <RunRow key={r.id} run={r} onPick={() => setMenuOpen(false)} />)}</div>}
+      <div className="p-sidebar-account">{clerkEnabled
+        ? <ClerkAccountBlock me={me} refresh={refresh} />
+        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>
+      <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside>
     <div className="p-main-column">
-    {ready && !me?.account && <div className="p-topbar"><button className="p-signin-button" onClick={() => setSignIn('button')}>Sign in</button></div>}
+    <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}</div>
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
       <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
-      <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/method" element={<Method />} />
+      <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/projects" element={<MyProjects />} /><Route path="/method" element={<Method />} />
       {clerkEnabled ? <>
-        <Route path="/signin/*" element={<ClerkAuthPage title="Sign in."><ClerkSignIn routing="path" path="/signin" signUpUrl="/signup" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
-        <Route path="/signup/*" element={<ClerkAuthPage title="Keep your notebook."><ClerkSignUp routing="path" path="/signup" signInUrl="/signin" fallbackRedirectUrl="/" /></ClerkAuthPage>} />
+        <Route path="/signin/*" element={<OpenAuth mode="signin" open={openSignIn} />} />
+        <Route path="/signup/*" element={<OpenAuth mode="signup" open={openSignIn} />} />
         <Route path="/reset" element={<Navigate to="/signin" replace />} />
       </> : <>
         <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} />
@@ -91,52 +104,210 @@ export default function Pilot() {
     </Routes>}</main>
     <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
   </div></div>
-  <SignInDialog reason={signIn} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
+  <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
 
-function SignInDialog({ reason, signedIn, onClose, refresh }: { reason: SignInReason | null; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
+// No "Sign in" while Clerk already has a session; the bridge is exchanging it (or reporting why it could not).
+function TopbarSignIn({ onClick }: { onClick: () => void }) {
+  const button = <button className="p-signin-button" onClick={onClick}>Sign in</button>
+  if (!clerkEnabled) return button
+  return <ClerkTopbarSignIn>{button}</ClerkTopbarSignIn>
+}
+function MobileSignIn({ onClick }: { onClick: () => void }) {
+  const button = <button className="p-signin-button" onClick={onClick}>Sign in</button>
+  if (!clerkEnabled) return button
+  return <ClerkTopbarSignIn>{button}</ClerkTopbarSignIn>
+}
+function ClerkTopbarSignIn({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  if (!isLoaded || isSignedIn) return null
+  return <>{children}</>
+}
+
+// Clerk leaves its card blank once sign-in or sign-up completes; close straight into the app instead.
+function CloseOnClerkSignIn({ onSignedIn }: { onSignedIn: () => void }) {
+  const { isSignedIn } = useAuth()
+  useEffect(() => { if (isSignedIn) onSignedIn() }, [isSignedIn])
+  return null
+}
+
+// Old /signin and /signup links open the popup over the home page instead of a separate page.
+function OpenAuth({ mode, open }: { mode: AuthMode; open: (reason: SignInReason, mode: AuthMode) => void }) {
+  useEffect(() => { open('button', mode) }, [])
+  return <Navigate to="/" replace />
+}
+
+function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { reason: SignInReason | null; mode: AuthMode; onMode: (mode: AuthMode) => void; signedIn: boolean; onClose: () => void; refresh: () => Promise<void> }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const location = useLocation()
+  // Set when Clerk finishes; the pending question must survive this close so it can be asked once the session exchange lands.
+  const finishing = useRef(false)
   useEffect(() => { const d = dialog.current; if (reason && !signedIn) { if (!d?.open) d?.showModal() } else d?.close() }, [reason, signedIn])
   useEffect(() => { if (signedIn && reason) onClose() }, [signedIn])
-  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn) sessionStorage.removeItem(pendingKey); onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
-    <div className="p-signin-head"><Eyebrow>Your Calibrated account</Eyebrow><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
-    <h2 id="signin-title">{reason === 'ask' ? 'Sign in to compare.' : 'Sign in.'}</h2>
-    <p className="p-signin-note">{reason === 'ask' ? 'Your question is saved. Once you’re signed in, both models answer it.' : 'Your notebook follows your account across devices.'}</p>
+  useEffect(() => { if (reason) sessionStorage.setItem(authModeKey, mode) }, [reason, mode])
+  // Clerk's footer link ("Sign up" / "Sign in") would navigate to a page; switch the popup instead.
+  const switchMode = (e: MouseEvent) => {
+    // Only the account prompts; other footer links ("Use another method") share .cl-footerActionLink.
+    if (!(e.target as HTMLElement).closest('.cl-footerAction__signIn .cl-footerActionLink, .cl-footerAction__signUp .cl-footerActionLink')) return
+    e.preventDefault(); e.stopPropagation()
+    history.replaceState(null, '', window.location.pathname + window.location.search)
+    onMode(mode === 'signin' ? 'signup' : 'signin')
+  }
+  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) sessionStorage.removeItem(pendingKey); finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
+    <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
+    <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in'}</h2>
+    <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
     {reason && (clerkEnabled
-      ? <div className="p-signin-clerk"><ClerkSignIn routing="hash" withSignUp fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} /></div>
+      ? <div className="p-signin-clerk" onClickCapture={switchMode}><CloseOnClerkSignIn onSignedIn={() => { finishing.current = true; dialog.current?.close() }} />{mode === 'signin'
+        ? <ClerkSignIn key="signin" routing="hash" fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} />
+        : <ClerkSignUp key="signup" routing="hash" fallbackRedirectUrl={location.pathname} signInFallbackRedirectUrl={location.pathname} />}</div>
       : <div className="p-signin-legacy"><SignIn embedded onSignedIn={refresh} /><p className="p-fine">New here? <Link to="/signup" onClick={() => dialog.current?.close()}>Create an account</Link>.</p></div>)}
   </dialog>
 }
 
-function ClerkAuthPage({ title, children }: { title: string; children: ReactNode }) {
-  return <div className="p-narrow">
-    <Eyebrow>Your Calibrated account</Eyebrow>
-    <h1>{title}</h1>
-    <p className="p-lead">Your notebook follows your account across devices.</p>
-    <div className="p-clerk-auth">{children}</div>
-  </div>
-}
-
-function ClerkAccountBlock({ account, refresh }: { account: Me['account']; refresh: () => Promise<void> }) {
+function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Promise<void> }) {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const clerk = useClerk()
   const navigate = useNavigate()
 
-  if (!isLoaded) return <div className="p-sidebar-account"><span>Loading account…</span></div>
-  if (isSignedIn) return <div className="p-sidebar-account">
-    <span>{account?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'Signed in'}</span>
-    <button onClick={() => clerk.openUserProfile()}>Manage account</button>
-    <button onClick={async () => {
+  if (!isLoaded || !isSignedIn) return null
+  const email = me?.account?.email ?? user?.primaryEmailAddress?.emailAddress ?? ''
+  return <AccountMenu
+    email={email}
+    onManage={() => clerk.openUserProfile()}
+    onSignOut={async () => {
       try { await call('/auth/logout') } catch { /* token may already be expired */ }
       clearToken()
       await clerk.signOut()
       await refresh()
       navigate('/')
-    }}>Sign out</button>
+    }}
+  />
+}
+
+// Pinned to the bottom of the sidebar while signed in; the card opens upward like a workspace switcher.
+// Pseudonymous by design: no names or profile photos, even when Google or Microsoft supply them.
+function AccountMenu({ email, onManage, onSignOut }: { email: string; onManage?: () => void; onSignOut: () => void }) {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  const label = email || 'Your account'
+  const avatar = <span className="p-account-avatar" aria-hidden="true">{label.charAt(0).toUpperCase()}</span>
+  return <div className="p-account" ref={root}>
+    {open && <div className="p-account-card" id="account-menu" role="menu" aria-label="Account">
+      <div className="p-account-who"><strong>{label}</strong></div>
+      {onManage && <button role="menuitem" onClick={() => { setOpen(false); onManage() }}>Manage account</button>}
+      <hr />
+      <button role="menuitem" onClick={() => { setOpen(false); onSignOut() }}><LogOut size={16} />Sign out</button>
+    </div>}
+    <button className="p-account-trigger" aria-haspopup="menu" aria-expanded={open} aria-controls="account-menu" onClick={() => setOpen(!open)}>
+      {avatar}<span className="p-account-name">{label}</span><ChevronsUpDown size={15} />
+    </button>
   </div>
-  return null
+}
+
+// Per-session actions shared by the sidebar lists and the My projects page.
+function RunMenu({ run, onRename }: { run: Run; onRename?: () => void }) {
+  const { refresh } = usePilot()
+  const [open, setOpen] = useState(false)
+  // Fixed to the viewport, anchored to the button: lists scroll and later rows paint over an absolute card.
+  const [at, setAt] = useState<{ top: number; left: number } | null>(null)
+  const root = useRef<HTMLDivElement>(null)
+  const toggle = (e: MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    setAt({ top: rect.bottom + 4, left: Math.max(8, Math.min(rect.right - 184, window.innerWidth - 192)) })
+    setOpen(!open)
+  }
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    const close = () => setOpen(false)
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape); window.removeEventListener('scroll', close, true); window.removeEventListener('resize', close) }
+  }, [open])
+  const archive = async () => { setOpen(false); try { await call(`/runs/${run.id}/archive`, { archived: !run.archived }); await refresh() } catch { /* list refresh will show the truth */ } }
+  return <div className="p-run-menu" ref={root} onClick={e => { e.preventDefault(); e.stopPropagation() }}>
+    <button type="button" aria-label="Project actions" aria-haspopup="menu" aria-expanded={open} onClick={toggle}><MoreVertical size={15} /></button>
+    {open && at && <div role="menu" className="p-run-menu-card" style={{ top: at.top, left: at.left }}>
+      <a role="menuitem" href={`/session/${run.id}`} target="_blank" rel="noreferrer" onClick={() => setOpen(false)}><ExternalLink size={14} />Open in new tab</a>
+      {onRename && <button role="menuitem" type="button" onClick={() => { setOpen(false); onRename() }}><Pencil size={14} />Rename</button>}
+      <button role="menuitem" type="button" onClick={archive}><Archive size={14} />{run.archived ? 'Restore' : 'Archive'}</button>
+    </div>}
+  </div>
+}
+
+// One row for a session: title (or an inline rename field) plus the actions menu.
+function RunRow({ run, className = '', onPick }: { run: Run; className?: string; onPick?: () => void }) {
+  const { refresh } = usePilot()
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(run.title)
+  const save = async () => {
+    setEditing(false)
+    const next = title.trim()
+    if (!next || next === run.title) { setTitle(run.title); return }
+    try { await call(`/runs/${run.id}/title`, { title: next }); await refresh() } catch { setTitle(run.title) }
+  }
+  if (editing) return <form className={`p-run-row ${className}`} onSubmit={e => { e.preventDefault(); void save() }}><input autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
+  return <div className={`p-run-row ${className}`}><NavLink to={`/session/${run.id}`} onClick={onPick} title={run.brief}>{run.title || run.brief.slice(0, 48)}</NavLink><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
+}
+
+// Finance is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
+function WorkspaceSwitcher() {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  return <div className="p-area p-workspace-switcher" ref={root}>
+    <span>WORKSPACE</span>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Finance"><BookOpen size={15} /><span>Finance</span><ChevronsUpDown size={14} /></button>
+    {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
+      <p className="p-workspace-current"><BookOpen size={14} />Finance<span>Current</span></p>
+      <p className="p-workspace-tease">Don’t see the knowledge work you want? Coming soon.</p>
+    </div>}
+  </div>
+}
+
+// "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
+function NewProjectMenu({ onPick }: { onPick: () => void }) {
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [open])
+  const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
+  return <div className="p-new-project" ref={root}>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} /><span>New project</span></button>
+    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
+      <h2>New project</h2>
+      <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
+      <button type="button" className="p-new-project-blank" onClick={() => pick()}><Plus size={14} />Ask your own question</button>
+    </div>}
+  </div>
 }
 
 function Home() {
@@ -170,7 +341,7 @@ function CaseLibrary() {
   }
   const row = (a: CaseAssignment, i: number) => <button className="p-case-row p-assigned-row" onClick={() => open(a)} disabled={!!busy} key={a.id}><span className="p-case-number">{String(i + 1).padStart(2, '0')}</span><div><span className="p-meta">{a.framework}</span><h3>{a.title}</h3></div><span className="p-case-time">{busy === a.id ? 'Opening…' : a.status === 'completed' ? 'Reviewed' : a.run_id ? 'Resume' : 'Compare'}</span><ArrowUpRight size={20} /></button>
   const first = assignments.slice(0, 3)
-  return <div className="p-workspace"><Eyebrow>Accounting</Eyebrow><h1>Close examples</h1><p className="p-lead">Compare the same responses to a few month-end questions. Progress stays in this notebook; return to your own questions whenever you like.</p>
+  return <div className="p-workspace"><Eyebrow>Finance</Eyebrow><h1>Library</h1><p className="p-lead">Real-world situations from a synthetic company. Pick one to test your judgment or to train someone on yours.</p>
     {!me && <form onSubmit={async e => { e.preventDefault(); setBusy('enroll'); setError(''); try { await beginGuest(refresh) } catch (e) { setError(errorText(e)) } finally { setBusy('') } }}><button className="p-button" disabled={!!busy}>{busy ? 'Opening…' : 'Open examples'} <ArrowRight size={16} /></button></form>}
     {me && loading && <p role="status">Loading saved progress…</p>}
     {me && !loading && !assignments.length && <p className="p-empty-cases">No shared comparisons have been added yet. <Link to="/">Ask a question</Link> or explore a practice example below.</p>}
@@ -191,45 +362,68 @@ function CaseStart() {
 }
 
 const promptTeasers = [
-  'Ask Calibration Arena to explain a budget variance…',
-  'Ask Calibration Arena to stress-test a cash flow forecast…',
-  'Ask Calibration Arena to review a month-end close issue…',
-  'Ask Calibration Arena to frame a board update…',
+  'Why is gross margin down 4 points this quarter when volume is up?',
+  'Can we recognize an annual SaaS contract up front if it was paid in full?',
+  'Does this prepaid insurance cutoff look right for the August close?',
+  'How should I book an accrual that was recorded twice last month?',
+  'Which intercompany balances still need eliminating before consolidation?',
 ]
 
+// Types each teaser out character by character, holds it, clears, and moves to the next; plain text under reduced motion.
 function usePromptTeaser(active: boolean) {
   const [index, setIndex] = useState(0)
+  const [typed, setTyped] = useState(0)
+  const [animated, setAnimated] = useState(false)
   useEffect(() => {
     if (!active) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     let timer: number | undefined
-    const update = () => {
-      window.clearInterval(timer)
-      if (reducedMotion.matches) setIndex(0)
-      else if (!document.hidden) timer = window.setInterval(() => setIndex(i => (i + 1) % promptTeasers.length), 6000)
+    const stop = () => window.clearTimeout(timer)
+    const run = () => {
+      stop()
+      if (reducedMotion.matches || document.hidden) { setAnimated(false); setTyped(promptTeasers[index].length); return }
+      setAnimated(true)
+      const full = promptTeasers[index].length
+      const text = promptTeasers[index]
+      const delay = (n: number) => {
+        const prev = text[n - 1]
+        const base = 70 + Math.random() * 90
+        if (prev === ',' || prev === '?') return base + 260
+        if (prev === ' ') return base + 60 + (Math.random() < 0.12 ? 350 : 0)
+        return base
+      }
+      // Keep the counter outside React state: an updater that schedules timers runs twice under StrictMode.
+      let n = 0
+      setTyped(0)
+      const step = () => {
+        n += 1
+        setTyped(n)
+        if (n < full) timer = window.setTimeout(step, delay(n + 1))
+        else timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
+      }
+      timer = window.setTimeout(step, 700)
     }
-    update()
-    reducedMotion.addEventListener('change', update)
-    document.addEventListener('visibilitychange', update)
-    return () => {
-      window.clearInterval(timer)
-      reducedMotion.removeEventListener('change', update)
-      document.removeEventListener('visibilitychange', update)
-    }
-  }, [active])
-  return promptTeasers[index]
+    run()
+    reducedMotion.addEventListener('change', run)
+    document.addEventListener('visibilitychange', run)
+    return () => { stop(); reducedMotion.removeEventListener('change', run); document.removeEventListener('visibilitychange', run) }
+  }, [active, index])
+  return { text: promptTeasers[index].slice(0, animated ? typed : undefined), full: promptTeasers[index], animated }
 }
 
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState(() => sessionStorage.getItem(pendingKey) ?? '')
-  const [workflowId, setWorkflowId] = useState<string | null>(() => sessionStorage.getItem(pendingWorkflowKey))
+  const handedWorkflow = financeWorkflows.find(task => task.id === (useLocation().state as { workflow?: string } | null)?.workflow)
+  const [question, setQuestion] = useState(() => handedWorkflow?.prompt ?? sessionStorage.getItem(pendingKey) ?? '')
+  const [workflowId, setWorkflowId] = useState<string | null>(() => handedWorkflow?.id ?? sessionStorage.getItem(pendingWorkflowKey))
+  // Reloads keep history state, so forget the handed-over workflow once it is in the composer.
+  useEffect(() => { if (handedWorkflow) window.history.replaceState({ ...window.history.state, usr: null }, '') }, [])
   const [files, setFiles] = useState<Record<string, File>>({})
   const workflow = financeWorkflows.find(task => task.id === workflowId)
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const [promptFocused, setPromptFocused] = useState(false)
-  const placeholder = usePromptTeaser(!question && !promptFocused && !busy)
+  const teaser = usePromptTeaser(!question && !promptFocused && !busy)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
   // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
@@ -273,15 +467,16 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. — for finance professionals</p></>}
-    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><p>{question}</p></section><WaitingPair /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
+    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. • for the finance community</p></>}
+    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><span className="p-meta">You</span>{workflow && <span className="p-submitted-task" data-tone={workflow.tone}><span className="p-tone-tile"><workflow.icon size={12} /></span>{workflow.label}</span>}<p>{question}</p></section><WaitingPair workflow={workflow} /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="sr-only">Finance question</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={placeholder} />
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={teaser.animated && !promptFocused ? '' : teaser.full} />
+      {teaser.animated && !question && !promptFocused && <span className="p-prompt-teaser" aria-hidden="true">{teaser.text}<i className="p-caret" /></span>}
       {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
-      <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? 'Two models · blind comparison' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
+      <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
-    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><task.icon size={18} aria-hidden="true" /><span>{task.label}</span></button>)}</div>
+    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
     </>}
   </div>
 }
@@ -289,9 +484,9 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
 interface Report { id: string; position: string; category: string | null; note: string; after_reveal: boolean }
 const issueTypes: [string, string][] = [['clarity', 'Clarity / presentation'], ['calculation', 'Calculation'], ['timing', 'Timing'], ['account-treatment', 'Account treatment'], ['policy', 'Policy / framework'], ['missing-facts', 'Missing facts'], ['unsupported-claim', 'Unsupported claim'], ['other', 'Other']]
 
-function DraftPanel({ draft, reveal, authored, focused, onFocus }: { draft: Draft; reveal: boolean; authored: boolean; focused?: boolean; onFocus?: () => void }) {
+function DraftPanel({ draft, reveal, authored, focused, onFocus, onPrefer }: { draft: Draft; reveal: boolean; authored: boolean; focused?: boolean; onFocus?: () => void; onPrefer?: () => void }) {
   return <article className="p-draft">
-    <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
+    <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onPrefer && <button type="button" className="p-prefer-button" onClick={onPrefer}>{draft.position.toUpperCase()} is better</button>}{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
     <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null, a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }) => <div className="p-table-scroll"><table>{children}</table></div> }}>{draft.text}</Markdown>}</div>
     {reveal && !!draft.checks?.length && <details className="p-check-details"><summary>Case checks</summary>{draft.checks.map(check => <p key={check.label}>{check.passed ? '✓' : '↳'} {check.label}: {check.passed ? 'pass' : 'needs correction'}</p>)}<p>{draft.review_note}</p></details>}
   </article>
@@ -329,18 +524,46 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
+  const rank = (d: Draft) => d.position === preferred ? 'Your pick' : run.judgment!.preference === 'tie' ? 'Tied' : preferred ? 'Runner-up' : ''
   return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={27} /><div><p>{preferred ? 'Your pick revealed' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
-    <div className="p-result-tabs" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}><span className="p-result-position">{d.position.toUpperCase()}</span><span>{d.author}</span>{d.position === preferred && <span className="p-preferred-label">Preferred</span>}</button>)}</div>
-    <div className="p-result-toolbar"><span>Response {active.position.toUpperCase()}</span><div><button onClick={copy}><Copy size={14} />Copy response</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
-    <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}><DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} /></div>
+    <div className="p-result-stage">
+      <div className="p-result-main" id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
+        <div className="p-result-head">{rank(active) && <span className={`p-result-rank ${active.position === preferred ? 'is-pick' : ''}`}>{rank(active)}</span>}<strong>Response {active.position.toUpperCase()}</strong><span className="p-meta">{active.author}</span></div>
+        <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
+        <div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div>
+      </div>
+      <div className="p-result-rail" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
+        <span className="p-result-rail-top">{rank(d) && <span className={`p-result-rank ${d.position === preferred ? 'is-pick' : ''}`}>{rank(d)}</span>}<span className="p-result-position">{d.position.toUpperCase()}</span></span>
+        <span className="p-result-rail-author">{d.author}</span>
+        <span className="p-result-rail-snippet">{d.text.replace(/[#*_`>|]/g, '').slice(0, 150)}</span>
+      </button>)}</div>
+    </div>
     {message && <p className="p-export-message" role="status">{message}</p>}
   </section>
 }
 
-function WaitingPair() {
+// What the system is doing while two models draft: a typed tile, a status line that moves, an elapsed clock, and two breathing drafts.
+const waitingLines = [
+  'Reading your question',
+  'Two models drafting independently',
+  'Checking the numbers against the facts',
+  'Laying the responses side by side',
+  'Almost there',
+]
+function WaitingPair({ workflow }: { workflow?: FinanceWorkflow | null }) {
   const [seconds, setSeconds] = useState(0)
+  const [line, setLine] = useState(0)
   useEffect(() => { const started = Date.now(); const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000); return () => clearInterval(timer) }, [])
-  return <div className="p-waiting" role="status"><CalibratedMark size={28} /><div><strong>Two perspectives in progress</strong><p>Waiting for both responses · {seconds}s</p><div className="p-waiting-cards" aria-hidden="true"><span>A</span><span>B</span></div></div></div>
+  useEffect(() => { const timer = setInterval(() => setLine(l => Math.min(l + 1, waitingLines.length - 1)), 4200); return () => clearInterval(timer) }, [])
+  const Icon = workflow?.icon ?? Sparkles
+  return <div className="p-waiting" role="status" data-tone={workflow?.tone ?? 'gold'}>
+    <div className="p-waiting-head">
+      <span className="p-waiting-tile p-tone-tile"><Icon size={20} /></span>
+      <div><strong>{workflow ? `Preparing a ${workflow.label.toLowerCase()} comparison` : 'Preparing two perspectives'}</strong><p key={line} className="p-waiting-line">{waitingLines[line]}<span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span></p></div>
+      <span className="p-waiting-clock">{seconds}s</span>
+    </div>
+    <div className="p-waiting-cards" aria-hidden="true">{['A', 'B'].map(side => <span key={side} className="p-waiting-card"><em>Response {side}</em><b /><b /><b /></span>)}</div>
+  </div>
 }
 
 function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) => void }) {
@@ -358,11 +581,11 @@ function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) =
   }
   return <section className="p-refine"><div className="p-refine-heading"><span className="p-fine">{run.status === 'completed' || run.identity_exposed ? 'Models revealed' : 'Authors hidden'}</span><Link to="/">New question <Plus size={14} /></Link></div>
     {limit ? <p className="p-limit-note">This comparison has reached its conversation limit. {run.status === 'completed' ? 'Start a new question to explore further.' : 'Finish & reveal when you’re ready.'}</p> : <form className="p-composer" onSubmit={submit}><label htmlFor="revision-prompt" className="sr-only">Follow-up prompt</label>
-      <textarea id="revision-prompt" value={question} onChange={e => setQuestion(e.target.value)} rows={2} minLength={1} maxLength={5000} placeholder="Ask both a follow-up…" required disabled={busy} />
+      <textarea id="revision-prompt" value={question} onChange={e => setQuestion(e.target.value)} rows={2} minLength={1} maxLength={5000} placeholder={busy ? 'Two models are drafting…' : 'Ask both a follow-up…'} required disabled={busy} />
       <div className="p-composer-bottom"><span>Same follow-up. Each model continues its own conversation.</span><button className="p-send" disabled={busy || !question.trim()} aria-label="Send follow-up"><ArrowUp size={18} /></button></div>
       <ErrorNote message={error} />
     </form>}
-    {busy && <WaitingPair />}
+    {busy && <WaitingPair workflow={financeWorkflows.find(task => task.id === run.workflow_id)} />}
   </section>
 }
 
@@ -381,20 +604,20 @@ function Session() {
   const voted = run.status === 'completed'; const showing = voted || run.status === 'review'
   const share = async () => { try { await navigator.clipboard.writeText(`${location.origin}/case/${run.case_id}?source=peer-share`); setCopied(true); call('/events', { name: 'share_intent', run_id: run.id }).catch(() => {}) } catch { setError('Could not copy the link. Open the sample case and copy its address.') } }
   return <div className="p-workspace p-comparison">
-    <div className="p-session-top"><span>Accounting · {run.title}</span><Link to="/record">Notebook <ArrowUpRight size={13} /></Link></div>
+    <div className="p-session-top"><span>{run.title}</span><Link to="/record">Notebook <ArrowUpRight size={13} /></Link></div>
     {!!run.history?.length && <details className="p-thread-history"><summary>Earlier messages ({run.history.length})</summary>{run.history.map((m, i) => m.role === 'user' ? <section className="p-question" key={i}><Eyebrow>Prompt</Eyebrow><p>{m.content}</p></section> : <div className="p-history-answer" key={i}><Eyebrow>Selected response</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</details>}
-    {!!run.conversation?.length && <details className="p-thread-history"><summary>Earlier turns · A and B</summary><div className="p-drafts">{run.conversation.map(thread => <div key={thread.position}><h3>Response {thread.position.toUpperCase()}</h3>{thread.messages.map((m, i) => <div key={i} className={m.role === 'user' ? 'p-question' : 'p-history-answer'}><Eyebrow>{m.role === 'user' ? 'Prompt' : 'Response'}</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</div>)}</div></details>}
-    <section className="p-question"><Eyebrow>{run.kind === 'ask' ? 'Prompt' : run.mode === 'authored-fixture' ? 'Practice · authored responses' : 'Close example'}</Eyebrow><p>{run.brief}</p>{!!run.attachments?.length && <ul className="p-source-files" aria-label="Source files">{run.attachments.map(file => <li key={file.role}><FileText size={14} />{file.name}</li>)}</ul>}{run.source_run_id && <Link className="p-text-link" to={`/session/${run.source_run_id}`}>Previous comparison <ArrowUpRight size={12} /></Link>}</section>
+    {!!run.conversation?.length && <details className="p-thread-history" open><summary>Earlier turns · A and B</summary><div className="p-drafts">{run.conversation.map(thread => <div key={thread.position}><h3>Response {thread.position.toUpperCase()}</h3>{thread.messages.map((m, i) => <div key={i} className={m.role === 'user' ? 'p-question' : 'p-history-answer'}><Eyebrow>{m.role === 'user' ? 'Prompt' : 'Response'}</Eyebrow><Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>{m.content}</Markdown></div>)}</div>)}</div></details>}
+    <section className={`p-question ${run.kind === 'ask' ? 'p-question-bubble' : ''}`}><Eyebrow>{run.kind === 'ask' ? 'You' : run.mode === 'authored-fixture' ? 'Practice · authored responses' : 'Close example'}</Eyebrow><p>{run.brief}</p>{!!run.attachments?.length && <ul className="p-source-files" aria-label="Source files">{run.attachments.map(file => <li key={file.role}><FileText size={14} />{file.name}</li>)}</ul>}{run.source_run_id && <Link className="p-text-link" to={`/session/${run.source_run_id}`}>Previous comparison <ArrowUpRight size={12} /></Link>}</section>
     {run.status === 'conclusion' && <div className="p-independent"><h2>Compare the responses.</h2><button className="p-button" disabled={busy} onClick={() => save('skip-conclusion', {})}>Show responses <ArrowRight size={16} /></button>
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
-      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <><div className="p-pair-heading"><CalibratedMark size={25} /><h1>Two perspectives. Keep the conversation going.</h1></div>
-      <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-preview' : ''}`} key={`${run.id}-${d.position}`}><DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} /></div>)}</div></>}
+      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <>
+      <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-preview' : ''}`} key={`${run.id}-${d.position}`}><DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} /></div>)}</div></>}
       <div className="p-conversation-dock">
+      {!voted && <div className="p-vote-pill-row"><div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
       {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
       </div>
       {!voted && <>
-        <button className="p-floating-vote" disabled={generating} onClick={() => setJudging(true)} aria-haspopup="dialog"><CalibratedMark size={22} /><span>Ready to choose?</span><ArrowRight size={17} /></button>
         <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
           <div className="p-decision">
           <Eyebrow>Choose & reveal</Eyebrow>
@@ -415,13 +638,30 @@ function Session() {
       {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
     </>}
     {!showing && <ErrorNote message={error} />}
-    {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p><RetryComposer run={run} /></div>}
+    {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p>{!!run.failures?.length && <ul className="p-failures">{run.failures.map((f, i) => <li key={i}><strong>{f.side}</strong> {f.error}</li>)}</ul>}<RetryComposer run={run} /></div>}
   </div>
 }
 
 function RetryComposer({ run }: { run: Run }) {
   const navigate = useNavigate(); const [question, setQuestion] = useState(run.brief); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
+}
+
+// Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
+function MyProjects() {
+  const { me } = usePilot()
+  const [query, setQuery] = useState('')
+  const [showArchived, setShowArchived] = useState(false)
+  const all = me?.runs.filter(r => r.kind === 'ask' && !!r.archived === showArchived) ?? []
+  const archivedCount = me?.runs.filter(r => r.kind === 'ask' && r.archived).length ?? 0
+  const needle = query.trim().toLowerCase()
+  const runs = needle ? all.filter(r => `${r.title} ${r.brief}`.toLowerCase().includes(needle)) : all
+  return <div className="p-projects"><h1>My projects</h1>
+    <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    {!!archivedCount && <button type="button" className="p-projects-archived" aria-pressed={showArchived} onClick={() => setShowArchived(!showArchived)}><Archive size={13} />{showArchived ? 'Back to projects' : `Archived · ${archivedCount}`}</button>}
+    {runs.length ? <div className="p-projects-list">{runs.map(r => <div key={r.id} className="p-project-row"><Link className="p-notebook-row" to={`/session/${r.id}`}><span><span className="p-meta">{date(r.created_at)}</span><h3>{r.title}</h3><p>{r.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link><RunMenu run={r} /></div>)}</div>
+      : <p className="p-projects-empty">{all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
+  </div>
 }
 
 function Notebook() {

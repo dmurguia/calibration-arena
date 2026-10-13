@@ -20,12 +20,12 @@ export function header(active = "") {
   const nav = [
     ["/enterprises/", "For enterprises"],
     ["/training/", "Our approach"],
-    ["/company/", "Company"],
+    ["/company/", "About"],
   ];
   return `<a class="skip" href="#main">Skip to content</a><header class="header wrap"><a class="identity" href="/" aria-label="Calibrated Co. home"><span class="mark"><img src="/assets/calibrated-mark-ink.svg" width="32" height="32" alt=""></span><img class="wordmark" src="/assets/calibrated-wordmark-ink.svg" alt="Calibrated Co." width="173" height="24"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">+</span></button><nav id="navigation" aria-label="Main navigation">${nav.map(([url, title]) => `<a href="${url}"${url === active ? ' aria-current="page"' : ""}>${title}</a>`).join("")}${link("/get-data/", "Get data", "button nav-cta")}</nav></header>`;
 }
 export function footer() {
-  return `<footer class="footer wrap"><div class="footer-top"><a href="/" class="footer-signature" aria-label="Calibrated Co. home"><img src="/assets/calibrated-wordmark-ink.svg" width="290" height="40" alt="Calibrated Co."></a><div class="footer-links"><a href="/enterprises/">For enterprises</a><a href="/training/">Our approach</a><a href="/company/">Company</a><a href="/contact/">Contact</a></div></div><div class="footer-bottom"><span>© 2026 Calibrated Co.</span><div><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>`;
+  return `<footer class="footer wrap"><div class="footer-top"><a href="/" class="footer-signature" aria-label="Calibrated Co. home"><img src="/assets/calibrated-wordmark-ink.svg" width="290" height="40" alt="Calibrated Co."></a><div class="footer-links"><a href="/enterprises/">For enterprises</a><a href="/training/">Our approach</a><a href="/company/">About</a><a href="/contact/">Contact</a></div></div><div class="footer-bottom"><span>© 2026 Calibrated Co.</span><div><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>`;
 }
 export function closing(
   title = "Build your<br>best agent.",

@@ -49,7 +49,7 @@ export async function build({ includeReview = true } = {}) {
     ],
     ["/enterprises/", "For enterprises", pages.enterprisePage(), "enterprises"],
     ["/training/", "Our approach", pages.trainingPage(sample), "training"],
-    ["/company/", "The company", pages.companyPage(), "company"],
+    ["/company/", "About", pages.companyPage(), "company"],
     ["/get-data/", "Get data", pages.dataPage(), "data"],
     ["/contact/", "Discuss a project", pages.contactPage(config), "contact"],
     [
@@ -78,7 +78,7 @@ export async function build({ includeReview = true } = {}) {
     training:
       "See how company expertise becomes training tasks, feedback and evaluations for knowledge-work agents.",
     company:
-      "Our belief: companies will own their knowledge work through open-weight models shaped by their expertise.",
+      "Meet the researchers and engineers bringing craftsmanship to open-weight models, training environments and enterprise intelligence.",
     leaderboard:
       "Knowledge-work model comparisons: publication status and evaluation criteria.",
     data: "Discuss training data and evaluation tasks shaped around professional workflows.",

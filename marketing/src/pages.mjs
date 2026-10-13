@@ -75,11 +75,11 @@ export function trainingPage() {
 }
 
 export function companyPage() {
-  return `${pageHero('Company', 'Your knowledge.<br>Your models.', 'We believe the next frontier for AI is the knowledge inside companies.')}
-  <section class="section wrap split-section no-top"><div><h2>The expertise<br>is already there.</h2></div><div class="prose"><p>It lives in the people who know when a policy has an exception, why a customer needs a different answer and what makes a decision sound.</p><p>We believe companies will own that knowledge work through open-weight models shaped by their expertise. Calibrated turns expert decisions into training data, evaluations and environments that help agents improve.</p></div></section>
-  <section class="section wrap team-background"><div class="section-heading"><h2>Our team brings<br>experience from</h2></div><ul class="affiliation-list" aria-label="Team backgrounds"><li>Stanford</li><li>MIT</li><li>Verkada</li></ul></section>
-  <figure class="company-image wrap"><img src="/assets/paper-and-cloth-768.webp" width="768" height="512" alt="Notebook paper, dark book cloth and a steel edge from the Calibrated brand study."></figure>
-  <section class="section wrap split-section"><div><h2>Help shape<br>how agents work.</h2></div><div class="prose"><p>We’re interested in people who know a field deeply, build models or design the systems agents work in.</p>${link('/contact/?purpose=collaborate','Work with Calibrated')}</div></section>`;
+  return `${pageHero('About', 'Intelligence is<br>a craft.', 'We’re researchers and engineers who have built and launched models, designed training environments and brought AI into enterprise use.')}
+  <section class="section wrap split-section no-top"><div><h2>The art<br>of better.</h2></div><div class="prose"><p>Craft lives in the details: what a model learns, how its work is judged and what happens when it meets the real world.</p><p>We help companies shape open-weight models around their own expertise, with training data, evaluations and environments built for the work.</p></div></section>
+  <section class="section wrap team-background"><div class="section-heading"><h2>Built by people<br>from</h2><p>Experience across research, model development and enterprise engineering.</p></div><ul class="affiliation-list" aria-label="Our people’s education and previous experience"><li><img class="affiliation-stanford" src="/assets/affiliations/stanford.png" width="426" height="91" alt="Stanford University" loading="lazy"></li><li><img class="affiliation-mit" src="/assets/affiliations/mit.svg" width="378" height="200" alt="MIT" loading="lazy"></li><li><img class="affiliation-verkada" src="/assets/affiliations/verkada.svg" width="96" height="24" alt="Verkada" loading="lazy"></li></ul></section>
+  <figure class="company-image wrap"><img src="/assets/paper-and-cloth-768.webp" width="768" height="512" alt="Notebook paper, dark book cloth and a steel edge from the Calibrated brand study."><figcaption>Observe. Make. Test. Refine.</figcaption></figure>
+  <section class="section wrap split-section"><div><h2>Build<br>with us.</h2></div><div class="prose"><p>If you care about the details of how intelligence is made, we’d like to meet you.</p>${link('/contact/?purpose=collaborate','Work with Calibrated')}</div></section>`;
 }
 
 export function leaderboardPage(config) {

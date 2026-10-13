@@ -31,6 +31,34 @@ matchMedia("(min-width: 901px)").addEventListener("change", (event) => {
   if (event.matches && menu) closeMenu();
 });
 
+const heroRoot = document.querySelector("[data-calibrated-hero]");
+if (heroRoot) {
+  // Loaded only on pages with the hero. The static sketch stays over the panel until the module
+  // has sized its canvas and drawn a frame; if the image can't be read, the sketch simply stays.
+  import("./calibrated-hero.mjs").then(({ mountCalibratedHero }) => {
+    const fallback = heroRoot.querySelector(".cal-hero-fallback");
+    mountCalibratedHero(heroRoot, JSON.parse(heroRoot.dataset.calibratedHero));
+    const canvas = heroRoot.querySelector(".cal-hero canvas");
+    const ready = new MutationObserver(() => {
+      if (!canvas.style.width) return;
+      ready.disconnect();
+      requestAnimationFrame(() => requestAnimationFrame(() => fallback?.remove()));
+    });
+    ready.observe(canvas, { attributes: true, attributeFilter: ["style"] });
+  }).catch(() => heroRoot.classList.add('hero-unavailable'));
+}
+
+for (const specimen of document.querySelectorAll('[data-closebench]')) {
+  const buttons = [...specimen.querySelectorAll('[data-decision]')];
+  for (const button of buttons) button.addEventListener('click', () => {
+    const selected = button.dataset.decision;
+    for (const control of buttons) control.setAttribute('aria-pressed', String(control === button));
+    for (const panel of specimen.querySelectorAll('[data-decision-panel]')) panel.hidden = panel.dataset.decisionPanel !== selected;
+    const active = specimen.querySelector(`[data-decision-panel="${selected}"]`);
+    specimen.querySelector('[data-decision-status]').textContent = active.querySelector('h3').textContent;
+  });
+}
+
 const example = document.querySelector("[data-demo]");
 if (example) {
   // Embedded at build time from the repository's authored fixture. No request or loading state.

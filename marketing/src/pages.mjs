@@ -8,10 +8,36 @@ import {
   deliverables,
   systems,
   pageHero,
+  calibratedHero,
 } from "./components.mjs";
+import { closebenchSpecimen } from './closebench.mjs';
+
+export function home() {
+  return `<section class="home-intro wrap">
+    <p class="eyebrow">Calibrated Co. / Research lab</p>
+    <h1>The art of better.</h1>
+    <p class="lead">We turn expert judgment into training data, evaluations and environments for AI agents.</p>
+    <div class="actions">${link('#closebench', 'Explore a task <span aria-hidden="true">↓</span>', 'button')}${link('/contact/?purpose=project', 'Work with us <span aria-hidden="true">↗</span>', 'button button-quiet')}</div>
+  </section>
+  ${calibratedHero()}
+  <section class="closebench-section wrap" id="closebench"><div class="specimen-heading"><div><p class="eyebrow">CloseBench / Accounting agents</p><h2>A $4,800 question.</h2></div><p>The bank shows a wire. The supporting document is missing. What should an agent do?</p></div>
+  ${closebenchSpecimen()}
+  <div class="specimen-footnote"><span>CloseBench is in development.</span>${link('/closebench/','Explore the benchmark design')}</div></section>
+  <section class="learning-section wrap"><div class="learning-heading"><p class="eyebrow">From evaluation to improvement</p><h2>Make the next<br>run better.</h2><p>Expert judgment becomes something your team can train on, test and use again.</p></div><ol class="learning-artifacts">
+  <li><div class="artifact-visual artifact-task" aria-hidden="true"><span>01 / TASK</span><div class="artifact-mini-lines"><i></i><i></i><i></i></div><b>Tools. Records. Rules.</b></div><h3>Build the task.</h3><p>A working environment with the context and constraints that matter.</p></li>
+  <li><div class="artifact-visual artifact-review" aria-hidden="true"><span>02 / REVIEW</span><div class="review-glyph">↳ <span>Needs support.</span></div><b>Capture the judgment.</b></div><h3>Learn from the decision.</h3><p>Expert corrections tied to the evidence behind each action.</p></li>
+  <li><div class="artifact-visual artifact-repeat" aria-hidden="true"><span>03 / REPEAT</span><div class="repeat-glyph"><i></i><i></i><i></i><i></i><span>↻</span></div><b>Same task. Fresh start.</b></div><h3>Test what carries over.</h3><p>Held-out cases and repeated attempts reveal what still fails.</p></li></ol></section>
+  <section class="close-invitation wrap"><p class="eyebrow">Start with one workflow</p><h2>Bring the work.<br>We’ll build from there.</h2><p>A task set. A reviewed dataset. An environment for your agent.<br>We’ll agree on the deliverable with your team.</p>${link('/contact/?purpose=project','Discuss a pilot','button')}</section>`;
+}
 
 export function homeCraft(sample) {
   return companyHome('Your expertise.<br>Better agents.');
+}
+
+function homeSections() {
+  return `${systems()}
+  <section class="section wrap split-section knowledge-thesis"><div><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
+  ${deliverables()}${partnership()}${closing()}`;
 }
 
 function companyHome(title) {
@@ -22,9 +48,7 @@ function companyHome(title) {
     </div>
     <figure class="hero-art"><img src="/assets/open-sketch.webp" width="1536" height="1024" fetchpriority="high" alt="Flowing graphite lines on paper, from the Calibrated brand study."></figure>
   </section>
-  ${systems()}
-  <section class="section wrap split-section knowledge-thesis"><div><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
-  ${deliverables()}${partnership()}${closing()}`;
+  ${homeSections()}`;
 }
 
 export function homeOutcomes(sample) {

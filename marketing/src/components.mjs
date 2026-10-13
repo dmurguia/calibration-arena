@@ -20,10 +20,10 @@ export function header(active = "") {
   const nav = [
     ["/enterprises/", "For enterprises"],
     ["/training/", "Our approach"],
-    ["/leaderboard/", "Leaderboard"],
+    ["/closebench/", "CloseBench"],
     ["/company/", "Company"],
   ];
-  return `<a class="skip" href="#main">Skip to content</a><header class="header wrap"><a class="identity" href="/" aria-label="Calibrated Co. home"><span class="mark"><img src="/assets/calibrated-mark-ink.svg" width="32" height="32" alt=""></span><img class="wordmark" src="/assets/calibrated-wordmark-ink.svg" alt="Calibrated Co." width="173" height="24"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">+</span></button><nav id="navigation" aria-label="Main navigation">${nav.map(([url, title]) => `<a href="${url}"${url === active ? ' aria-current="page"' : ""}>${title}</a>`).join("")}${link("/get-data/", "Get data", "button nav-cta")}</nav></header>`;
+  return `<a class="skip" href="#main">Skip to content</a><header class="header wrap"><a class="identity" href="/" aria-label="Calibrated Co. home"><span class="mark"><img src="/assets/calibrated-mark-ink.svg" width="32" height="32" alt=""></span><img class="wordmark" src="/assets/calibrated-wordmark-ink.svg" alt="Calibrated Co." width="173" height="24"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">+</span></button><nav id="navigation" aria-label="Main navigation">${nav.map(([url, title]) => `<a href="${url}"${url === active ? ' aria-current="page"' : ""}>${title}</a>`).join("")}${link("/contact/", "Talk to us", "button nav-cta")}</nav></header>`;
 }
 export function footer() {
   return `<footer class="footer wrap"><div class="footer-top"><a href="/" class="footer-signature" aria-label="Calibrated Co. home"><img src="/assets/calibrated-wordmark-ink.svg" width="290" height="40" alt="Calibrated Co."></a><div class="footer-links"><a href="/enterprises/">For enterprises</a><a href="/training/">Our approach</a><a href="/company/">Company</a><a href="/contact/">Contact</a></div></div><div class="footer-bottom"><span>© 2026 Calibrated Co.</span><div><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>`;
@@ -58,6 +58,23 @@ export function deliverables() {
 export function systems() {
   const names = ['SAP', 'Snowflake', 'Databricks', 'Google Cloud', 'GitHub', 'Notion'];
   return `<section class="systems-band"><div class="wrap"><h2>We improve agents working in the systems you use.</h2><ul class="systems-list" aria-label="Systems expertise">${names.map(name => `<li>${name}</li>`).join('')}</ul></div></section>`;
+}
+
+// Mount point for public/calibrated-hero.mjs, enhanced by site.mjs. The static sketch is the
+// no-JS view and covers the panel until the canvas is ready. styles.css reserves the scroll
+// track height (.cal-hero-mount) so mounting causes no layout shift; keep it in sync with
+// panelHeight, scrollLength and the module's 320px minHeight.
+export const heroOptions = {
+  image: "/assets/open-sketch.webp",
+  driver: "scroll",
+  panelHeight: 64,
+  scrollLength: 155,
+  minHeight: 320,
+  settleAt: 0.64,
+  trace: 4,
+};
+export function calibratedHero(options = heroOptions) {
+  return `<div class="cal-hero-mount" data-calibrated-hero="${esc(JSON.stringify(options))}"><div class="cal-hero-fallback"><div class="cal-hero-panel"><img src="${esc(options.image)}" width="1536" height="1024" fetchpriority="high" alt="An open graphite sketch of flowing lines on paper, from the Calibrated brand study."></div></div></div>`;
 }
 
 export function pageHero(kicker, title, body, extra = "") {

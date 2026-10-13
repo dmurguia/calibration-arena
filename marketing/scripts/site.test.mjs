@@ -5,6 +5,8 @@ import path from "node:path";
 import { build, root } from "./build.mjs";
 import { evaluateDraft, projectBrief } from "../public/demo-core.mjs";
 import { validatedDestination } from "../src/config.mjs";
+import { heroProgress } from '../public/calibrated-hero.mjs';
+import { closebenchCase } from '../src/closebench.mjs';
 const sample = JSON.parse(
   await readFile(path.join(root, "src/sample.json"), "utf8"),
 );
@@ -113,9 +115,12 @@ test("deployment contains the current branded site and excludes internal review 
   process.env.CONTACT_URL = "mailto:david@corsac.ai";
   try {
     const routes = await build({ includeReview: false });
-    assert.equal(routes.length, 9);
+    assert.equal(routes.length, 10);
     const home = await readFile(path.join(root, "dist/index.html"), "utf8");
-    assert.match(home, /Hone your agents/);
+    assert.match(home, /The art of better/);
+    assert.match(home, /Illustrative case · No model run/);
+    const downloadedCase = JSON.parse(await readFile(path.join(root, 'dist/samples/closebench-wire.json'), 'utf8'));
+    assert.deepEqual(downloadedCase, closebenchCase, 'download and displayed specimen use one source');
     assert.match(home, /assets\/calibrated-wordmark-ink.svg/);
     assert.match(home, /assets\/open-sketch.webp/);
     assert.match(await readFile(path.join(root, "dist/contact/index.html"), "utf8"), /mailto:david@corsac.ai/);
@@ -128,4 +133,24 @@ test("deployment contains the current branded site and excludes internal review 
     if (previousContact === undefined) delete process.env.CONTACT_URL;
     else process.env.CONTACT_URL = previousContact;
   }
+});
+
+test('hero resolves before unpinning and preserves a readable hold across viewport sizes', () => {
+  for (const height of [568, 720, 900]) {
+    const track = Math.max(height * 1.55, 496);
+    const panel = Math.max(height * .64, 320);
+    const travel = track - panel;
+    assert.equal(heroProgress(20, track, panel), 0);
+    assert.equal(heroProgress(-travel * .64, track, panel), 1);
+    assert.equal(heroProgress(-travel * .85, track, panel), 1);
+    assert.ok(travel * .36 > 150, 'finished composition remains pinned for a readable interval');
+  }
+});
+
+test('a balanced illustrative entry does not satisfy the evidence and control criteria', () => {
+  const forced = closebenchCase.decisions.force;
+  assert.equal(forced.posting.reduce((sum, [, debit, credit]) => sum + debit - credit, 0), 0);
+  assert.equal(forced.checks.every(Boolean), false);
+  assert.equal(closebenchCase.decisions.flag.posting, null);
+  assert.match(closebenchCase.status, /no model run/);
 });

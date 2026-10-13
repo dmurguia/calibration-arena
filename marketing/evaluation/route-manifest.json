@@ -1,8 +1,13 @@
 [
   {
     "route": "/",
-    "title": "Hone your agents",
+    "title": "The art of better",
     "id": "home"
+  },
+  {
+    "route": "/closebench/",
+    "title": "CloseBench",
+    "id": "closebench"
   },
   {
     "route": "/directions/craft/",

@@ -48,9 +48,7 @@ export async function build({ includeReview = true } = {}) {
       "outcomes",
     ],
     ["/enterprises/", "For enterprises", pages.enterprisePage(), "enterprises"],
-    ["/training/", "Our approach", pages.trainingPage(sample), "training"],
     ["/company/", "About", pages.companyPage(), "company"],
-    ["/get-data/", "Get data", pages.dataPage(), "data"],
     ["/contact/", "Discuss a project", pages.contactPage(config), "contact"],
     [
       "/privacy/",
@@ -87,7 +85,7 @@ export async function build({ includeReview = true } = {}) {
     privacy:
       "How the Calibrated marketing preview handles information, project briefs and local interactions.",
     terms:
-      "Preview terms for the Calibrated Co. marketing website and authored practice case.",
+      "Preview terms for the Calibrated Co. marketing website.",
   };
   for (const [route, title, content, id] of routes) {
     const isPrivate = route.startsWith("/directions/") || route === "/review/";

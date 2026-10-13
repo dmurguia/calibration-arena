@@ -16,7 +16,7 @@ export function home() {
     <p class="eyebrow">Calibrated Co. / Research lab</p>
     <h1>The art of better.</h1>
     <p class="lead">We turn expert judgment into training data, evaluations and environments for AI agents.</p>
-    <div class="actions">${link('/training/', 'Read the research <span aria-hidden="true">↗</span>', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator <span aria-hidden="true">↗</span>', 'button button-quiet')}</div>
+    <div class="actions">${link('/enterprises/', 'For enterprises <span aria-hidden="true">↗</span>', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator <span aria-hidden="true">↗</span>', 'button button-quiet')}</div>
   </section>
   ${calibratedHero()}
   ${homeSections()}`;
@@ -36,7 +36,7 @@ function companyHome(title) {
   return `<section class="hero hero-company wrap">
     <div class="hero-copy"><h1>${title}</h1>
       <p class="lead">Turn your company’s expertise into better AI agents. We build training data, evaluations and reinforcement learning environments around the work your people know best.</p>
-      <div class="actions">${link('/get-data/', 'Get data', 'button')}${link('/enterprises/', 'For enterprises', 'button button-quiet')}</div>
+      <div class="actions">${link('/contact/', 'Talk to us', 'button')}${link('/enterprises/', 'For enterprises', 'button button-quiet')}</div>
     </div>
     <figure class="hero-art"><img src="/assets/open-sketch.webp" width="1536" height="1024" fetchpriority="high" alt="Flowing graphite lines on paper, from the Calibrated brand study."></figure>
   </section>
@@ -48,7 +48,7 @@ export function homeOutcomes(sample) {
 }
 
 export function enterprisePage() {
-  return `${pageHero('For enterprises', 'Train agents on<br>your business.', 'We work with your team to turn specialist knowledge into training data, test cases and environments for AI agents.', actions('Talk to us', 'See our approach', '/training/'))}
+  return `${pageHero('For enterprises', 'Train agents on<br>your business.', 'We work with your team to turn specialist knowledge into training data, test cases and environments for AI agents.', actions('Talk to us', 'About Calibrated', '/company/'))}
   <section class="section wrap" id="engagement"><div class="section-heading"><h2>Start with the task<br>your agent gets wrong.</h2><p>A missing source, a policy exception or an incorrect calculation. The failure tells us what to build.</p></div>
     <div class="engagement-list">
       <article><span class="index">01 / Evaluate</span><h3>Find the errors.</h3><p>Define representative tasks and have domain experts specify how to grade them. Test your agent against those criteria.</p><p class="deliverable">You receive: test cases, rubrics and a failure analysis.</p></article>
@@ -100,7 +100,7 @@ export function legalPage(kind, config) {
   const privacy = kind === "privacy";
   const content = privacy
     ? `<h2>Information on this site</h2><p>This marketing preview does not have accounts, analytics scripts, advertising trackers or a form submission service. Fonts and images are served with the site. The workflow example is illustrative.</p><h2>Project briefs</h2><p>Text you enter in the project brief form stays in page memory. The site does not submit it to Calibrated or save it in browser storage. The site does not persist your entries; your browser may retain form fields or page history. Downloading a brief saves a file to your device; copying it uses your clipboard. You decide whether to share that file or text.</p><h2>Hosting and external destinations</h2><p>A website host may process ordinary request information, such as an IP address, browser details and the requested page, to serve a site. Hosting-specific details and retention periods must be confirmed before public launch. External destinations handle information according to their own policies.</p><h2>Changes before launch</h2><p>If contact submission, analytics or other services are added, this notice must describe their actual data handling. Legal operator details and a privacy contact will be provided with the launch version.</p>`
-    : `<h2>Purpose of this preview</h2><p>This site introduces Calibrated Co.’s proposed evaluation and training work. Descriptions are for discussion and do not create a service commitment, guarantee a model outcome or establish a commercial agreement.</p><h2>Examples and evaluation</h2><p>The workflow example illustrates a proposed approach. It is not a live model run, customer result or independently validated benchmark. Listed systems describe areas of workflow expertise; they do not imply vendor endorsement. Team affiliations describe backgrounds, not institutional partnerships.</p><h2>Project scope</h2><p>Any commercial engagement requires a separate agreement covering scope, deliverables, pricing, data permissions, confidentiality, intellectual property and acceptance criteria.</p><h2>Assets and use</h2><p>The brand illustrations are generated material studies. The website’s bundled IBM Plex fonts are licensed under the SIL Open Font License. Company names and third-party references do not imply endorsement.</p><h2>Launch version</h2><p>These preview terms need the confirmed legal operator and contact details before public release. They do not replace a negotiated customer agreement.</p>`;
+    : `<h2>Purpose of this preview</h2><p>This site introduces Calibrated Co.’s proposed evaluation and training work. Descriptions are for discussion and do not create a service commitment, guarantee a model outcome or establish a commercial agreement.</p><h2>Backgrounds and expertise</h2><p>Listed systems describe areas of workflow expertise; they do not imply vendor endorsement. Team affiliations describe backgrounds, not institutional partnerships.</p><h2>Project scope</h2><p>Any commercial engagement requires a separate agreement covering scope, deliverables, pricing, data permissions, confidentiality, intellectual property and acceptance criteria.</p><h2>Assets and use</h2><p>The brand illustrations are generated material studies. The website’s bundled IBM Plex fonts are licensed under the SIL Open Font License. Company names and third-party references do not imply endorsement.</p><h2>Launch version</h2><p>These preview terms need the confirmed legal operator and contact details before public release. They do not replace a negotiated customer agreement.</p>`;
   return `${pageHero(privacy ? "Privacy" : "Terms", privacy ? "Privacy notice." : "Website terms.", "Preview draft / 22 September 2026")}<article class="legal prose wrap"><p class="legal-note">${config.publicLaunch ? "Launch copy requires operator review." : "This notice describes the local marketing preview. Operator details and hosting practices need confirmation before public launch."}</p>${content}${link("/contact/", "Contact information")}</article>`;
 }
 

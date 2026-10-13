@@ -114,18 +114,18 @@ test("deployment contains the current branded site and excludes internal review 
   process.env.CONTACT_URL = "mailto:david@corsac.ai";
   try {
     const routes = await build({ includeReview: false });
-    assert.equal(routes.length, 9);
+    assert.equal(routes.length, 8);
     const home = await readFile(path.join(root, "dist/index.html"), "utf8");
     assert.match(home, /The art of better/);
-    assert.doesNotMatch(home, /CloseBench|Rillet|Meridian|4,800|data-closebench/);
+    assert.doesNotMatch(home, /CloseBench|Rillet|Meridian|4,800|data-closebench|\/leaderboard\//);
     assert.match(home, /assets\/calibrated-wordmark-ink.svg/);
     assert.match(home, /assets\/open-sketch.webp/);
     assert.match(await readFile(path.join(root, "dist/contact/index.html"), "utf8"), /mailto:david@corsac.ai/);
-    for (const entry of ["review", "directions", "reports", "research", "closebench", "samples", ".env.local"]) {
+    for (const entry of ["review", "directions", "reports", "research", "closebench", "leaderboard", "samples", ".env.local"]) {
       await assert.rejects(access(path.join(root, "dist", entry)), { code: "ENOENT" });
     }
     const sitemap = await readFile(path.join(root, "dist/sitemap.xml"), "utf8");
-    assert.doesNotMatch(sitemap, /\/(review|directions|reports|closebench)\//);
+    assert.doesNotMatch(sitemap, /\/(review|directions|reports|closebench|leaderboard)\//);
   } finally {
     if (previousContact === undefined) delete process.env.CONTACT_URL;
     else process.env.CONTACT_URL = previousContact;

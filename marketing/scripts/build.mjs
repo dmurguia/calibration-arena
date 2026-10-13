@@ -50,12 +50,6 @@ export async function build({ includeReview = true } = {}) {
     ["/enterprises/", "For enterprises", pages.enterprisePage(), "enterprises"],
     ["/training/", "Our approach", pages.trainingPage(sample), "training"],
     ["/company/", "The company", pages.companyPage(), "company"],
-    [
-      "/leaderboard/",
-      "Leaderboard",
-      pages.leaderboardPage(config),
-      "leaderboard",
-    ],
     ["/get-data/", "Get data", pages.dataPage(), "data"],
     ["/contact/", "Discuss a project", pages.contactPage(config), "contact"],
     [

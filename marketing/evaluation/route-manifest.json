@@ -30,11 +30,6 @@
     "id": "company"
   },
   {
-    "route": "/leaderboard/",
-    "title": "Leaderboard",
-    "id": "leaderboard"
-  },
-  {
     "route": "/get-data/",
     "title": "Get data",
     "id": "data"

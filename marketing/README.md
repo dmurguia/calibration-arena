@@ -45,7 +45,7 @@ Edit homepage copy in `src/pages.mjs`, and shared sections in `src/components.mj
 
 ## What works now
 
-Twelve local pages, nine deployment pages, responsive navigation, keyboard controls and native disclosure. The brief form can prepare, copy and download text without saving or sending it.
+Eleven local pages, eight deployment pages, responsive navigation, keyboard controls and native disclosure. The brief form can prepare, copy and download text without saving or sending it. The leaderboard is reserved for Calibration Arena and is not linked or built on the company site.
 
 The knowledge-work example is an illustrative support workflow, not a live model run or measured result. Historical fixture code remains in the repository but is no longer rendered by the marketing site. Team backgrounds (Stanford, MIT and Verkada) and systems expertise were supplied by the founder; they do not represent vendor or institutional endorsements.
 
@@ -58,7 +58,7 @@ Copy `.env.example` to `.env.local` if you need configuration. The file is ignor
 | Setting | Purpose |
 | --- | --- |
 | `CONTACT_URL` | Confirmed HTTPS booking/contact URL or `mailto:` address. Adds a real direct-contact route while retaining the local brief. |
-| `ARENA_URL` | Verified public Arena URL. If blank, the leaderboard links to the local practice example. |
+| `ARENA_URL` | Reserved for a future Arena link; currently unused while the company-site leaderboard is hidden. |
 | `SITE_URL` | Canonical domain. Defaults to `https://calibrated.co`. |
 | `PUBLIC_LAUNCH` | Defaults to `0`, so every page is noindex and robots disallows indexing. |
 | `LEGAL_REVIEWED` | Set to `1` only after the preview privacy/terms copy has been updated for the operator and actual hosting. |
@@ -104,7 +104,7 @@ The dedicated Vercel project is `calibrated-site` in `davidmurguia-6787s-project
 - Build: `npm run build:deploy`; output: `dist`.
 - Canonical domain: `https://calibrated.co`; DNS stays at Porkbun.
 - Confirmed contact: `mailto:david@corsac.ai`. The other proposed mailboxes have not been verified.
-- The deployment build publishes nine pages and excludes `/review/`, `/directions/` and `/reports/`. The normal local build keeps those review materials available.
+- The deployment build publishes eight pages and excludes `/review/`, `/directions/` and `/reports/`. The normal local build keeps those review materials available. Neither build publishes `/leaderboard/`.
 - Search indexing remains disabled during founder review (`PUBLIC_LAUNCH=0`). The existing public-indexing gate and draft legal notices remain explicit; setting a flag is not legal approval.
 - The brief stays local. Visitors can use the direct email link to contact David; no submission backend or email delivery claim has been added.
 - Verified October 13, 2026: the project is connected to `dmurguia/calibration-arena`, production branch `main`, root directory `marketing`. CLI preview deployments are separate from production.

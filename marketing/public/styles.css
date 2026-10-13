@@ -2176,16 +2176,11 @@ form > .caption {
   text-align: center;
   padding: 72px 0 54px;
 }
-.home-intro .eyebrow {
-  margin: 0;
-  color: var(--graphite);
-  letter-spacing: 0.08em;
-}
 .home-intro h1 {
   font-size: clamp(52px, 5.8vw, 88px);
   line-height: 1.1;
   letter-spacing: -0.015em;
-  margin: 36px 0 24px;
+  margin: 0 0 24px;
   text-wrap: balance;
 }
 .home-intro .lead {
@@ -2290,7 +2285,6 @@ form > .caption {
 }
 @media (max-width: 700px) {
   .home-intro { padding-block: 52px 44px; }
-  .home-intro h1 { margin-top: 24px; }
   .home-intro .lead { font-size: 18px; max-width: 32ch; }
   .home-intro .actions { margin-top: 27px; }
   .hero-scroll-hint { display: none; }

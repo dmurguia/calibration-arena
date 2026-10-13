@@ -14,7 +14,6 @@ import {
 
 export function home() {
   return `<section class="home-intro wrap">
-    <p class="eyebrow">Calibrated Co. / Research lab</p>
     <h1>The art of better.</h1>
     <p class="lead">We turn expert judgment into training data, evaluations and environments for AI agents.</p>
     <div class="actions">${link('/enterprises/', 'For enterprises', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator', 'button button-quiet')}</div>

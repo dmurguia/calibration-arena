@@ -2,6 +2,8 @@
 // adjacent text, so these decorative SVGs stay out of the accessibility tree.
 const drawings = {
   arrow: '<path d="M9 23 23 9M9 9h14v14"/>',
+  pause: '<path d="M11 7v18M21 7v18"/>',
+  play: '<path d="m11 6 15 10-15 10V6Z"/>',
   message: '<path d="M7 7h18a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H14l-7 5v-5a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3Z"/><path d="M10 13h12M10 17h8"/>',
   data: '<rect x="8" y="5" width="18" height="22" rx="3"/><path d="M8 9H5a2 2 0 0 0-2 2v17a2 2 0 0 0 2 2h17M13 11h8M13 16h8M13 21h4"/>',
   evaluate: '<path d="M12 5H7a2 2 0 0 0-2 2v5M20 5h5a2 2 0 0 1 2 2v5M27 20v5a2 2 0 0 1-2 2h-5M12 27H7a2 2 0 0 1-2-2v-5M10 16l4 4 8-9"/>',

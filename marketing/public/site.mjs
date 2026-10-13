@@ -48,6 +48,21 @@ if (heroRoot) {
   }).catch(() => heroRoot.classList.add('hero-unavailable'));
 }
 
+document.querySelectorAll(".systems-band").forEach((band) => {
+  const toggle = band.querySelector(".systems-toggle");
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const syncMotion = () => {
+    band.toggleAttribute("data-animated", !reducedMotion.matches);
+    toggle.hidden = reducedMotion.matches;
+  };
+  toggle.addEventListener("click", () => {
+    const paused = band.toggleAttribute("data-paused");
+    toggle.querySelector("span").textContent = paused ? "Resume logos" : "Pause logos";
+  });
+  reducedMotion.addEventListener("change", syncMotion);
+  syncMotion();
+});
+
 const example = document.querySelector("[data-demo]");
 if (example) {
   // Embedded at build time from the repository's authored fixture. No request or loading state.

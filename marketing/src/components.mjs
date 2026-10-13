@@ -56,8 +56,19 @@ export function deliverables() {
 }
 
 export function systems() {
-  const names = ['SAP', 'Snowflake', 'Databricks', 'Google Cloud', 'GitHub', 'Notion'];
-  return `<section class="systems-band"><div class="wrap"><h2>We improve agents working in the systems you use.</h2><ul class="systems-list" aria-label="Systems expertise">${names.map(name => `<li>${name}</li>`).join('')}</ul></div></section>`;
+  const tools = [
+    ['SAP', 'sap'], ['Snowflake', 'snowflake'], ['Databricks', 'databricks'],
+    ['Google Cloud', 'googlecloud'], ['GitHub', 'github'], ['Notion', 'notion'],
+  ];
+  const logos = tools.map(([name, slug]) => `<li><img src="/assets/tools/${slug}.svg" width="28" height="28" alt="" loading="lazy"><span>${name}</span></li>`).join('');
+  return `<section class="systems-band" id="systems" aria-labelledby="systems-heading"><div class="wrap">
+    <h2 id="systems-heading">We build superintelligence on top of the tools that you’re already using.</h2>
+    <div class="systems-marquee"><div class="systems-track" id="systems-logos">
+      <ul class="systems-list" aria-label="Tools we build on">${logos}</ul>
+      <ul class="systems-list systems-copy" aria-hidden="true">${logos}</ul>
+    </div></div>
+    <div class="systems-controls"><button class="systems-toggle" type="button" aria-controls="systems-logos" hidden>${icon('pause')}${icon('play')}<span>Pause logos</span></button></div>
+  </div></section>`;
 }
 
 // Mount point for public/calibrated-hero.mjs, enhanced by site.mjs. The static sketch is the

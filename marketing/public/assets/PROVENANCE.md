@@ -19,3 +19,7 @@ Downloaded October 13, 2026; original artwork and proportions retained.
 These marks remain the property of their respective institutions and company. Their use here records the team backgrounds supplied by the founder; it is not an endorsement or a claim that the marks are part of Calibrated’s own brand kit.
 
 - Interface iconography is original inline SVG in `marketing/src/icons.mjs`, drawn for this site. No icon package, external font or remote image request is used.
+
+## Homepage tool marks
+
+`tools/{sap,snowflake,databricks,googlecloud,github,notion}.svg` were downloaded October 13, 2026 from `https://cdn.simpleicons.org/{slug}/464643`, the same logo source used by Corsac's scrolling tools strip. The SVGs are served locally in Calibrated charcoal; original geometry is retained. These are tool brands, not customer or partner endorsements. The marks remain the property of their respective owners. Source: [Simple Icons](https://simpleicons.org/).

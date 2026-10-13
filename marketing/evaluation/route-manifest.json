@@ -5,11 +5,6 @@
     "id": "home"
   },
   {
-    "route": "/closebench/",
-    "title": "CloseBench",
-    "id": "closebench"
-  },
-  {
     "route": "/directions/craft/",
     "title": "Your expertise. Better agents",
     "id": "craft"

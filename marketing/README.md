@@ -29,8 +29,6 @@ The server binds only to `127.0.0.1`. If the port is occupied, run `PORT=4318 np
 
 The homepage continues the animated preview at commit `b01c072`: “The art of better,” followed by a concrete service description and the graphite-to-code hero. Its scroll track is 155svh; the animation resolves at 64% of the pinned travel so the completed code remains readable. Reduced-motion visitors get a static drawing.
 
-The CloseBench working-paper example replaces the homepage's longer thesis, systems list and generic service sections. It compares two authored decisions about a fictional unsupported wire. The evidence, grading criteria and downloadable JSON share one source in `src/closebench.mjs`. This is an illustrative specimen, not a model result, ERP integration or independently validated accounting benchmark. The private strategy document is not included in the site. The `/closebench/` page provides the proposed method and pilot deliverables. Historical JEV results do not evaluate this revision.
-
 ## Files
 
 ```text
@@ -43,11 +41,11 @@ marketing/
   dist/                Generated static site (ignored)
 ```
 
-Edit homepage copy in `src/pages.mjs`, the CloseBench specimen in `src/closebench.mjs`, and shared sections in `src/components.mjs`. CSS lives in `public/styles.css`. The old craft/outcomes directions remain local review routes. The build renders complete HTML for every route; JavaScript enhances the hero, decision comparison, navigation and brief form.
+Edit homepage copy in `src/pages.mjs`, and shared sections in `src/components.mjs`. CSS lives in `public/styles.css`. The old craft/outcomes directions remain local review routes. The build renders complete HTML for every route; JavaScript enhances the hero, navigation and brief form.
 
 ## What works now
 
-Thirteen local pages, ten deployment pages, responsive navigation, keyboard controls, native disclosure and an illustrative accounting task with a downloadable rubric. The brief form can prepare, copy and download text without saving or sending it. The unlaunched data catalog and leaderboard remain accessible by direct route; navigation now leads to CloseBench and contact.
+Twelve local pages, nine deployment pages, responsive navigation, keyboard controls and native disclosure. The brief form can prepare, copy and download text without saving or sending it.
 
 The knowledge-work example is an illustrative support workflow, not a live model run or measured result. Historical fixture code remains in the repository but is no longer rendered by the marketing site. Team backgrounds (Stanford, MIT and Verkada) and systems expertise were supplied by the founder; they do not represent vendor or institutional endorsements.
 
@@ -106,7 +104,7 @@ The dedicated Vercel project is `calibrated-site` in `davidmurguia-6787s-project
 - Build: `npm run build:deploy`; output: `dist`.
 - Canonical domain: `https://calibrated.co`; DNS stays at Porkbun.
 - Confirmed contact: `mailto:david@corsac.ai`. The other proposed mailboxes have not been verified.
-- The deployment build publishes ten pages and excludes `/review/`, `/directions/` and `/reports/`. The normal local build keeps those review materials available.
+- The deployment build publishes nine pages and excludes `/review/`, `/directions/` and `/reports/`. The normal local build keeps those review materials available.
 - Search indexing remains disabled during founder review (`PUBLIC_LAUNCH=0`). The existing public-indexing gate and draft legal notices remain explicit; setting a flag is not legal approval.
 - The brief stays local. Visitors can use the direct email link to contact David; no submission backend or email delivery claim has been added.
 - Verified October 13, 2026: the project is connected to `dmurguia/calibration-arena`, production branch `main`, root directory `marketing`. CLI preview deployments are separate from production.

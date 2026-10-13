@@ -4,7 +4,6 @@ import path from "node:path";
 import { site, validatedDestination } from "../src/config.mjs";
 import { header, footer, esc } from "../src/components.mjs";
 import * as pages from "../src/pages.mjs";
-import { closebenchCase, closebenchPage } from '../src/closebench.mjs';
 
 export const root = fileURLToPath(new URL("..", import.meta.url));
 export async function build({ includeReview = true } = {}) {
@@ -36,7 +35,6 @@ export async function build({ includeReview = true } = {}) {
   ));
   const allRoutes = [
     ["/", "The art of better", pages.home(), "home"],
-    ["/closebench/", "CloseBench", closebenchPage(), "closebench"],
     [
       "/directions/craft/",
       "Your expertise. Better agents",
@@ -74,8 +72,6 @@ export async function build({ includeReview = true } = {}) {
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
   await cp(path.join(root, "public"), out, { recursive: true });
-  await mkdir(path.join(out, 'samples'), { recursive: true });
-  await writeFile(path.join(out, 'samples/closebench-wire.json'), JSON.stringify(closebenchCase, null, 2) + '\n');
   if (includeReview) {
   await mkdir(path.join(out, 'reports'), { recursive: true });
   await Promise.all(originalJevResults.map((result,index) => writeFile(
@@ -83,7 +79,6 @@ export async function build({ includeReview = true } = {}) {
   )));
   }
   const descriptions = {
-    closebench: 'Explore an illustrative accounting task, its evidence and grading criteria. CloseBench is a developing benchmark for accounting agents.',
     enterprises:
       "Training data, evaluations and reinforcement learning environments for your enterprise agents.",
     training:

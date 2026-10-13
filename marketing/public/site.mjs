@@ -48,17 +48,6 @@ if (heroRoot) {
   }).catch(() => heroRoot.classList.add('hero-unavailable'));
 }
 
-for (const specimen of document.querySelectorAll('[data-closebench]')) {
-  const buttons = [...specimen.querySelectorAll('[data-decision]')];
-  for (const button of buttons) button.addEventListener('click', () => {
-    const selected = button.dataset.decision;
-    for (const control of buttons) control.setAttribute('aria-pressed', String(control === button));
-    for (const panel of specimen.querySelectorAll('[data-decision-panel]')) panel.hidden = panel.dataset.decisionPanel !== selected;
-    const active = specimen.querySelector(`[data-decision-panel="${selected}"]`);
-    specimen.querySelector('[data-decision-status]').textContent = active.querySelector('h3').textContent;
-  });
-}
-
 const example = document.querySelector("[data-demo]");
 if (example) {
   // Embedded at build time from the repository's authored fixture. No request or loading state.

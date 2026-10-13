@@ -3,7 +3,7 @@ export const site = {
   domain: "calibrated.co",
   defaultDirection: "outcomes",
   description:
-    "We turn expert judgment into training data, evaluations and environments for AI agents. Explore CloseBench, our work on accounting-agent evaluation.",
+    "We turn expert judgment into training data, evaluations and environments for AI agents.",
 };
 
 export function validatedDestination(value, name, allowMail = false) {

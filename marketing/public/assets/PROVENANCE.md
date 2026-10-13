@@ -17,3 +17,5 @@ Downloaded October 13, 2026; original artwork and proportions retained.
 - `affiliations/verkada.svg`: original [Verkada brand-site logo](https://cdn.verkada.com/image/upload/v1671057149/brand/verkada-logo.svg), referenced by its [brand guide](https://brand.verkada.com/design).
 
 These marks remain the property of their respective institutions and company. Their use here records the team backgrounds supplied by the founder; it is not an endorsement or a claim that the marks are part of Calibrated’s own brand kit.
+
+- Interface iconography is original inline SVG in `marketing/src/icons.mjs`, drawn for this site. No icon package, external font or remote image request is used.

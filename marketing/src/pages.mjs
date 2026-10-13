@@ -1,3 +1,4 @@
+import { icon } from "./icons.mjs";
 import {
   esc,
   label,
@@ -16,7 +17,7 @@ export function home() {
     <p class="eyebrow">Calibrated Co. / Research lab</p>
     <h1>The art of better.</h1>
     <p class="lead">We turn expert judgment into training data, evaluations and environments for AI agents.</p>
-    <div class="actions">${link('/enterprises/', 'For enterprises <span aria-hidden="true">↗</span>', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator <span aria-hidden="true">↗</span>', 'button button-quiet')}</div>
+    <div class="actions">${link('/enterprises/', 'For enterprises', 'button')}${link('/contact/?purpose=collaborate', 'Become a collaborator', 'button button-quiet')}</div>
   </section>
   ${calibratedHero()}
   ${homeSections()}`;
@@ -28,7 +29,7 @@ export function homeCraft(sample) {
 
 function homeSections() {
   return `${systems()}
-  <section class="section wrap split-section knowledge-thesis"><div><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
+  <section class="section wrap split-section knowledge-thesis"><div><span class="section-icon">${icon("tune")}</span><h2>Knowledge work is<br>the next frontier.</h2></div><div class="prose"><p>The people doing the work know its exceptions, tradeoffs and standards. That expertise is a company’s advantage.</p><p>We believe companies will own their knowledge work through open-weight models trained on their expertise. Calibrated builds the data, evaluations and environments to get there.</p></div></section>
   ${deliverables()}${partnership()}${closing()}`;
 }
 
@@ -51,11 +52,11 @@ export function enterprisePage() {
   return `${pageHero('For enterprises', 'Train agents on<br>your business.', 'We work with your team to turn specialist knowledge into training data, test cases and environments for AI agents.', actions('Talk to us', 'About Calibrated', '/company/'))}
   <section class="section wrap" id="engagement"><div class="section-heading"><h2>Start with the task<br>your agent gets wrong.</h2><p>A missing source, a policy exception or an incorrect calculation. The failure tells us what to build.</p></div>
     <div class="engagement-list">
-      <article><span class="index">01 / Evaluate</span><h3>Find the errors.</h3><p>Define representative tasks and have domain experts specify how to grade them. Test your agent against those criteria.</p><p class="deliverable">You receive: test cases, rubrics and a failure analysis.</p></article>
-      <article><span class="index">02 / Build</span><h3>Make the training material.</h3><p>Develop demonstrations, corrections or a tool-based environment around the errors. Agree on data permissions and review each version.</p><p class="deliverable">You receive: a reviewed dataset or environment, with source and version records.</p></article>
+      <article><div class="engagement-meta">${icon("evaluate")}<span class="index">01 / Evaluate</span></div><h3>Find the errors.</h3><p>Define representative tasks and have domain experts specify how to grade them. Test your agent against those criteria.</p><p class="deliverable">You receive: test cases, rubrics and a failure analysis.</p></article>
+      <article><div class="engagement-meta">${icon("data")}<span class="index">02 / Build</span></div><h3>Make the training material.</h3><p>Develop demonstrations, corrections or a tool-based environment around the errors. Agree on data permissions and review each version.</p><p class="deliverable">You receive: a reviewed dataset or environment, with source and version records.</p></article>
     </div>
   </section>${partnership()}
-  <section class="section wrap faq"><div><h2>Questions.</h2></div><div>
+  <section class="section wrap faq"><div><span class="section-icon">${icon("question")}</span><h2>Questions.</h2></div><div>
     <details><summary>Can you work with our existing agent?</summary><p>Yes. We start with its inputs, tools and outputs, then agree on the evaluation or training material it needs.</p></details>
     <details><summary>Can we start with an open-weight model?</summary><p>Yes. We scope the tasks, training data and evaluation around your chosen model and the systems it needs to use.</p></details>
     <details><summary>How do you handle our data?</summary><p>Before a project starts, we agree on access, permitted uses, retention and ownership. Permission to evaluate data does not automatically permit using it for training.</p></details>
@@ -76,10 +77,10 @@ export function trainingPage() {
 
 export function companyPage() {
   return `${pageHero('About', 'Intelligence is<br>a craft.', 'We’re researchers and engineers who have built and launched models, designed training environments and brought AI into enterprise use.')}
-  <section class="section wrap split-section no-top"><div><h2>The art<br>of better.</h2></div><div class="prose"><p>Craft lives in the details: what a model learns, how its work is judged and what happens when it meets the real world.</p><p>We help companies shape open-weight models around their own expertise, with training data, evaluations and environments built for the work.</p></div></section>
+  <section class="section wrap split-section no-top"><div><span class="section-icon">${icon("craft")}</span><h2>The art<br>of better.</h2></div><div class="prose"><p>Craft lives in the details: what a model learns, how its work is judged and what happens when it meets the real world.</p><p>We help companies shape open-weight models around their own expertise, with training data, evaluations and environments built for the work.</p></div></section>
   <section class="section wrap team-background"><div class="section-heading"><h2>Built by people<br>from</h2><p>Experience across research, model development and enterprise engineering.</p></div><ul class="affiliation-list" aria-label="Our people’s education and previous experience"><li><img class="affiliation-stanford" src="/assets/affiliations/stanford.png" width="426" height="91" alt="Stanford University" loading="lazy"></li><li><img class="affiliation-mit" src="/assets/affiliations/mit.svg" width="378" height="200" alt="MIT" loading="lazy"></li><li><img class="affiliation-verkada" src="/assets/affiliations/verkada.svg" width="96" height="24" alt="Verkada" loading="lazy"></li></ul></section>
   <figure class="company-image wrap"><img src="/assets/paper-and-cloth-768.webp" width="768" height="512" alt="Notebook paper, dark book cloth and a steel edge from the Calibrated brand study."><figcaption>Observe. Make. Test. Refine.</figcaption></figure>
-  <section class="section wrap split-section"><div><h2>Build<br>with us.</h2></div><div class="prose"><p>If you care about the details of how intelligence is made, we’d like to meet you.</p>${link('/contact/?purpose=collaborate','Work with Calibrated')}</div></section>`;
+  <section class="section wrap split-section"><div><span class="section-icon">${icon("collaborate")}</span><h2>Build<br>with us.</h2></div><div class="prose"><p>If you care about the details of how intelligence is made, we’d like to meet you.</p>${link('/contact/?purpose=collaborate','Work with Calibrated')}</div></section>`;
 }
 
 export function leaderboardPage(config) {

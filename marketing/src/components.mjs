@@ -1,3 +1,5 @@
+import { icon } from "./icons.mjs";
+
 export const esc = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -7,14 +9,14 @@ export const esc = (value) =>
       ],
   );
 export const label = (text) => `<p class="eyebrow">${text}</p>`;
-export const link = (href, text, style = "text-link") =>
-  `<a class="${style}" href="${esc(href)}">${text}${style === "text-link" ? '<span aria-hidden="true">↗</span>' : ""}</a>`;
+export const link = (href, text, style = "text-link", leadingIcon = "") =>
+  `<a class="${style}" href="${esc(href)}">${leadingIcon ? icon(leadingIcon) : ""}${text}${style === "text-link" || style.split(" ").includes("button") ? icon("arrow") : ""}</a>`;
 export const actions = (
   primary = "Discuss a project",
   secondary = "About Calibrated",
   secondHref = "/company/",
 ) =>
-  `<div class="actions">${link("/contact/", primary, "button")}${link(secondHref, secondary, "button button-quiet")}</div>`;
+  `<div class="actions">${link("/contact/", primary, "button", "message")}${link(secondHref, secondary, "button button-quiet")}</div>`;
 
 export function header(active = "") {
   const nav = [
@@ -30,26 +32,26 @@ export function closing(
   title = "Build your<br>best agent.",
   text = "Bring your expertise. Let’s put it to work in your models.",
 ) {
-  return `<section class="closing wrap"><div><h2>${title}</h2><div><p>${text}</p>${link("/contact/", "Talk to us", "button")}</div></div></section>`;
+  return `<section class="closing wrap"><div><h2>${title}</h2><div><p>${text}</p>${link("/contact/", "Talk to us", "button", "message")}</div></div></section>`;
 }
 export function partnership() {
   return `<section class="section wrap" id="partnership">
     <div class="section-heading"><h2>How we partner.</h2></div>
     <div class="partnerships">
-      <article><h3>Embedded</h3><p>We work alongside your engineers and domain experts to design tasks, review agent outputs and build training material.</p>${link('/contact/?partnership=embedded', 'Work with your team')}</article>
-      <article><h3>Managed</h3><p>We build a dataset, evaluation set or environment to an agreed specification. Your team reviews the deliverable at each stage.</p>${link('/contact/?partnership=managed', 'Discuss a project')}</article>
+      <article><span class="section-icon">${icon("collaborate")}</span><h3>Embedded</h3><p>We work alongside your engineers and domain experts to design tasks, review agent outputs and build training material.</p>${link('/contact/?partnership=embedded', 'Work with your team')}</article>
+      <article><span class="section-icon">${icon("build")}</span><h3>Managed</h3><p>We build a dataset, evaluation set or environment to an agreed specification. Your team reviews the deliverable at each stage.</p>${link('/contact/?partnership=managed', 'Discuss a project')}</article>
     </div>
   </section>`;
 }
 
 export function deliverables() {
   const rows = [
-    ['01', 'Training data', 'Expert demonstrations, comparisons and corrections for the tasks your agent needs to learn.'],
-    ['02', 'Evaluations', 'Test cases and grading rubrics that identify errors in an agent’s answers and actions.'],
-    ['03', 'RL environments', 'Workflows with tools, constraints and feedback for training agents through trial and error.'],
+    ['data', 'Training data', 'Expert demonstrations, comparisons and corrections for the tasks your agent needs to learn.'],
+    ['evaluate', 'Evaluations', 'Test cases and grading rubrics that identify errors in an agent’s answers and actions.'],
+    ['environment', 'RL environments', 'Workflows with tools, constraints and feedback for training agents through trial and error.'],
   ];
   return `<section class="section wrap" id="outputs"><div class="section-heading"><h2>What we build.</h2></div>
-    <div class="output-list">${rows.map(([n,title,text])=>`<article class="output-row"><span class="index">${n}</span><h3>${title}</h3><div><p>${text}</p></div></article>`).join('')}</div>
+    <div class="output-list">${rows.map(([glyph,title,text])=>`<article class="output-row"><span class="section-icon service-icon">${icon(glyph)}</span><h3>${title}</h3><div><p>${text}</p></div></article>`).join('')}</div>
   </section>`;
 }
 

@@ -38,14 +38,13 @@ ROSTER: list[tuple[str, str, str, str, str, float]] = [
     ("gemini-3-pro", "Gemini 3 Pro", "Google", "google", "gemini-3-pro", 1.8),
     ("gemini-3-flash", "Gemini 3 Flash", "Google", "google", "gemini-3-flash", 1.0),
     ("glm-5-2", "GLM 5.2", "Zhipu AI", "openrouter", "z-ai/glm-5.2", 1.7),
-    ("deepseek-v4", "DeepSeek V4", "DeepSeek", "openrouter", "deepseek/deepseek-v4", 1.3),
-    ("grok-4-1", "Grok 4.1", "xAI", "openrouter", "x-ai/grok-4.1", 1.2),
     ("llama-4-maverick", "Llama 4 Maverick", "Meta", "openrouter", "meta-llama/llama-4-maverick", 0.7),
-    ("qwen3-max", "Qwen3 Max", "Alibaba", "openrouter", "qwen/qwen3-max", 1.1),
     ("kimi-k2-5", "Kimi K2.5", "Moonshot AI", "openrouter", "moonshotai/kimi-k2.5", 1.0),
-    ("mistral-large-3", "Mistral Large 3", "Mistral AI", "openrouter", "mistralai/mistral-large-3", 0.8),
     ("minimax-m2-5", "MiniMax M2.5", "MiniMax", "openrouter", "minimax/minimax-m2.5", 0.6),
 ]
+# DeepSeek V4, Grok 4.1, Qwen3 Max and Mistral Large 3 were dropped for launch
+# (no matching OpenRouter id); app.db.RETIRED_MODEL_SLUGS deactivates them in
+# databases seeded before the cut.
 
 # Vendor products on the company boards (BS-16). All vendors are fictional.
 # Products compete only inside their vertical; provenance says how their

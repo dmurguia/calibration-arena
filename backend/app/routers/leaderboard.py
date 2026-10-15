@@ -54,6 +54,8 @@ def leaderboard(category: str, db: Session = Depends(get_db)) -> LeaderboardOut:
                 is_new=bool(prev) and e.model_id not in prev,
             )
             for e in snap.entries
+            # Snapshots computed before a model was retired still hold it.
+            if e.model.active or e.model.kind != "foundation"
         ],
         declined=declined,
     )

@@ -46,6 +46,29 @@ def init_db() -> None:
     # SQLite and Postgres alike.
     Base.metadata.create_all(bind=engine)
     _ensure_columns()
+    _retire_models()
+
+
+# Arena models cut from the roster after databases were already seeded.
+# Deactivated rather than deleted: votes, generations and rating rows reference
+# them by foreign key, so the history stays intact while match selection
+# (active only) and leaderboard snapshots skip them. Idempotent.
+RETIRED_MODEL_SLUGS: tuple[str, ...] = ("deepseek-v4", "grok-4-1", "qwen3-max", "mistral-large-3")
+
+
+def _retire_models() -> None:
+    from sqlalchemy import update
+
+    from .models import ArenaModel
+
+    with engine.begin() as conn:
+        result = conn.execute(
+            update(ArenaModel)
+            .where(ArenaModel.slug.in_(RETIRED_MODEL_SLUGS), ArenaModel.active.is_(True))
+            .values(active=False)
+        )
+        if result.rowcount:
+            log.info("Deactivated %d retired arena models", result.rowcount)
 
 
 # Columns added after a table already exists locally, which create_all cannot

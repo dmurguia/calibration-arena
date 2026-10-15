@@ -1,15 +1,21 @@
 from __future__ import annotations
 
-from sqlalchemy import create_engine
+import logging
+
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from .config import get_settings
+from .config import get_settings, is_production_like
 
+log = logging.getLogger("arena.db")
 settings = get_settings()
+_is_sqlite = settings.database_url.startswith("sqlite")
 
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False} if settings.database_url.startswith("sqlite") else {},
+    connect_args={"check_same_thread": False} if _is_sqlite else {},
+    # Managed Postgres drops idle connections; check before handing one out.
+    pool_pre_ping=not _is_sqlite,
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
@@ -29,6 +35,15 @@ def get_db():
 def init_db() -> None:
     from . import models  # noqa: F401  (register mappings)
 
+    if _is_sqlite and is_production_like():
+        log.warning(
+            "!!! ARENA_DATABASE_URL is not set: using a SQLite file inside the container. "
+            "Every account and run is WIPED on each redeploy. Set "
+            "ARENA_DATABASE_URL=${{Postgres.DATABASE_URL}} on this Railway service. !!!"
+        )
+    log.info("Database backend: %s", engine.dialect.name)
+    # create_all only issues CREATE for missing tables, so it is idempotent on
+    # SQLite and Postgres alike.
     Base.metadata.create_all(bind=engine)
     _ensure_columns()
 
@@ -50,22 +65,17 @@ _COLUMN_BACKFILL: dict[str, dict[str, str]] = {
 
 
 def _ensure_columns() -> None:
-    if not settings.database_url.startswith("sqlite"):
-        return
     with engine.begin() as conn:
+        insp = inspect(conn)
+        tables = set(insp.get_table_names())
         for table, cols in _COLUMN_BACKFILL.items():
-            existing = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
-            if not existing:
+            if table not in tables:
                 continue
+            existing = {c["name"] for c in insp.get_columns(table)}
             for col, ddl in cols.items():
                 if col not in existing:
                     conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
-        account_tables = {
-            row[0] for row in conn.exec_driver_sql(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
-        }
-        if "pilot_accounts" in account_tables:
+        if "pilot_accounts" in tables:
             conn.exec_driver_sql(
                 "CREATE UNIQUE INDEX IF NOT EXISTS ix_pilot_accounts_clerk_user_id "
                 "ON pilot_accounts (clerk_user_id)"

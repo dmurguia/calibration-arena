@@ -9,7 +9,10 @@ sys.path.insert(0, str(BACKEND))
 
 # Isolated test database, created fresh per session.
 _TEST_DB = BACKEND / "test_designarena.db"
-os.environ["ARENA_DATABASE_URL"] = f"sqlite:///{_TEST_DB}"
+# Set ARENA_TEST_DATABASE_URL to run the suite against a real Postgres
+# (its tables are dropped at the start of the session).
+_PG_URL = os.getenv("ARENA_TEST_DATABASE_URL", "")
+os.environ["ARENA_DATABASE_URL"] = _PG_URL or f"sqlite:///{_TEST_DB}"
 os.environ["ARENA_GENERATION_MODE"] = "sample"
 os.environ["ARENA_LEGACY_API"] = "1"
 # Tests vote instantly; disable the behavioral timing floor.
@@ -23,9 +26,12 @@ from fastapi.testclient import TestClient  # noqa: E402
 def client():
     if _TEST_DB.exists():
         _TEST_DB.unlink()
-    from app.db import SessionLocal, init_db
+    from app.db import Base, SessionLocal, engine, init_db
     from app.main import app
     from pipeline.seed import seed_models
+
+    if _PG_URL:
+        Base.metadata.drop_all(bind=engine)
 
     init_db()
     db = SessionLocal()

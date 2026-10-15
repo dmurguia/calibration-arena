@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from .pilot_models import weights_for
 from .services.ratings import compute_ratings
 
 
@@ -41,6 +42,7 @@ def build_leaderboard(runs, task_type: str | None = None) -> dict:
             "wins": row.wins,
             "losses": row.losses,
             "votes": row.votes,
+            "weights": weights_for(row.model_id),
         }
         for row in compute_ratings(pairs)
     ]

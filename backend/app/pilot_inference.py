@@ -31,7 +31,7 @@ def live_ready():
 
 
 async def call_openrouter(model, instructions, messages, task_type):
-    payload = {"model": model, "messages": messages, **CONFIG, "provider": {"data_collection": "deny", "zdr": True, "allow_fallbacks": False}}
+    payload = {"model": model, "messages": messages, **CONFIG, "provider": {"data_collection": "deny", "allow_fallbacks": False}}
     attempt = new_attempt('openrouter', model, payload)
     try:
         async with httpx.AsyncClient(timeout=45) as client:

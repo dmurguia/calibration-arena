@@ -17,8 +17,69 @@ def load_registry():
     return json.loads((ROOT / "benchmarks" / "registry.json").read_text(encoding="utf-8"))
 
 
+def load_board_inputs():
+    boards, board_errors = pipeline._load_board_files(pipeline.BOARDS_DIR)
+    models, model_errors = pipeline._load_models_file(pipeline.MODELS)
+    assert not board_errors + model_errors
+    return boards, models
+
+
 def test_committed_registry_validates():
-    assert pipeline.validate(load_registry()) == []
+    registry = load_registry()
+    assert pipeline.validate(registry) == []
+    boards, models = load_board_inputs()
+    assert pipeline.validate_boards(registry, boards, models) == []
+
+
+def test_metric_definitions_are_optional():
+    registry = deepcopy(load_registry())
+    for benchmark in registry["benchmarks"]:
+        benchmark.pop("metric_definitions", None)
+    assert pipeline.validate(registry) == []
+
+
+def test_validator_rejects_invalid_metric_definitions():
+    registry = deepcopy(load_registry())
+    registry["benchmarks"][0]["metric_definitions"] = ["not", "an object"]
+    assert any("metric_definitions must be a non-empty object" in error for error in pipeline.validate(registry))
+
+    registry = deepcopy(load_registry())
+    registry["benchmarks"][0]["metric_definitions"]["mean-score"] = " "
+    assert any("metric_definitions.mean-score must be a non-empty string" in error for error in pipeline.validate(registry))
+
+
+def test_board_validator_rejects_metric_definition_for_unknown_board_metric():
+    registry = deepcopy(load_registry())
+    benchmark = next(item for item in registry["benchmarks"] if item["id"] == "apex-accounting")
+    benchmark["metric_definitions"]["not-a-board-metric"] = "Not a real board metric."
+    boards, models = load_board_inputs()
+    assert any(
+        "metric_definitions keys are not board metrics" in error
+        for error in pipeline.validate_boards(registry, boards, models)
+    )
+
+
+def test_board_validator_rejects_board_metric_without_definition():
+    registry = deepcopy(load_registry())
+    benchmark = next(item for item in registry["benchmarks"] if item["id"] == "apex-accounting")
+    del benchmark["metric_definitions"]["pass-1"]
+    boards, models = load_board_inputs()
+    assert any(
+        "board metrics missing definitions" in error
+        for error in pipeline.validate_boards(registry, boards, models)
+    )
+
+
+def test_board_validator_rejects_definitions_without_board():
+    registry = deepcopy(load_registry())
+    boards, models = load_board_inputs()
+    board_ids = {board["benchmark_id"] for board in boards}
+    benchmark = next(item for item in registry["benchmarks"] if item["id"] not in board_ids)
+    benchmark["metric_definitions"] = {"accuracy": "A definition without a board."}
+    assert any(
+        "metric_definitions require a model board" in error
+        for error in pipeline.validate_boards(registry, boards, models)
+    )
 
 
 def test_build_matches_committed_outputs(tmp_path):
@@ -28,6 +89,9 @@ def test_build_matches_committed_outputs(tmp_path):
     pipeline.build_outputs(registry, built, doc)
     assert built.read_bytes() == (ROOT / "frontend/public/benchmarks.json").read_bytes()
     assert doc.read_bytes() == (ROOT / "docs/research/public-finance-accounting-benchmarks.md").read_bytes()
+    built_registry = json.loads(built.read_text(encoding="utf-8"))
+    apex = next(item for item in built_registry["benchmarks"] if item["id"] == "apex-accounting")
+    assert apex["metric_definitions"] == registry["benchmarks"][0]["metric_definitions"]
 
 
 def test_validator_rejects_duplicate_id():

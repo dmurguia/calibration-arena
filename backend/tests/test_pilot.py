@@ -143,7 +143,7 @@ def test_matched_live_payload_and_provider_error(monkeypatch):
     assert sent[0]['messages'][1]['content'] == 'Preserve this exact accounting question.'
     assert sent[0]['model'] != sent[1]['model']
     assert sent[0]['temperature'] == sent[1]['temperature']
-    assert sent[0]['provider'] == {'data_collection': 'deny', 'zdr': True, 'allow_fallbacks': False}
+    assert sent[0]['provider'] == {'data_collection': 'deny', 'allow_fallbacks': False}
     assert data[0]['actual_model_id'] == 'actual-version'
     monkeypatch.setenv('OPENROUTER_MODEL_B', 'provider/a')
     assert not inference.live_ready()

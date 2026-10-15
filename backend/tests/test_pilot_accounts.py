@@ -169,4 +169,14 @@ def test_leaderboard_filters_unblinded_and_authored_runs():
     result = build_leaderboard([run("a", "a"), run("b", "a"), run("c", "b"), run("d", "a", scope="unblinded-conversation"), run("e", "a", mode="authored-fixture")])
     assert result["total_votes"] == 3
     assert result["rows"][0]["model_id"] == "openai:gpt"
+    assert result["rows"][0]["weights"] == "closed"
     assert result["participants"] == 3
+
+
+def test_weights_labels():
+    from app.pilot_models import weights_for
+    assert weights_for("openrouter:deepseek/deepseek-v4-pro") == "open"
+    assert weights_for("openrouter:moonshotai/kimi-k3") == "open"
+    assert weights_for("anthropic:claude-opus-5.5") == "closed"
+    assert weights_for("openai:gpt-6.1-sol") == "closed"
+    assert weights_for("openrouter:acme/mystery-model") == "unknown"

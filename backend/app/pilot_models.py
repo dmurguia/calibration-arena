@@ -1,5 +1,9 @@
 from dataclasses import dataclass
+from functools import lru_cache
+import json
 import os
+from pathlib import Path
+import re
 
 
 KEYS = {
@@ -7,6 +11,47 @@ KEYS = {
     "anthropic": "ANTHROPIC_API_KEY",
     "openrouter": "OPENROUTER_API_KEY",
 }
+
+# Org fallback when the benchmark catalog has no record for a model slug.
+CLOSED_ORGS = {"anthropic", "openai", "google", "x-ai"}
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
+def _norm(value: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", value.lower())
+
+
+@lru_cache
+def _catalog_weights() -> dict[str, str]:
+    """normalized id/name -> open|closed|unknown, from benchmarks/models.json."""
+    try:
+        data = json.loads((_REPO_ROOT / "benchmarks" / "models.json").read_text())
+    except (OSError, ValueError):
+        return {}
+    models = data if isinstance(data, list) else data.get("models", [])
+    index = {}
+    for record in models:
+        weights = record.get("weights")
+        if weights not in ("open", "closed", "unknown"):
+            continue
+        for key in (record.get("id"), record.get("name")):
+            if key:
+                index.setdefault(_norm(key), weights)
+    return index
+
+
+def weights_for(model_id: str) -> str:
+    """Weights label for a pool model id like 'openrouter:deepseek/deepseek-v4-pro'."""
+    model = model_id.partition(":")[2] or model_id
+    if "/" in model:
+        org, _, slug = model.partition("/")
+    else:
+        org, slug = model_id.partition(":")[0], model
+    match = _catalog_weights().get(_norm(slug))
+    if match:
+        return match
+    return "closed" if org in CLOSED_ORGS else "unknown"
 
 
 @dataclass(frozen=True)

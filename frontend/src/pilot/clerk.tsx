@@ -1,6 +1,7 @@
 import { ClerkProvider, useAuth } from '@clerk/react'
 import { ReactNode, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { calibratedAppearance } from '../lib/clerk-appearance'
 import { call, clearToken, Me, setToken, token } from './api'
 
 export const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined
@@ -16,38 +17,7 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
     signInUrl="/signin"
     signUpUrl="/signup"
     afterSignOutUrl="/"
-    appearance={{
-      // Calibrated Co. tokens (src/styles/calibrated.css). Clerk needs literal values, not CSS vars.
-      variables: {
-        colorPrimary: '#464643',
-        colorPrimaryForeground: '#F4F1E9',
-        colorBackground: '#FAF9F6',
-        colorForeground: '#464643',
-        colorMutedForeground: '#656460',
-        colorMuted: '#F4F1E9',
-        colorInput: '#FAF9F6',
-        colorInputForeground: '#464643',
-        colorBorder: '#46464355',
-        colorRing: '#656460',
-        colorDanger: '#70543E',
-        colorSuccess: '#464643',
-        colorWarning: '#70543E',
-        colorShadow: 'transparent',
-        colorModalBackdrop: '#46464366',
-        fontFamily: "'IBM Plex Sans', sans-serif",
-        fontFamilyButtons: "'IBM Plex Sans', sans-serif",
-        fontFamilyMono: "'IBM Plex Mono', monospace",
-        fontWeight: { normal: 400, medium: 500, semibold: 500, bold: 500 },
-        borderRadius: '12px',
-      },
-      elements: {
-        // The page already carries the eyebrow, title and lead; Clerk's own header would repeat it.
-        header: { display: 'none' },
-        cardBox: { boxShadow: 'none', border: '1px solid #46464333', borderRadius: '20px' },
-        footer: { backgroundImage: 'none', background: '#F4F1E9' },
-      },
-      // Shadows, the button sheen and leather hover are flattened in pilot.css (.cl-* rules).
-    }}
+    appearance={calibratedAppearance}
   >
     {children}
   </ClerkProvider>

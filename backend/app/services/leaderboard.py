@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..categories import CATEGORIES, OVERALL
 from ..config import get_settings
-from ..models import ModelRating, RatingSnapshot, Vote
+from ..models import ArenaModel, ModelRating, RatingSnapshot, Vote
 from .ratings import compute_ratings
 
 
@@ -25,7 +25,11 @@ def compute_snapshot(db: Session, category: str, bootstrap_rounds: int | None = 
     )
     if category != OVERALL:
         q = q.where(Vote.category == category)
-    pairs = [(w, l, wt) for w, l, wt in db.execute(q)]
+    # Inactive foundation models (retired from the roster) drop off the board;
+    # their vote rows stay in the table as history.
+    hidden = set(db.scalars(select(ArenaModel.id).where(
+        ArenaModel.active.is_(False), ArenaModel.kind == "foundation")))
+    pairs = [(w, l, wt) for w, l, wt in db.execute(q) if w not in hidden and l not in hidden]
     if not pairs:
         return None
 

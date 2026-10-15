@@ -42,6 +42,9 @@ class Settings:
         #   sample — offline, deterministic-but-varied designs (default; no keys needed)
         #   live   — route each arena model to its provider adapter (requires API keys)
         self.generation_mode = os.getenv("ARENA_GENERATION_MODE", "sample")
+        # Live mode routes every model through OpenRouter. Set to 1 to call the
+        # first-party Anthropic/OpenAI/Google APIs directly (needs their keys).
+        self.direct_providers = os.getenv("ARENA_DIRECT_PROVIDERS", "0") == "1"
 
         # PLACEHOLDER credentials for live providers. The adapters read these and
         # fail with a clear message until real keys are supplied.

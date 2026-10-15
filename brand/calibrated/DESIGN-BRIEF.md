@@ -118,6 +118,14 @@ Retain the open graphite sketch and pressure study. Three new generated studies 
 
 Use soft charcoal or graphite on paper, paper on charcoal, and paper on leather brown. Steel is not a small-text color on a light field. Check the actual crop and interface state for contrast. Keep text live; physical leather, foil, ink and metal finishes need production samples.
 
+**Surfaces: no hard boxes**
+
+- Corners: modals and cards 16px; buttons and inputs 10-12px. Never square, never 1px steel outlines.
+- Edges are hairlines: a light steel/paper mix (about #E2DFD8), not #929698 boxes. Still no shadows, gradients or glow.
+- Inputs are filled with a lifted paper tint (about #F4F1E9 on a #FAF9F6 card), not white with a hard border.
+- Auth buttons show the official provider logos (multicolor Google G, Microsoft four squares) beside the label. Real marks earn trust; never strip them.
+- Auth modals: centered title and subtitle, an "or" divider with a line on each side.
+
 ---
 
 ## 05 / MOTION & WEBSITE

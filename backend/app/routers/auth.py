@@ -51,7 +51,7 @@ def verify(payload: VerifyCodeIn, response: Response, db: Session = Depends(get_
         .order_by(AuthCode.id.desc())
         .limit(1)
     ).first()
-    if record is None or record.expires_at.replace(tzinfo=None) < utcnow().replace(tzinfo=None):
+    if record is None or _as_utc(record.expires_at) < utcnow():
         raise HTTPException(status_code=400, detail="Invalid or expired code.")
     record.used = True
 
@@ -103,3 +103,10 @@ def reviewer(db: Session = Depends(get_db), user: User = Depends(get_current_use
 def logout(response: Response) -> dict:
     response.delete_cookie(SESSION_COOKIE)
     return {"ok": True}
+
+
+def _as_utc(value):
+    """SQLite hands back naive datetimes (stored as UTC); Postgres hands back
+    aware ones in the session time zone. Compare both as aware UTC."""
+    from datetime import timezone
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)

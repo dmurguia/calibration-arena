@@ -684,6 +684,14 @@ def build_outputs(
         "source": "benchmarks/registry.json",
         "review_after_days": 45,
         "results_stale_after_days": 180,
+        "licensing": {
+            "metadata": "CC-BY-4.0",
+            "metadata_attribution": "Calibration Arena benchmark catalog",
+            "results": (
+                "Result figures and board snapshots remain the property of their publishers and are "
+                "reproduced as cited facts with source links. Reuse them under each publisher's own terms."
+            ),
+        },
         "counts": {
             "benchmarks": len(registry["benchmarks"]),
             "by_results_status": by_results_status,

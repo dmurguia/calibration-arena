@@ -6,7 +6,7 @@ Everything else is generated from it:
 | File | Produced by | Purpose |
 | --- | --- | --- |
 | `benchmarks/registry.json` | Hand-edited (PR review) | Canonical metadata and result snapshots |
-| `frontend/public/benchmarks.json` | `make benchmarks-build` | Data served to the `/benchmarks` page and reusable as open data |
+| `frontend/public/benchmarks.json` | `make benchmarks-build` | Data served to the `/benchmarks` page. Catalog metadata is open (CC BY 4.0); result snapshots stay under each publisher's terms and are cited, not relicensed |
 | `docs/research/public-finance-accounting-benchmarks.md` | `make benchmarks-build` | Readable catalog for the repo and research docs |
 | `benchmarks/source-state.json` | `make benchmarks-check` | Last observed HTTP status, redirect and text hash for every cited URL |
 
@@ -42,6 +42,13 @@ Rules:
    "Awaiting public results" on the site.
 5. **Snapshots, not realtime.** Every result carries `as_of`; every row carries `last_verified`.
    Nothing on the page implies the numbers are live.
+
+## Licensing
+
+Two layers travel together in `benchmarks.json`, and only one of them is ours to license:
+
+- **Catalog metadata** (`id`, name, taxonomy, status, freshness, links, notes) is published under CC BY 4.0. Reusers credit "Calibration Arena benchmark catalog".
+- **Result figures and board snapshots** are the publishers' work. We reproduce the headline figure, metric and date as cited facts with a link to the source. We do not relicense them, and a reuser of `benchmarks.json` must follow each publisher's own terms. Several publishers (Artificial Analysis, Mercor, BenchLM) restrict republishing or commercial reuse; see `docs/research/benchmark-reuse-terms.md` before adding a board adapter for a new publisher.
 
 ## Status vocabulary
 

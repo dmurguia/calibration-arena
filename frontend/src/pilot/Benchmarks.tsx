@@ -189,7 +189,7 @@ export default function Benchmarks() {
         <li><b>One board per benchmark.</b> Each board keeps its publisher's metric. We never combine boards into a single score, because they use different tasks, graders and metrics.</li>
         <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
         <li><b>Freshness is visible.</b> Every source is re-checked on a schedule. Rows not re-verified within {data.review_after_days} days, or leaderboards whose results are more than {data.results_stale_after_days} days old, are flagged.</li>
-        <li><b>Open data.</b> The full catalog is available as <a href="/benchmarks.json">benchmarks.json</a>. Reuse it with attribution to the original publishers.</li>
+        <li><b>Open metadata, cited results.</b> Our catalog metadata (ids, taxonomy, status, freshness and links) is published as <a href="/benchmarks.json">benchmarks.json</a> under CC BY 4.0. The result figures and board snapshots in that file are reproduced from each publisher as cited facts with a link to the source. They stay under the publisher's own terms and are not relicensed by us; reuse them under those terms and credit the publisher.</li>
       </ul>
       <h3>What the labels mean</h3>
       <Glossary />

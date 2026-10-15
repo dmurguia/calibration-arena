@@ -50,7 +50,7 @@ The web middleware rejects remote clients, non-local Host values, cross-origin b
 
 The normal frozen run record stores `mode=local-cli`, CLI name, requested model, resolved model ID when the CLI reports one unambiguously, prompt hash/version, generation timestamp and local settings. The completed smoke test did not expose an unambiguous resolved model ID from either CLI, so `actual_model_id` remains null; displayed labels identify the requested selections. The model names stay hidden until judgment. Notebook distinguishes local CLI output from authored samples and OpenRouter output.
 
-These are comparisons of CLI outputs. Their underlying harnesses differ, and matched temperature/top-p cannot be enforced here. Do not combine their votes with a controlled OpenRouter model comparison. OpenRouter's ZDR request does not apply to these signed-in CLIs; the How it works disclosure follows the selected backend. Ephemeral CLI sessions do not erase the app's intentionally saved notebook or establish provider-side retention guarantees.
+These are comparisons of CLI outputs. Their underlying harnesses differ, and matched temperature/top-p cannot be enforced here. Do not combine their votes with a controlled OpenRouter model comparison. OpenRouter's provider routing settings do not apply to these signed-in CLIs; the How it works disclosure follows the selected backend. Ephemeral CLI sessions do not erase the app's intentionally saved notebook or establish provider-side retention guarantees.
 
 ## Verification
 

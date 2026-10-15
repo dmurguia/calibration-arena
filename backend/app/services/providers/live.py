@@ -39,6 +39,39 @@ def _require_key(key: str, provider: str) -> str:
     return key
 
 
+# Seeded first-party ids -> OpenRouter slugs (checked against
+# https://openrouter.ai/api/v1/models, 2026-10-15).
+_OPENROUTER_SLUGS: dict[str, str] = {
+    "gpt-5.5": "openai/gpt-5.5",
+    "gpt-5-mini": "openai/gpt-5-mini",
+    "claude-opus-4-8": "anthropic/claude-opus-4.8",
+    "claude-sonnet-4-6": "anthropic/claude-sonnet-4.6",
+    "gemini-3-pro": "google/gemini-3.1-pro-preview",  # no plain gemini-3-pro on OpenRouter
+    "gemini-3-flash": "google/gemini-3-flash-preview",
+}
+_CLAUDE_VERSION = re.compile(r"-(\d+)-(\d+)$")
+
+
+def openrouter_model_id(model: ArenaModel) -> str:
+    """The OpenRouter slug for a model, whatever its native provider."""
+    mid = model.provider_model_id or model.slug
+    if "/" in mid:
+        return mid
+    if mid in _OPENROUTER_SLUGS:
+        return _OPENROUTER_SLUGS[mid]
+    if model.provider == "anthropic":
+        return "anthropic/" + _CLAUDE_VERSION.sub(r"-\1.\2", mid)
+    if model.provider in ("openai", "google"):
+        return f"{model.provider}/{mid}"
+    return mid
+
+
+def _system_prompt(category: str) -> str:
+    # The old default indexed a "website" key that no longer exists, so every
+    # live call raised KeyError before reaching the network.
+    return CATEGORY_SYSTEM_PROMPTS.get(category) or next(iter(CATEGORY_SYSTEM_PROMPTS.values()))
+
+
 def _user_prompt(prompt: str, category: str) -> str:
     return f"Category: {category}\nRequest: {prompt}"
 
@@ -54,7 +87,7 @@ class AnthropicProvider:
                 json={
                     "model": model.provider_model_id or model.slug,
                     "max_tokens": 8192,
-                    "system": CATEGORY_SYSTEM_PROMPTS.get(category, CATEGORY_SYSTEM_PROMPTS["website"]),
+                    "system": _system_prompt(category),
                     "messages": [{"role": "user", "content": _user_prompt(prompt, category)}],
                 },
             )
@@ -74,7 +107,7 @@ class OpenAIProvider:
                 json={
                     "model": model.provider_model_id or model.slug,
                     "messages": [
-                        {"role": "system", "content": CATEGORY_SYSTEM_PROMPTS.get(category, CATEGORY_SYSTEM_PROMPTS["website"])},
+                        {"role": "system", "content": _system_prompt(category)},
                         {"role": "user", "content": _user_prompt(prompt, category)},
                     ],
                 },
@@ -94,7 +127,7 @@ class GoogleProvider:
                 f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent",
                 params={"key": key},
                 json={
-                    "systemInstruction": {"parts": [{"text": CATEGORY_SYSTEM_PROMPTS.get(category, CATEGORY_SYSTEM_PROMPTS["website"])}]},
+                    "systemInstruction": {"parts": [{"text": _system_prompt(category)}]},
                     "contents": [{"parts": [{"text": _user_prompt(prompt, category)}]}],
                 },
             )
@@ -104,7 +137,10 @@ class GoogleProvider:
 
 
 class OpenRouterProvider:
-    """Catch-all for models without a first-party adapter (GLM, DeepSeek, Qwen, ...)."""
+    """Default live provider for every model (first-party ids mapped to OpenRouter slugs).
+
+    Same routing policy as the pilot (PR #28): no prompt retention, no silent fallbacks.
+    """
 
     async def generate(self, model: ArenaModel, prompt: str, category: str, scenario: dict | None = None) -> GenerationResult:
         key = _require_key(get_settings().openrouter_api_key, "OpenRouter")
@@ -114,11 +150,12 @@ class OpenRouterProvider:
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={"Authorization": f"Bearer {key}"},
                 json={
-                    "model": model.provider_model_id or model.slug,
+                    "model": openrouter_model_id(model),
                     "messages": [
-                        {"role": "system", "content": CATEGORY_SYSTEM_PROMPTS.get(category, CATEGORY_SYSTEM_PROMPTS["website"])},
+                        {"role": "system", "content": _system_prompt(category)},
                         {"role": "user", "content": _user_prompt(prompt, category)},
                     ],
+                    "provider": {"data_collection": "deny", "allow_fallbacks": False},
                 },
             )
             resp.raise_for_status()

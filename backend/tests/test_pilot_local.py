@@ -101,6 +101,20 @@ def test_local_server_rejects_remote_and_cross_origin(client, monkeypatch):
         assert c.get('/api/pilot/config').status_code == 403
 
 
+def test_local_server_allows_cross_site_page_load_only(client, monkeypatch):
+    # Returning from Google/Microsoft sign-in navigates back to the app shell cross-site.
+    configure(monkeypatch)
+    from app.main import app
+    back = {'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate'}
+    with TestClient(app, base_url='http://127.0.0.1:8021', client=('127.0.0.1', 5555)) as c:
+        assert c.get('/', headers=back).status_code != 403
+        assert c.get('/api/pilot/config', headers=back).status_code == 403
+        assert c.post('/', headers=back).status_code == 403
+        assert c.get('/', headers={'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'cors'}).status_code == 403
+    with TestClient(app, base_url='http://127.0.0.1:8021', client=('203.0.113.1', 5555)) as c:
+        assert c.get('/', headers=back).status_code == 403
+
+
 def test_local_run_remains_blind_and_records_correct_source(client, monkeypatch):
     configure(monkeypatch)
     from app.main import app

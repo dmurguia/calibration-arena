@@ -17,6 +17,8 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
     signUpUrl="/signup"
     afterSignOutUrl="/"
     appearance={{
+      // blockButton keeps the official Google/Microsoft logos beside each label.
+      options: { socialButtonsVariant: 'blockButton' },
       // Calibrated Co. tokens (src/styles/calibrated.css). Clerk needs literal values, not CSS vars.
       variables: {
         colorPrimary: '#464643',
@@ -27,7 +29,7 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
         colorMuted: '#F4F1E9',
         colorInput: '#FAF9F6',
         colorInputForeground: '#464643',
-        colorBorder: '#46464355',
+        colorBorder: '#E2DFD8',
         colorRing: '#656460',
         colorDanger: '#70543E',
         colorSuccess: '#464643',
@@ -43,7 +45,7 @@ export function ClerkRoot({ children }: { children: ReactNode }) {
       elements: {
         // The page already carries the eyebrow, title and lead; Clerk's own header would repeat it.
         header: { display: 'none' },
-        cardBox: { boxShadow: 'none', border: '1px solid #46464333', borderRadius: '20px' },
+        cardBox: { boxShadow: 'none', border: '1px solid #E2DFD8', borderRadius: '16px' },
         footer: { backgroundImage: 'none', background: '#F4F1E9' },
       },
       // Shadows, the button sheen and leather hover are flattened in pilot.css (.cl-* rules).

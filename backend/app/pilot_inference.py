@@ -49,7 +49,7 @@ async def call_openrouter(model, instructions, messages, task_type):
             raise ValueError('Incomplete or refused response')
         return finish_artifact(attempt, choice['message']['content'], task_type, CONFIG, 'ask-v4')
     except Exception as exc:
-        attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
+        attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__, error=str(exc) if isinstance(exc, ValueError) else 'The request did not complete.')
         return attempt
 
 

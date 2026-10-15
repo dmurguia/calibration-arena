@@ -1,10 +1,15 @@
 from dataclasses import dataclass
+import base64
+import json
+import logging
 import os
 
 import httpx
 from clerk_backend_api import Clerk
 from clerk_backend_api.security import AuthenticateRequestOptions
 from fastapi import HTTPException, Request
+
+logger = logging.getLogger(__name__)
 
 
 def clerk_enabled() -> bool:
@@ -39,6 +44,17 @@ class ClerkIdentity:
     name: str
 
 
+def _unverified_claim(request: Request, claim: str) -> str | None:
+    """Read a claim from the bearer token without verifying it, for diagnostics only."""
+    token = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+    try:
+        payload = token.split(".")[1]
+        payload += "=" * (-len(payload) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload)).get(claim)
+    except Exception:
+        return None
+
+
 def verify_clerk_request(request: Request) -> ClerkIdentity:
     secret = os.getenv("CLERK_SECRET_KEY", "")
     try:
@@ -61,6 +77,13 @@ def verify_clerk_request(request: Request) -> ClerkIdentity:
             503, "Sign-in is temporarily unavailable. Please try again."
         ) from exc
     if not state.is_signed_in or not state.payload or not state.payload.get("sub"):
+        # The reason (expired token, unauthorized party, ...) is operational, not for the user.
+        logger.warning(
+            "Clerk sign-in rejected: %s (azp=%s, allowed=%s)",
+            getattr(state, "reason", None),
+            _unverified_claim(request, "azp"),
+            authorized_parties(),
+        )
         raise HTTPException(
             401, "Your sign-in could not be verified. Please sign in again."
         )
@@ -78,9 +101,8 @@ def verify_clerk_request(request: Request) -> ClerkIdentity:
             and primary.verification
             and primary.verification.status == "verified"
         )
-        name = f"{user.first_name or ''} {user.last_name or ''}".strip()
-        if not name:
-            name = email.partition("@")[0]
+        # Names are not collected; ignore any that Google or Microsoft supply.
+        name = email.partition("@")[0]
     except Exception as exc:
         raise HTTPException(
             503, "Sign-in is temporarily unavailable. Please try again."

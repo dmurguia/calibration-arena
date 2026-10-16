@@ -1,4 +1,5 @@
 """Isolated pilot ledger. No dependency on synthetic legacy votes or credential tiers."""
+import asyncio
 from datetime import datetime, timezone, timedelta
 import hashlib
 import os
@@ -27,7 +28,7 @@ from ..pilot_accounts import (
     record_admin_failure, reset_limits as reset_rate_limits, verify_password,
     UNUSABLE_PASSWORD,
 )
-from .. import pilot_clerk
+from .. import pilot_clerk, pilot_limits
 from ..pilot_usage import usage_tokens
 from ..pilot_models import pool_labels
 from ..pilot_leaderboard import build_leaderboard
@@ -290,7 +291,7 @@ def public_run(run):
     revealed = run.status == "completed"
     visible = run.status in ("review", "completed")
     result = {"id": run.id, "status": run.status, "created_at": run.created_at,
-              **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id")}}
+              **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id", "root_run_id", "limit_rejection")}}
     result['workflow_id'] = data.get('workflow_id')
     result['attachments'] = [{k: document[k] for k in ('name', 'role', 'size', 'sha256')}
                              for document in data.get('input_documents', [])]
@@ -311,8 +312,9 @@ def public_run(run):
 
 
 @router.get("/config")
-def config():
+def config(db: Session = Depends(get_db)):
     result = {
+        "generation_paused": pilot_limits.paused(db),
         "ask_mode": "live" if live_ready() else "fixture",
         "invite_required": False,
         "inference_backend": inference_backend(),
@@ -630,10 +632,8 @@ def enrich_profile(body: Profile, p=Depends(participant), db: Session = Depends(
 def me(p=Depends(participant), db: Session = Depends(get_db)):
     runs = db.scalars(select(Run).where(Run.participant_id == p.id).order_by(Run.created_at.desc())).all()
     account = db.get(PilotAccount, p.id)
-    used = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
-                     .where(PilotUsage.participant_id == p.id)) or 0
-    default_budget = "PILOT_TOKEN_BUDGET" if account else "PILOT_GUEST_TOKEN_BUDGET"
-    budget = account.token_budget if account and account.token_budget is not None else int(os.getenv(default_budget, "200000" if account else "30000"))
+    used = pilot_limits.recorded_tokens(db, p.id) + pilot_limits.committed_tokens(db, p.id)
+    budget = pilot_limits.participant_budget(account)
     return {
         "participant": {"id": p.id, **p.profile},
         "account": {"email": account.email, "provider": "clerk" if account.clerk_user_id else "password"} if account else None,
@@ -668,26 +668,6 @@ def conversation_revealed(db, run):
                if (r.data.get('root_run_id') or r.id) == root)
 
 
-def budget_for(db, p):
-    account = db.get(PilotAccount, p.id)
-    default = os.getenv("PILOT_TOKEN_BUDGET", "200000") if account else os.getenv("PILOT_GUEST_TOKEN_BUDGET", "30000")
-    return account.token_budget if account and account.token_budget is not None else int(default)
-
-
-def check_live_budget(db, p):
-    start_of_day = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
-    today = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
-                      .where(PilotUsage.at >= start_of_day)) or 0
-    if today >= int(os.getenv("PILOT_GLOBAL_DAILY_TOKENS", "3000000")):
-        raise HTTPException(503, "Live comparisons are paused for today. Practice examples are still available.")
-    used = db.scalar(select(func.coalesce(func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens), 0))
-                     .where(PilotUsage.participant_id == p.id)) or 0
-    if used >= budget_for(db, p):
-        account = db.get(PilotAccount, p.id)
-        suffix = "Contact the Calibrated team to extend it." if account else "Create an account or contact the Calibrated team to extend it."
-        raise HTTPException(402, f"You've used this account's included model tokens. {suffix}")
-
-
 def record_attempt_usage(db, participant_id, run_id, attempts):
     for attempt in attempts:
         input_tokens, output_tokens = usage_tokens(attempt)
@@ -702,8 +682,8 @@ def record_attempt_usage(db, participant_id, run_id, attempts):
 @router.post("/runs")
 async def start(body: Start, p=Depends(participant), db: Session = Depends(get_db)):
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
-    if count >= 20:
-        raise HTTPException(429, "You've reached today's 20-session limit. Come back tomorrow.")
+    if count >= pilot_limits.daily_run_limit():
+        raise HTTPException(429, f"You've reached today's {pilot_limits.daily_run_limit()}-session limit. Come back tomorrow.")
     source = owned(db, p, body.source_run_id) if body.source_run_id else None
     retry = owned(db, p, body.retry_of_run_id) if body.retry_of_run_id else None
     if retry and retry.status != 'failed':
@@ -777,7 +757,6 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             raise HTTPException(422, "Describe a new question in at least 15 characters, or enter a follow-up.")
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
-        check_live_budget(db, p)
         inherited = (source or retry) and (source or retry).data.get("title")
         data = {"kind": "ask", "case_id": None, "title": inherited or auto_title(body.question, TASKS[body.task_type]["label"]), "brief": body.question,
                 "workflow_id": workflow_id, "input_documents": documents, "model_prompt": effective_prompt,
@@ -802,7 +781,17 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     if not body.case_id:
         attempts = []
         try:
-            drafts = await generate(effective_prompt, body.task_type, history=pair_histories or history) if history or pair_histories else await generate(effective_prompt, body.task_type)
+            reservation = pilot_limits.reserve(
+                db, p, run.id, pilot_limits.reservation_tokens(effective_prompt, pair_histories or history))
+        except pilot_limits.LimitRejected as exc:
+            run.data = {**data, 'generation_error_type': 'LimitRejected', 'limit_rejection': exc.detail}
+            run.status = "failed"
+            emit(db, p, "generation_failed", run)
+            db.commit()
+            raise HTTPException(exc.status_code, exc.detail)
+        try:
+            coro = generate(effective_prompt, body.task_type, history=pair_histories or history) if history or pair_histories else generate(effective_prompt, body.task_type)
+            drafts = await asyncio.wait_for(coro, timeout=pilot_limits.generation_timeout_seconds())
             attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
             if pair_order:
                 if set(pair_order) != {d['model_id'] for d in drafts}:
@@ -813,6 +802,11 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             run.data = {**data, "drafts": drafts, "generation_attempts": attempts, "drafts_shown_at": now()}
             run.status = "review"
             emit(db, p, "drafts_shown", run, {"mechanism": "preference-v2"})
+        except asyncio.TimeoutError:
+            run.data = {**data, 'generation_attempts': attempts,
+                        'generation_error_type': 'TimeoutError'}
+            run.status = "failed"
+            emit(db, p, "generation_failed", run)
         except ValueError as exc:
             attempts = exc.attempts if isinstance(exc, GenerationFailure) else []
             run.data = {**data, 'generation_attempts': attempts,
@@ -820,6 +814,7 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             run.status = "failed"
             emit(db, p, "generation_failed", run)
         record_attempt_usage(db, p.id, run.id, attempts)
+        pilot_limits.reconcile(db, reservation, attempts)
         db.commit()
     return public_run(run)
 
@@ -1047,3 +1042,25 @@ def founder_set_budget(
     account.token_budget = body.token_budget
     db.commit()
     return {"participant_id": participant_id, "token_budget": account.token_budget}
+
+
+class GenerationPause(Strict):
+    paused: bool
+    note: str | None = Field(default=None, max_length=200)
+
+
+@router.get("/founder/generation")
+def founder_generation(request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+    require_admin(x_pilot_admin, request)
+    return pilot_limits.generation_state(db)
+
+
+@router.post("/founder/generation")
+def founder_set_generation(
+    body: GenerationPause, request: Request,
+    x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db),
+):
+    require_admin(x_pilot_admin, request)
+    pilot_limits.set_paused(db, body.paused, body.note)
+    db.commit()
+    return pilot_limits.generation_state(db)

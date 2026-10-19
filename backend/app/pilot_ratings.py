@@ -1,7 +1,7 @@
 """Ratings math: weighted Bradley-Terry (MM algorithm) over pairwise votes.
 
-Every vote is a pairwise outcome carrying a weight from the rater's credential
-tier; BT strengths are fit by Hunter's minorization-maximization iteration and
+Every judgment is a pairwise outcome with an optional weight (default 1.0);
+BT strengths are fit by Hunter's minorization-maximization iteration and
 mapped onto an Elo-like scale anchored at 1200 so scores read familiarly.
 Confidence intervals come from bootstrap resampling of the vote set.
 """

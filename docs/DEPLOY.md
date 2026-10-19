@@ -1,6 +1,6 @@
 # Deploying Calibration Arena — Railway (API + data) · Vercel (frontend)
 
-> Current ten-accountant setup: [Local CLI testing and hosted API sharing](pilot/LOCAL-AND-HOSTED.md). Use this newer guide for credentials and pilot settings. The older prototype instructions below include synthetic seeding, dev login and wildcard preview CORS; those settings do not apply to the current participant release.
+> Credentials and pilot settings: [Local CLI testing and hosted API sharing](pilot/LOCAL-AND-HOSTED.md). The prototype's synthetic seeding and dev-code login were retired (see `docs/ARCHITECTURE.md`); the variables `ARENA_GENERATION_MODE`, `ARENA_LEGACY_API`, `ARENA_AUTO_SEED`, `ARENA_DEV_LOGIN_CODE` and `PILOT_INVITE_CODE` are ignored and can be removed from Railway.
 
 One repo, two deploy targets. Railway runs the FastAPI backend and owns the
 data; Vercel builds `frontend/` and gives per-PR preview URLs. No local
@@ -15,7 +15,7 @@ environment needed once this is wired — push to `main` and both redeploy.
    (`/api/health`) and restart policy come from `backend/railway.json`.
 3. **Attach a volume** (service → right-click → Attach Volume), mount path
    `/data`. Railway's filesystem is ephemeral — without the volume every
-   redeploy wipes votes, users, and snapshots.
+   redeploy wipes accounts and runs.
 4. **Variables** on the service:
 
    | Variable | Value | Why |
@@ -24,7 +24,6 @@ environment needed once this is wired — push to `main` and both redeploy.
    | `ARENA_SECRET_KEY` | long random string (`openssl rand -hex 32`) | session token signing |
    | `ARENA_CORS_ORIGINS` | the Vercel prod origin, e.g. `https://calibration-arena.vercel.app` | browser API calls |
    | `ARENA_CORS_ORIGIN_REGEX` | `https://.*\.vercel\.app` | Vercel preview deploys |
-   | `ARENA_AUTO_SEED` | `1` (default) | first boot on an empty volume seeds the demo roster/boards |
 
 ### Pilot accounts release (PR #19)
 
@@ -60,10 +59,6 @@ are available in previews only after the backend is deployed.
 5. **Settings → Networking → Generate Domain** — this is the public API URL
    the frontend needs.
 
-First boot on a fresh volume auto-seeds (roster, synthetic votes, snapshots),
-so the boards render immediately. Sign-in codes surface in the UI (dev-code
-mode) until a real email provider is wired.
-
 ## Vercel — frontend project
 
 1. Vercel → **Add New Project** → import `dmurguia/calibration-arena`.
@@ -72,7 +67,7 @@ mode) until a real email provider is wired.
 3. **Environment variable**: `VITE_API_URL` = the Railway domain from step 5
    above (no trailing slash), applied to Production and Preview.
 4. Deploy. `frontend/vercel.json` carries the SPA rewrite so React Router
-   deep links (`/leaderboards`, `/judge/…`) resolve.
+   deep links (`/benchmarks`, `/account`, …) resolve.
 
 Every PR now gets a preview URL; the preview talks to the same Railway
 backend (allowed by the origin regex).

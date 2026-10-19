@@ -13,10 +13,6 @@ _TEST_DB = BACKEND / "test_designarena.db"
 # (its tables are dropped at the start of the session).
 _PG_URL = os.getenv("ARENA_TEST_DATABASE_URL", "")
 os.environ["ARENA_DATABASE_URL"] = _PG_URL or f"sqlite:///{_TEST_DB}"
-os.environ["ARENA_GENERATION_MODE"] = "sample"
-os.environ["ARENA_LEGACY_API"] = "1"
-# Tests vote instantly; disable the behavioral timing floor.
-os.environ["ARENA_MIN_DECISION_MS"] = "0"
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -26,19 +22,13 @@ from fastapi.testclient import TestClient  # noqa: E402
 def client():
     if _TEST_DB.exists():
         _TEST_DB.unlink()
-    from app.db import Base, SessionLocal, engine, init_db
+    from app.db import Base, engine, init_db
     from app.main import app
-    from pipeline.seed import seed_models
 
     if _PG_URL:
         Base.metadata.drop_all(bind=engine)
 
     init_db()
-    db = SessionLocal()
-    try:
-        seed_models(db)
-    finally:
-        db.close()
 
     with TestClient(app) as c:
         yield c
@@ -46,14 +36,3 @@ def client():
     if _TEST_DB.exists():
         _TEST_DB.unlink()
 
-
-@pytest.fixture()
-def auth_client(client):
-    resp = client.post("/api/auth/request-code", json={"email": "tester@example.com"})
-    code = resp.json()["dev_code"]
-    resp = client.post("/api/auth/verify", json={"email": "tester@example.com", "code": code})
-    token = resp.json()["token"]
-    client.headers["Authorization"] = f"Bearer {token}"
-    yield client
-    client.headers.pop("Authorization", None)
-    client.cookies.clear()

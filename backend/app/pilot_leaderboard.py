@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from .pilot_models import weights_for
-from .services.ratings import compute_ratings
+from .pilot_ratings import compute_ratings
 
 
 NOTE = "Preference among participating accountants; not a correctness score."

@@ -1,4 +1,4 @@
-from app.services.ratings import compute_ratings, strength_to_rating
+from app.pilot_ratings import compute_ratings, strength_to_rating
 
 
 def test_empty_votes():

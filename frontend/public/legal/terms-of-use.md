@@ -4,7 +4,7 @@
 
 ## Agreement by use
 
-Calibration Arena is a free service operated by Corsac Technologies Inc., a Delaware corporation doing business as Calibrated Co. ("Calibrated", "we", "us"), for comparing how AI models answer finance and accounting questions. By using it, you agree to these terms. We may update them; the date above shows the latest version, and continuing to use the service means you accept the changes.
+Calibration Arena is a free service operated by Corsac Technologies Inc., a Delaware corporation doing business as Calibrated Co. ("Calibrated", "we", "us"), for comparing how AI models answer finance and accounting questions. By using it, you agree to these terms. We may update them; the date above shows the latest version, and continuing to use the service means you accept the changes. These terms include a binding arbitration agreement and a class-action waiver. See "Disputes and arbitration" below, which also explains how to opt out.
 
 ## Who can use it
 
@@ -54,8 +54,22 @@ We may suspend or remove access for misuse. To delete your account and notebook,
 
 The service is offered "as is" without warranties of any kind. To the extent permitted by law, our liability is capped at the amount you paid us, which is nothing, since the service is free.
 
+## Governing law
+
+These terms are governed by the laws of the State of Delaware, without regard to its conflict-of-law rules, and the arbitration section below is governed by the Federal Arbitration Act. Any dispute that is not subject to arbitration must be brought in the state or federal courts located in Delaware, and you and we consent to their jurisdiction. If you live outside the United States, local consumer-protection rules that cannot be waived still apply to you.
+
+## Disputes and arbitration
+
+**Talk to us first.** Before starting any formal proceeding, send us a written description of the dispute by contacting the Calibrated team, and we will do the same if we have a claim against you. If it is not resolved within 60 days, either side may proceed as described here.
+
+**Binding individual arbitration.** Any dispute arising out of these terms or the service that is not resolved informally will be settled by binding arbitration administered by the American Arbitration Association under its Consumer Arbitration Rules, before a single arbitrator, rather than in court. Hearings take place by video or in the county where you live. Filing and arbitrator fees follow the AAA rules; we will not seek to recover our own fees from you unless the arbitrator finds your claim frivolous. The arbitrator decides any question about whether this section applies.
+
+**Exceptions.** Either side may bring an individual claim in small claims court, and either side may ask a court for an injunction to stop infringement or misuse of intellectual property.
+
+**No class actions.** Claims may be brought only on an individual basis, not as a plaintiff or member of a class, consolidated or representative proceeding. If a court finds this waiver unenforceable for a particular claim, this entire arbitration section does not apply to that claim.
+
+**Opt-out.** You may opt out of this arbitration section by contacting the Calibrated team within 30 days of first accepting these terms, stating that you opt out of arbitration. Opting out does not affect any other part of these terms.
+
 ## Contact
 
 Questions about these terms: contact the Calibrated team.
-
-*Arbitration, class-action waiver and governing law are intentionally left out pending legal review.*

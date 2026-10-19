@@ -48,7 +48,7 @@ Improvement suggestions you send us may be used without restriction or payment.
 
 ## Suspension and deletion
 
-We may suspend or remove access for misuse. To delete your account and notebook, contact the Calibrated team. Content already shared under the license above, and de-identified data included in rankings and statistics, is not recalled.
+We may suspend or remove access for misuse. To delete your account and notebook, email help@corsac.ai. Content already shared under the license above, and de-identified data included in rankings and statistics, is not recalled.
 
 ## Provided as is
 
@@ -60,7 +60,7 @@ These terms are governed by the laws of the State of Delaware, without regard to
 
 ## Disputes and arbitration
 
-**Talk to us first.** Before starting any formal proceeding, send us a written description of the dispute by contacting the Calibrated team, and we will do the same if we have a claim against you. If it is not resolved within 60 days, either side may proceed as described here.
+**Talk to us first.** Before starting any formal proceeding, send us a written description of the dispute by emailing help@corsac.ai, and we will do the same if we have a claim against you. If it is not resolved within 60 days, either side may proceed as described here.
 
 **Binding individual arbitration.** Any dispute arising out of these terms or the service that is not resolved informally will be settled by binding arbitration administered by the American Arbitration Association under its Consumer Arbitration Rules, before a single arbitrator, rather than in court. Hearings take place by video or in the county where you live. Filing and arbitrator fees follow the AAA rules; we will not seek to recover our own fees from you unless the arbitrator finds your claim frivolous. The arbitrator decides any question about whether this section applies.
 
@@ -68,8 +68,8 @@ These terms are governed by the laws of the State of Delaware, without regard to
 
 **No class actions.** Claims may be brought only on an individual basis, not as a plaintiff or member of a class, consolidated or representative proceeding. If a court finds this waiver unenforceable for a particular claim, this entire arbitration section does not apply to that claim.
 
-**Opt-out.** You may opt out of this arbitration section by contacting the Calibrated team within 30 days of first accepting these terms, stating that you opt out of arbitration. Opting out does not affect any other part of these terms.
+**Opt-out.** You may opt out of this arbitration section by emailing help@corsac.ai within 30 days of first accepting these terms, stating that you opt out of arbitration. Opting out does not affect any other part of these terms.
 
 ## Contact
 
-Questions about these terms: contact the Calibrated team.
+Questions about these terms: email help@corsac.ai.

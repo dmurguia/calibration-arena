@@ -4,6 +4,16 @@ Current sprint scope, 8 September: [Ten accountants, open prompts and shared cas
 
 Updated, 8 September 2026. Keep the Design Arena front door: an open prompt in the center of the screen, immediate engagement, and optional examples. Reuse the existing Calibrated engraving/lens, dial and typography. This is an experiment in repeat participation, not a model benchmark launch.
 
+## Decisions, 19 October 2026
+
+Updated 19 October 2026. These supersede the lines marked below.
+
+1. **Entity.** The operator is Corsac Technologies Inc., a Delaware corporation, doing business as Calibrated Co. The public-facing name stays Calibrated Co.; legal documents name Corsac. A DBA filing for "Calibrated Co." is still to be made where Corsac has its principal place of business.
+2. **Content license.** Follow Design Arena's model. Users own what they submit and grant Corsac an irrevocable, perpetual, sublicensable license to use, license or sell their questions, uploads, notes and judgments, with name, email and account identifiers removed, to third parties including AI labs, for evaluation, benchmarking and training. No opt-in gate. The profile `research_consent` setting only records whether we may contact the person about research follow-ups; `publication_consent` and `training_consent` no longer gate anything. This replaces the opt-in rule in "Features and experiment hypotheses" item 1 and in "Scope boundaries".
+3. **Legal pages.** `/terms` and `/privacy` are live (PR #33, merged 19 October), rendered from `frontend/public/legal/*.md` and marked "Draft for legal review". They include governing law (Delaware), AAA consumer arbitration with a 60-day notice step, a class-action waiver and a 30-day opt-out, and the California "sale or sharing" disclosure. They are linked from a minimal bottom footer row. Word and PDF copies on the company drive are generated from the same files. Still open: a contact email on both pages, and counsel review. The counsel brief is `docs/legal/TERMS-DRAFT.md`.
+4. **No Builder row for the MVP.** The arena ranks foundation models only. Vendor product rankings, claimed listings and the empty-chair rows described in the README are deferred; the vendor clause is parked in `docs/legal/TERMS-DRAFT.md` §2.8.
+5. **Benchmark directory reuse.** `/benchmarks` cites each publisher's headline result with a link. Structured board mirroring happens only under an open license or written permission; Artificial Analysis and BenchLM forbid commercial republishing and stay cite-only. Catalog metadata is CC BY 4.0; result figures remain the publishers'. See `docs/research/benchmark-reuse-terms.md`. Permission requests to Vals, Mercor, Rogo, DualEntry and Entendre have not been sent yet.
+
 ## How the data flows
 
 ```mermaid
@@ -95,7 +105,7 @@ Static pages are enough when all necessary facts and the final artifact fit on s
 
 ## Features and experiment hypotheses
 
-1. Prompt-first entrance, work-type choices and explicit samples, and a single preference: accountants can engage immediately. Guests can start without a consent checkbox or background questionnaire. Operational storage is disclosed through Data use; private research reuse is a separate optional profile opt-in. Measure entry -> drafts -> judgment; for older cases, preserve whether the independent-conclusion step was completed or skipped. Collect optional professional context after the reveal, preserving the same participant and judgments.
+1. Prompt-first entrance, work-type choices and explicit samples, and a single preference: accountants can engage immediately. Guests can start without a consent checkbox or background questionnaire. Operational storage is disclosed through Data use. *(Superseded 19 October 2026: content is licensed under the Terms of Use by default; the profile setting only records contact permission for research follow-ups. See "Decisions, 19 October 2026".)* Measure entry -> drafts -> judgment; for older cases, preserve whether the independent-conclusion step was completed or skipped. Collect optional professional context after the reveal, preserving the same participant and judgments.
 2. Ask: useful questions lead to voluntary returns. Measure live own-question sessions separately from authored cases, including usefulness and later-day activity. Arbitrary prompts have no fixture fallback: without live credentials the prompt stays in the composer with a configuration message.
 3. Optional post-reveal background profile + browser-bound saved work: role/experience/context help interpret disagreement and support return behavior. Self-reported, never credential verified. Measure completed cases, later-day visits and profile completion; background-missing guests must not be counted as qualified accountants. Browser identity is not proof of a unique human.
 4. Separate correctness and preference: a preferred response can still be wrong. Inspect optional issue reports and expert assessments; do not manufacture readiness or confidence from quick votes.
@@ -110,7 +120,7 @@ Primary sources checked for this decision: [Chatbot Arena](https://proceedings.m
 
 ## Scope boundaries
 
-No public leaderboard, CPA badge, peer percentile, paid assignment promises, enterprise console, agent execution, uploads, referral rewards, or social feed. No credential multipliers. No reuse of questions or corrections for training/publication without a later separate opt-in. Enterprise workflow evaluation remains the commercial hypothesis; this pilot sells accountants a useful practice session.
+No public leaderboard, CPA badge, peer percentile, paid assignment promises, enterprise console, agent execution, uploads, referral rewards, or social feed. No credential multipliers. *(Superseded 19 October 2026: questions and judgments are licensed under the Terms of Use, including for training and for licensing to third parties, with identifiers removed. See "Decisions, 19 October 2026".)* Enterprise workflow evaluation remains the commercial hypothesis; this pilot sells accountants a useful practice session.
 
 ## What we could publish
 

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Draft for legal review. Last updated October 19, 2026. Not yet reviewed by counsel.*
+*Last updated October 19, 2026.*
 
 Calibration Arena is operated by Corsac Technologies Inc., a Delaware corporation doing business as Calibrated Co. ("Calibrated", "we", "us"). This policy explains what we collect when you use the service and what we do with it.
 

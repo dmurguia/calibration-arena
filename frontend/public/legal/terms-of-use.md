@@ -1,6 +1,6 @@
 # Terms of Use
 
-*Draft for legal review. Last updated October 19, 2026. Not yet reviewed by counsel.*
+*Last updated October 19, 2026.*
 
 ## Agreement by use
 

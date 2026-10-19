@@ -30,7 +30,7 @@ We keep your notebook and account data while your account exists. De-identified 
 
 ## Your rights
 
-You can view your own data in your notebook, correct your profile, and ask us to delete your account and notebook by contacting the Calibrated team. If you are in California, you have the right to know what we collect, to request deletion, and not to be discriminated against for exercising those rights. Because we license de-identified content to third parties, California law may treat that as a "sale" or "sharing" of personal information; you can opt out of future sales or sharing by contacting the Calibrated team. We do not sell or share personal information for cross-context behavioral advertising. If EU or UK data protection law applies to you, you may also request access, correction, deletion, restriction and portability, and object to processing.
+You can view your own data in your notebook, correct your profile, and ask us to delete your account and notebook by emailing help@corsac.ai. If you are in California, you have the right to know what we collect, to request deletion, and not to be discriminated against for exercising those rights. Because we license de-identified content to third parties, California law may treat that as a "sale" or "sharing" of personal information; you can opt out of future sales or sharing by emailing help@corsac.ai. We do not sell or share personal information for cross-context behavioral advertising. If EU or UK data protection law applies to you, you may also request access, correction, deletion, restriction and portability, and object to processing.
 
 ## Children
 
@@ -38,4 +38,4 @@ The service is not intended for anyone under 18.
 
 ## Changes and contact
 
-We may update this policy; the date above shows the latest version. Questions or requests: contact the Calibrated team.
+We may update this policy; the date above shows the latest version. Questions or requests: email help@corsac.ai.

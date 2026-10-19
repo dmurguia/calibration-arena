@@ -34,7 +34,9 @@ def get_db():
 
 
 def init_db() -> None:
-    from . import models  # noqa: F401  (register mappings)
+    # Register the pilot mappings so create_all sees every table.
+    from . import pilot_accounts, pilot_limits  # noqa: F401
+    from .routers import pilot  # noqa: F401
 
     if _is_sqlite and is_production_like():
         log.warning(
@@ -53,12 +55,6 @@ def init_db() -> None:
 # backfill. Prototype-grade migration — replace with Alembic when the schema
 # starts moving for real.
 _COLUMN_BACKFILL: dict[str, dict[str, str]] = {
-    "arena_models": {
-        "kind": "VARCHAR(20) NOT NULL DEFAULT 'foundation'",
-        "vertical": "VARCHAR(40) NOT NULL DEFAULT ''",
-        "provenance": "VARCHAR(40) NOT NULL DEFAULT ''",
-        "submitted_version": "VARCHAR(60) NOT NULL DEFAULT ''",
-    },
     "pilot_accounts": {
         "clerk_user_id": "VARCHAR",
     },

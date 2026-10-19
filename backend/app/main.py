@@ -13,36 +13,12 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
 from .db import init_db
-from .routers import auth, battles, catalog, leaderboard, releases, pilot
-
-def _maybe_seed() -> None:
-    """First boot on a fresh volume: seed the demo roster/votes so the boards
-    aren't empty. No-op whenever any arena model already exists."""
-    if os.getenv("ARENA_AUTO_SEED", "1") != "1":
-        return
-    from sqlalchemy import select
-
-    from .db import SessionLocal
-    from .models import ArenaModel
-
-    with SessionLocal() as db:
-        if db.execute(select(ArenaModel.id).limit(1)).first() is not None:
-            return
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "-m", "pipeline.seed"],
-        cwd=str(Path(__file__).resolve().parent.parent),
-        check=True,
-    )
+from .routers import pilot
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    if os.getenv("ARENA_LEGACY_API", "0") == "1":
-        _maybe_seed()
     yield
 
 
@@ -100,16 +76,11 @@ async def local_inference_boundary(request: Request, call_next):
 
 
 app.include_router(pilot.router)
-# Archive prototype routes explicitly; never expose seeded boards in the pilot.
-if os.getenv("ARENA_LEGACY_API", "0") == "1":
-    for legacy_router in (auth, catalog, battles, leaderboard, releases):
-        app.include_router(legacy_router.router)
-
 
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"ok": True, "mode": get_settings().generation_mode}
+    return {"ok": True}
 
 
 # Serve the built frontend (single-process deploy). `npm run build` in

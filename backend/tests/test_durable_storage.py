@@ -13,7 +13,6 @@ BACKEND = Path(__file__).resolve().parent.parent
 
 _SCRIPT = r"""
 import os, sys
-os.environ.setdefault("ARENA_GENERATION_MODE", "sample")
 from fastapi.testclient import TestClient
 from app.main import app
 from app.pilot_accounts import reset_limits

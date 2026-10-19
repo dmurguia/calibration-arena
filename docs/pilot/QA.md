@@ -59,3 +59,7 @@ Two independent accountant reviews of the cases and rubrics; live OpenRouter smo
 - Browser QA used isolated port 8033 and a temporary database, with an explicitly synthetic three-case pack. It verified invitation entry, a case vote, model reveal, open improvement capture, a short contextual follow-up using both actual local CLIs, copy, 1/3 progress and resume of the exact completed case. The participant database received no synthetic shared pack.
 - The private export audit passed with zero errors/warnings across the two QA runs. Both local attempts completed and received identical serialized conversation input. Zero QA runs were research-eligible. This is integration evidence, not model-quality or human-validation evidence.
 - Remaining: live direct APIs with supplied keys, real validated pack, expert assessment, spending/concurrency controls, hosted durable-storage checks and mobile release verification.
+
+## Manual test pack
+
+Prompts, synthetic files and answer keys for hand-testing invoicing, AR reporting, bank reconciliation and an open prompt against the local CLI pair live in [manual-test](manual-test/README.md).

@@ -1,0 +1,80 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+5 0 obj
+<< /Length 3474 >>
+stream
+BT /F1 8.5 Tf 11 TL 36 760 Td
+(PACIFIC COAST COMMUNITY BANK) Tj T*
+(Business Checking Statement) Tj T*
+() Tj T*
+(Harbor & Pine Coffee Roasters LLC          Account: ****4417) Tj T*
+(Statement period: September 1 - September 30, 2026) Tj T*
+() Tj T*
+(Beginning balance 09/01/2026      48,210.55) Tj T*
+(Deposits and credits              34,422.05) Tj T*
+(Withdrawals and debits            59,924.01) Tj T*
+(Ending balance 09/30/2026         22,708.59) Tj T*
+() Tj T*
+(DATE   DESCRIPTION                                       AMOUNT       BALANCE) Tj T*
+(--------------------------------------------------------------------------------) Tj T*
+(09/01  DEPOSIT                                            3,180.00     51,390.55) Tj T*
+(09/02  SQUARE SETTLEMENT                                  3,412.18     54,802.73) Tj T*
+(09/03  CHECK 1088                                        -1,240.00     53,562.73) Tj T*
+(09/04  CHECK 1101 - PACIFIC BEAN IMPORTERS               -8,450.00     45,112.73) Tj T*
+(09/05  ACH GUSTO PAYROLL                                -11,872.36     33,240.37) Tj T*
+(09/05  SQUARE SETTLEMENT                                  2,987.05     36,227.42) Tj T*
+(09/08  WIRE IN - NORTHSIDE GROCERS INV 2231               6,240.00     42,467.42) Tj T*
+(09/09  CHECK 1102 - PG&E                                 -1,128.44     41,338.98) Tj T*
+(09/10  CHECK 1103 - HARBORVIEW PROPERTIES RENT           -6,500.00     34,838.98) Tj T*
+(09/12  SQUARE SETTLEMENT                                  3,105.77     37,944.75) Tj T*
+(09/12  DEPOSIT - BAYSIDE CAFE CHECK 4471 INV 2219         1,150.00     39,094.75) Tj T*
+(09/15  CHECK 1104 - COASTAL PACKAGING                    -2,214.90     36,879.85) Tj T*
+(09/16  RETURNED ITEM - BAYSIDE CAFE CHK 4471 NSF         -1,150.00     35,729.85) Tj T*
+(09/16  RETURNED ITEM FEE                                    -35.00     35,694.85) Tj T*
+(09/17  CHECK 1105 - VALLEY DAIRY SUPPLY                  -1,254.00     34,440.85) Tj T*
+(09/19  ACH GUSTO PAYROLL                                -11,940.12     22,500.73) Tj T*
+(09/19  SQUARE SETTLEMENT                                  2,860.42     25,361.15) Tj T*
+(09/22  ACH DEBIT KDZ HOLDINGS LLC WEB PMT                -1,980.00     23,381.15) Tj T*
+(09/23  DEPOSIT - NORTHSIDE GROCERS INV 2236               4,815.50     28,196.65) Tj T*
+(09/24  CHECK 1106 - PACIFIC BEAN IMPORTERS               -7,925.00     20,271.65) Tj T*
+(09/25  CHECK 1107 - COMCAST BUSINESS                       -289.99     19,981.66) Tj T*
+(09/26  SQUARE SETTLEMENT                                  3,640.11     23,621.77) Tj T*
+(09/26  CHECK 1108 - CDTFA SALES TAX                      -2,746.00     20,875.77) Tj T*
+(09/29  CHECK 1109 - BAY AREA ROASTER REPAIR                -735.00     20,140.77) Tj T*
+(09/29  CHECK 1111 - SONOMA SWEETS                          -418.20     19,722.57) Tj T*
+(09/29  SQUARE SETTLEMENT                                  3,018.64     22,741.21) Tj T*
+(09/30  INTEREST EARNED                                       12.38     22,753.59) Tj T*
+(09/30  MONTHLY SERVICE FEE                                  -45.00     22,708.59) Tj T*
+(--------------------------------------------------------------------------------) Tj T*
+() Tj T*
+(Checks paid: 1088 1101 1102 1103 1104 1105 1106 1107 1108 1109 1111) Tj T*
+(* Indicates a break in check sequence: 1088 *1101 ... 1109 *1111) Tj T*
+() Tj T*
+(Questions? Call 1-800-555-0142. This is a synthetic statement for testing.) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000309 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3835
+%%EOF

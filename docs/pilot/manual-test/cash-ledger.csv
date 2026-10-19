@@ -1,0 +1,28 @@
+Date,GL Account,Reference,Description,Debit,Credit,Running Balance
+2026-08-31,1010 Cash - Operating,BAL,Balance forward,,,49535.15
+2026-09-02,1010 Cash - Operating,SQ,Square settlement,3412.18,,52947.33
+2026-09-04,1010 Cash - Operating,Check 1101,Check 1101 - Pacific Bean Importers,,8450.00,44497.33
+2026-09-05,1010 Cash - Operating,ACH,ACH Gusto payroll,,11872.36,32624.97
+2026-09-05,1010 Cash - Operating,SQ,Square settlement,2987.05,,35612.02
+2026-09-08,1010 Cash - Operating,DEP,Wire in - Northside Grocers inv 2231,6240.00,,41852.02
+2026-09-09,1010 Cash - Operating,Check 1102,Check 1102 - PG&E,,1128.44,40723.58
+2026-09-10,1010 Cash - Operating,Check 1103,Check 1103 - Harborview Properties rent,,6500.00,34223.58
+2026-09-12,1010 Cash - Operating,SQ,Square settlement,3105.77,,37329.35
+2026-09-12,1010 Cash - Operating,DEP,Deposit - Bayside Cafe check 4471 inv 2219,1150.00,,38479.35
+2026-09-15,1010 Cash - Operating,Check 1104,Check 1104 - Coastal Packaging,,2214.90,36264.45
+2026-09-17,1010 Cash - Operating,Check 1105,Check 1105 - Valley Dairy Supply,,1524.00,34740.45
+2026-09-19,1010 Cash - Operating,ACH,ACH Gusto payroll,,11940.12,22800.33
+2026-09-19,1010 Cash - Operating,SQ,Square settlement,2860.42,,25660.75
+2026-09-19,1010 Cash - Operating,SQ,Square settlement,2860.42,,28521.17
+2026-09-23,1010 Cash - Operating,DEP,Deposit - Northside Grocers inv 2236,4815.50,,33336.67
+2026-09-24,1010 Cash - Operating,Check 1106,Check 1106 - Pacific Bean Importers,,7925.00,25411.67
+2026-09-25,1010 Cash - Operating,Check 1107,Check 1107 - Comcast Business,,289.99,25121.68
+2026-09-26,1010 Cash - Operating,SQ,Square settlement,3640.11,,28761.79
+2026-09-26,1010 Cash - Operating,Check 1108,Check 1108 - CDTFA sales tax,,2746.00,26015.79
+2026-09-28,1010 Cash - Operating,Check 1112,Check 1112 - Mission Paper Goods,,2318.75,23697.04
+2026-09-27,1010 Cash - Operating,Check 1110,Check 1110 - VOID,,,23697.04
+2026-09-29,1010 Cash - Operating,Check 1109,Check 1109 - Bay Area Roaster Repair,,735.00,22962.04
+2026-09-29,1010 Cash - Operating,Check 1111,Check 1111 - Sonoma Sweets,,418.20,22543.84
+2026-09-29,1010 Cash - Operating,SQ,Square settlement,3018.64,,25562.48
+2026-09-30,1010 Cash - Operating,Check 1114,Check 1114 - Delta Electric,,960.00,24602.48
+2026-09-30,1010 Cash - Operating,DEP,Deposit - Northside Grocers inv 2240,4275.60,,28878.08

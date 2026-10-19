@@ -110,7 +110,9 @@ def test_usage_budget_failed_generation_and_global_cap(client, monkeypatch):
         return [{"text": "one", "model_id": "one", "attempt": dict(attempt)}, {"text": "two", "model_id": "two", "attempt": dict(attempt)}]
 
     monkeypatch.setattr("app.routers.pilot.generate", generate)
-    monkeypatch.setenv("PILOT_TOKEN_BUDGET", "7")
+    # Reservations count against the budget before any provider call; the
+    # budget must exceed one reserved estimate (~4,020 tokens for this prompt).
+    monkeypatch.setenv("PILOT_TOKEN_BUDGET", "4025")
     response = client.post("/api/pilot/runs", headers=auth(account["token"]), json={"question": "How should a prepaid expense be recorded?"})
     assert response.status_code == 200
     assert response.json()["status"] == "review"
@@ -124,9 +126,10 @@ def test_usage_budget_failed_generation_and_global_cap(client, monkeypatch):
         raise GenerationFailure("failed", [failed_attempt])
 
     monkeypatch.setattr("app.routers.pilot.generate", fail)
-    monkeypatch.setenv("PILOT_GUEST_TOKEN_BUDGET", "100")
+    monkeypatch.setenv("PILOT_GUEST_TOKEN_BUDGET", "5000")
     failed = client.post("/api/pilot/runs", headers=auth(guest_auth["token"]), json={"question": "How should a lease schedule be reviewed?"})
     assert failed.status_code == 200 and failed.json()["status"] == "failed"
+    # The failed attempt still reported usage, so the reservation reconciles to it.
     assert client.get("/api/pilot/me", headers=auth(guest_auth["token"])).json()["usage"]["used"] == 4
     monkeypatch.setenv("PILOT_GLOBAL_DAILY_TOKENS", "4")
     assert client.post("/api/pilot/runs", headers=auth(guest_auth["token"]), json={"question": "How should a lease schedule be reviewed again?"}).status_code == 503

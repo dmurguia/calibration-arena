@@ -13,7 +13,8 @@ _is_sqlite = settings.database_url.startswith("sqlite")
 
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False} if _is_sqlite else {},
+    # sqlite writers serialize; wait on the file lock instead of erroring.
+    connect_args={"check_same_thread": False, "timeout": 30} if _is_sqlite else {},
     # Managed Postgres drops idle connections; check before handing one out.
     pool_pre_ping=not _is_sqlite,
 )

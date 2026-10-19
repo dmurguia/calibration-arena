@@ -82,7 +82,7 @@ export default function Pilot() {
         <NavLink to="/benchmarks" title="Benchmarks"><Library size={16} /><span>Benchmarks</span></NavLink>
         <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
       </nav>
-      {!!me?.runs.filter(r => !r.archived).length && <div className="p-sidebar-recent"><p>RECENT</p>{me.runs.filter(r => !r.archived).slice(0, 5).map(r => <RunRow key={r.id} run={r} onPick={() => setMenuOpen(false)} />)}</div>}
+      {!!me?.runs.filter(r => !r.archived).length && <div className="p-sidebar-recent"><p>RECENT</p>{latestPerThread(me.runs.filter(r => !r.archived)).slice(0, 5).map(r => <RunRow key={r.id} run={r} onPick={() => setMenuOpen(false)} />)}</div>}
       <div className="p-sidebar-account">{clerkEnabled
         ? <ClerkAccountBlock me={me} refresh={refresh} />
         : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>
@@ -101,10 +101,11 @@ export default function Pilot() {
       </> : <>
         <Route path="/signin" element={<SignIn onSignedIn={refresh} />} /><Route path="/signup" element={<SignUp onSignedIn={refresh} />} /><Route path="/reset" element={<Reset onSignedIn={refresh} />} />
       </>}
+      <Route path="/terms" element={<Legal doc="terms" />} /><Route path="/privacy" element={<Legal doc="privacy" />} />
       <Route path="/leaderboard" element={<Leaderboard />} /><Route path="/benchmarks/*" element={<Benchmarks />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
-    <footer className="p-footer"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></footer>
+    <footer className="p-footer"><div className="p-footer-row"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></div><div className="p-footer-legal"><Link to="/privacy">Privacy Policy</Link><Link to="/terms">Terms of Use</Link></div></footer>
   </div></div>
   <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
@@ -159,6 +160,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
     <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
     <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in'}</h2>
     <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
+    <p className="p-signin-legal">By continuing, you agree to our <Link to="/terms" onClick={() => { finishing.current = true; dialog.current?.close() }}>Terms of Use</Link> and <Link to="/privacy" onClick={() => { finishing.current = true; dialog.current?.close() }}>Privacy Policy</Link>.</p>
     {reason && (clerkEnabled
       ? <div className="p-signin-clerk" onClickCapture={switchMode}><CloseOnClerkSignIn onSignedIn={() => { finishing.current = true; dialog.current?.close() }} />{mode === 'signin'
         ? <ClerkSignIn key="signin" routing="hash" fallbackRedirectUrl={location.pathname} signUpFallbackRedirectUrl={location.pathname} />
@@ -248,6 +250,18 @@ function RunMenu({ run, onRename }: { run: Run; onRename?: () => void }) {
       <button role="menuitem" type="button" onClick={archive}><Archive size={14} />{run.archived ? 'Restore' : 'Archive'}</button>
     </div>}
   </div>
+}
+
+// A project is a whole thread: every follow-up shares the first run's root_run_id.
+// /me lists runs newest-first, so the first run per root is the latest turn.
+function latestPerThread(runs: Run[]): Run[] {
+  const seen = new Set<string>()
+  return runs.filter(r => {
+    const root = r.root_run_id || r.id
+    if (seen.has(root)) return false
+    seen.add(root)
+    return true
+  })
 }
 
 // One row for a session: title (or an inline rename field) plus the actions menu.
@@ -640,7 +654,7 @@ function Session() {
       {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
     </>}
     {!showing && <ErrorNote message={error} />}
-    {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p>{!!run.failures?.length && <ul className="p-failures">{run.failures.map((f, i) => <li key={i}><strong>{f.side}</strong> {f.error}</li>)}</ul>}<RetryComposer run={run} /></div>}
+    {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p>{run.limit_rejection && <p className="p-failure-detail">{run.limit_rejection}</p>}{!!run.failures?.length && <ul className="p-failures">{run.failures.map((f, i) => <li key={i}><strong>{f.side}</strong> {f.error}</li>)}</ul>}<RetryComposer run={run} /></div>}
   </div>
 }
 
@@ -649,19 +663,35 @@ function RetryComposer({ run }: { run: Run }) {
   return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
 }
 
+// One project row: the thread's latest turn, with inline rename and the shared actions menu.
+function ProjectRow({ run }: { run: Run }) {
+  const { refresh } = usePilot()
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(run.title)
+  const save = async () => {
+    setEditing(false)
+    const next = title.trim()
+    if (!next || next === run.title) { setTitle(run.title); return }
+    try { await call(`/runs/${run.id}/title`, { title: next }); await refresh() } catch { setTitle(run.title) }
+  }
+  if (editing) return <form className="p-project-row" onSubmit={e => { e.preventDefault(); void save() }}><input autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
+  return <div className="p-project-row"><Link className="p-notebook-row" to={`/session/${run.id}`}><span><span className="p-meta">{date(run.created_at)}</span><h3>{run.title}</h3><p>{run.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
+}
+
 // Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
+// A project is a whole thread: follow-ups share the first run's root_run_id, so each thread is one row.
 function MyProjects() {
   const { me } = usePilot()
   const [query, setQuery] = useState('')
   const [showArchived, setShowArchived] = useState(false)
-  const all = me?.runs.filter(r => r.kind === 'ask' && !!r.archived === showArchived) ?? []
-  const archivedCount = me?.runs.filter(r => r.kind === 'ask' && r.archived).length ?? 0
+  const all = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && !!r.archived === showArchived) ?? [])
+  const archivedCount = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && r.archived) ?? []).length
   const needle = query.trim().toLowerCase()
   const runs = needle ? all.filter(r => `${r.title} ${r.brief}`.toLowerCase().includes(needle)) : all
   return <div className="p-projects"><h1>My projects</h1>
     <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
     {!!archivedCount && <button type="button" className="p-projects-archived" aria-pressed={showArchived} onClick={() => setShowArchived(!showArchived)}><Archive size={13} />{showArchived ? 'Back to projects' : `Archived · ${archivedCount}`}</button>}
-    {runs.length ? <div className="p-projects-list">{runs.map(r => <div key={r.id} className="p-project-row"><Link className="p-notebook-row" to={`/session/${r.id}`}><span><span className="p-meta">{date(r.created_at)}</span><h3>{r.title}</h3><p>{r.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link><RunMenu run={r} /></div>)}</div>
+    {runs.length ? <div className="p-projects-list">{runs.map(r => <ProjectRow key={r.id} run={r} />)}</div>
       : <p className="p-projects-empty">{all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
   </div>
 }
@@ -684,11 +714,23 @@ function Method() {
     <h2>One workspace, two sources of drafts</h2><p>Ask a finance or accounting question in your own words, or choose a finance task to prefill an editable prompt and add its required source files. Both models receive the same question and extracted file contents. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
     <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
     <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
-    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Optional permission for private research is recorded separately in your profile; submitting a prompt does not mark that permission as granted. Publication and model-training use are not granted. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to the configured models through OpenRouter, routed only to providers that do not train on your prompts.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
+    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Under the Terms of Use, your questions, uploaded file text, notes and judgments may be used for rankings and research and licensed to AI model providers and others, with your name, email and account identifiers removed. The optional research setting in your profile records whether we may contact you about research follow-ups. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to the configured models through OpenRouter with model training on prompts disabled; provider endpoints may still retain their own request logs.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
     <p>For finance tasks, extracted file text, file names and file fingerprints are saved with your comparison. Original files are not retained. Readable text from PDFs and values or formulas from spreadsheets are included; images are not interpreted and formulas are not recalculated. Required uploads and format checks do not establish the correctness of the source data.</p>
     <h2>Your notebook</h2><p>{me?.account ? 'Your comparisons and judgments follow your account across devices.' : <>Your comparisons and judgments are saved in this browser. <Link to="/signup">Create an account</Link> to keep your notebook across devices.</>}</p>
     <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
   </div>
+}
+
+// Draft policies for legal review — written from how the app actually works today, not from a template.
+const LEGAL_DOCS = { terms: { file: 'terms-of-use.md', title: 'Terms of Use' }, privacy: { file: 'privacy-policy.md', title: 'Privacy Policy' } } as const
+function Legal({ doc }: { doc: keyof typeof LEGAL_DOCS }) {
+  const [text, setText] = useState('')
+  const [error, setError] = useState('')
+  useEffect(() => {
+    setText(''); setError('')
+    fetch(`/legal/${LEGAL_DOCS[doc].file}`).then(res => { if (!res.ok) throw new Error(); return res.text() }).then(setText).catch(() => setError('This page is unavailable right now.'))
+  }, [doc])
+  return <div className="p-narrow p-method p-legal"><Eyebrow>Calibrated</Eyebrow>{error ? <p>{error}</p> : text ? <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown> : <p className="p-loading" role="status">Loading {LEGAL_DOCS[doc].title}…</p>}</div>
 }
 
 function NotFound() { return <div className="p-narrow"><h1>Page not found.</h1><p>The practice room has the current cases and your notebook has your saved work.</p><Link className="p-button" to="/">Go to practice</Link></div> }

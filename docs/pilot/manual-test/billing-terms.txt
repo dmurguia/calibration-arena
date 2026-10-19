@@ -1,0 +1,36 @@
+LEDGERLINE ADVISORY LLC - STATEMENT OF WORK #3 (EXCERPT)
+Client: Sunset Hotel Group LLC, 1450 Great Highway, San Francisco, CA 94122
+Client AP contact: ap@sunsethotelgroup.example
+Client purchase order: PO-SHG-7781 (must appear on every invoice; invoices without it will be rejected)
+SOW term: July 1, 2026 - December 31, 2026. Invoiced monthly in arrears for the calendar month.
+
+1. Fees
+1.1 Time and materials rates (per hour, billed in 0.25-hour increments):
+    Engagement Director   $240.00
+    Senior Associate      $165.00
+    Associate             $110.00
+1.2 ERP support retainer: $3,000.00 per month, fixed. The retainer includes up to 10.0 hours of
+    Associate time per month. Associate hours above 10.0 in a month are billed at the Associate rate.
+    Retainer hours do not roll over.
+1.3 Monthly fee cap: time-and-materials fees (excluding the retainer, expenses and software) shall
+    not exceed $18,000.00 in any calendar month without a written change order signed by both parties.
+1.4 Rates are fixed for the SOW term. Any rate other than those in 1.1 requires a written change order.
+
+2. Expenses
+2.1 Travel is reimbursable at actual cost with no markup, only if pre-approved in writing by the
+    client project sponsor (R. Okafor). Reimbursable travel is capped at $750.00 per month.
+2.2 Mileage is reimbursable at $0.70 per mile and counts toward the travel cap.
+
+3. Software resale
+3.1 Planning software seats resold to the client are billed at $95.00 per seat per month.
+3.2 Professional services and the retainer are not subject to sales tax (client instruction, 7/1/2026).
+3.3 Software seats are subject to sales tax at 8.625% unless a valid resale certificate from the client
+    is on file before the invoice date.
+
+4. Payment terms
+4.1 Net 30 from invoice date. 2% discount if paid in full within 10 days (2/10, net 30).
+4.2 Late balances accrue 1.0% per month.
+
+CHANGE ORDER CO-2 (signed by both parties October 20, 2026)
+Section 1.3 is amended: the monthly fee cap is increased to $22,000.00, effective October 20, 2026.
+All other terms unchanged.

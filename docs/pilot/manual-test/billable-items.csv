@@ -1,0 +1,32 @@
+Date,Staff,Role / Type,Hours,Description,Client Approved,Billable,Notes
+2026-09-30,M. Alvarez,Senior Associate,3.00,September close support - accrual review,Y,Y,Logged late
+2026-10-01,J. Kim,Engagement Director,2.00,Monthly steering meeting,Y,Y,
+2026-10-02,M. Alvarez,Senior Associate,6.50,Revenue cut-off testing,Y,Y,
+2026-10-03,T. Nguyen,Associate,4.00,ERP support - vendor master cleanup,Y,Y,
+2026-10-06,M. Alvarez,Senior Associate,7.00,Lease schedule rebuild,Y,Y,
+2026-10-07,T. Nguyen,Associate,3.50,ERP support - user access tickets,Y,Y,
+2026-10-08,J. Kim,Engagement Director,3.00,Audit committee prep,Y,Y,
+2026-10-09,M. Alvarez,Senior Associate,8.00,Lease schedule rebuild,Y,Y,
+2026-10-10,T. Nguyen,Associate,2.00,Internal training - new ERP module,Y,N,Ledgerline internal
+2026-10-13,M. Alvarez,Senior Associate,7.50,ASC 842 memo draft,Y,Y,
+2026-10-14,T. Nguyen,Associate,4.50,ERP support - month-end batch failures,Y,Y,
+2026-10-15,M. Alvarez,Senior Associate,7.50,ASC 842 memo draft,Y,Y,
+2026-10-15,M. Alvarez,Senior Associate,7.50,ASC 842 memo draft,Y,Y,
+2026-10-16,J. Kim,Engagement Director,4.00,Memo review and client call,Y,Y,
+2026-10-20,T. Nguyen,Associate,6.00,Fixed asset subledger reconciliation,Y,Y,Bill at Senior rate per J. Kim
+2026-10-21,M. Alvarez,Senior Associate,8.00,Fixed asset subledger reconciliation,Y,Y,
+2026-10-22,M. Alvarez,Senior Associate,8.00,Impairment indicators analysis,Y,Y,
+2026-10-23,J. Kim,Engagement Director,3.50,Audit committee presentation,Y,Y,
+2026-10-26,M. Alvarez,Senior Associate,8.00,Audit PBC support,Y,Y,
+2026-10-26,J. Kim,Engagement Director,3.00,Planning meeting with client auditors,Y,Y,
+2026-10-27,M. Alvarez,Senior Associate,6.00,Audit PBC support,Y,Y,
+2026-10-28,M. Alvarez,Senior Associate,7.00,Impairment memo draft,Y,Y,
+2026-10-28,T. Nguyen,Associate,3.00,ERP support - report writer fixes,N,Y,Awaiting client approval
+2026-10-29,M. Alvarez,Senior Associate,5.50,Audit PBC support,Y,Y,
+2026-10-29,J. Kim,Engagement Director,2.50,Impairment memo review,Y,Y,
+2026-10-30,J. Kim,Engagement Director,2.00,Monthly steering meeting,Y,Y,
+2026-10-08,J. Kim,Expense,,"Mileage SF office to client HQ, 2 x 38 mi round trips",Y,Y,76 miles; pre-approved R. Okafor 10/01
+2026-10-22,M. Alvarez,Expense,,Hotel - Sacramento property site visit (1 night),Y,Y,$412.80; pre-approved R. Okafor 10/15
+2026-10-22,M. Alvarez,Expense,,Airfare SFO-SMF round trip,Y,Y,$318.40; pre-approved R. Okafor 10/15
+2026-10-23,J. Kim,Expense,,Client dinner - audit committee,Y,Y,$186.25; no pre-approval on file
+2026-10-31,Ledgerline,Software,,Adaptive planning seats - October,Y,Y,"6 seats; client says resale certificate is coming, not received as of 10/31"

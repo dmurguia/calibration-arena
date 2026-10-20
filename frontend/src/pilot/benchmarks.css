@@ -197,3 +197,6 @@ a.bm-await-card:hover{border-color:var(--cal-leather)}
   .bm-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.bm-tabs a{white-space:nowrap}
 }
 .bd-panel-head>a{display:inline-flex!important;align-items:center;gap:2px}
+.bm-freshness-notice { color: var(--p-ink-muted, #656460); font-size: 0.85rem; border-left: 2px solid #70543e; padding-left: 0.75rem; }
+.bd-freshness { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0.6rem 0 0; color: #656460; font-size: 0.78rem; }
+.bd-freshness strong { color: #70543e; font-weight: 500; }

@@ -12,9 +12,9 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | Mercor × Ramp | agentic | partial | CC BY 4.0 (dev set) | rubric_llm | yes | leaderboard, leader Opus 5.5 (Max) score 61.8% (as of 2026-09-29) | core |
+| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | Mercor × Ramp | agentic | partial | CC BY 4.0 (dev set) | rubric_llm | yes | leaderboard, leader Opus 5.5 (Max) score 61.8% | core |
 | [Ramp Accounting Bench](https://labs.ramp.com/ramp-accounting-bench) | Ramp Labs | agentic | private | — | rubric_llm | yes | leaderboard (as of 2026-09-29) | core |
-| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/accounting-ai-benchmark) | DualEntry | agentic | private | — | programmatic | yes | leaderboard, leader Grok 4.5 score 84.2% (as of 2026-09-29) | core |
+| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | DualEntry | agentic | private | — | programmatic | yes | leaderboard, leader Grok 4.5 score 84.2% | core |
 | [Penrose AccountingBench](https://accounting.penrose.com/) | Penrose | agentic | private | — | unspecified | yes | snapshot | core |
 | [Rillet Accounting Agent Benchmark](https://www.rillet.com/blog/rillet-accounting-agent-benchmark) | Rillet | classification | private | — | reference_answer | no | snapshot | core |
 | [Digits: Beyond the Hype (LLMs vs. Digits AGL)](https://digits.com/blog/frontier-models-now-beat-human-accountants/) | Digits | classification | private | — | reference_answer | no | snapshot, leader Digits AGL (vendor system) score 97.8% (as of 2026-06) | adjacent |
@@ -38,7 +38,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [TaxCalcBench](https://github.com/column-tax/tax-calc-bench) | Column Tax | generation | open | MIT | programmatic | no | leaderboard, leader Claude Opus 5.5 / Claude Fable 5.1 (tie) score 38.00% (as of 2026-09-23) | adjacent |
-| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | Entendre Research | generation | private | — | rubric | no | leaderboard, leader Kimi K3 score 81.4% (as of 2026-09-29) | adjacent |
+| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | Entendre Research | generation | private | — | rubric | no | leaderboard, leader Kimi K3 score 81.4% | adjacent |
 | [TaxBench (Tax AI Consortium)](https://tax.intelligenceconsortium.org/) | The Intelligence Consortium with Stanford and Carnegie Mellon | qa | partial | — | rubric | no | leaderboard, leader Accordance 2.5 score 46.8% (as of 2026-09-29) | adjacent |
 | [TaxBench (Rivet)](https://www.rivet.tax/taxbench) | Rivet | qa | private | — | unspecified | no | leaderboard (as of 2026-09-29) | adjacent |
 | [Vals TaxEval v2](https://www.vals.ai/benchmarks/tax_eval_v2) | Vals AI | qa | on_request | — | reference_answer | no | leaderboard, leader Muse Spark 1.2 score 80.38% (as of 2026-09-01) | adjacent |
@@ -83,7 +83,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | Mercor | agentic | partial | — | rubric_llm | yes | leaderboard, leader Sonnet 5.5 (Max) score 83.7% (as of 2026-09-29) | adjacent |
+| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | Mercor | agentic | partial | — | rubric_llm | yes | leaderboard, leader Sonnet 5.5 (Max) score 83.7% | adjacent |
 | [IB-bench](https://ib-bench.com/) | IB-bench maintainers | agentic | open | — | unspecified | yes | leaderboard, leader claude-opus-4-5 score 30.5 | reference |
 | [BankerToolBench](https://joinhandshake.com/research/benchmarks/bankertool-bench/) | Handshake AI | agentic | open | Apache-2.0 | rubric | yes | snapshot (as of 2026) | adjacent |
 
@@ -122,7 +122,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 | Benchmark | As-of | Models | Metric | Top entry |
 | --- | --- | ---: | --- | --- |
 | [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-09-29 | 32 | Mean score | Opus 5.5 (Max) — 61.8% |
-| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/accounting-ai-benchmark) | retrieved 2026-09-29 | 55 | Overall accuracy | Grok 4.5 — 84.2% |
+| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-09-29 | 55 | Overall accuracy | Grok 4.5 — 84.2% |
 | [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-09-29 | 18 | Mean score | Kimi K3 — 81.4% |
 | [Vals TaxEval v2](https://www.vals.ai/benchmarks/tax_eval_v2) | 2026-09-01 | 133 | Accuracy | Muse Spark 1.2 — 80.376% |
 | [Vals MortgageTax](https://www.vals.ai/benchmarks/mortgage_tax) | 2026-09-01 | 88 | Accuracy | Claude Opus 5 — 72.059% |

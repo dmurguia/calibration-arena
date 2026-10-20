@@ -17,7 +17,7 @@
         "pass-1": "Share of tasks where the model met every rubric criterion on a single attempt."
       },
       "task_format": "agentic",
-      "size": "160 private tasks in 10 worlds, 2,186 criteria; public dev set of 10 tasks / 89 criteria",
+      "size": "Current leaderboard header: 100 tasks in 10 worlds, 1,475 criteria; earlier paper: 160 tasks / 2,186 criteria",
       "stateful": true,
       "grader": "rubric_llm",
       "data_access": "partial",
@@ -26,14 +26,14 @@
       "relevance_note": "Closest public analogue to Calibration Arena's close work; dev-set scores are explicitly not comparable to the leaderboard.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
+        "as_of": null,
         "metric": "Mean score",
         "leader": "Opus 5.5 (Max)",
         "leader_score": "61.8%",
         "models_evaluated": 32,
         "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
         "source_type": "first_party",
-        "note": "Best Pass^8 is 2.6% (GPT-5.6-Sol); best Pass@8 is 21.5% (paper abstract). $/run comes from the publisher's cost study (7 models); cost-study rows whose score differs from the current leaderboard are left without cost."
+        "note": "Publisher reports costs per run where available. The current page header and earlier paper describe different task counts; do not assume scores from different snapshots use an unchanged evaluation protocol."
       },
       "links": {
         "leaderboard": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
@@ -104,17 +104,17 @@
       "relevance_note": "Broad model coverage on accounting tasks, but questions and grader are unpublished, so scores cannot be reproduced.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
+        "as_of": null,
         "metric": "Overall accuracy",
         "leader": "Grok 4.5",
         "leader_score": "84.2%",
         "models_evaluated": 55,
-        "source_url": "https://www.dualentry.com/accounting-ai-benchmark",
+        "source_url": "https://www.dualentry.com/benchmark",
         "source_type": "vendor_report",
-        "note": "Page JSON-LD date (2026-02-20) predates listed models; no explicit as-of date for scores. as_of is our fetch date."
+        "note": "No explicit publisher update date for scores. The current round lists 19 models, down from 55 in the previous snapshot; historical scores should not be assumed to use identical test conditions."
       },
       "links": {
-        "leaderboard": "https://www.dualentry.com/accounting-ai-benchmark"
+        "leaderboard": "https://www.dualentry.com/benchmark"
       },
       "first_published": "2026-02",
       "last_verified": "2026-09-29",
@@ -714,7 +714,7 @@
       "relevance_note": "Expert-authored tax return preparation.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
+        "as_of": null,
         "metric": "Mean score",
         "leader": "Kimi K3",
         "leader_score": "81.4%",
@@ -1644,7 +1644,7 @@
       "relevance_note": "Same methodology family as APEX-Accounting.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-09-29",
+        "as_of": null,
         "metric": "Mean score",
         "leader": "Sonnet 5.5 (Max)",
         "leader_score": "83.7%",

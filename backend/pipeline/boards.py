@@ -190,7 +190,9 @@ def adapt_vals(page: str) -> dict:
         "as_of": meta.get("updated"),
         "metrics": [{"key": "accuracy", "label": "Accuracy", "unit": "%"}],
         "cost_label": "USD per test (publisher-reported)" if meta.get("use_cost_per_test") else None,
-        "archived": bool(meta.get("archived")),
+        # Vals currently renders retirement notices even when its embedded
+        # metadata.archived is false. The explicit publisher notice wins.
+        "archived": meta.get("archived") is True or "Archived Benchmark" in text_tokens(page),
         "entries": entries,
     }
 
@@ -205,7 +207,8 @@ def _apex_config(effort: str | None, descriptors: list[str] | None) -> str | Non
 
 
 def adapt_apex_accounting(page: str, cost_rows: dict[str, float] | None = None) -> dict:
-    rows = _next_data(page)["props"]["pageProps"]["benchmark"]["globalLeaderboard"]
+    props = _next_data(page)["props"]["pageProps"]
+    rows = props["results"] if "results" in props else props["benchmark"]["globalLeaderboard"]
     entries, seen = [], set()
     for row in rows:
         model = row["model"]
@@ -222,9 +225,10 @@ def adapt_apex_accounting(page: str, cost_rows: dict[str, float] | None = None) 
         seen.add(dedupe)
         entries.append({
             "label": model["modelName"], "config": config, "org": model["provider"]["name"],
-            "scores": scores, "ci": ci, "cost": None,
+            "scores": scores, "ci": ci, "cost": row.get("costPerRun"),
         })
-    return {"as_of": None, "metrics": [{"key": k, "label": v, "unit": "%"} for k, v in APEX_METRICS.items()], "entries": entries}
+    return {"as_of": None, "metrics": [{"key": k, "label": v, "unit": "%"} for k, v in APEX_METRICS.items()], "entries": entries,
+            "cost_label": "USD per run (publisher-reported)" if any(e["cost"] is not None for e in entries) else None}
 
 
 def apex_cost_table(page: str) -> list[tuple[str, float, float]]:
@@ -247,7 +251,7 @@ def attach_apex_costs(board: dict, costs: list[tuple[str, float, float]]) -> Non
         matches = [e for e in board["entries"] if model_key(e["label"]) == key and e["scores"].get("mean-score") == score]
         if len(matches) >= 1:
             matches[0]["cost"] = cost
-    if any(e["cost"] is not None for e in board["entries"]):
+    if costs and not board.get("cost_label") and any(e["cost"] is not None for e in board["entries"]):
         board["cost_label"] = "USD per run (publisher cost study, subset of models)"
 
 
@@ -357,6 +361,8 @@ def build_board(benchmark_id: str, page: str, retrieved: str) -> tuple[dict, lis
     for entry in parsed["entries"]:
         row = {"model": model_id(entry["label"]), "label": entry["label"], "config": entry.get("config"),
                "scores": entry["scores"]}
+        if entry.get("source_model_id"):
+            row["source_model_id"] = entry["source_model_id"]
         if entry.get("ci"):
             row["ci"] = entry["ci"]
         row["cost"] = entry.get("cost") if parsed.get("cost_label") else None
@@ -369,6 +375,7 @@ def build_board(benchmark_id: str, page: str, retrieved: str) -> tuple[dict, lis
         "adapter": source["adapter"],
         "as_of": parsed.get("as_of"),
         "retrieved": retrieved,
+        **({"archived": parsed["archived"]} if "archived" in parsed else {}),
         "metrics": metrics,
         "cost_label": parsed.get("cost_label") if any(e["cost"] is not None for e in entries) else None,
         "entries": entries,
@@ -394,7 +401,9 @@ def sync_registry(registry: dict, board: dict) -> None:
     results["leader_score"] = f"{round(score, 2):g}{'%' if metric['unit'] == '%' else ''}"
     results["metric"] = metric["label"]
     results["models_evaluated"] = len({e["model"] for e in board["entries"]})
-    results["as_of"] = board["as_of"] or board["retrieved"]
+    results["as_of"] = board["as_of"]
+    if "archived" in board:
+        benchmark["results_status"] = "archived" if board["archived"] else "leaderboard"
 
 
 def merge_models(models: dict[str, dict], benchmark_id: str, raw_entries: list[dict]) -> None:
@@ -431,27 +440,19 @@ def write_models(models: dict[str, dict], path: Path) -> None:
     path.write_text(json.dumps({"models": out}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def fetch(ids: list[str], client: httpx.Client, retrieved: str) -> None:
-    models: dict[str, dict] = {}
-    if MODELS.exists():
-        for record in json.loads(MODELS.read_text(encoding="utf-8"))["models"]:
-            models[record["id"]] = {k: record[k] for k in ("id", "name", "org", "weights_reported")}
-    BOARDS_DIR.mkdir(parents=True, exist_ok=True)
-    for benchmark_id in ids:
-        response = client.get(SOURCES[benchmark_id]["url"])
-        response.raise_for_status()
-        board, raw = build_board(benchmark_id, response.text, retrieved)
-        if not board["entries"]:
-            raise ValueError(f"{benchmark_id}: adapter returned no entries")
-        path = BOARDS_DIR / f"{benchmark_id}.json"
-        path.write_text(json.dumps(board, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        merge_models(models, benchmark_id, raw)
-        print(f"{benchmark_id}: {len(board['entries'])} entries")
-    write_models(models, MODELS)
-    registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
-    for benchmark_id in ids:
-        sync_registry(registry, json.loads((BOARDS_DIR / f"{benchmark_id}.json").read_text(encoding="utf-8")))
-    REGISTRY.write_text(json.dumps(registry, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+def fetch(ids: list[str], client: httpx.Client, retrieved: str) -> dict:
+    # Keep the old entry point safe: produce an immutable candidate instead of
+    # partially overwriting tracked boards/registry when a source fails.
+    from pipeline.refresh_benchmarks import refresh
+    from datetime import timezone
+    import tempfile
+    run = Path(tempfile.mkdtemp(prefix="benchmark-refresh-"))
+    report = refresh(ROOT, run / "publication", run / "evidence", client,
+                     now=datetime.fromisoformat(retrieved).replace(tzinfo=timezone.utc), ids=ids)
+    print(f"Validated candidate: {run / 'publication'}")
+    for bid, result in report["sources"].items():
+        print(f"{bid}: {result['status']} {result.get('error', '')}")
+    return report
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -465,8 +466,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     headers = {"User-Agent": "Mozilla/5.0 (compatible; CalibrationArenaCatalogBot/1.0; +https://github.com/dmurguia/calibration-arena)"}
     with httpx.Client(follow_redirects=True, timeout=30, headers=headers) as client:
-        fetch(ids, client, date.today().isoformat())
-    return 0
+        report = fetch(ids, client, date.today().isoformat())
+    return int(any(state["status"] != "ok" for state in report["sources"].values()))
 
 
 if __name__ == "__main__":

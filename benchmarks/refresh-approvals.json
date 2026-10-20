@@ -1,0 +1,8 @@
+{
+  "dualentry-accounting-ai-benchmark": {
+    "candidate_sha256": "2dc7a460c33dc49e4cb74cb98592c1450feca14299b3ab1715231007ac5f0351",
+    "reviewed_on": "2026-10-20",
+    "source": "https://www.dualentry.com/benchmark",
+    "reason": "The publisher's current round lists 19 model rows rather than the previous 55. Verified the complete bm-row list and current-round description (101 tasks, eight accounting areas). This exact candidate may replace the old round; subsequent unreviewed row losses remain blocked. Historical snapshots are preserved on benchmark-data."
+  }
+}

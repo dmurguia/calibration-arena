@@ -323,6 +323,7 @@ def config(db: Session = Depends(get_db)):
         "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()],
         "accounts_enabled": True,
         "auth_provider": "clerk" if pilot_clerk.clerk_enabled() else "password",
+        "clerk_instance": pilot_clerk.clerk_instance(),
         "leaderboard_public": os.getenv("PILOT_PUBLIC_LEADERBOARD") == "1",
     }
     if inference_backend() == "pool":

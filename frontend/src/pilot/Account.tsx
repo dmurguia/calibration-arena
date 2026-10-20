@@ -41,7 +41,6 @@ export function SignIn({ onSignedIn, embedded = false }: { onSignedIn: () => Pro
     </form>
   if (embedded) return form
   return <AuthPage title="Sign in.">
-    <p className="p-lead">Your notebook follows your account across devices.</p>
     {form}
     <p className="p-fine">Forgot your password? Ask the Calibrated team for a reset link.</p>
     <p className="p-fine">New here? <Link to="/signup">Create an account</Link>.</p>

@@ -176,3 +176,56 @@ def test_unusable_password_never_verifies():
     from app.pilot_accounts import UNUSABLE_PASSWORD
 
     assert not verify_password("anything", UNUSABLE_PASSWORD)
+
+
+def test_config_reports_clerk_instance_from_key_prefix(client, monkeypatch):
+    cases = {
+        "sk_live_dummy": "production",
+        "sk_test_dummy": "development",
+        "pk_live_pasted_by_mistake": "unrecognized",
+    }
+    for secret, expected in cases.items():
+        monkeypatch.setenv("CLERK_SECRET_KEY", secret)
+        body = client.get("/api/pilot/config").json()
+        assert body["auth_provider"] == "clerk"
+        assert body["clerk_instance"] == expected
+        assert secret not in str(body)
+
+    monkeypatch.delenv("CLERK_SECRET_KEY", raising=False)
+    body = client.get("/api/pilot/config").json()
+    assert body["auth_provider"] == "password"
+    assert body["clerk_instance"] is None
+
+
+def test_secret_key_whitespace_is_trimmed_before_the_sdk(client, monkeypatch):
+    reset_limits()
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_dummy\n")
+    seen = {}
+
+    def fake_authenticate(self, request, options):
+        seen["secret"] = options.secret_key
+        return SimpleNamespace(is_signed_in=False, payload=None)
+
+    monkeypatch.setattr(pilot_clerk.Clerk, "authenticate_request", fake_authenticate)
+    assert client.post("/api/pilot/auth/clerk", json={}).status_code == 401
+    assert seen["secret"] == "sk_test_dummy"
+
+
+def test_unexpected_sdk_error_logs_type_without_secret(client, monkeypatch, caplog):
+    reset_limits()
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_secretvalue")
+
+    def boom(self, request, options):
+        raise RuntimeError("header contained sk_test_secretvalue")
+
+    monkeypatch.setattr(pilot_clerk.Clerk, "authenticate_request", boom)
+    with caplog.at_level("ERROR", logger="app.pilot_clerk"):
+        response = client.post("/api/pilot/auth/clerk", json={})
+    assert response.status_code == 503
+    assert "RuntimeError" in caplog.text
+    assert "sk_test_secretvalue" not in caplog.text
+
+
+def test_whitespace_only_secret_keeps_password_mode(client, monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "  \n")
+    assert client.get("/api/pilot/config").json()["auth_provider"] == "password"

@@ -159,7 +159,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
   return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) sessionStorage.removeItem(pendingKey); finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
     <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
     <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in'}</h2>
-    <p className="p-signin-note">{reason === 'ask' ? `Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.` : 'Your notebook follows your account across devices.'}</p>
+    {reason === 'ask' && <p className="p-signin-note">{`Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.`}</p>}
     <p className="p-signin-legal">By continuing, you agree to our <Link to="/terms" onClick={() => { finishing.current = true; dialog.current?.close() }}>Terms of Use</Link> and <Link to="/privacy" onClick={() => { finishing.current = true; dialog.current?.close() }}>Privacy Policy</Link>.</p>
     {reason && (clerkEnabled
       ? <div className="p-signin-clerk" onClickCapture={switchMode}><CloseOnClerkSignIn onSignedIn={() => { finishing.current = true; dialog.current?.close() }} />{mode === 'signin'

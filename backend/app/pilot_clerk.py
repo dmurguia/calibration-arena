@@ -12,8 +12,31 @@ from fastapi import HTTPException, Request
 logger = logging.getLogger(__name__)
 
 
+def _secret_key() -> str:
+    # Hosting dashboards make it easy to paste a trailing space or newline. The SDK
+    # puts the key in an HTTP header, where that whitespace makes httpx raise.
+    return os.getenv("CLERK_SECRET_KEY", "").strip()
+
+
 def clerk_enabled() -> bool:
-    return bool(os.getenv("CLERK_SECRET_KEY"))
+    return bool(_secret_key())
+
+
+def clerk_instance() -> str | None:
+    """Which Clerk instance the secret key belongs to, read from its prefix.
+
+    Public config reports this so a deploy can be checked without reading the
+    sealed secret. The browser bundle already reveals the same fact through the
+    publishable key, so nothing new is exposed.
+    """
+    secret = _secret_key()
+    if not secret:
+        return None
+    if secret.startswith("sk_live_"):
+        return "production"
+    if secret.startswith("sk_test_"):
+        return "development"
+    return "unrecognized"
 
 
 def authorized_parties() -> list[str]:
@@ -56,7 +79,7 @@ def _unverified_claim(request: Request, claim: str) -> str | None:
 
 
 def verify_clerk_request(request: Request) -> ClerkIdentity:
-    secret = os.getenv("CLERK_SECRET_KEY", "")
+    secret = _secret_key()
     try:
         sdk = Clerk(bearer_auth=secret)
         clerk_request = httpx.Request(
@@ -73,6 +96,8 @@ def verify_clerk_request(request: Request) -> ClerkIdentity:
             ),
         )
     except Exception as exc:
+        # Log the type only: some messages (httpx header errors) echo the secret key.
+        logger.error("Clerk token check failed: %s", type(exc).__name__)
         raise HTTPException(
             503, "Sign-in is temporarily unavailable. Please try again."
         ) from exc
@@ -104,6 +129,7 @@ def verify_clerk_request(request: Request) -> ClerkIdentity:
         # Names are not collected; ignore any that Google or Microsoft supply.
         name = email.partition("@")[0]
     except Exception as exc:
+        logger.error("Clerk user lookup failed: %s", type(exc).__name__)
         raise HTTPException(
             503, "Sign-in is temporarily unavailable. Please try again."
         ) from exc

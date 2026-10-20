@@ -60,18 +60,105 @@ Two layers travel together in `benchmarks.json`, and only one of them is ours to
 
 ## Freshness
 
-Computed at build time against `catalog_updated`, so rebuilds are deterministic:
+Saved flags are computed at build time against `catalog_updated` for deterministic
+exports. The website recalculates these flags against the visitor's current time
+every minute, so a stopped publisher or scheduler cannot freeze freshness warnings:
 
 - `review_due` – `last_verified` more than 45 days before `catalog_updated`.
 - `results_stale` – a `leaderboard` whose `as_of` is more than 180 days old.
 - `undated_results` – a `leaderboard` whose source shows no date.
 - `vendor_published`, `mirror_source` – provenance flags shown alongside results.
 
-## Update cadence
+## Daily publication
+
+`.github/workflows/benchmarks-daily.yml` refreshes the nine model boards at 13:17 UTC
+daily (6:17 a.m. Los Angeles during daylight time, 5:17 a.m. during standard time).
+Additional watchdog checks run at 01:47, 07:47 and 19:47 UTC. Schedules run from
+`main`; GitHub can delay scheduled jobs. Manual dispatch is also supported.
+
+The public repository uses standard Linux runners. No paid API, Vercel token,
+deployment hook or personal GitHub token is needed. The publication step alone
+receives the workflow's short-lived `GITHUB_TOKEN`. Its job requests contents-write
+permission to update **only `benchmark-data`**, never the application branch.
+
+Flow: independent fetches with bounded retries → per-source validation → aggregate
+validation in a staging directory → one Git commit/ref update → public-feed check →
+browser verification of all nine boards. A source failure retains that source's
+previous board and model observations while healthy sources advance. The job is
+marked failed *after* publishing and verifying a coherent partial update. A build
+or aggregate-validation failure publishes nothing. Failed Actions runs are the
+alert channel; repository watchers/maintainers must enable Actions failure
+notifications in their GitHub notification preferences to receive email/web alerts.
+The watchdog uses GitHub too: a GitHub-wide scheduler outage cannot notify until it
+recovers. The website independently marks checks older than 36 hours overdue.
+
+The Vercel rewrite serves `/benchmark-feed/benchmarks.json` from the public
+`benchmark-data` branch. The page falls back to its bundled catalog if that feed
+cannot be loaded, and clearly labels this fallback. `benchmarks.json` at the site
+root remains the bundled snapshot. GitHub raw delivery can take several minutes to
+reflect a new commit; the publication check polls for up to ten minutes.
+
+`last_successful_check` is when a board passed validation. `retrieved` retains its
+date-only compatibility field. `as_of` is strictly the publisher's date or null;
+neither a fetch nor an unchanged successful check invents a publisher update date.
+`last_verified` remains the separate editorial metadata-review date. Vals archive
+status propagates to the catalog and cards. “Checked daily” applies only to the
+nine imported boards, not the entire 59-entry directory.
+
+Raw HTML, HTTP outcomes, content hashes, candidate JSON, the failure report and
+browser verification images are retained as Actions artifacts for 14 days. Public
+snapshot commits are kept indefinitely on `benchmark-data`. Raw HTML is not copied
+into the public feed or data branch. Published result figures retain publisher terms.
+
+### Run and review locally
+
+```sh
+python -m pip install -r backend/requirements-benchmarks.txt
+PYTHONPATH=backend python -m pipeline.refresh_benchmarks \
+  --output /tmp/benchmark-publication --evidence /tmp/benchmark-evidence
+# To preserve a previously published snapshot, supply --previous DIR, where
+# DIR/benchmarks.json is the most recent publication. Output must not exist.
+PYTHONPATH=backend python -m pipeline.verify_benchmarks
+```
+
+The old `make benchmarks-fetch-boards` entry point now creates an immutable
+temporary candidate rather than overwriting tracked inputs. It prints the path
+and returns failure if any source was rejected.
+
+Review gates reject invalid scores, missing metrics, duplicate publisher
+model/configuration identities, metric-definition changes, backwards source dates,
+and row-count losses over 20%. Explicitly headed methodology sections are hashed;
+a change or disappearance requires review. This detector cannot establish that an
+entire evaluation protocol is unchanged: unheaded prose, papers, and upstream
+grader changes still need editorial review. Initial snapshots establish the first
+methodology hash. The full source evidence is available for that review.
+
+For a legitimate result-round replacement or methodology edit, inspect the saved
+`candidate.json` and source HTML, update relevant editorial metadata, and add its
+exact `candidate_digest` with a rationale to `refresh-approvals.json` through normal
+code review. This only permits the reviewed row-loss/methodology transition; it
+does not bypass score, metric, duplicate, date or aggregate validation. Unrelated
+future content cannot reuse the approval. Do not weaken a guard to make a run green.
+
+### Activation and rollback
+
+1. Merge the application and workflow changes into `main` and deploy the frontend
+   rewrite/UI. Confirm Actions is enabled and contents-write is permitted.
+2. Dispatch **Daily benchmark snapshots** on `main`. Its first publication creates
+   `benchmark-data`; a successful run verifies the canonical site's JSON snapshot
+   identifier and rendered dates for every board. Check the workflow's result and
+   evidence, not just the timestamp in the UI.
+3. On a bad data release, stop new scheduled publications while investigating and
+   restore the desired historical tree as a **new commit** on `benchmark-data`.
+   Keep history; do not force-push. Run the public verifier afterward. A restored
+   old snapshot will deliberately show old dates/overdue warnings. Re-enable the
+   schedule after fixing the importer. Code/rewrite rollback is a separate app deployment.
+
+## Editorial update cadence
 
 | Cadence | Action |
 | --- | --- |
-| Weekly | `make benchmarks-check`. Review `unreachable`, `redirected` and `changed` URLs. A changed hash means "look at it", not "the score changed". For each leaderboard that actually changed, update `results` and `last_verified`. |
+| Weekly | `make benchmarks-check`. Review `unreachable`, `redirected` and `changed` URLs across the wider catalog. A changed hash means "look at it", not "the score changed". Review methodology and metadata separately from the automated board checks. |
 | Monthly | `make benchmarks-report` for the review queue. Re-verify every `review_due` row. Search for new benchmarks (arXiv, Hugging Face, vendor blogs, Vals/Artificial Analysis) and add them. Re-check `unpublished` and `claim_only` entries for newly published results. |
 | On any edit | Bump `catalog_updated`, run `make benchmarks-build`, commit the registry and generated files in the same PR. |
 
@@ -87,8 +174,9 @@ family, `conflict` means publishers disagree and the status is therefore `unknow
 means there is no report or family rule. Cost is shown only when the publisher reports it.
 
 Frontier charts are within-benchmark only and must never be compared across benchmarks. Boards use
-the same refresh cadence as the registry. Publisher page changes can break an adapter, in which case
-fetching fails loudly: fix the adapter and regenerate the snapshot; never hand-edit a board snapshot.
+daily refresh cadence above. Publisher page changes can break an adapter, in which case
+that source keeps its last good snapshot and the workflow reports failure: fix the adapter and
+regenerate the snapshot; never hand-edit a board snapshot.
 
 ## Adding a benchmark
 

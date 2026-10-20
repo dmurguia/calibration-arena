@@ -15,11 +15,11 @@ _PG_URL = os.getenv("ARENA_TEST_DATABASE_URL", "")
 os.environ["ARENA_DATABASE_URL"] = _PG_URL or f"sqlite:///{_TEST_DB}"
 
 import pytest  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
 
 
 @pytest.fixture(scope="session")
 def client():
+    from fastapi.testclient import TestClient
     if _TEST_DB.exists():
         _TEST_DB.unlink()
     from app.db import Base, engine, init_db
@@ -35,4 +35,3 @@ def client():
 
     if _TEST_DB.exists():
         _TEST_DB.unlink()
-

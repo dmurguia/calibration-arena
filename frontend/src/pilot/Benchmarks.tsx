@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ArrowUpRight, Search } from 'lucide-react'
 import BenchmarkBoards, { Board, ModelRec } from './BenchmarkBoards'
+import { checkOverdue, currentFlags, useFreshnessClock } from './benchmarkFreshness'
 import './benchmarks.css'
 
 type ResultsStatus = 'leaderboard' | 'snapshot' | 'archived' | 'unpublished' | 'unknown'
@@ -14,7 +15,14 @@ interface Benchmark {
   links: Partial<Record<'home' | 'leaderboard' | 'paper' | 'data' | 'code', string>>; first_published: string; last_verified: string; notes: string | null; flags: Flag[]
 }
 interface Product { id: string; name: string; url: string; status: 'published' | 'claim_only' | 'none_found'; claim: string | null; claim_source: string | null; benchmark_ids: string[]; last_verified: string }
-interface Catalog { catalog_updated: string; review_after_days: number; results_stale_after_days: number; counts: { benchmarks: number; by_results_status: Record<ResultsStatus, number> }; benchmarks: Benchmark[]; products: Product[]; models?: ModelRec[]; boards?: Board[] }
+interface Catalog { catalog_updated: string; review_after_days: number; results_stale_after_days: number; counts: { benchmarks: number; by_results_status: Record<ResultsStatus, number> }; benchmarks: Benchmark[]; products: Product[]; models?: ModelRec[]; boards?: Board[]; refresh?: { cadence: string; checked_at: string; snapshot_id: string; sources: Record<string, { status: string }> } }
+
+function isCatalog(value: Catalog): boolean {
+  return !!value && typeof value.catalog_updated === 'string' && !!value.counts?.by_results_status
+    && Array.isArray(value.benchmarks) && value.benchmarks.length > 0 && Array.isArray(value.products)
+    && Array.isArray(value.models) && Array.isArray(value.boards) && value.boards.length > 0
+    && value.boards.every(b => Array.isArray(b.entries) && b.entries.length > 0 && Array.isArray(b.metrics) && b.metrics.length > 0)
+}
 
 const DOMAINS: Record<string, string> = { accounting: 'Accounting & close', audit: 'Audit', tax: 'Tax', financial_analysis: 'Financial analysis', modeling_spreadsheets: 'Modeling & spreadsheets', investment_banking: 'Investment banking', financial_nlp: 'Financial NLP', reporting_xbrl: 'Reporting & XBRL', exams_knowledge: 'Exams & knowledge', general_work: 'General work' }
 const STATUS: Record<ResultsStatus, string> = { leaderboard: 'Live leaderboard', snapshot: 'One-time results', archived: 'Archived', unpublished: 'No public results', unknown: 'Results unverified' }
@@ -89,6 +97,8 @@ export default function Benchmarks() {
   const location = useLocation()
   const section = SECTIONS[location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')]
   const [data, setData] = useState<Catalog | null>(null)
+  const [usingFallback, setUsingFallback] = useState(false)
+  const now = useFreshnessClock()
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
   const [domain, setDomain] = useState('')
@@ -97,7 +107,20 @@ export default function Benchmarks() {
   const [relevance, setRelevance] = useState('')
   const [agentic, setAgentic] = useState(false)
   useEffect(() => {
-    fetch('/benchmarks.json').then(res => { if (!res.ok) throw new Error(); return res.json() }).then(setData).catch(() => setError('The benchmark catalog is unavailable right now.'))
+    let active = true
+    const load = async (url: string, feed: boolean) => {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+      if (!res.ok) throw new Error('Catalog unavailable')
+      const value: Catalog = await res.json()
+      if (!isCatalog(value) || (feed && (!value.refresh?.snapshot_id || !value.refresh.checked_at))) throw new Error('Invalid catalog')
+      return value
+    }
+    load('/benchmark-feed/benchmarks.json', true).then(value => {
+      if (active) setData(value)
+    }).catch(() => load('/benchmarks.json', false).then(value => {
+      if (active) { setData(value); setUsingFallback(true) }
+    })).catch(() => { if (active) setError('The benchmark catalog is unavailable right now.') })
+    return () => { active = false }
   }, [])
   useEffect(() => {
     const id = decodeURIComponent(location.hash.slice(1))
@@ -110,17 +133,18 @@ export default function Benchmarks() {
   const rows = useMemo(() => {
     if (!data) return []
     const q = query.trim().toLowerCase()
-    return data.benchmarks.filter(b =>
+    return data.benchmarks.map(b => currentFlags(b, now, data.review_after_days, data.results_stale_after_days)).filter(b =>
       (!q || [b.name, b.publisher, b.summary, b.results?.leader ?? ''].join(' ').toLowerCase().includes(q)) &&
       (!domain || b.domains.includes(domain)) && (!status || b.results_status === status) &&
       (!access || b.data_access === access) && (!relevance || b.relevance === relevance) &&
       (!agentic || b.task_format === 'agentic' || b.stateful))
-  }, [data, query, domain, status, access, relevance, agentic])
+  }, [data, now, query, domain, status, access, relevance, agentic])
   const awaiting = data?.benchmarks.filter(b => b.results_status === 'unpublished' || b.results_status === 'unknown') ?? []
   const quiet = data?.products.filter(p => p.status !== 'published') ?? []
   const filtered = !!(query || domain || status || access || relevance || agentic)
   if (!section) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
-  return <div className="p-workspace bm-page">
+  const overdue = data?.boards?.filter(b => checkOverdue(b.last_successful_check ?? b.retrieved, now)).length ?? 0
+  return <div className="p-workspace bm-page" data-snapshot-id={data?.refresh?.snapshot_id ?? 'bundled'}>
     <header className="bm-intro">
       <p className="p-eyebrow">Finance &amp; accounting AI benchmarks</p>
       <h1 className="bm-title">Which models lead each public finance and accounting benchmark</h1>
@@ -128,7 +152,13 @@ export default function Benchmarks() {
         <span><b>{data.counts.benchmarks}</b> benchmarks tracked</span>
         <span><b>{data.counts.by_results_status.leaderboard}</b> live leaderboards</span>
         <Link to="/benchmarks/awaiting"><b>{awaiting.length + quiet.length}</b> awaiting public results</Link>
-        <span>Updated {monthLabel(data.catalog_updated)}</span>
+        {data.refresh?.cadence === 'daily' && !usingFallback
+          ? <span>Checked daily · {data.boards?.length} model boards</span>
+          : <span>Snapshot {monthLabel(data.catalog_updated)}</span>}
+      </p>}
+      {data && (usingFallback || overdue > 0 || (data.refresh && checkOverdue(data.refresh.checked_at, now))) && <p className="bm-freshness-notice" role="status">
+        {usingFallback ? 'Daily feed unavailable. Showing the saved catalog; check each board’s date.'
+          : `${overdue ? `${overdue} ${overdue === 1 ? 'board is' : 'boards are'} overdue for a successful check.` : 'The daily refresh is overdue.'} Last verified results remain available.`}
       </p>}
       <p className="bm-promise">Every score is the publisher's own, linked to its source. We don't re-run, rescale or combine them.</p>
     </header>
@@ -188,7 +218,8 @@ export default function Benchmarks() {
         <li><b>Publishers own their results.</b> We copy the headline figure, metric and date as stated at the linked source, and label where it came from: the publisher, a vendor report, a paper, or a third-party mirror.</li>
         <li><b>One board per benchmark.</b> Each board keeps its publisher's metric. We never combine boards into a single score, because they use different tasks, graders and metrics.</li>
         <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
-        <li><b>Freshness is visible.</b> Every source is re-checked on a schedule. Rows not re-verified within {data.review_after_days} days, or leaderboards whose results are more than {data.results_stale_after_days} days old, are flagged.</li>
+        <li><b>Daily board checks.</b> We check the nine model boards daily. Each board shows its last successful check separately from the publisher’s own update date, when available. A check can succeed without any scores changing. Checks more than 36 hours old are marked overdue; failed checks keep the last verified results.</li>
+        <li><b>Editorial review is separate.</b> The wider directory is reviewed separately. Listings not reviewed within {data.review_after_days} days, or active leaderboards whose publisher-dated results are more than {data.results_stale_after_days} days old, are flagged using today’s date.</li>
         <li><b>Open metadata, cited results.</b> Our catalog metadata (ids, taxonomy, status, freshness and links) is published as <a href="/benchmarks.json">benchmarks.json</a> under CC BY 4.0. The result figures and board snapshots in that file are reproduced from each publisher as cited facts with a link to the source. They stay under the publisher's own terms and are not relicensed by us; reuse them under those terms and credit the publisher.</li>
       </ul>
       <h3>What the labels mean</h3>

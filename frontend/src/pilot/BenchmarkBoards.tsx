@@ -1,11 +1,12 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ArrowUpRight, Search } from 'lucide-react'
+import { checkLabel, checkOverdue, useFreshnessClock } from './benchmarkFreshness'
 
 export type Weights = 'open' | 'closed' | 'unknown'
 export interface ModelRec { id: string; name: string; org: string | null; weights: Weights; weights_basis: 'publisher' | 'family' | 'conflict' | 'none'; weights_reported: Record<string, 'open' | 'closed'> }
 export interface BoardEntry { model: string; label: string; config: string | null; scores: Record<string, number>; ci?: Record<string, [number, number]>; cost: number | null }
-export interface Board { benchmark_id: string; source_url: string; adapter: string; as_of: string | null; retrieved: string; metrics: { key: string; label: string; unit: string }[]; cost_label: string | null; entries: BoardEntry[] }
+export interface Board { benchmark_id: string; source_url: string; adapter: string; as_of: string | null; retrieved: string; last_successful_check?: string; metrics: { key: string; label: string; unit: string }[]; cost_label: string | null; entries: BoardEntry[] }
 export interface BoardBenchmark { id: string; name: string; publisher: string; domains: string[]; summary: string; metric_definitions?: Record<string, string>; results_status: string; relevance: string; results: { source_type: string; note: string | null } | null }
 
 type Filter = 'all' | 'open' | 'closed'
@@ -239,6 +240,7 @@ function Coverage({ boards, benchmarks, models, filter, onPick }: { boards: Boar
 
 export default function BenchmarkBoards({ boards, models: modelList, benchmarks: benchmarkList }: { boards: Board[]; models: ModelRec[]; benchmarks: BoardBenchmark[] }) {
   const [params, setParams] = useSearchParams()
+  const now = useFreshnessClock()
   const [showAll, setShowAll] = useState(false)
   const [hover, setHover] = useState<Row | null>(null)
   const models = useMemo(() => new Map(modelList.map(m => [m.id, m])), [modelList])
@@ -269,8 +271,8 @@ export default function BenchmarkBoards({ boards, models: modelList, benchmarks:
   const counts = { all: all.length, open: all.filter(r => r.weights === 'open').length, closed: all.filter(r => r.weights === 'closed').length }
   const unstated = all.filter(r => r.weights === 'unknown').length
   const definition = bm?.metric_definitions?.[metric.key]
-  const fresh = board.as_of ? `Updated ${dateLabel(board.as_of)}` : `Checked ${dateLabel(board.retrieved)}`
-  const freshTitle = board.as_of ? `Date shown by the publisher. We retrieved the page on ${dateLabel(board.retrieved)}.` : `The source shows no date. We retrieved it on ${dateLabel(board.retrieved)}.`
+  const checked = board.last_successful_check ?? board.retrieved
+  const overdue = checkOverdue(checked, now)
   return <section className="bd" aria-labelledby="boards">
     <nav className="bd-areas" aria-label="Area">
       <button type="button" aria-pressed={!area} onClick={() => set({ area: null, board: null, metric: null })}>All areas <span>{boards.length}</span></button>
@@ -284,7 +286,12 @@ export default function BenchmarkBoards({ boards, models: modelList, benchmarks:
       <header className="bd-panel-head">
         <div>
           <h3 id="board-title">{bm?.name}</h3>
-          <p className="bd-sub">{bm?.publisher} · {modelCount} models{configCount > modelCount ? ` (${configCount} configurations)` : ''} · <span title={freshTitle}>{fresh}</span>{bm?.results_status === 'archived' ? ' · archived by publisher' : ''}</p>
+          <p className="bd-sub">{bm?.publisher} · {modelCount} models{configCount > modelCount ? ` (${configCount} configurations)` : ''}{bm?.results_status === 'archived' ? ' · archived by publisher' : ''}</p>
+          <p className="bd-freshness">
+            <span>Last successful check <time dateTime={checked}>{checkLabel(checked)}</time></span>
+            <span>{board.as_of ? <>Publisher updated <time dateTime={board.as_of}>{dateLabel(board.as_of)}</time></> : 'Publisher update date not provided'}</span>
+            {overdue && <strong>Check overdue · showing last verified results</strong>}
+          </p>
         </div>
         <Ext href={board.source_url}>{SOURCE[bm?.results?.source_type ?? 'first_party']} source</Ext>
       </header>

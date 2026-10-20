@@ -1,4 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "git": { "deploymentEnabled": { "benchmark-data": false } },
+  "headers": [{ "source": "/benchmark-feed/benchmarks.json", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }],
+  "rewrites": [
+    { "source": "/benchmark-feed/benchmarks.json", "destination": "https://raw.githubusercontent.com/dmurguia/calibration-arena/benchmark-data/benchmarks.json" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

@@ -426,10 +426,18 @@
 .p-question-bubble>p:not(.p-eyebrow){font-size:14px;line-height:1.65;margin:6px 0 0}
 .p-question-bubble .p-source-files{margin-top:10px}
 @media(max-width:760px){.p-question-bubble{max-width:94%;padding:14px 18px}}
-/* Responses share one height and scroll inside, so a long answer never pushes the other off the page. */
-.p-drafts .p-draft{height:min(72vh,860px)}
-.p-drafts .p-draft .p-answer{overflow:auto;min-height:0;overscroll-behavior:contain}
-@media(max-width:760px){.p-drafts .p-draft{height:auto}.p-drafts .p-draft .p-answer{overflow:visible}}
+/* Responses show in full and the page scrolls; nothing is capped inside a box. */
+.p-drafts .p-draft{height:auto}
+.p-drafts .p-draft .p-answer{overflow:visible}
+
+/* Expanding one response collapses the other to a slim rail; clicking the rail swaps which one is expanded. */
+.p-focus-grid.p-focus-a{grid-template-columns:minmax(0,1fr) 52px}
+.p-focus-grid.p-focus-b{grid-template-columns:52px minmax(0,1fr)}
+.p-focus-column.is-rail{position:sticky;top:20px}
+.p-focus-rail{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;min-height:220px;padding:16px 0;border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg);background:var(--cal-surface);color:var(--cal-graphite);cursor:pointer;transition:background-color var(--cal-duration-fast) var(--cal-ease),color var(--cal-duration-fast) var(--cal-ease)}
+.p-focus-rail span{writing-mode:vertical-rl;font:500 var(--cal-text-eyebrow)/1 var(--cal-font-mono);letter-spacing:var(--cal-tracking-eyebrow);text-transform:uppercase}
+.p-focus-rail:hover{background:var(--cal-paper);color:var(--cal-ink)}
+@media(max-width:700px){.p-focus-grid.p-focus-a,.p-focus-grid.p-focus-b{grid-template-columns:minmax(0,1fr)}.p-focus-column.is-rail{position:static}}
 
 /* Choosing is in the eye line, centered just above the follow-up composer, and never required. */
 .p-vote-pill-row{display:flex;justify-content:center;margin:0 0 12px}
@@ -445,6 +453,14 @@
 .p-draft header .p-meta+.p-prefer-button{margin-left:10px}
 .p-conversation-dock{margin-bottom:0}
 .p-floating-vote{display:none!important}
+
+/* The follow-up dock: pinned to the bottom, fading into the page instead of a tinted band, with the composer as wide as the responses. */
+.p-conversation-dock{padding:36px 0 16px;margin-top:0;border-top:0;background:linear-gradient(to bottom,transparent,var(--cal-paper) 34px)}
+.p-conversation-dock .p-refine{max-width:none}
+.p-conversation-dock .p-refine-heading{margin-bottom:8px;padding:0 4px}
+.p-conversation-dock .p-composer{box-shadow:0 10px 30px #4646431a}
+.p-conversation-dock .p-composer textarea{min-height:52px}
+.p-conversation-dock .p-vote-pill-row{margin-bottom:14px}
 
 /* Reveal: the chosen response large with its badge and author; the other sits in a side rail and swaps in on click. */
 .p-result-stage{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:start}

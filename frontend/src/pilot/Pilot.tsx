@@ -302,6 +302,7 @@ function WorkspaceSwitcher() {
 }
 
 // "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
+// Clicking "New project" again while the panel is open skips the workflows and starts a blank project.
 function NewProjectMenu({ onPick }: { onPick: () => void }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -317,7 +318,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
   }, [open])
   const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
   return <div className="p-new-project" ref={root}>
-    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} /><span>New project</span></button>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New project</span></button>
     {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
       <h2>New project</h2>
       <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>

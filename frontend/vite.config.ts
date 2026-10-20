@@ -7,7 +7,9 @@ import { defineConfig, loadEnv } from "vite";
 // sign-in while the backend expects Clerk. Production builds on Vercel stop
 // here instead of shipping that mismatch.
 function checkClerkKey(mode: string) {
-  const env = loadEnv(mode, process.cwd(), "");
+  // "." is the project root Vite builds from. Avoid process here: Vercel's fresh
+  // install has no Node type definitions, so tsc -b rejects it.
+  const env = loadEnv(mode, ".", "");
   const key = env.VITE_CLERK_PUBLISHABLE_KEY?.trim();
   const production = env.VERCEL_ENV === "production";
   const problems: string[] = [];

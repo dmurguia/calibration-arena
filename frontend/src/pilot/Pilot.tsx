@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, Sparkles, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -567,15 +567,38 @@ const waitingLines = [
   'Laying the responses side by side',
   'Almost there',
 ]
+// A calibrating orb in the waiting card's tone: a dial of ticks turns around a breathing core that leans toward the pointer and sends out a pulse when tapped.
+const orbTicks = Array.from({ length: 24 }, (_, i) => i * 15)
+function CalibratingOrb() {
+  const root = useRef<HTMLSpanElement>(null)
+  const [pulses, setPulses] = useState<number[]>([])
+  useEffect(() => {
+    const lean = (e: PointerEvent) => {
+      const el = root.current; if (!el) return
+      const box = el.getBoundingClientRect()
+      const dx = e.clientX - (box.left + box.width / 2), dy = e.clientY - (box.top + box.height / 2)
+      const reach = Math.min(1, Math.hypot(dx, dy) / 240) / (Math.hypot(dx, dy) || 1)
+      el.style.setProperty('--ox', (dx * reach).toFixed(3)); el.style.setProperty('--oy', (dy * reach).toFixed(3))
+    }
+    window.addEventListener('pointermove', lean)
+    return () => window.removeEventListener('pointermove', lean)
+  }, [])
+  return <span className="p-orb" ref={root} aria-hidden="true" onPointerDown={() => setPulses(p => [...p.slice(-3), Date.now()])}>
+    <svg className="p-orb-dial" viewBox="0 0 48 48">{orbTicks.map(a => <line key={a} className={a % 90 === 0 ? 'major' : undefined} x1="24" y1={a % 90 === 0 ? 1.5 : 2.5} x2="24" y2="5.5" transform={`rotate(${a} 24 24)`} />)}</svg>
+    <svg className="p-orb-sweep" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" pathLength="100" /></svg>
+    <span className="p-orb-core" />
+    {pulses.map(key => <span key={key} className="p-orb-pulse" onAnimationEnd={() => setPulses(p => p.filter(k => k !== key))} />)}
+  </span>
+}
+
 function WaitingPair({ workflow }: { workflow?: FinanceWorkflow | null }) {
   const [seconds, setSeconds] = useState(0)
   const [line, setLine] = useState(0)
   useEffect(() => { const started = Date.now(); const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000); return () => clearInterval(timer) }, [])
   useEffect(() => { const timer = setInterval(() => setLine(l => Math.min(l + 1, waitingLines.length - 1)), 4200); return () => clearInterval(timer) }, [])
-  const Icon = workflow?.icon ?? Sparkles
   return <div className="p-waiting" role="status" data-tone={workflow?.tone ?? 'gold'}>
     <div className="p-waiting-head">
-      <span className="p-waiting-tile p-tone-tile"><Icon size={20} /></span>
+      <CalibratingOrb />
       <div><strong>{workflow ? `Preparing a ${workflow.label.toLowerCase()} comparison` : 'Preparing two perspectives'}</strong><p key={line} className="p-waiting-line">{waitingLines[line]}<span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span></p></div>
       <span className="p-waiting-clock">{seconds}s</span>
     </div>

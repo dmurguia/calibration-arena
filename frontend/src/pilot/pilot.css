@@ -378,6 +378,21 @@
 @media(prefers-reduced-motion:reduce){.p-waiting,.p-waiting-dots i,.p-waiting-card b,.p-waiting-line{animation:none}}
 
 .p-waiting{align-items:stretch}
+.p-orb{--ox:0;--oy:0;position:relative;display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;margin:-2px 0;color:var(--tone,#A98A3A);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.p-orb>*{grid-area:1/1}
+.p-orb-dial,.p-orb-sweep{width:100%;height:100%;overflow:visible}
+.p-orb-dial{animation:p-orb-spin 14s linear infinite}
+.p-orb-dial line{stroke:currentColor;stroke-width:1.1;stroke-linecap:round;opacity:.32}
+.p-orb-dial line.major{stroke-width:1.5;opacity:.8}
+.p-orb-sweep{animation:p-orb-spin 2.4s cubic-bezier(.55,.1,.45,.9) infinite reverse}
+.p-orb-sweep circle{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:18 82;opacity:.55}
+.p-orb-core{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at calc(38% + var(--ox) * 18%) calc(34% + var(--oy) * 18%),color-mix(in srgb,currentColor 12%,white) 0%,color-mix(in srgb,currentColor 55%,white) 30%,currentColor 68%,color-mix(in srgb,currentColor 65%,black) 100%);box-shadow:0 0 14px color-mix(in srgb,currentColor 38%,transparent),inset 0 -2px 4px rgba(0,0,0,.14);translate:calc(var(--ox) * 2.5px) calc(var(--oy) * 2.5px);transition:translate .25s ease-out;animation:p-orb-breathe 2.6s ease-in-out infinite}
+.p-orb:active .p-orb-core{scale:.86;animation-play-state:paused}
+.p-orb-pulse{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;pointer-events:none;animation:p-orb-pulse .9s ease-out forwards}
+@keyframes p-orb-spin{to{rotate:360deg}}
+@keyframes p-orb-breathe{50%{scale:1.1;box-shadow:0 0 22px color-mix(in srgb,currentColor 50%,transparent),inset 0 -2px 4px rgba(0,0,0,.14)}}
+@keyframes p-orb-pulse{from{opacity:.7;scale:1}to{opacity:0;scale:2.2}}
+@media(prefers-reduced-motion:reduce){.p-orb-dial,.p-orb-sweep,.p-orb-core{animation:none}.p-orb-core{transition:none}}
 
 /* Session rows: title link plus a three-dot menu that appears on hover (always on touch). */
 .p-run-row{position:relative;display:flex;align-items:center}

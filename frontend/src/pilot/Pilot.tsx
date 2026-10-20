@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageSquareText } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -25,6 +25,7 @@ const pendingWorkflowKey = 'calibrated.pendingWorkflow'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
 const sidebarKey = 'calibrated.sidebarCollapsed'
+const projectsViewKey = 'calibrated.projectsView'
 // Set once someone dismisses the "Vote here" coach mark or votes, so it shows only on their first comparison.
 const voteHintKey = 'calibrated.voteHintSeen'
 const usePilot = () => useContext(Context)
@@ -691,7 +692,12 @@ function RetryComposer({ run }: { run: Run }) {
 }
 
 // One project row: the thread's latest turn, with inline rename and the shared actions menu.
-function ProjectRow({ run }: { run: Run }) {
+const projectStatus: Record<string, string> = { completed: 'Revealed', review: 'Ready to compare', conclusion: 'Ready to compare', generating: 'Drafting', failed: 'Needs a retry' }
+const projectWorkflow = (run: Run) => financeWorkflows.find(w => w.id === run.workflow_id)
+const projectTimes: [string, string, number][] = [['all', 'All time', 0], ['7', 'Past 7 days', 7], ['30', 'Past 30 days', 30], ['90', 'Past 90 days', 90]]
+
+// One project as a card (grid) or a compact row (list), with inline rename and the actions menu either way.
+function ProjectItem({ run, view }: { run: Run; view: 'grid' | 'list' }) {
   const { refresh } = usePilot()
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(run.title)
@@ -701,25 +707,49 @@ function ProjectRow({ run }: { run: Run }) {
     if (!next || next === run.title) { setTitle(run.title); return }
     try { await call(`/runs/${run.id}/title`, { title: next }); await refresh() } catch { setTitle(run.title) }
   }
-  if (editing) return <form className="p-project-row" onSubmit={e => { e.preventDefault(); void save() }}><input autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
-  return <div className="p-project-row"><Link className="p-notebook-row" to={`/session/${run.id}`}><span><span className="p-meta">{date(run.created_at)}</span><h3>{run.title}</h3><p>{run.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
+  const workflow = projectWorkflow(run); const Icon = workflow?.icon ?? MessageSquareText
+  const name = editing
+    ? <form onSubmit={e => { e.preventDefault(); void save() }}><input className="p-project-rename" autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
+    : <h3><Link to={`/session/${run.id}`}>{run.title}</Link></h3>
+  const meta = <span className="p-project-meta"><span>{date(run.created_at)}</span>{(run.turn_number || 1) > 1 && <span>{run.turn_number} turns</span>}<span className={`p-project-status is-${run.status}`}>{projectStatus[run.status] ?? run.status}</span></span>
+  const menu = <RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} />
+  if (view === 'list') return <div className="p-project-line" data-tone={workflow?.tone}><span className="p-project-line-icon p-tone-tile"><Icon size={15} aria-hidden="true" /></span><div className="p-project-line-body">{name}<span className="p-project-kind">{workflow?.label ?? 'Your question'}</span></div>{meta}{menu}</div>
+  return <article className="p-project-card" data-tone={workflow?.tone}>
+    <Link className="p-project-cover" to={`/session/${run.id}`} tabIndex={-1} aria-hidden="true"><span className="p-project-cover-icon p-tone-tile"><Icon size={20} /></span><span className="p-project-cover-text">{run.brief.slice(0, 220)}</span></Link>
+    <div className="p-project-card-body"><span className="p-project-kind"><Icon size={13} aria-hidden="true" />{workflow?.label ?? 'Your question'}</span>{name}{meta}</div>
+    {menu}
+  </article>
 }
 
 // Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
-// A project is a whole thread: follow-ups share the first run's root_run_id, so each thread is one row.
+// A project is a whole thread: follow-ups share the first run's root_run_id, so each thread is one card.
+// Cards by default, a compact list on request (remembered per browser); search, category and time narrow either view.
 function MyProjects() {
   const { me } = usePilot()
   const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('all')
+  const [since, setSince] = useState('all')
   const [showArchived, setShowArchived] = useState(false)
+  const [view, setView] = useState<'grid' | 'list'>(() => { try { return localStorage.getItem(projectsViewKey) === 'list' ? 'list' : 'grid' } catch { return 'grid' } })
+  const pickView = (next: 'grid' | 'list') => { setView(next); try { localStorage.setItem(projectsViewKey, next) } catch { /* storage blocked: the choice lasts this visit */ } }
   const all = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && !!r.archived === showArchived) ?? [])
   const archivedCount = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && r.archived) ?? []).length
   const needle = query.trim().toLowerCase()
-  const runs = needle ? all.filter(r => `${r.title} ${r.brief}`.toLowerCase().includes(needle)) : all
+  const days = projectTimes.find(t => t[0] === since)?.[2] ?? 0
+  const runs = all.filter(r => (!needle || `${r.title} ${r.brief}`.toLowerCase().includes(needle))
+    && (category === 'all' || (category === 'question' ? !projectWorkflow(r) : r.workflow_id === category))
+    && (!days || Date.now() - new Date(r.created_at).getTime() <= days * 864e5))
+  const filtered = !!needle || category !== 'all' || since !== 'all'
   return <div className="p-projects"><h1>My projects</h1>
-    <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    <div className="p-projects-toolbar">
+      <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
+      <select className="p-projects-filter" aria-label="Category" value={category} onChange={e => setCategory(e.target.value)}><option value="all">All categories</option>{financeWorkflows.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}<option value="question">Your questions</option></select>
+      <select className="p-projects-filter" aria-label="Time" value={since} onChange={e => setSince(e.target.value)}>{projectTimes.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
+      <div className="p-projects-views" role="group" aria-label="View as">{([['grid', LayoutGrid, 'Cards'], ['list', List, 'List']] as const).map(([id, ViewIcon, label]) => <button key={id} type="button" aria-pressed={view === id} aria-label={label} title={label} onClick={() => pickView(id)}><ViewIcon size={16} /></button>)}</div>
+    </div>
     {!!archivedCount && <button type="button" className="p-projects-archived" aria-pressed={showArchived} onClick={() => setShowArchived(!showArchived)}><Archive size={13} />{showArchived ? 'Back to projects' : `Archived · ${archivedCount}`}</button>}
-    {runs.length ? <div className="p-projects-list">{runs.map(r => <ProjectRow key={r.id} run={r} />)}</div>
-      : <p className="p-projects-empty">{all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
+    {runs.length ? <div className={view === 'grid' ? 'p-projects-grid' : 'p-projects-lines'}>{runs.map(r => <ProjectItem key={r.id} run={r} view={view} />)}</div>
+      : <p className="p-projects-empty">{filtered && all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
   </div>
 }
 

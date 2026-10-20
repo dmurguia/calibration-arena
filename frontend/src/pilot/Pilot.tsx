@@ -25,6 +25,8 @@ const pendingWorkflowKey = 'calibrated.pendingWorkflow'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
 const sidebarKey = 'calibrated.sidebarCollapsed'
+// Set once someone dismisses the "Vote here" coach mark or votes, so it shows only on their first comparison.
+const voteHintKey = 'calibrated.voteHintSeen'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -636,6 +638,8 @@ function Session() {
   const [focus, setFocus] = useState<string | null>(null); const [judging, setJudging] = useState(false); const [choice, setChoice] = useState<string | null>(null); const [why, setWhy] = useState(''); const [generating, setGenerating] = useState(false)
   useEffect(() => { setFocus(null); setJudging(false); setChoice(null); setWhy(''); setGenerating(false) }, [runId])
   const voteDialog = useRef<HTMLDialogElement>(null)
+  const [voteHint, setVoteHint] = useState(() => { try { return !localStorage.getItem(voteHintKey) } catch { return true } })
+  const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
   useEffect(() => { const dialog = voteDialog.current; if (judging && run?.status === 'review') dialog?.showModal(); else dialog?.close() }, [judging, run?.status])
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
@@ -656,18 +660,18 @@ function Session() {
         ? <button type="button" className="p-focus-rail" onClick={() => setFocus(d.position)} aria-label={`Expand response ${d.position.toUpperCase()}`}><Maximize2 size={15} /><span>Response {d.position.toUpperCase()}</span></button>
         : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} />}</div>)}</div></>}
       <div className="p-conversation-dock">
-      {!voted && <div className="p-vote-pill-row"><div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
+      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
       {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
       </div>
       {!voted && <>
         <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
+          <button type="button" className="p-vote-close" disabled={busy} onClick={() => setJudging(false)} aria-label="Close"><X size={18} /></button>
           <div className="p-decision">
           <Eyebrow>Choose & reveal</Eyebrow>
           <h2 id="vote-title">Which response do you prefer?</h2>
-          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-pressed={choice === p} onClick={() => setChoice(p)}>I prefer {p.toUpperCase()}</button>)}</div>
-          {choice && <form className="p-vote-reason" onSubmit={e => { e.preventDefault(); save('preference', { preference: choice, rationale: why }) }}><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /><div><button className="p-button" disabled={busy || generating}>Reveal models <ArrowRight size={16} /></button><button type="button" className="p-text-link" disabled={busy || generating} onClick={() => save('preference', { preference: choice, rationale: '' })}>Skip & reveal</button></div></form>}
-          <button className="p-text-link" disabled={busy} onClick={() => setJudging(false)}>Keep comparing</button>
-          {busy && <p role="status">Revealing the models…</p>}
+          <div className="p-vote-reason"><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /></div>
+          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-current={choice === p ? 'true' : undefined} onClick={() => { setChoice(p); save('preference', { preference: p, rationale: why }) }}>I prefer {p.toUpperCase()}</button>)}</div>
+          <p className="p-fine p-vote-note">{busy ? 'Revealing the models…' : 'Choosing reveals the models.'}</p>
           <ErrorNote message={error} />
           </div>
         </dialog>

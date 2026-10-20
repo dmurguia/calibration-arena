@@ -460,7 +460,25 @@
 .p-conversation-dock .p-refine-heading{margin-bottom:8px;padding:0 4px}
 .p-conversation-dock .p-composer{box-shadow:0 10px 30px #4646431a}
 .p-conversation-dock .p-composer textarea{min-height:52px}
-.p-conversation-dock .p-vote-pill-row{margin-bottom:14px}
+.p-conversation-dock .p-vote-pill-row{position:relative;margin-bottom:14px}
+
+/* First-visit coach mark above the vote pill. */
+.p-vote-hint{position:absolute;bottom:calc(100% + 12px);left:50%;translate:-50% 0;z-index:2;width:min(300px,calc(100vw - 32px));padding:18px 20px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg);background:var(--cal-white);box-shadow:0 12px 32px #46464324;text-align:center;animation:p-fade-up .35s ease-out}
+.p-vote-hint::after{content:"";position:absolute;top:100%;left:50%;width:12px;height:12px;background:var(--cal-white);border:solid var(--cal-rule);border-width:0 1px 1px 0;translate:-50% -6px;rotate:45deg}
+.p-vote-hint strong{display:block;font-size:15px}
+.p-vote-hint p{margin:4px 0 14px;font-size:13px;color:var(--cal-graphite)}
+.p-vote-hint button{width:100%;min-height:38px;border:0;border-radius:var(--cal-radius);background:var(--cal-action);color:var(--cal-action-text);font:inherit;cursor:pointer}
+.p-vote-hint button:hover{background:var(--cal-action-hover)}
+
+/* Vote dialog: reason first, then A or B casts the vote; the X closes without voting. */
+.p-vote-dialog{position:relative}
+.p-vote-close{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:999px;background:transparent;color:var(--cal-graphite);cursor:pointer}
+.p-vote-close:hover{background:var(--cal-paper);color:var(--cal-ink)}
+.p-vote-dialog .p-vote-reason{margin:0 0 20px}
+.p-vote-dialog .p-vote-bar button[aria-current=true]{border-color:var(--cal-ink)}
+.p-vote-dialog .p-vote-bar button:hover:not(:disabled){background:var(--cal-ink);border-color:var(--cal-ink);color:var(--cal-paper)}
+.p-vote-note{margin:14px 0 0;text-align:center}
+@media(prefers-reduced-motion:reduce){.p-vote-hint{animation:none}}
 
 /* Reveal: the chosen response large with its badge and author; the other sits in a side rail and swaps in on click. */
 .p-result-stage{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:start}

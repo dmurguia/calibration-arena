@@ -1,6 +1,6 @@
 # Terms of Use
 
-*Last updated October 19, 2026.*
+*Last updated October 20, 2026.*
 
 ## Agreement by use
 
@@ -31,8 +31,6 @@ No scraping or bulk automated collection, automated sign-ups, probing or testing
 You own what you submit. In exchange for the free service, you grant Corsac Technologies Inc. an irrevocable, perpetual, worldwide, royalty-free, non-exclusive license, with the right to sublicense, to use, copy, store, modify, adapt, distribute, display and otherwise exploit your questions, uploads, notes and judgments ("your content") for any business purpose. That includes operating and improving the service; publishing rankings, statistics and research built from it; licensing or selling it to third parties, including AI model providers, software vendors and researchers; and evaluating, training or improving AI models, ours or theirs.
 
 Before your content goes to a third party we remove your name, email address and account identifiers. Background you self-reported, such as role or years of experience, may travel with a judgment without your identity. A third party that receives your content may keep and use it under its own terms, and we cannot recall it. You are not entitled to any payment for these uses unless a written program agreement says otherwise. You confirm you have the rights needed to grant this license. The license survives deletion of your account.
-
-The optional research setting in your profile does not change this license; it records whether we may contact you about research follow-ups.
 
 ## Third-party models
 

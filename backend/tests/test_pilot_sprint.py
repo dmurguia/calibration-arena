@@ -10,7 +10,7 @@ from app.pilot_study import ClosePack, Assignment, import_pack, validate_pack
 
 
 def guest(client):
-    r = client.post('/api/pilot/guests', json={'source': 'qa-sprint', 'research_consent': False})
+    r = client.post('/api/pilot/guests', json={'source': 'qa-sprint'})
     assert r.status_code == 200
     return {'Authorization': 'Bearer ' + r.json()['token']}
 
@@ -264,7 +264,7 @@ def test_audit_detects_tampering_and_consent_boundaries():
     attempt = d.pop('attempt')
     second = finish_artifact(new_attempt('openrouter', 'qa/b', {'messages': []}), 'QA other output', 'accounting-question', {}, 'ask-v3')
     second_attempt = second.pop('attempt')
-    data = {'participants': [{'id': 'qa-person', 'source': 'qa-sprint', 'research_consent': False}],
+    data = {'participants': [{'id': 'qa-person', 'source': 'qa-sprint'}],
             'runs': [{'id': 'qa-run', 'participant_id': 'qa-person', 'status': 'review', 'version': 'ask-v3',
                       'drafts': [d, second], 'generation_attempts': [attempt, second_attempt]}], 'events': []}
     assert audit(data)['ok']

@@ -65,7 +65,7 @@ def audit(data):
         run = runs.get(event.get('run_id'))
         if event['participant_id'] not in participants or (event.get('run_id') and (not run or run['participant_id'] != event['participant_id'])):
             errors.append(f'Orphan event: {event["id"]}')
-    research_runs = [r for r in runs.values() if participants.get(r['participant_id'], {}).get('research_consent')
+    research_runs = [r for r in runs.values() if r['participant_id'] in participants
                      and not participants[r['participant_id']].get('source', '').startswith(('qa-', 'synthetic'))
                      and participants[r['participant_id']].get('dataset', '').startswith('cohort-')]
     return {'ok': not errors, 'errors': errors, 'warnings': warnings,

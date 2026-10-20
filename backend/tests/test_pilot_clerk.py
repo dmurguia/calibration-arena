@@ -49,6 +49,8 @@ def test_new_user_and_repeat_exchange(client, monkeypatch):
     participant_id = first.json()["participant"]["id"]
     me = client.get("/api/pilot/me", headers=auth(first.json()["token"]))
     assert me.json()["account"] == {"email": "clerk@example.com", "provider": "clerk"}
+    # No research or contact consent is recorded: accepting the Terms at sign-up is the consent (COR-422).
+    assert not {"research_consent", "consent_version", "consent_at", "followup", "email"} & me.json()["participant"].keys()
 
     second = exchange(client)
     assert second.status_code == 200

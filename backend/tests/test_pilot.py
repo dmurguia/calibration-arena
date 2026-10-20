@@ -3,7 +3,9 @@ import asyncio
 import json
 import pytest
 
-PROFILE = dict(name="Pilot test", role="Public accountant", experience="3–7 years", framework="US GAAP", research_consent=True)
+PROFILE = dict(name="Pilot test", role="Public accountant", experience="3–7 years", framework="US GAAP")
+CONSENT_KEYS = {'research_consent', 'consent_version', 'consent_at', 'publication_consent', 'training_consent', 'followup', 'email'}
+
 JUDGMENT = dict(a="revise", b="revise", preference="neither", reasons=["Timing"], confidence="medium", rationale="Check the actual service period", correction="")
 
 
@@ -55,12 +57,13 @@ def test_cross_participant_access_denied(client):
     assert client.post('/api/pilot/events', headers=b, json={"name": "left_session", "run_id": run['id']}).status_code == 404
 
 
-def test_optional_research_and_no_implicit_contact(client):
-    result = client.post('/api/pilot/participants', json={**PROFILE, 'research_consent': False})
+def test_profile_has_no_consent_or_contact_fields(client):
+    # Sign-up acceptance of the Terms and Privacy Policy is the only consent (COR-422).
+    result = client.post('/api/pilot/participants', json=PROFILE)
     assert result.status_code == 200
-    assert result.json()['participant']['consent_at'] is None
-    assert client.post('/api/pilot/participants', json={**PROFILE, 'email': 'test@example.com'}).status_code == 422
-    assert client.post('/api/pilot/participants', json={**PROFILE, 'followup': True}).status_code == 422
+    assert not CONSENT_KEYS & result.json()['participant'].keys()
+    for legacy in ({'research_consent': True}, {'email': 'test@example.com'}, {'followup': True}):
+        assert client.post('/api/pilot/participants', json={**PROFILE, **legacy}).status_code == 422
 
 
 def test_public_enrollment_and_founder_boundaries(client, monkeypatch):
@@ -75,7 +78,8 @@ def test_public_enrollment_and_founder_boundaries(client, monkeypatch):
     data = client.get('/api/pilot/founder/export', headers={'X-Pilot-Admin': 'a-long-private-test-admin-token'}).json()
     assert data['schema_version'] == 'pilot-export-v2'
     assert all('token_hash' not in p and 'token' not in p for p in data['participants'])
-    assert all(p['publication_consent'] is False and p['training_consent'] is False for p in data['participants'])
+    assert all(not CONSENT_KEYS & p.keys() for p in data['participants'])
+    assert 'research_consent' not in data['notice']
     assert not any('synthetic' in e['name'] for e in data['events'])
 
 
@@ -162,7 +166,7 @@ def test_daily_limit(client):
 
 
 def test_guest_sees_value_before_background_and_keeps_ownership(client):
-    guest = client.post('/api/pilot/guests', json={'research_consent': True, 'source': 'peer-share'}).json()
+    guest = client.post('/api/pilot/guests', json={'source': 'peer-share'}).json()
     h = {'Authorization': 'Bearer ' + guest['token']}
     assert guest['participant']['identity'] == 'guest'
     assert guest['participant']['role'] == 'Not supplied'
@@ -176,13 +180,13 @@ def test_guest_sees_value_before_background_and_keeps_ownership(client):
     assert data['runs'][0]['id'] == run['id']
 
 
-def test_public_guest_does_not_infer_consent_or_require_legacy_invite(client, monkeypatch):
+def test_public_guest_has_no_consent_and_no_legacy_invite(client, monkeypatch):
     guest = client.post('/api/pilot/guests', json={}).json()['participant']
-    assert guest['research_consent'] is False
-    assert guest['consent_at'] is None and guest['consent_version'] is None
+    assert not CONSENT_KEYS & guest.keys()
+    assert client.post('/api/pilot/guests', json={'research_consent': True}).status_code == 422
     monkeypatch.setenv('PILOT_INVITE_CODE', 'pilot-test')
-    assert client.post('/api/pilot/guests', json={'research_consent': True}).status_code == 200
-    assert client.post('/api/pilot/guests', json={'research_consent': True, 'invite_code': 'pilot-test'}).status_code == 200
+    assert client.post('/api/pilot/guests', json={}).status_code == 200
+    assert client.post('/api/pilot/guests', json={'invite_code': 'pilot-test'}).status_code == 200
 
 
 

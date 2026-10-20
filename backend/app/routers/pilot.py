@@ -76,23 +76,11 @@ class Profile(Strict):
     role: Literal["Public accountant", "Industry accountant", "Bookkeeper", "Controller / finance leader", "Other accounting professional"]
     experience: Literal["0–2 years", "3–7 years", "8–15 years", "16+ years"]
     framework: Literal["US GAAP", "IFRS", "Local GAAP / other", "Multiple / not applicable"]
-    email: EmailStr | None = None
-    followup: bool = False
-    research_consent: bool = False
     source: str = Field(default="direct", max_length=100)
     invite_code: str = Field(default="", max_length=200)
 
-    @model_validator(mode="after")
-    def contact(self):
-        if self.email and not self.followup:
-            raise ValueError("Choose follow-up permission to save an email address.")
-        if self.followup and not self.email:
-            raise ValueError("Add an email address for follow-up.")
-        return self
-
 
 class Guest(Strict):
-    research_consent: bool = False
     source: str = Field(default="direct", max_length=100)
     invite_code: str = Field(default="", max_length=200)
 
@@ -104,7 +92,6 @@ class Signup(Strict):
     role: str | None = Field(default=None, max_length=100)
     experience: str | None = Field(default=None, max_length=100)
     framework: str | None = Field(default=None, max_length=100)
-    research_consent: bool = False
 
     @field_validator("email", mode="before")
     @classmethod
@@ -318,7 +305,6 @@ def config(db: Session = Depends(get_db)):
         "ask_mode": "live" if live_ready() else "fixture",
         "invite_required": False,
         "inference_backend": inference_backend(),
-        "consent_version": "pilot-research-v1",
         "prompt_starters": STARTERS,
         "task_types": [{"id": key, **{k: value[k] for k in ("label", "placeholder")}} for key, value in TASKS.items()],
         "accounts_enabled": True,
@@ -411,7 +397,7 @@ def start_assignment(assignment_id: str, p=Depends(participant), db: Session = D
 def enroll(body: Profile, db: Session = Depends(get_db)):
     token = secrets.token_urlsafe(32)
     profile = body.model_dump(exclude={"invite_code"})
-    profile.update(consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None, publication_consent=False, training_consent=False, identity="self-reported", dataset=os.getenv("PILOT_DATASET", "preview"))
+    profile.update(identity="self-reported", dataset=os.getenv("PILOT_DATASET", "preview"))
     p = Participant(id=secrets.token_hex(16), token_hash=hashlib.sha256(token.encode()).hexdigest(), created_at=now(), profile=profile)
     db.add(p)
     emit(db, p, "enrolled", data={"source": body.source})
@@ -424,9 +410,8 @@ def enroll(body: Profile, db: Session = Depends(get_db)):
 def guest(body: Guest, request: Request, db: Session = Depends(get_db)):
     enforce_rate_limit(request, "guest", 20, 60 * 60)
     raw = secrets.token_urlsafe(32)
-    profile = dict(name="Guest", role="Not supplied", experience="Not supplied", framework="Not supplied", followup=False,
-                   research_consent=body.research_consent, source=body.source, consent_version="pilot-research-v1" if body.research_consent else None, consent_at=now() if body.research_consent else None,
-                   publication_consent=False, training_consent=False, identity="guest", dataset=os.getenv("PILOT_DATASET", "preview"))
+    profile = dict(name="Guest", role="Not supplied", experience="Not supplied", framework="Not supplied",
+                   source=body.source, identity="guest", dataset=os.getenv("PILOT_DATASET", "preview"))
     p = Participant(id=secrets.token_hex(16), token_hash=hashlib.sha256(raw.encode()).hexdigest(), created_at=now(), profile=profile)
     db.add(p)
     emit(db, p, "enrolled", data={"source": body.source, "identity": "guest"})
@@ -450,7 +435,7 @@ def resolve_guest_from_token(raw_token: str, db: Session) -> Participant | None:
 
 
 def create_or_claim_participant(
-    db: Session, *, name: str, research_consent: bool,
+    db: Session, *, name: str,
     guest_participant: Participant | None = None, role: str | None = None,
     experience: str | None = None, framework: str | None = None,
     source: str = "direct", provider: str | None = None,
@@ -460,11 +445,7 @@ def create_or_claim_participant(
         profile = dict(
             name=name, role=role or "Not supplied",
             experience=experience or "Not supplied",
-            framework=framework or "Not supplied", followup=False,
-            research_consent=research_consent, source=source,
-            consent_version="pilot-research-v1" if research_consent else None,
-            consent_at=stamp if research_consent else None,
-            publication_consent=False, training_consent=False, identity="account",
+            framework=framework or "Not supplied", source=source, identity="account",
             dataset=os.getenv("PILOT_DATASET", "preview"),
         )
         p = Participant(
@@ -481,11 +462,7 @@ def create_or_claim_participant(
         emit(db, p, "visit")
     else:
         p = guest_participant
-        profile = {**p.profile, "name": name, "identity": "account",
-                   "research_consent": research_consent,
-                   "consent_version": "pilot-research-v1" if research_consent else None,
-                   "consent_at": stamp if research_consent else None,
-                   "profile_updated_at": stamp}
+        profile = {**p.profile, "name": name, "identity": "account", "profile_updated_at": stamp}
         for field, value in (("role", role), ("experience", experience), ("framework", framework)):
             if value is not None:
                 profile[field] = value
@@ -512,7 +489,7 @@ def signup(body: Signup, request: Request, authorization: str = Header(default="
         authorization[7:] if authorization.startswith("Bearer ") else "", db,
     )
     p, stamp = create_or_claim_participant(
-        db, name=body.name, research_consent=body.research_consent,
+        db, name=body.name,
         guest_participant=guest_participant, role=body.role,
         experience=body.experience, framework=body.framework,
     )
@@ -549,7 +526,7 @@ def clerk_exchange(body: ClerkExchange, request: Request, db: Session = Depends(
         else:
             guest_participant = resolve_guest_from_token(body.guest_token or "", db)
             p, stamp = create_or_claim_participant(
-                db, name=identity.name, research_consent=False,
+                db, name=identity.name,
                 guest_participant=guest_participant, source="direct", provider="clerk",
             )
             account = PilotAccount(
@@ -623,7 +600,7 @@ def reset_password(body: PasswordReset, request: Request, db: Session = Depends(
 def enrich_profile(body: Profile, p=Depends(participant), db: Session = Depends(get_db)):
     # Enrich the existing guest record; never create a second identity or drop its runs.
     fields = body.model_dump(exclude={"invite_code", "source"})
-    p.profile = {**p.profile, **fields, "identity": "self-reported", "profile_updated_at": now(), "consent_version": "pilot-research-v1" if body.research_consent else None, "consent_at": now() if body.research_consent else None}
+    p.profile = {**p.profile, **fields, "identity": "self-reported", "profile_updated_at": now()}
     emit(db, p, "profile_completed")
     db.commit()
     return {"participant": {"id": p.id, **p.profile}}
@@ -989,7 +966,7 @@ def feedback(run_id: str, body: Feedback, p=Depends(participant), db: Session = 
 
 def export_data(db):
     accounts = {account.participant_id: account for account in db.scalars(select(PilotAccount)).all()}
-    return {"schema_version": "pilot-export-v2", "exported_at": now(), "notice": "PRIVATE pilot records. Check each participant research_consent before research reuse. No publication or training rights granted. Identity is self-reported. Authored fixtures are not model runs.",
+    return {"schema_version": "pilot-export-v2", "exported_at": now(), "notice": "PRIVATE pilot records. All content is licensed under the Terms of Use; strip name, email and account identifiers before any third-party share. Identity is self-reported. Authored fixtures are not model runs.",
             "close_packs": [{'id': pack.id, 'sha256': pack.sha256, 'created_at': pack.created_at, 'active': pack.active, 'data': pack.data} for pack in db.scalars(select(ClosePack))],
             "assignments": [{k: getattr(a, k) for k in ('id', 'participant_id', 'pack_id', 'case_id', 'ordinal', 'created_at', 'run_id', 'exposure')} for a in db.scalars(select(Assignment))],
             "participants": [{"id": p.id, "created_at": p.created_at, **p.profile,

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Last updated October 19, 2026.*
+*Last updated October 20, 2026.*
 
 Calibration Arena is operated by Corsac Technologies Inc., a Delaware corporation doing business as Calibrated Co. ("Calibrated", "we", "us"). This policy explains what we collect when you use the service and what we do with it.
 
@@ -10,7 +10,7 @@ When you sign in, we store your email address. When you use the service, we stor
 
 ## How we use it
 
-To provide the service: saving your notebook, showing your own work back to you, and operating comparisons. To build rankings, statistics and research from judgments. To improve the service. And, under the license in the Terms of Use, to license or sell your questions, uploaded file text, notes and judgments, with your name, email address and account identifiers removed, to third parties including AI model providers, software vendors and researchers, who may use them to evaluate, benchmark and train AI models. The optional research setting in your profile records whether we may contact you about research follow-ups; it does not change the license.
+To provide the service: saving your notebook, showing your own work back to you, and operating comparisons. To build rankings, statistics and research from judgments. To improve the service. And, under the license in the Terms of Use, to license or sell your questions, uploaded file text, notes and judgments, with your name, email address and account identifiers removed, to third parties including AI model providers, software vendors and researchers, who may use them to evaluate, benchmark and train AI models. We may email you about your account, to ask for feedback on the service, or to follow up on research built from judgments; every email that is not about your account carries an unsubscribe link.
 
 ## Who receives it
 

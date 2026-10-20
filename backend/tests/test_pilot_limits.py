@@ -7,11 +7,11 @@ from datetime import datetime, timezone
 
 from sqlalchemy import select
 
-PROFILE = dict(name="Limit test", role="Public accountant", experience="3–7 years", framework="US GAAP", research_consent=False)
+PROFILE = dict(name="Limit test", role="Public accountant", experience="3–7 years", framework="US GAAP")
 
 
 def guest(client):
-    r = client.post('/api/pilot/guests', json={'source': 'qa-limits', 'research_consent': False})
+    r = client.post('/api/pilot/guests', json={'source': 'qa-limits'})
     assert r.status_code == 200, r.text
     return {'Authorization': 'Bearer ' + r.json()['token']}
 

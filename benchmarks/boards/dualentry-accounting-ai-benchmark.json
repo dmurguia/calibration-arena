@@ -1,0 +1,191 @@
+{
+  "benchmark_id": "dualentry-accounting-ai-benchmark",
+  "source_url": "https://www.dualentry.com/benchmark",
+  "adapter": "dualentry",
+  "as_of": null,
+  "retrieved": "2026-10-20",
+  "metrics": [
+    {
+      "key": "accuracy",
+      "label": "Overall accuracy",
+      "unit": "%"
+    }
+  ],
+  "cost_label": null,
+  "entries": [
+    {
+      "model": "gemini4argon",
+      "label": "Gemini 4 Argon",
+      "config": null,
+      "scores": {
+        "accuracy": 91.1
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3flash",
+      "label": "GLM-5.3 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 88.1
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-7",
+      "label": "Grok 4.7",
+      "config": null,
+      "scores": {
+        "accuracy": 88.1
+      },
+      "cost": null
+    },
+    {
+      "model": "fable5-1",
+      "label": "Claude Fable 5.1",
+      "config": null,
+      "scores": {
+        "accuracy": 85.1
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4-1flash",
+      "label": "DeepSeek V4.1 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 84.2
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": null,
+      "scores": {
+        "accuracy": 84.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini3-8flash",
+      "label": "Gemini 3.8 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 83.2
+      },
+      "cost": null
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": null,
+      "scores": {
+        "accuracy": 83.2
+      },
+      "cost": null
+    },
+    {
+      "model": "musewonder",
+      "label": "Muse Wonder",
+      "config": null,
+      "scores": {
+        "accuracy": 83.2
+      },
+      "cost": null
+    },
+    {
+      "model": "opus5-5",
+      "label": "Claude Opus 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 82.2
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4-1flash1017",
+      "label": "DeepSeek V4.1 Flash 1017",
+      "config": null,
+      "scores": {
+        "accuracy": 82.2
+      },
+      "cost": null
+    },
+    {
+      "model": "glm5-3",
+      "label": "GLM-5.3",
+      "config": null,
+      "scores": {
+        "accuracy": 82.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6astra",
+      "label": "GPT-6 Astra",
+      "config": null,
+      "scores": {
+        "accuracy": 81.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6-1sol",
+      "label": "GPT-6.1 Sol",
+      "config": null,
+      "scores": {
+        "accuracy": 81.2
+      },
+      "cost": null
+    },
+    {
+      "model": "sonnet5-5",
+      "label": "Claude Sonnet 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 80.2
+      },
+      "cost": null
+    },
+    {
+      "model": "mistrallarge4",
+      "label": "Mistral Large 4",
+      "config": null,
+      "scores": {
+        "accuracy": 80.2
+      },
+      "cost": null
+    },
+    {
+      "model": "haiku5-5",
+      "label": "Claude Haiku 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 76.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6sol",
+      "label": "GPT-6 Sol",
+      "config": null,
+      "scores": {
+        "accuracy": 76.2
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6luna",
+      "label": "GPT-6 Luna",
+      "config": null,
+      "scores": {
+        "accuracy": 66.3
+      },
+      "cost": null
+    }
+  ],
+  "last_successful_check": "2026-10-20T22:07:42.501095+00:00",
+  "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
+  "source_sha256": "1a843af5a661dabe204ace8e9ba4c477f49c1a33baa287630dc2bddba84f73e6"
+}

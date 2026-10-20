@@ -1,0 +1,821 @@
+{
+  "benchmark_id": "vals-finance-agent-v2",
+  "source_url": "https://www.vals.ai/benchmarks/fabv2",
+  "adapter": "vals",
+  "as_of": "2026-10-18",
+  "retrieved": "2026-10-20",
+  "archived": true,
+  "metrics": [
+    {
+      "key": "accuracy",
+      "label": "Accuracy",
+      "unit": "%"
+    }
+  ],
+  "cost_label": "USD per test (publisher-reported)",
+  "entries": [
+    {
+      "model": "gemini4argon",
+      "label": "Gemini 4 Argon",
+      "config": null,
+      "scores": {
+        "accuracy": 65.401
+      },
+      "source_model_id": "google/gemini-4-argon",
+      "cost": 4.378161
+    },
+    {
+      "model": "gemini3-8flash",
+      "label": "Gemini 3.8 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 61.435
+      },
+      "source_model_id": "google/gemini-3.8-flash",
+      "cost": 2.000457
+    },
+    {
+      "model": "musesparkopen",
+      "label": "Muse Spark Open",
+      "config": null,
+      "scores": {
+        "accuracy": 61.336
+      },
+      "source_model_id": "meta/muse-spark-open",
+      "cost": 0.770844
+    },
+    {
+      "model": "musespark1-2",
+      "label": "Muse Spark 1.2",
+      "config": null,
+      "scores": {
+        "accuracy": 60.599
+      },
+      "source_model_id": "meta/muse_spark_1_2",
+      "cost": 0.76972
+    },
+    {
+      "model": "musespark1-3max",
+      "label": "Muse Spark 1.3 Max",
+      "config": null,
+      "scores": {
+        "accuracy": 59.958
+      },
+      "source_model_id": "meta/muse_spark_1_3_max",
+      "cost": 0.756512
+    },
+    {
+      "model": "musewonderfull",
+      "label": "Muse Wonder Full",
+      "config": null,
+      "scores": {
+        "accuracy": 59.061
+      },
+      "source_model_id": "meta/muse-wonder-full",
+      "cost": 2.389758
+    },
+    {
+      "model": "gemini3-7flash",
+      "label": "Gemini 3.7 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 59.042
+      },
+      "source_model_id": "google/gemini-3.7-flash",
+      "cost": 1.477884
+    },
+    {
+      "model": "musespark1-3",
+      "label": "Muse Spark 1.3",
+      "config": null,
+      "scores": {
+        "accuracy": 58.901
+      },
+      "source_model_id": "meta/muse_spark_1_3",
+      "cost": 0.741132
+    },
+    {
+      "model": "fable5-1",
+      "label": "Claude Fable 5.1",
+      "config": null,
+      "scores": {
+        "accuracy": 58.877
+      },
+      "source_model_id": "anthropic/claude-fable-5-1",
+      "cost": 8.346696
+    },
+    {
+      "model": "opus5",
+      "label": "Claude Opus 5",
+      "config": null,
+      "scores": {
+        "accuracy": 58.633
+      },
+      "source_model_id": "anthropic/claude-opus-5",
+      "cost": 5.124473
+    },
+    {
+      "model": "opus5-5",
+      "label": "Claude Opus 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 58.587
+      },
+      "source_model_id": "anthropic/claude-opus-5-5",
+      "cost": 9.215734
+    },
+    {
+      "model": "sonnet5-5",
+      "label": "Claude Sonnet 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 58.103
+      },
+      "source_model_id": "anthropic/claude-sonnet-5-5",
+      "cost": 6.552431
+    },
+    {
+      "model": "gemini3-5flash",
+      "label": "Gemini 3.5 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 57.861
+      },
+      "source_model_id": "google/gemini-3.5-flash",
+      "cost": 2.505488
+    },
+    {
+      "model": "glm5-3flash",
+      "label": "GLM 5.3 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 57.85
+      },
+      "source_model_id": "zai/glm-5.3-flash",
+      "cost": 0.047625
+    },
+    {
+      "model": "mimov2-6pro",
+      "label": "MiMo V2.6 Pro",
+      "config": null,
+      "scores": {
+        "accuracy": 57.339
+      },
+      "source_model_id": "xiaomi/mimo-v2.6-pro",
+      "cost": 0.198909
+    },
+    {
+      "model": "musespark1-1",
+      "label": "Muse Spark 1.1",
+      "config": null,
+      "scores": {
+        "accuracy": 57.207
+      },
+      "source_model_id": "meta/muse_spark_1_1",
+      "cost": 0.723391
+    },
+    {
+      "model": "deepseekv4-1flash1017",
+      "label": "DeepSeek V4.1 Flash 1017",
+      "config": null,
+      "scores": {
+        "accuracy": 56.96
+      },
+      "source_model_id": "deepseek/deepseek-v4.1-flash-1017",
+      "cost": 0.462841
+    },
+    {
+      "model": "musewonder",
+      "label": "Muse Wonder",
+      "config": null,
+      "scores": {
+        "accuracy": 56.637
+      },
+      "source_model_id": "meta/muse-wonder",
+      "cost": 2.668231
+    },
+    {
+      "model": "fable5",
+      "label": "Claude Fable 5",
+      "config": null,
+      "scores": {
+        "accuracy": 56.314
+      },
+      "source_model_id": "anthropic/claude-fable-5",
+      "cost": 8.061563
+    },
+    {
+      "model": "gemini3-6flash",
+      "label": "Gemini 3.6 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 56.296
+      },
+      "source_model_id": "google/gemini-3.6-flash",
+      "cost": 1.402901
+    },
+    {
+      "model": "mimov2-6flash",
+      "label": "MiMo V2.6 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 56.277
+      },
+      "source_model_id": "xiaomi/mimo-v2.6-flash",
+      "cost": 0.071536
+    },
+    {
+      "model": "glm5-3",
+      "label": "GLM 5.3",
+      "config": null,
+      "scores": {
+        "accuracy": 55.84
+      },
+      "source_model_id": "zai/glm-5.3",
+      "cost": 1.072768
+    },
+    {
+      "model": "hy4",
+      "label": "HY4 Preview",
+      "config": null,
+      "scores": {
+        "accuracy": 55.063
+      },
+      "source_model_id": "tencent/hy4-preview",
+      "cost": 0.5903
+    },
+    {
+      "model": "gpt5-6luna",
+      "label": "GPT 5.6 Luna",
+      "config": null,
+      "scores": {
+        "accuracy": 55.044
+      },
+      "source_model_id": "openai/gpt-5.6-luna",
+      "cost": 0.279224
+    },
+    {
+      "model": "ling3-0flashafrc3",
+      "label": "Ling 3.0 Flash AF RC3",
+      "config": null,
+      "scores": {
+        "accuracy": 54.927
+      },
+      "source_model_id": "ant/ling-3.0-flash-af-rc3",
+      "cost": 0.044792
+    },
+    {
+      "model": "mistrallarge4",
+      "label": "Mistral Large 4",
+      "config": null,
+      "scores": {
+        "accuracy": 54.678
+      },
+      "source_model_id": "mistralai/mistral-large-4",
+      "cost": 1.201399
+    },
+    {
+      "model": "gpt5-6terra",
+      "label": "GPT 5.6 Terra",
+      "config": null,
+      "scores": {
+        "accuracy": 54.436
+      },
+      "source_model_id": "openai/gpt-5.6-terra",
+      "cost": 3.629197
+    },
+    {
+      "model": "haiku5-5",
+      "label": "Claude Haiku 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 54.138
+      },
+      "source_model_id": "anthropic/claude-haiku-5-5",
+      "cost": 1.636603
+    },
+    {
+      "model": "opus4-8",
+      "label": "Claude Opus 4.8",
+      "config": null,
+      "scores": {
+        "accuracy": 53.918
+      },
+      "source_model_id": "anthropic/claude-opus-4-8",
+      "cost": 4.218538
+    },
+    {
+      "model": "sonnet5",
+      "label": "Claude Sonnet 5",
+      "config": null,
+      "scores": {
+        "accuracy": 53.909
+      },
+      "source_model_id": "anthropic/claude-sonnet-5",
+      "cost": 0.750759
+    },
+    {
+      "model": "gpt5-6sol",
+      "label": "GPT 5.6 Sol",
+      "config": null,
+      "scores": {
+        "accuracy": 53.756
+      },
+      "source_model_id": "openai/gpt-5.6-sol",
+      "cost": 1.253419
+    },
+    {
+      "model": "grok4-6",
+      "label": "Grok 4.6",
+      "config": null,
+      "scores": {
+        "accuracy": 53.682
+      },
+      "source_model_id": "grok/grok-4.6",
+      "cost": 1.657732
+    },
+    {
+      "model": "gpt6astra",
+      "label": "GPT 6 Astra",
+      "config": null,
+      "scores": {
+        "accuracy": 53.54
+      },
+      "source_model_id": "openai/gpt-6-astra",
+      "cost": 6.81746
+    },
+    {
+      "model": "deepseekv4-1flash",
+      "label": "DeepSeek V4.1 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 53.481
+      },
+      "source_model_id": "deepseek/deepseek-v4.1-flash",
+      "cost": 0.207465
+    },
+    {
+      "model": "kimik3",
+      "label": "Kimi K3",
+      "config": null,
+      "scores": {
+        "accuracy": 53.114
+      },
+      "source_model_id": "kimi/kimi-k3",
+      "cost": 1.913224
+    },
+    {
+      "model": "grok4-7",
+      "label": "Grok 4.7",
+      "config": null,
+      "scores": {
+        "accuracy": 52.251
+      },
+      "source_model_id": "grok/grok-4.7",
+      "cost": 2.719136
+    },
+    {
+      "model": "gpt6-1sol",
+      "label": "GPT 6.1 Sol",
+      "config": null,
+      "scores": {
+        "accuracy": 52.033
+      },
+      "source_model_id": "openai/gpt-6.1-sol",
+      "cost": 1.619399
+    },
+    {
+      "model": "ember1",
+      "label": "Ember 1",
+      "config": null,
+      "scores": {
+        "accuracy": 51.853
+      },
+      "source_model_id": "fireworks/ember-1",
+      "cost": 1.95445
+    },
+    {
+      "model": "gpt5-5",
+      "label": "GPT 5.5",
+      "config": null,
+      "scores": {
+        "accuracy": 51.76
+      },
+      "source_model_id": "openai/gpt-5.5",
+      "cost": 4.149702
+    },
+    {
+      "model": "opus4-7",
+      "label": "Claude Opus 4.7",
+      "config": null,
+      "scores": {
+        "accuracy": 51.509
+      },
+      "source_model_id": "anthropic/claude-opus-4-7",
+      "cost": 4.032269
+    },
+    {
+      "model": "sonnet4-6",
+      "label": "Claude Sonnet 4.6",
+      "config": null,
+      "scores": {
+        "accuracy": 51.035
+      },
+      "source_model_id": "anthropic/claude-sonnet-4-6",
+      "cost": 2.409559
+    },
+    {
+      "model": "step5",
+      "label": "Step 5 Preview",
+      "config": null,
+      "scores": {
+        "accuracy": 50.671
+      },
+      "source_model_id": "stepfun/step-5-preview",
+      "cost": 0.619283
+    },
+    {
+      "model": "qwen3-8max",
+      "label": "Qwen3.8 Max",
+      "config": null,
+      "scores": {
+        "accuracy": 50.593
+      },
+      "source_model_id": "alibaba/qwen3.8-max",
+      "cost": 1.236977
+    },
+    {
+      "model": "deepseekv4pro0813",
+      "label": "DeepSeek V4 Pro 0813",
+      "config": null,
+      "scores": {
+        "accuracy": 50.393
+      },
+      "source_model_id": "deepseek/deepseek-v4-pro-0813",
+      "cost": 0.880465
+    },
+    {
+      "model": "gpt6luna",
+      "label": "GPT 6 Luna",
+      "config": null,
+      "scores": {
+        "accuracy": 49.873
+      },
+      "source_model_id": "openai/gpt-6-luna",
+      "cost": 0.124338
+    },
+    {
+      "model": "glm5-2",
+      "label": "GLM 5.2",
+      "config": null,
+      "scores": {
+        "accuracy": 49.699
+      },
+      "source_model_id": "zai/glm-5.2",
+      "cost": 0.713981
+    },
+    {
+      "model": "deepseekv4flash0731",
+      "label": "DeepSeek V4 Flash 0731",
+      "config": null,
+      "scores": {
+        "accuracy": 49.517
+      },
+      "source_model_id": "deepseek/deepseek-v4-flash-0731",
+      "cost": 0.276154
+    },
+    {
+      "model": "gpt6sol",
+      "label": "GPT 6 Sol",
+      "config": null,
+      "scores": {
+        "accuracy": 49.05
+      },
+      "source_model_id": "openai/gpt-6-sol",
+      "cost": 2.122121
+    },
+    {
+      "model": "qwen3-827b",
+      "label": "Qwen3.8 27B",
+      "config": null,
+      "scores": {
+        "accuracy": 48.553
+      },
+      "source_model_id": "alibaba/qwen3.8-27b",
+      "cost": 0.748532
+    },
+    {
+      "model": "grok4-5",
+      "label": "Grok 4.5",
+      "config": null,
+      "scores": {
+        "accuracy": 48.349
+      },
+      "source_model_id": "grok/grok-4.5",
+      "cost": 1.156495
+    },
+    {
+      "model": "minimaxm3",
+      "label": "MiniMax M3",
+      "config": null,
+      "scores": {
+        "accuracy": 48.269
+      },
+      "source_model_id": "minimax/MiniMax-M3",
+      "cost": 0.32345
+    },
+    {
+      "model": "qwen3-7max",
+      "label": "Qwen3.7 Max",
+      "config": null,
+      "scores": {
+        "accuracy": 47.776
+      },
+      "source_model_id": "alibaba/qwen3.7-max",
+      "cost": 0.553214
+    },
+    {
+      "model": "gemini3-5flashlite",
+      "label": "Gemini 3.5 Flash Lite",
+      "config": null,
+      "scores": {
+        "accuracy": 47.442
+      },
+      "source_model_id": "google/gemini-3.5-flash-lite",
+      "cost": 0.389575
+    },
+    {
+      "model": "inkling",
+      "label": "Inkling",
+      "config": null,
+      "scores": {
+        "accuracy": 46.597
+      },
+      "source_model_id": "thinkingmachines/inkling",
+      "cost": 0.996264
+    },
+    {
+      "model": "gpt5-4mini",
+      "label": "GPT 5.4 Mini",
+      "config": null,
+      "scores": {
+        "accuracy": 45.36
+      },
+      "source_model_id": "openai/gpt-5.4-mini-2026-03-17",
+      "cost": 1.201815
+    },
+    {
+      "model": "kimik2-6",
+      "label": "Kimi K2.6",
+      "config": null,
+      "scores": {
+        "accuracy": 44.899
+      },
+      "source_model_id": "kimi/kimi-k2.6",
+      "cost": 1.141587
+    },
+    {
+      "model": "glm5-1",
+      "label": "GLM 5.1",
+      "config": null,
+      "scores": {
+        "accuracy": 44.792
+      },
+      "source_model_id": "zai/glm-5.1",
+      "cost": 0.618185
+    },
+    {
+      "model": "deepseekv4pro",
+      "label": "DeepSeek V4 Pro",
+      "config": null,
+      "scores": {
+        "accuracy": 44.083
+      },
+      "source_model_id": "deepseek/deepseek-v4-pro",
+      "cost": 0.879086
+    },
+    {
+      "model": "gemini3-1pro",
+      "label": "Gemini 3.1 Pro Preview",
+      "config": null,
+      "scores": {
+        "accuracy": 42.982
+      },
+      "source_model_id": "google/gemini-3.1-pro-preview",
+      "cost": 1.591906
+    },
+    {
+      "model": "gemini3flash",
+      "label": "Gemini 3 Flash Preview",
+      "config": null,
+      "scores": {
+        "accuracy": 42.551
+      },
+      "source_model_id": "google/gemini-3-flash-preview",
+      "cost": 0.570657
+    },
+    {
+      "model": "mimov2-5pro",
+      "label": "MiMo V2.5 Pro",
+      "config": null,
+      "scores": {
+        "accuracy": 41.502
+      },
+      "source_model_id": "xiaomi/mimo-v2.5-pro",
+      "cost": 0.206445
+    },
+    {
+      "model": "inklingsmall",
+      "label": "Inkling Small",
+      "config": null,
+      "scores": {
+        "accuracy": 41.257
+      },
+      "source_model_id": "thinkingmachines/inkling-small",
+      "cost": 0.230271
+    },
+    {
+      "model": "qwen3-6plus",
+      "label": "Qwen3.6 Plus",
+      "config": null,
+      "scores": {
+        "accuracy": 40.846
+      },
+      "source_model_id": "alibaba/qwen3.6-plus",
+      "cost": 0.814379
+    },
+    {
+      "model": "qwen3-7plus",
+      "label": "Qwen3.7 Plus",
+      "config": null,
+      "scores": {
+        "accuracy": 38.22
+      },
+      "source_model_id": "alibaba/qwen3.7-plus",
+      "cost": 0.357661
+    },
+    {
+      "model": "gpt5-4nano",
+      "label": "GPT 5.4 Nano",
+      "config": null,
+      "scores": {
+        "accuracy": 38.217
+      },
+      "source_model_id": "openai/gpt-5.4-nano-2026-03-17",
+      "cost": 0.15925
+    },
+    {
+      "model": "grok4-3",
+      "label": "Grok 4.3",
+      "config": null,
+      "scores": {
+        "accuracy": 37.728
+      },
+      "source_model_id": "grok/grok-4.3",
+      "cost": 0.848345
+    },
+    {
+      "model": "nemotron3ultra",
+      "label": "Nemotron 3 Ultra 550B A55B",
+      "config": null,
+      "scores": {
+        "accuracy": 37.667
+      },
+      "source_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "cost": null
+    },
+    {
+      "model": "mimov2-5",
+      "label": "MiMo V2.5",
+      "config": null,
+      "scores": {
+        "accuracy": 36.728
+      },
+      "source_model_id": "xiaomi/mimo-v2.5",
+      "cost": 0.08693
+    },
+    {
+      "model": "kimik2-5",
+      "label": "Kimi K2.5",
+      "config": "Thinking",
+      "scores": {
+        "accuracy": 35.792
+      },
+      "source_model_id": "kimi/kimi-k2.5-thinking",
+      "cost": 0.294389
+    },
+    {
+      "model": "mistralmedium3-5",
+      "label": "Mistral Medium 3.5",
+      "config": null,
+      "scores": {
+        "accuracy": 32.103
+      },
+      "source_model_id": "mistralai/mistral-medium-3.5",
+      "cost": 1.908513
+    },
+    {
+      "model": "haiku4-5",
+      "label": "Claude Haiku 4.5",
+      "config": "Thinking",
+      "scores": {
+        "accuracy": 31.01
+      },
+      "source_model_id": "anthropic/claude-haiku-4-5-20251001-thinking",
+      "cost": 0.602129
+    },
+    {
+      "model": "ling3-0flash2607",
+      "label": "Ling 3.0 Flash 2607",
+      "config": null,
+      "scores": {
+        "accuracy": 30.314
+      },
+      "source_model_id": "ant/ling-3.0-flash-2607",
+      "cost": 0.05047
+    },
+    {
+      "model": "gemini3-1flashlite",
+      "label": "Gemini 3.1 Flash Lite Preview",
+      "config": null,
+      "scores": {
+        "accuracy": 29.988
+      },
+      "source_model_id": "google/gemini-3.1-flash-lite-preview",
+      "cost": 0.142482
+    },
+    {
+      "model": "grok4-200309",
+      "label": "Grok 4.20 0309",
+      "config": "Reasoning",
+      "scores": {
+        "accuracy": 28.492
+      },
+      "source_model_id": "grok/grok-4.20-0309-reasoning",
+      "cost": 0.791809
+    },
+    {
+      "model": "minimaxm2-7",
+      "label": "MiniMax M2.7",
+      "config": null,
+      "scores": {
+        "accuracy": 27.887
+      },
+      "source_model_id": "minimax/MiniMax-M2.7",
+      "cost": 0.18348
+    },
+    {
+      "model": "lagunam-1",
+      "label": "Laguna M.1",
+      "config": null,
+      "scores": {
+        "accuracy": 25.026
+      },
+      "source_model_id": "poolside/laguna-m.1",
+      "cost": 0.818192
+    },
+    {
+      "model": "mercury2-5",
+      "label": "Mercury 2.5",
+      "config": null,
+      "scores": {
+        "accuracy": 18.894
+      },
+      "source_model_id": "inception/mercury-2.5",
+      "cost": 0.106441
+    },
+    {
+      "model": "nemotron3-5lightning",
+      "label": "Nemotron Lightning 3P5 30B A3B",
+      "config": null,
+      "scores": {
+        "accuracy": 18.5
+      },
+      "source_model_id": "fireworks/nemotron-lightning-3p5-30b-a3b",
+      "cost": 0.028554
+    },
+    {
+      "model": "lagunaxs-2",
+      "label": "Laguna Xs.2",
+      "config": null,
+      "scores": {
+        "accuracy": 15.601
+      },
+      "source_model_id": "poolside/laguna-xs.2",
+      "cost": 0.19216
+    },
+    {
+      "model": "commandaplus052026",
+      "label": "Command A Plus 05 2026",
+      "config": null,
+      "scores": {
+        "accuracy": 9.044
+      },
+      "source_model_id": "cohere/command-a-plus-05-2026",
+      "cost": 1.63003
+    }
+  ],
+  "last_successful_check": "2026-10-20T22:07:42.501095+00:00",
+  "methodology_sha256": "ff34fe110b910c63ee01d93d6dca9b591c70541cbc3c8a0c9285e143d99a05e4",
+  "source_sha256": "cf63c75e340549092c1f78e5cf9dab93e0350fecd127d2a3617a9a63cd30f107"
+}

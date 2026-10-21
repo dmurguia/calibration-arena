@@ -581,6 +581,7 @@
 @media(prefers-reduced-motion:no-preference){.p-vote-pill[aria-busy=true] svg{animation:vote-pulse 1s ease-in-out infinite}@keyframes vote-pulse{50%{opacity:.35}}}
 .p-artifacts{border-top:1px solid var(--cal-rule);background:var(--cal-paper);padding:16px 24px 22px;display:flex;flex-direction:column;gap:12px}
 .p-artifacts-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.p-artifacts-actions{display:inline-flex;align-items:center;gap:6px}
 .p-artifact-expand{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);color:var(--cal-graphite);font:400 11px/1.2 var(--cal-font-body);padding:5px 10px;cursor:pointer}
 .p-artifact-expand:hover{color:var(--cal-ink);border-color:var(--cal-ink)}
 .p-artifact-tabs{display:flex;flex-wrap:wrap;gap:6px}

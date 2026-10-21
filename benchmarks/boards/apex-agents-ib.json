@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-10-20",
+  "retrieved": "2026-10-21",
   "metrics": [
     {
       "key": "mean-score",
@@ -619,7 +619,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-20T22:07:42.501095+00:00",
+  "last_successful_check": "2026-10-21T18:05:55.445850+00:00",
   "methodology_sha256": null,
-  "source_sha256": "b1b380495c1b193bf4e58d338d502357f4fb3791df05f26d201636b45063fd3d"
+  "source_sha256": "8bb1fd8edc6e25542ee47c74db0c1607cfe74886fb5f10d9150b264b08f031e8"
 }

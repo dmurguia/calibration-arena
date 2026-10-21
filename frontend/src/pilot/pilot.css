@@ -491,8 +491,13 @@
 .p-result-tabstrip button:focus-visible{outline-offset:-4px}
 .p-result-tab-author{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .p-result-tabstrip .p-result-position{font:500 11px/1 var(--cal-font-mono);background:transparent;padding:0;color:var(--cal-graphite)}
-.p-result-rank{display:inline-flex;align-items:center;flex-shrink:0;padding:3px 9px;border-radius:999px;border:1px solid var(--cal-rule);background:var(--cal-paper);font:10px var(--cal-font-mono);letter-spacing:1.2px;text-transform:uppercase;color:var(--cal-graphite)}
-.p-result-rank.is-pick{border-color:#A98A3A66;background:#A98A3A1a;color:#7a6324}
+/* Rank badges: medal-style 1st (gold) and 2nd (silver) tiles carry the result of the vote. */
+.p-result-rank{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;padding:6px 12px;border-radius:var(--cal-radius-sm);border:1px solid var(--cal-rule);background:var(--cal-paper);font:700 13px/1 var(--cal-font-mono);color:var(--cal-graphite)}
+.p-result-rank.is-first{border-color:#A9802A;background:linear-gradient(140deg,#FBE7A6,#E7BE55 48%,#C69A33);color:#4A3407;box-shadow:inset 0 1px 0 #FFFBEB,0 1px 3px #8A651659,0 0 0 3px #E7BE5533}
+.p-result-rank.is-second{border-color:#959CA3;background:linear-gradient(140deg,#F7F8F9,#D3D7DB 48%,#AEB4BA);color:#30353A;box-shadow:inset 0 1px 0 #FFFFFF,0 1px 3px #46464333}
+.p-result-rank.is-first::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#FFFFFFB3 50%,transparent 70%);transform:translateX(-120%)}
+.p-result-tabstrip button.is-pick{box-shadow:inset 0 3px 0 #D9AE45}
+@media(prefers-reduced-motion:no-preference){.p-reveal-arrival .p-result-rank.is-first{animation:rank-pop .55s cubic-bezier(.34,1.56,.64,1) .25s both}.p-reveal-arrival .p-result-rank.is-first::after{animation:rank-shine 1.1s ease-out .7s both}@keyframes rank-pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}@keyframes rank-shine{to{transform:translateX(120%)}}}
 .p-result-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--cal-rule-faint)}
 .p-result-bar>span{font:500 var(--cal-text-eyebrow)/1.6 var(--cal-font-mono);letter-spacing:var(--cal-tracking-eyebrow);text-transform:uppercase;color:var(--cal-graphite)}
 .p-result-actions{display:flex;gap:8px}

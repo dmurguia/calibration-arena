@@ -51,7 +51,7 @@ def test_split_leaves_plain_prose_alone():
 def test_finish_artifact_keeps_text_verbatim_and_adds_the_split():
     attempt = new_attempt('openrouter', 'model-x', {'messages': []})
     attempt['resolved_model'] = 'model-x'
-    draft = finish_artifact(attempt, RESPONSE, 'journal-entry', {}, 'ask-v5')
+    draft = finish_artifact(attempt, RESPONSE, 'journal-entry', {}, 'ask-v4')
     assert draft['text'] == RESPONSE and len(draft['artifacts']) == 3
     assert pilot_artifacts.public(draft) == {'narrative': draft['narrative'], 'artifacts': draft['artifacts']}
 

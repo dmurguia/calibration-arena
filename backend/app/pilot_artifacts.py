@@ -3,15 +3,11 @@
 An artifact is a journal entry, schedule, reconciliation, invoice, memo or table the
 reviewer compares as a thing in itself. The raw response text is never altered; the
 split is derived from it so the stored bytes, hashes and exports stay the verbatim
-model output. Models are asked to fence each deliverable as
+model output. Nothing in the prompt asks for artifacts: the harness surfaces what a
+model produces on its own, so the ranking stays a ranking of the responses as written.
 
-    ```artifact kind="journal-entry" title="Proposed entry"
-    | Account | Debit | Credit |
-    ...
-    ```
-
-Responses that ignore the convention still get their markdown tables and Dr/Cr
-blocks lifted out, so the two columns compare on the same footing.
+Markdown tables and Dr/Cr code blocks are lifted out. A model that happens to fence a
+deliverable as ```artifact kind="journal-entry" title="..."``` gets that honored too.
 """
 import re
 

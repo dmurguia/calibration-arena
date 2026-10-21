@@ -189,6 +189,10 @@ class Preference(Strict):
     rationale: str = Field(default="", max_length=3000)
 
 
+class Reasoning(Strict):
+    rationale: str = Field(min_length=1, max_length=3000)
+
+
 class Issue(Strict):
     position: Literal["a", "b"]
     category: Literal["calculation", "timing", "account-treatment", "policy", "missing-facts", "unsupported-claim", "other"]
@@ -908,6 +912,24 @@ def prefer(run_id: str, body: Preference, p=Depends(participant), db: Session = 
             return public_run(run)
         raise HTTPException(409, "This pair already has a vote.")
     emit(db, p, "judgment_completed", run, {"mechanism": "preference-v2"})
+    db.commit()
+    db.refresh(run)
+    return public_run(run)
+
+
+@router.post("/runs/{run_id}/reasoning")
+def give_reasoning(run_id: str, body: Reasoning, p=Depends(participant), db: Session = Depends(get_db)):
+    """Optional "why this pick" note, given after the reveal so the vote itself stays one click."""
+    run = owned(db, p, run_id)
+    judgment = run.data.get('judgment') or {}
+    if run.status != 'completed' or judgment.get('mechanism') != 'preference-v2':
+        raise HTTPException(409, "Vote before adding your reasoning.")
+    text = body.rationale.strip()
+    if not text:
+        raise HTTPException(422, "Write a few words about your pick.")
+    # The models are revealed by now, so the note is flagged as post-reveal for anyone weighing it against blind votes.
+    run.data = {**run.data, "judgment": {**judgment, "rationale": text, "rationale_after_reveal": True, "rationale_at": now()}}
+    emit(db, p, "reasoning_submitted", run, {"preference": judgment['preference'], "edited": bool(judgment.get('rationale_at'))})
     db.commit()
     db.refresh(run)
     return public_run(run)

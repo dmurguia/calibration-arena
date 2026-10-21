@@ -633,15 +633,14 @@ function Session() {
   const { runId } = useParams(); const { refresh } = usePilot(); const [run, setRun] = useState<Run | null>(null)
   const [position, setPosition] = useState('a'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [conclusion, setConclusion] = useState(''); const [copied, setCopied] = useState(false)
   useEffect(() => { setRun(null); setConclusion(''); setError(''); setCopied(false); call<Run>(`/runs/${runId}`).then(r => { setRun(r); setPosition(r.judgment?.preference === 'b' ? 'b' : 'a') }).catch(e => setError(errorText(e))) }, [runId])
-  const [focus, setFocus] = useState<string | null>(null); const [judging, setJudging] = useState(false); const [choice, setChoice] = useState<string | null>(null); const [why, setWhy] = useState(''); const [generating, setGenerating] = useState(false)
-  useEffect(() => { setFocus(null); setJudging(false); setChoice(null); setWhy(''); setGenerating(false) }, [runId])
-  const voteDialog = useRef<HTMLDialogElement>(null)
+  const [focus, setFocus] = useState<string | null>(null); const [generating, setGenerating] = useState(false)
+  useEffect(() => { setFocus(null); setGenerating(false) }, [runId])
   const [voteHint, setVoteHint] = useState(() => { try { return !localStorage.getItem(voteHintKey) } catch { return true } })
   const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
-  useEffect(() => { const dialog = voteDialog.current; if (judging && run?.status === 'review') dialog?.showModal(); else dialog?.close() }, [judging, run?.status])
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
   const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const vote = (p: string) => { dismissVoteHint(); save('preference', { preference: p, rationale: '' }) }
   if (!run) return <div className="p-narrow"><ErrorNote message={error} />{!error && <p role="status">Opening comparison…</p>}</div>
   const voted = run.status === 'completed'; const showing = voted || run.status === 'review'
   const share = async () => { try { await navigator.clipboard.writeText(`${location.origin}/case/${run.case_id}?source=peer-share`); setCopied(true); call('/events', { name: 'share_intent', run_id: run.id }).catch(() => {}) } catch { setError('Could not copy the link. Open the sample case and copy its address.') } }
@@ -656,24 +655,11 @@ function Session() {
       {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <>
       <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-rail' : ''}`} key={`${run.id}-${d.position}`}>{focus && focus !== d.position
         ? <button type="button" className="p-focus-rail" onClick={() => setFocus(d.position)} aria-label={`Expand response ${d.position.toUpperCase()}`}><Maximize2 size={15} /><span>Response {d.position.toUpperCase()}</span></button>
-        : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} />}</div>)}</div></>}
+        : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating || busy ? undefined : () => vote(d.position)} />}</div>)}</div></>}
       <div className="p-conversation-dock">
-      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
+      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response" aria-busy={busy}><button type="button" disabled={generating || busy} onClick={() => vote('a')}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating || busy} onClick={() => vote('b')}>I prefer B</button></div>{busy && <p className="sr-only" role="status">Revealing the models…</p>}</div>}
       {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
       </div>
-      {!voted && <>
-        <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
-          <button type="button" className="p-vote-close" disabled={busy} onClick={() => setJudging(false)} aria-label="Close"><X size={18} /></button>
-          <div className="p-decision">
-          <Eyebrow>Choose & reveal</Eyebrow>
-          <h2 id="vote-title">Which response do you prefer?</h2>
-          <div className="p-vote-reason"><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /></div>
-          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-current={choice === p ? 'true' : undefined} onClick={() => { setChoice(p); save('preference', { preference: p, rationale: why }) }}>I prefer {p.toUpperCase()}</button>)}</div>
-          <p className="p-fine p-vote-note">{busy ? 'Revealing the models…' : 'Choosing reveals the models.'}</p>
-          <ErrorNote message={error} />
-          </div>
-        </dialog>
-      </>}
       <ErrorNote message={error} />
       {voted && run.expected && <details className="p-case-explanation"><summary>Read the case explanation</summary><p>{run.expected}</p><p className="p-fine">{run.mode === 'authored-fixture' ? 'Based on the stated policy. This practice sample has not been independently validated.' : 'Applies to this case version and its stated requirements.'}</p></details>}
       {run.conclusion && <details className="p-own"><summary>Initial note</summary><p>{run.conclusion}</p></details>}

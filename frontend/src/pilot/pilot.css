@@ -491,7 +491,11 @@
 .p-result-tabstrip button:focus-visible{outline-offset:-4px}
 .p-result-tab-author{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .p-result-tabstrip .p-result-position{font:500 11px/1 var(--cal-font-mono);background:transparent;padding:0;color:var(--cal-graphite)}
-/* Rank badges: medal-style 1st (gold) and 2nd (silver) tiles carry the result of the vote. */
+/* Rank badges: medal-style 1st (gold) and 2nd (silver) tiles carry the result, so the intro above stays a one-line note. */
+.p-reveal-arrival .p-result-intro{display:flex;align-items:center;gap:12px;width:fit-content;max-width:100%;margin:0 0 18px;padding:12px 20px 12px 14px;background:var(--cal-white);border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg)}
+.p-reveal-arrival .p-result-intro>svg{margin-top:0;color:var(--cal-ink)}
+.p-reveal-arrival .p-result-intro p{margin:0;color:var(--cal-ink);font-size:14px}
+.p-reveal-arrival .p-result-intro .p-fine{display:block;margin-top:2px;color:var(--cal-graphite)}
 .p-result-rank{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;padding:6px 12px;border-radius:var(--cal-radius-sm);border:1px solid var(--cal-rule);background:var(--cal-paper);font:700 13px/1 var(--cal-font-mono);color:var(--cal-graphite)}
 .p-result-rank.is-first{border-color:#A9802A;background:linear-gradient(140deg,#FBE7A6,#E7BE55 48%,#C69A33);color:#4A3407;box-shadow:inset 0 1px 0 #FFFBEB,0 1px 3px #8A651659,0 0 0 3px #E7BE5533}
 .p-result-rank.is-second{border-color:#959CA3;background:linear-gradient(140deg,#F7F8F9,#D3D7DB 48%,#AEB4BA);color:#30353A;box-shadow:inset 0 1px 0 #FFFFFF,0 1px 3px #46464333}

@@ -80,7 +80,7 @@ def test_followup_uses_owned_selected_response_and_entire_history(client, monkey
     child = client.post('/api/pilot/runs', headers=h, json=body).json()
     assert child['evaluation_scope'] == 'exploratory-followup' and child['turn_number'] == 2
     assert calls[0][1] == [{'role': 'user', 'content': source['brief']}, {'role': 'assistant', 'content': source['drafts'][1]['text']}]
-    assert all(set(d) == {'position', 'text'} for d in child['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in child['drafts'])
     client.post(f'/api/pilot/runs/{child["id"]}/preference', headers=h, json={'preference': 'b'})
     grandchild = client.post('/api/pilot/runs', headers=h, json={**body, 'source_run_id': child['id'], 'question': 'Shorter.'}).json()
     assert grandchild['turn_number'] == 3 and len(calls[1][1]) == 4
@@ -162,7 +162,7 @@ def test_assignments_are_stable_owned_and_share_exact_outputs(client):
     run1 = client.post(f'/api/pilot/assignments/{a1["id"]}/start', headers=h1, json={}).json()
     run2 = client.post(f'/api/pilot/assignments/{a2["id"]}/start', headers=h2, json={}).json()
     assert {d['text'] for d in run1['drafts']} == {d['text'] for d in run2['drafts']}
-    assert all(set(d) == {'position', 'text'} for d in run1['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in run1['drafts'])
     client.post(f'/api/pilot/runs/{run1["id"]}/preference', headers=h1, json={'preference': 'a'})
     resumed = client.post(f'/api/pilot/assignments/{a1["id"]}/start', headers=h1, json={}).json()
     assert resumed['id'] == run1['id'] and resumed['status'] == 'completed'

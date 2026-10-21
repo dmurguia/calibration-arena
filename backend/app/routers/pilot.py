@@ -16,6 +16,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 from ..db import Base, get_db
 from ..pilot_cases import CASES, snapshot
 from ..pilot_inference import generate, live_ready, inference_backend
+from .. import pilot_artifacts
 from ..pilot_tasks import TASKS, case_task
 from ..pilot_examples import STARTERS
 from ..pilot_assets import AssetUpload, prepare_assets, model_prompt
@@ -306,7 +307,7 @@ def public_run(run):
         result['failures'] = [{'side': (a.get('request') or {}).get('cli') or 'One model',
                                'error': a.get('error') or 'The request did not complete.'}
                               for a in data.get('generation_attempts', []) if a.get('status') == 'failed']
-    result["drafts"] = [{"position": "ab"[i], "text": d["text"], **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
+    result["drafts"] = [{"position": "ab"[i], "text": d["text"], **pilot_artifacts.public(d), **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
     if revealed:
         result.update({k: data.get(k) for k in ("expected", "takeaway", "validation", "judgment", "feedback")})
     return result

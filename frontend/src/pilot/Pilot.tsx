@@ -1,11 +1,11 @@
-import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
-import { call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
+import { Artifact, call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
 import { clerkEnabled, ClerkBridge } from './clerk'
 import Leaderboard from './Leaderboard'
@@ -504,10 +504,43 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
 interface Report { id: string; position: string; category: string | null; note: string; after_reveal: boolean }
 const issueTypes: [string, string][] = [['clarity', 'Clarity / presentation'], ['calculation', 'Calculation'], ['timing', 'Timing'], ['account-treatment', 'Account treatment'], ['policy', 'Policy / framework'], ['missing-facts', 'Missing facts'], ['unsupported-claim', 'Unsupported claim'], ['other', 'Other']]
 
+const artifactLabels: Record<Artifact['kind'], string> = { 'journal-entry': 'Journal entry', schedule: 'Schedule', reconciliation: 'Reconciliation', invoice: 'Invoice', memo: 'Memo', table: 'Table', workpaper: 'Workpaper' }
+const markdownParts = { img: () => null, a: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }: { children?: ReactNode }) => <div className="p-table-scroll"><table>{children}</table></div> }
+
+function Prose({ text }: { text: string }) {
+  return <Markdown remarkPlugins={[remarkGfm]} skipHtml components={markdownParts}>{text}</Markdown>
+}
+
+/** The deliverables lifted out of a response: one tab per artifact, rendered as a workpaper under the narrative. */
+function ArtifactPanel({ artifacts, position, focused, onFocus }: { artifacts: Artifact[]; position: string; focused?: boolean; onFocus?: () => void }) {
+  const [activeId, setActiveId] = useState(artifacts[0].id)
+  const active = artifacts.find(a => a.id === activeId) || artifacts[0]
+  const idBase = `artifact-${position}`
+  const move = (e: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+    e.preventDefault()
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? artifacts.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : artifacts.length - 1)) % artifacts.length
+    setActiveId(artifacts[next].id); document.getElementById(`${idBase}-tab-${artifacts[next].id}`)?.focus()
+  }
+  return <section className="p-artifacts" aria-label={`Response ${position.toUpperCase()} artifacts`}>
+    <div className="p-artifacts-head">
+      <Eyebrow>{artifacts.length === 1 ? artifactLabels[active.kind] : `${artifacts.length} artifacts`}</Eyebrow>
+      {onFocus && !focused && <button type="button" className="p-artifact-expand" onClick={onFocus}><Maximize2 size={13} />Expand</button>}
+    </div>
+    {artifacts.length > 1 && <div className="p-artifact-tabs" role="tablist" aria-label="Artifacts">{artifacts.map((a, i) => <button key={a.id} id={`${idBase}-tab-${a.id}`} role="tab" aria-selected={a.id === active.id} aria-controls={`${idBase}-panel`} tabIndex={a.id === active.id ? 0 : -1} onKeyDown={e => move(e, i)} onClick={() => setActiveId(a.id)}><span className="p-artifact-kind">{artifactLabels[a.kind]}</span><span>{a.title}</span></button>)}</div>}
+    <article id={`${idBase}-panel`} role={artifacts.length > 1 ? 'tabpanel' : undefined} aria-labelledby={artifacts.length > 1 ? `${idBase}-tab-${active.id}` : undefined} className={`p-artifact p-artifact-${active.kind}`}>
+      <header><strong>{active.title}</strong>{active.title !== artifactLabels[active.kind] && <span className="p-meta">{artifactLabels[active.kind]}</span>}</header>
+      <div className="p-answer p-artifact-body">{active.source === 'code-block' ? <pre>{active.content}</pre> : <Prose text={active.content} />}</div>
+    </article>
+  </section>
+}
+
 function DraftPanel({ draft, reveal, authored, focused, onFocus, onPrefer }: { draft: Draft; reveal: boolean; authored: boolean; focused?: boolean; onFocus?: () => void; onPrefer?: () => void }) {
+  const artifacts = authored ? [] : draft.artifacts || []
   return <article className="p-draft">
     <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onPrefer && <button type="button" className="p-prefer-button" onClick={onPrefer}>{draft.position.toUpperCase()} is better</button>}{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
-    <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null, a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }) => <div className="p-table-scroll"><table>{children}</table></div> }}>{draft.text}</Markdown>}</div>
+    <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Prose text={artifacts.length ? draft.narrative || draft.text : draft.text} />}</div>
+    {!!artifacts.length && <ArtifactPanel key={draft.position} artifacts={artifacts} position={draft.position} focused={focused} onFocus={onFocus} />}
     {reveal && !!draft.checks?.length && <details className="p-check-details"><summary>Case checks</summary>{draft.checks.map(check => <p key={check.label}>{check.passed ? '✓' : '↳'} {check.label}: {check.passed ? 'pass' : 'needs correction'}</p>)}<p>{draft.review_note}</p></details>}
   </article>
 }

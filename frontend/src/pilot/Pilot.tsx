@@ -28,6 +28,8 @@ const sidebarKey = 'calibrated.sidebarCollapsed'
 const projectsViewKey = 'calibrated.projectsView'
 // Set once someone dismisses the "Vote here" coach mark or votes, so it shows only on their first comparison.
 const voteHintKey = 'calibrated.voteHintSeen'
+// Library (/cases) is hidden on purpose while its role is worked out; CaseLibrary and its data stay in place. Set to true to bring back the nav item, links and route.
+const SHOW_LIBRARY = false
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -81,7 +83,7 @@ export default function Pilot() {
       <nav aria-label="Main navigation">
         <NewProjectMenu onPick={() => setMenuOpen(false)} />
         <NavLink to="/projects" onClick={() => setMenuOpen(false)} title="My projects"><Folder size={16} /><span>My projects</span></NavLink>
-        <NavLink to="/cases" title="Library"><BookOpen size={16} /><span>Library</span></NavLink>
+        {SHOW_LIBRARY && <NavLink to="/cases" title="Library"><BookOpen size={16} /><span>Library</span></NavLink>}
         <NavLink to="/benchmarks" title="Benchmarks"><Library size={16} /><span>Benchmarks</span></NavLink>
         <NavLink to="/method" title="About"><Info size={16} /><span>About</span></NavLink>
       </nav>
@@ -95,7 +97,7 @@ export default function Pilot() {
     {publicPage ? <header className="p-public-header"><ArenaBrand /><nav aria-label="Site"><NavLink to="/benchmarks">Benchmarks</NavLink><Link to="/">Practice arena <ArrowUpRight size={13} /></Link></nav></header>
       : <div className="p-topbar"><ArenaBrand inline />{ready && !me?.account && <TopbarSignIn onClick={() => openSignIn('button')} />}</div>}
     <main id="main"><ErrorNote message={error} />{!ready ? <p className="p-loading" role="status">Opening the practice room…</p> : <Routes>
-      <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={<CaseLibrary />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
+      <Route path="/" element={<Home key={location.key} />} /><Route path="/cases" element={SHOW_LIBRARY ? <CaseLibrary /> : <Navigate to="/" replace />} /><Route path="/ask" element={<Ask />} /><Route path="/case/:caseId" element={<CaseStart />} />
       <Route path="/session/:runId" element={<Session />} /><Route path="/record" element={<Notebook />} /><Route path="/projects" element={<MyProjects />} /><Route path="/method" element={<Method />} />
       {clerkEnabled ? <>
         <Route path="/signin/*" element={<OpenAuth mode="signin" open={openSignIn} />} />
@@ -712,7 +714,7 @@ function Session() {
       {run.conclusion && <details className="p-own"><summary>Initial note</summary><p>{run.conclusion}</p></details>}
       {voted && run.judgment?.a !== null && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
       {voted && <details className="p-own"><summary>Suggest an improvement</summary><ImprovementForm key={`feedback-${run.id}`} run={run} position={position} /></details>}
-      {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
+      {voted && <div className="p-after-links">{SHOW_LIBRARY && <Link to="/cases">Close examples <ArrowRight size={14} /></Link>}{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
     </>}
     {!showing && <ErrorNote message={error} />}
     {(run.status === 'failed' || run.status === 'generating') && <div className="p-independent"><h2>{run.status === 'failed' ? 'The responses couldn’t be prepared.' : 'This request did not finish in this view.'}</h2><p>The prompt is saved. Edit it below and try again.</p>{run.limit_rejection && <p className="p-failure-detail">{run.limit_rejection}</p>}{!!run.failures?.length && <ul className="p-failures">{run.failures.map((f, i) => <li key={i}><strong>{f.side}</strong> {f.error}</li>)}</ul>}<RetryComposer run={run} /></div>}
@@ -808,7 +810,7 @@ function Method() {
     <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Under the Terms of Use, your questions, uploaded file text, notes and judgments may be used for rankings and research and licensed to AI model providers and others, with your name, email and account identifiers removed. We may email you about your account, to ask for feedback on the service, or to follow up on research built from judgments; every email that is not about your account carries an unsubscribe link. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to the configured models through OpenRouter with model training on prompts disabled; provider endpoints may still retain their own request logs.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
     <p>For finance tasks, extracted file text, file names and file fingerprints are saved with your comparison. Original files are not retained. Readable text from PDFs and values or formulas from spreadsheets are included; images are not interpreted and formulas are not recalculated. Required uploads and format checks do not establish the correctness of the source data.</p>
     <h2>Your notebook</h2><p>{me?.account ? 'Your comparisons and judgments follow your account across devices.' : <>Your comparisons and judgments are saved in this browser. <Link to="/signup">Create an account</Link> to keep your notebook across devices.</>}</p>
-    <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>
+    {SHOW_LIBRARY && <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>}
   </div>
 }
 

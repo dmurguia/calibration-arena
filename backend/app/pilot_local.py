@@ -151,7 +151,7 @@ async def generate_local(question, instructions, task_type, *, history=None):
                     attempt['usage'] = completed.get('usage')
                 settings = {'effort': 'low', 'tools': False, 'fresh_session': True, 'timeout_seconds': _TIMEOUT,
                             'temperature': None, 'note': 'CLI harnesses differ; API generation settings are not matched.'}
-                drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v3', cli=name))
+                drafts.append(finish_artifact(attempt, content, task_type, settings, 'ask-local-v4', cli=name))
             except Exception as exc:
                 # Messages here are our own sanitized strings (stderr is never included), so they are safe to show.
                 attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__,

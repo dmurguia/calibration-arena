@@ -52,7 +52,7 @@ async def call_openai(model, instructions, messages, task_type):
         text = ''.join(block['text'] for block in blocks)
         settings = {k: v for k, v in payload.items() if k not in ('model', 'instructions', 'input', 'system', 'messages')}
         settings['sampling'] = 'provider-default'
-        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2')
+        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v3')
     except Exception as exc:
         attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
         return attempt
@@ -82,7 +82,7 @@ async def call_anthropic(model, instructions, messages, task_type):
         text = ''.join(block['text'] for block in blocks if block.get('type') == 'text')
         settings = {k: v for k, v in payload.items() if k not in ('model', 'instructions', 'input', 'system', 'messages')}
         settings['sampling'] = 'provider-default'
-        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2')
+        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v3')
     except Exception as exc:
         attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
         return attempt

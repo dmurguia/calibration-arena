@@ -32,7 +32,7 @@ def test_challenge_blinding_and_immutable_judgment(client):
     r = client.post(path + '/conclusion', headers=h, json={"conclusion": "Expense starts in April, not March."})
     assert r.status_code == 200, r.text
     assert len(r.json()['drafts']) == 2
-    assert all(set(d) == {'position', 'text'} for d in r.json()['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in r.json()['drafts'])
     assert client.post(path + '/conclusion', headers=h, json={"conclusion": "Change the independent call."}).status_code == 409
     r = client.post(path + '/judgment', headers=h, json=JUDGMENT)
     assert r.status_code == 200, r.text
@@ -246,7 +246,7 @@ def test_quick_preference_keeps_unmeasured_fields_null(client):
     run = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
     path = '/api/pilot/runs/' + run['id']
     assert run['status'] == 'review' and len(run['drafts']) == 2
-    assert all(set(d) == {'position', 'text'} for d in run['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in run['drafts'])
     result = client.post(path + '/preference', headers=h, json={'preference': 'a'})
     assert result.status_code == 200, result.text
     j = result.json()['judgment']

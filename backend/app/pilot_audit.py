@@ -6,6 +6,8 @@ import os
 import re
 import secrets
 
+from . import pilot_artifacts
+
 
 def timestamp():
     return datetime.now(timezone.utc).isoformat()
@@ -62,10 +64,10 @@ def finish_artifact(attempt, text, task_type, settings, prompt_version, *, cli=N
     attempt['hygiene_flags'] = flags
     model = attempt['requested_model']
     author = f"{cli} · {attempt['resolved_model'] or model}" if cli else (attempt['resolved_model'] or model)
-    return {'artifact_id': attempt['id'], 'text': text, 'text_sha256': text_hash(text),
+    return pilot_artifacts.attach({'artifact_id': attempt['id'], 'text': text, 'text_sha256': text_hash(text),
             'author': author, 'model_id': model, 'actual_model_id': attempt['resolved_model'],
             'origin': attempt['provider'], 'cli': cli, 'checks': [], 'task_type': task_type,
             'review_note': 'Exploratory response. No independently verified accounting assessment.',
             'settings': settings, 'prompt_version': prompt_version,
             'request_sha256': attempt['request_sha256'], 'generated_at': attempt['finished_at'],
-            'hygiene_flags': flags, 'attempt': attempt}
+            'hygiene_flags': flags, 'attempt': attempt})

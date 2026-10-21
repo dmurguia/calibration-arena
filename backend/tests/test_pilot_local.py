@@ -127,7 +127,7 @@ def test_local_run_remains_blind_and_records_correct_source(client, monkeypatch)
         headers = {'Authorization': 'Bearer ' + auth['token']}
         run = c.post('/api/pilot/runs', headers=headers, json={'question': 'How should prepaid insurance be recorded?'}).json()
         assert run['mode'] == 'local-cli' and run['status'] == 'review'
-        assert all(set(d) == {'position', 'text'} for d in run['drafts'])
+        assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in run['drafts'])
         revealed = c.post('/api/pilot/runs/' + run['id'] + '/judgment', headers=headers,
                           json=dict(a='revise', b='revise', preference='tie', reasons=['Clarity'], confidence='low')).json()
         assert {d['author'] for d in revealed['drafts']} == {'Codex', 'Claude Code'}

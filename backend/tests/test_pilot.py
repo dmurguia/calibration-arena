@@ -32,7 +32,7 @@ def test_challenge_blinding_and_immutable_judgment(client):
     r = client.post(path + '/conclusion', headers=h, json={"conclusion": "Expense starts in April, not March."})
     assert r.status_code == 200, r.text
     assert len(r.json()['drafts']) == 2
-    assert all(set(d) == {'position', 'text'} for d in r.json()['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in r.json()['drafts'])
     assert client.post(path + '/conclusion', headers=h, json={"conclusion": "Change the independent call."}).status_code == 409
     r = client.post(path + '/judgment', headers=h, json=JUDGMENT)
     assert r.status_code == 200, r.text
@@ -246,7 +246,7 @@ def test_quick_preference_keeps_unmeasured_fields_null(client):
     run = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
     path = '/api/pilot/runs/' + run['id']
     assert run['status'] == 'review' and len(run['drafts']) == 2
-    assert all(set(d) == {'position', 'text'} for d in run['drafts'])
+    assert all(set(d) == {'position', 'text', 'narrative', 'artifacts'} for d in run['drafts'])
     result = client.post(path + '/preference', headers=h, json={'preference': 'a'})
     assert result.status_code == 200, result.text
     j = result.json()['judgment']
@@ -256,6 +256,24 @@ def test_quick_preference_keeps_unmeasured_fields_null(client):
     assert result.json()['drafts'][0]['author']
     assert client.post(path + '/preference', headers=h, json={'preference': 'b'}).status_code == 409
     assert client.post(path + '/judgment', headers=h, json=JUDGMENT).status_code == 409
+
+
+def test_reasoning_is_optional_after_the_reveal(client):
+    h, other = enroll(client), enroll(client)
+    run = client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff', 'independent_first': False}).json()
+    path = '/api/pilot/runs/' + run['id']
+    assert client.post(path + '/reasoning', headers=h, json={'rationale': 'Too early'}).status_code == 409
+    voted = client.post(path + '/preference', headers=h, json={'preference': 'b'}).json()
+    assert voted['judgment']['rationale'] == '' and 'rationale_after_reveal' not in voted['judgment']
+    assert client.post(path + '/reasoning', headers=h, json={'rationale': '   '}).status_code == 422
+    assert client.post(path + '/reasoning', headers=other, json={'rationale': 'Not mine'}).status_code == 404
+    result = client.post(path + '/reasoning', headers=h, json={'rationale': ' B tied the accrual to the policy. '})
+    assert result.status_code == 200, result.text
+    j = result.json()['judgment']
+    assert j['rationale'] == 'B tied the accrual to the policy.' and j['rationale_after_reveal'] is True
+    assert j['preference'] == 'b' and j['mechanism'] == 'preference-v2'
+    edited = client.post(path + '/reasoning', headers=h, json={'rationale': 'B cited the policy.'}).json()['judgment']
+    assert edited['rationale'] == 'B cited the policy.'
 
 
 def test_issue_reports_append_with_provenance_and_exposure(client, monkeypatch):

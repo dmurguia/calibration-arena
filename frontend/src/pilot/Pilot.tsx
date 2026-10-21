@@ -1,11 +1,11 @@
-import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
-import { call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
+import { Artifact, call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
 import { clerkEnabled, ClerkBridge } from './clerk'
 import Leaderboard from './Leaderboard'
@@ -504,10 +504,43 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
 interface Report { id: string; position: string; category: string | null; note: string; after_reveal: boolean }
 const issueTypes: [string, string][] = [['clarity', 'Clarity / presentation'], ['calculation', 'Calculation'], ['timing', 'Timing'], ['account-treatment', 'Account treatment'], ['policy', 'Policy / framework'], ['missing-facts', 'Missing facts'], ['unsupported-claim', 'Unsupported claim'], ['other', 'Other']]
 
+const artifactLabels: Record<Artifact['kind'], string> = { 'journal-entry': 'Journal entry', schedule: 'Schedule', reconciliation: 'Reconciliation', invoice: 'Invoice', memo: 'Memo', table: 'Table', workpaper: 'Workpaper' }
+const markdownParts = { img: () => null, a: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }: { children?: ReactNode }) => <div className="p-table-scroll"><table>{children}</table></div> }
+
+function Prose({ text }: { text: string }) {
+  return <Markdown remarkPlugins={[remarkGfm]} skipHtml components={markdownParts}>{text}</Markdown>
+}
+
+/** The deliverables lifted out of a response: one tab per artifact, rendered as a workpaper under the narrative. */
+function ArtifactPanel({ artifacts, position, focused, onFocus }: { artifacts: Artifact[]; position: string; focused?: boolean; onFocus?: () => void }) {
+  const [activeId, setActiveId] = useState(artifacts[0].id)
+  const active = artifacts.find(a => a.id === activeId) || artifacts[0]
+  const idBase = `artifact-${position}`
+  const move = (e: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+    e.preventDefault()
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? artifacts.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : artifacts.length - 1)) % artifacts.length
+    setActiveId(artifacts[next].id); document.getElementById(`${idBase}-tab-${artifacts[next].id}`)?.focus()
+  }
+  return <section className="p-artifacts" aria-label={`Response ${position.toUpperCase()} artifacts`}>
+    <div className="p-artifacts-head">
+      <Eyebrow>{artifacts.length === 1 ? artifactLabels[active.kind] : `${artifacts.length} artifacts`}</Eyebrow>
+      {onFocus && !focused && <button type="button" className="p-artifact-expand" onClick={onFocus}><Maximize2 size={13} />Expand</button>}
+    </div>
+    {artifacts.length > 1 && <div className="p-artifact-tabs" role="tablist" aria-label="Artifacts">{artifacts.map((a, i) => <button key={a.id} id={`${idBase}-tab-${a.id}`} role="tab" aria-selected={a.id === active.id} aria-controls={`${idBase}-panel`} tabIndex={a.id === active.id ? 0 : -1} onKeyDown={e => move(e, i)} onClick={() => setActiveId(a.id)}><span className="p-artifact-kind">{artifactLabels[a.kind]}</span><span>{a.title}</span></button>)}</div>}
+    <article id={`${idBase}-panel`} role={artifacts.length > 1 ? 'tabpanel' : undefined} aria-labelledby={artifacts.length > 1 ? `${idBase}-tab-${active.id}` : undefined} className={`p-artifact p-artifact-${active.kind}`}>
+      <header><strong>{active.title}</strong>{active.title !== artifactLabels[active.kind] && <span className="p-meta">{artifactLabels[active.kind]}</span>}</header>
+      <div className="p-answer p-artifact-body">{active.source === 'code-block' ? <pre>{active.content}</pre> : <Prose text={active.content} />}</div>
+    </article>
+  </section>
+}
+
 function DraftPanel({ draft, reveal, authored, focused, onFocus, onPrefer }: { draft: Draft; reveal: boolean; authored: boolean; focused?: boolean; onFocus?: () => void; onPrefer?: () => void }) {
+  const artifacts = authored ? [] : draft.artifacts || []
   return <article className="p-draft">
     <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onPrefer && <button type="button" className="p-prefer-button" onClick={onPrefer}>{draft.position.toUpperCase()} is better</button>}{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
-    <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null, a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer noopener">{children}</a>, table: ({ children }) => <div className="p-table-scroll"><table>{children}</table></div> }}>{draft.text}</Markdown>}</div>
+    <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Prose text={artifacts.length ? draft.narrative || draft.text : draft.text} />}</div>
+    {!!artifacts.length && <ArtifactPanel key={draft.position} artifacts={artifacts} position={draft.position} focused={focused} onFocus={onFocus} />}
     {reveal && !!draft.checks?.length && <details className="p-check-details"><summary>Case checks</summary>{draft.checks.map(check => <p key={check.label}>{check.passed ? '✓' : '↳'} {check.label}: {check.passed ? 'pass' : 'needs correction'}</p>)}<p>{draft.review_note}</p></details>}
   </article>
 }
@@ -533,25 +566,39 @@ function ImprovementForm({ run, position }: { run: Run; position: string }) {
   </section>
 }
 
-function ResultReveal({ run, position, onSelect }: { run: Run; position: string; onSelect: (p: string) => void }) {
-  const [message, setMessage] = useState('')
+// Optional "why this pick" note, asked after the reveal so choosing A or B stays a single click. Its pill sits with Copy and Download.
+function PickReasoning({ run, onRun, onClose }: { run: Run; onRun: (r: Run) => void; onClose: () => void }) {
+  const [text, setText] = useState(run.judgment?.rationale || ''); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const pick = run.drafts.find(d => d.position === run.judgment?.preference)
+  const save = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { onRun(await call<Run>(`/runs/${run.id}/reasoning`, { rationale: text })); onClose() } catch (err) { setError(errorText(err)) } finally { setBusy(false) } }
+  return <form id="pick-reasoning" className="p-reasoning" onSubmit={save}>
+    <label htmlFor="pick-reasoning-text">Why did {pick?.author || 'your pick'} come out on top? <span className="p-fine">Optional</span></label>
+    <textarea id="pick-reasoning-text" rows={3} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="What specifically made it the better response?" autoFocus onKeyDown={e => { if (e.key === 'Escape') onClose() }} />
+    <ErrorNote message={error} />
+    <div className="p-reasoning-actions"><button type="button" onClick={onClose}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save feedback'}</button></div>
+  </form>
+}
+
+function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: string; onSelect: (p: string) => void; onRun: (r: Run) => void }) {
+  const [message, setMessage] = useState(''); const [reasoning, setReasoning] = useState(false); const [copied, setCopied] = useState(false)
   const preferred = ['a', 'b'].includes(run.judgment!.preference) ? run.judgment!.preference : null
   const ordered = [...run.drafts].sort((a, b) => Number(b.position === preferred) - Number(a.position === preferred))
   const active = run.drafts.find(d => d.position === position) || ordered[0]
-  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.') } catch { setMessage('Copy is unavailable. Download the response instead.') } }
+  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
   const download = () => {
     const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${(run.conversation?.find(t => t.position === active.position)?.messages || run.history)?.length ? '\n\n## Earlier conversation\n\n' + (run.conversation?.find(t => t.position === active.position)?.messages || run.history || []).map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
-  const rank = (d: Draft) => d.position === preferred ? 'Your pick' : run.judgment!.preference === 'tie' ? 'Tied' : preferred ? 'Runner-up' : ''
-  return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={27} /><div><p>{preferred ? 'Your pick revealed' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
+  const rank = (d: Draft) => d.position === preferred ? ['1st', 'is-first'] : run.judgment!.preference === 'tie' ? ['Tie', 'is-second'] : preferred ? ['2nd', 'is-second'] : null
+  return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>
     <div className="p-result-main">
       <div className="p-result-tabstrip" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
-        {rank(d) && <span className={`p-result-rank ${d.position === preferred ? 'is-pick' : ''}`}>{rank(d)}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
+        {rank(d) && <span className={`p-result-rank ${rank(d)![1]}`}>{rank(d)![0]}{d.position === preferred && <span className="sr-only"> (your pick)</span>}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
       </button>)}</div>
       <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
-        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
+        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions">{preferred && <button className={`p-reasoning-toggle ${run.judgment?.rationale ? 'is-saved' : ''}`} aria-expanded={reasoning} aria-controls="pick-reasoning" onClick={() => setReasoning(!reasoning)}>{run.judgment?.rationale ? <MessageSquareText size={17} /> : <MessageSquarePlus size={17} />}{run.judgment?.rationale ? 'Feedback saved' : 'Give feedback'}</button>}<button className="p-icon-action" onClick={copy} aria-label="Copy response" title="Copy response">{copied ? <Check size={17} /> : <Copy size={17} />}</button><button className="p-icon-action" onClick={download} aria-label="Download as Markdown" title="Download .md"><Download size={17} /></button></div></div>
+        {reasoning && preferred && <PickReasoning key={run.id} run={run} onRun={onRun} onClose={() => setReasoning(false)} />}
         <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
       </div>
     </div>
@@ -633,15 +680,14 @@ function Session() {
   const { runId } = useParams(); const { refresh } = usePilot(); const [run, setRun] = useState<Run | null>(null)
   const [position, setPosition] = useState('a'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [conclusion, setConclusion] = useState(''); const [copied, setCopied] = useState(false)
   useEffect(() => { setRun(null); setConclusion(''); setError(''); setCopied(false); call<Run>(`/runs/${runId}`).then(r => { setRun(r); setPosition(r.judgment?.preference === 'b' ? 'b' : 'a') }).catch(e => setError(errorText(e))) }, [runId])
-  const [focus, setFocus] = useState<string | null>(null); const [judging, setJudging] = useState(false); const [choice, setChoice] = useState<string | null>(null); const [why, setWhy] = useState(''); const [generating, setGenerating] = useState(false)
-  useEffect(() => { setFocus(null); setJudging(false); setChoice(null); setWhy(''); setGenerating(false) }, [runId])
-  const voteDialog = useRef<HTMLDialogElement>(null)
+  const [focus, setFocus] = useState<string | null>(null); const [generating, setGenerating] = useState(false)
+  useEffect(() => { setFocus(null); setGenerating(false) }, [runId])
   const [voteHint, setVoteHint] = useState(() => { try { return !localStorage.getItem(voteHintKey) } catch { return true } })
   const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
-  useEffect(() => { const dialog = voteDialog.current; if (judging && run?.status === 'review') dialog?.showModal(); else dialog?.close() }, [judging, run?.status])
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
   const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const vote = (p: string) => { dismissVoteHint(); save('preference', { preference: p, rationale: '' }) }
   if (!run) return <div className="p-narrow"><ErrorNote message={error} />{!error && <p role="status">Opening comparison…</p>}</div>
   const voted = run.status === 'completed'; const showing = voted || run.status === 'review'
   const share = async () => { try { await navigator.clipboard.writeText(`${location.origin}/case/${run.case_id}?source=peer-share`); setCopied(true); call('/events', { name: 'share_intent', run_id: run.id }).catch(() => {}) } catch { setError('Could not copy the link. Open the sample case and copy its address.') } }
@@ -653,31 +699,18 @@ function Session() {
     {run.status === 'conclusion' && <div className="p-independent"><h2>Compare the responses.</h2><button className="p-button" disabled={busy} onClick={() => save('skip-conclusion', {})}>Show responses <ArrowRight size={16} /></button>
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
-      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <>
+      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} onRun={setRun} /> : <>
       <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-rail' : ''}`} key={`${run.id}-${d.position}`}>{focus && focus !== d.position
         ? <button type="button" className="p-focus-rail" onClick={() => setFocus(d.position)} aria-label={`Expand response ${d.position.toUpperCase()}`}><Maximize2 size={15} /><span>Response {d.position.toUpperCase()}</span></button>
-        : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} />}</div>)}</div></>}
+        : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating || busy ? undefined : () => vote(d.position)} />}</div>)}</div></>}
       <div className="p-conversation-dock">
-      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
+      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response" aria-busy={busy}><button type="button" disabled={generating || busy} onClick={() => vote('a')}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating || busy} onClick={() => vote('b')}>I prefer B</button></div>{busy && <p className="sr-only" role="status">Revealing the models…</p>}</div>}
       {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
       </div>
-      {!voted && <>
-        <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
-          <button type="button" className="p-vote-close" disabled={busy} onClick={() => setJudging(false)} aria-label="Close"><X size={18} /></button>
-          <div className="p-decision">
-          <Eyebrow>Choose & reveal</Eyebrow>
-          <h2 id="vote-title">Which response do you prefer?</h2>
-          <div className="p-vote-reason"><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /></div>
-          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-current={choice === p ? 'true' : undefined} onClick={() => { setChoice(p); save('preference', { preference: p, rationale: why }) }}>I prefer {p.toUpperCase()}</button>)}</div>
-          <p className="p-fine p-vote-note">{busy ? 'Revealing the models…' : 'Choosing reveals the models.'}</p>
-          <ErrorNote message={error} />
-          </div>
-        </dialog>
-      </>}
       <ErrorNote message={error} />
       {voted && run.expected && <details className="p-case-explanation"><summary>Read the case explanation</summary><p>{run.expected}</p><p className="p-fine">{run.mode === 'authored-fixture' ? 'Based on the stated policy. This practice sample has not been independently validated.' : 'Applies to this case version and its stated requirements.'}</p></details>}
       {run.conclusion && <details className="p-own"><summary>Initial note</summary><p>{run.conclusion}</p></details>}
-      {voted && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
+      {voted && run.judgment?.a !== null && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
       {voted && <details className="p-own"><summary>Suggest an improvement</summary><ImprovementForm key={`feedback-${run.id}`} run={run} position={position} /></details>}
       {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
     </>}

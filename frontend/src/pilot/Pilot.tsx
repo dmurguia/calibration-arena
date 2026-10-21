@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, Sparkles, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -25,6 +25,9 @@ const pendingWorkflowKey = 'calibrated.pendingWorkflow'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
 const sidebarKey = 'calibrated.sidebarCollapsed'
+const projectsViewKey = 'calibrated.projectsView'
+// Set once someone dismisses the "Vote here" coach mark or votes, so it shows only on their first comparison.
+const voteHintKey = 'calibrated.voteHintSeen'
 const usePilot = () => useContext(Context)
 const errorText = (e: unknown) => e instanceof Error ? e.message : 'Something went wrong. Please try again.'
 const date = (s: string) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -302,6 +305,7 @@ function WorkspaceSwitcher() {
 }
 
 // "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
+// Clicking "New project" again while the panel is open skips the workflows and starts a blank project.
 function NewProjectMenu({ onPick }: { onPick: () => void }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -317,7 +321,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
   }, [open])
   const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
   return <div className="p-new-project" ref={root}>
-    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => setOpen(!open)}><SquarePen size={16} /><span>New project</span></button>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New project</span></button>
     {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
       <h2>New project</h2>
       <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
@@ -542,17 +546,14 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
   }
   const rank = (d: Draft) => d.position === preferred ? 'Your pick' : run.judgment!.preference === 'tie' ? 'Tied' : preferred ? 'Runner-up' : ''
   return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={27} /><div><p>{preferred ? 'Your pick revealed' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}</p>{preferred && <h1>{run.drafts.find(d => d.position === preferred)?.author}</h1>}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</div></div>
-    <div className="p-result-stage">
-      <div className="p-result-main" id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
-        <div className="p-result-head">{rank(active) && <span className={`p-result-rank ${active.position === preferred ? 'is-pick' : ''}`}>{rank(active)}</span>}<strong>Response {active.position.toUpperCase()}</strong><span className="p-meta">{active.author}</span></div>
-        <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
-        <div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div>
-      </div>
-      <div className="p-result-rail" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
-        <span className="p-result-rail-top">{rank(d) && <span className={`p-result-rank ${d.position === preferred ? 'is-pick' : ''}`}>{rank(d)}</span>}<span className="p-result-position">{d.position.toUpperCase()}</span></span>
-        <span className="p-result-rail-author">{d.author}</span>
-        <span className="p-result-rail-snippet">{d.text.replace(/[#*_`>|]/g, '').slice(0, 150)}</span>
+    <div className="p-result-main">
+      <div className="p-result-tabstrip" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
+        {rank(d) && <span className={`p-result-rank ${d.position === preferred ? 'is-pick' : ''}`}>{rank(d)}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
       </button>)}</div>
+      <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
+        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
+        <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
+      </div>
     </div>
     {message && <p className="p-export-message" role="status">{message}</p>}
   </section>
@@ -566,15 +567,38 @@ const waitingLines = [
   'Laying the responses side by side',
   'Almost there',
 ]
+// A calibrating orb in the waiting card's tone: a dial of ticks turns around a breathing core that leans toward the pointer and sends out a pulse when tapped.
+const orbTicks = Array.from({ length: 24 }, (_, i) => i * 15)
+function CalibratingOrb() {
+  const root = useRef<HTMLSpanElement>(null)
+  const [pulses, setPulses] = useState<number[]>([])
+  useEffect(() => {
+    const lean = (e: PointerEvent) => {
+      const el = root.current; if (!el) return
+      const box = el.getBoundingClientRect()
+      const dx = e.clientX - (box.left + box.width / 2), dy = e.clientY - (box.top + box.height / 2)
+      const reach = Math.min(1, Math.hypot(dx, dy) / 240) / (Math.hypot(dx, dy) || 1)
+      el.style.setProperty('--ox', (dx * reach).toFixed(3)); el.style.setProperty('--oy', (dy * reach).toFixed(3))
+    }
+    window.addEventListener('pointermove', lean)
+    return () => window.removeEventListener('pointermove', lean)
+  }, [])
+  return <span className="p-orb" ref={root} aria-hidden="true" onPointerDown={() => setPulses(p => [...p.slice(-3), Date.now()])}>
+    <svg className="p-orb-dial" viewBox="0 0 48 48">{orbTicks.map(a => <line key={a} className={a % 90 === 0 ? 'major' : undefined} x1="24" y1={a % 90 === 0 ? 1.5 : 2.5} x2="24" y2="5.5" transform={`rotate(${a} 24 24)`} />)}</svg>
+    <svg className="p-orb-sweep" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" pathLength="100" /></svg>
+    <span className="p-orb-core" />
+    {pulses.map(key => <span key={key} className="p-orb-pulse" onAnimationEnd={() => setPulses(p => p.filter(k => k !== key))} />)}
+  </span>
+}
+
 function WaitingPair({ workflow }: { workflow?: FinanceWorkflow | null }) {
   const [seconds, setSeconds] = useState(0)
   const [line, setLine] = useState(0)
   useEffect(() => { const started = Date.now(); const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000); return () => clearInterval(timer) }, [])
   useEffect(() => { const timer = setInterval(() => setLine(l => Math.min(l + 1, waitingLines.length - 1)), 4200); return () => clearInterval(timer) }, [])
-  const Icon = workflow?.icon ?? Sparkles
   return <div className="p-waiting" role="status" data-tone={workflow?.tone ?? 'gold'}>
     <div className="p-waiting-head">
-      <span className="p-waiting-tile p-tone-tile"><Icon size={20} /></span>
+      <CalibratingOrb />
       <div><strong>{workflow ? `Preparing a ${workflow.label.toLowerCase()} comparison` : 'Preparing two perspectives'}</strong><p key={line} className="p-waiting-line">{waitingLines[line]}<span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span></p></div>
       <span className="p-waiting-clock">{seconds}s</span>
     </div>
@@ -612,6 +636,8 @@ function Session() {
   const [focus, setFocus] = useState<string | null>(null); const [judging, setJudging] = useState(false); const [choice, setChoice] = useState<string | null>(null); const [why, setWhy] = useState(''); const [generating, setGenerating] = useState(false)
   useEffect(() => { setFocus(null); setJudging(false); setChoice(null); setWhy(''); setGenerating(false) }, [runId])
   const voteDialog = useRef<HTMLDialogElement>(null)
+  const [voteHint, setVoteHint] = useState(() => { try { return !localStorage.getItem(voteHintKey) } catch { return true } })
+  const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
   useEffect(() => { const dialog = voteDialog.current; if (judging && run?.status === 'review') dialog?.showModal(); else dialog?.close() }, [judging, run?.status])
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
@@ -628,20 +654,22 @@ function Session() {
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
       {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <>
-      <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-preview' : ''}`} key={`${run.id}-${d.position}`}><DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} /></div>)}</div></>}
+      <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-rail' : ''}`} key={`${run.id}-${d.position}`}>{focus && focus !== d.position
+        ? <button type="button" className="p-focus-rail" onClick={() => setFocus(d.position)} aria-label={`Expand response ${d.position.toUpperCase()}`}><Maximize2 size={15} /><span>Response {d.position.toUpperCase()}</span></button>
+        : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating ? undefined : () => { setChoice(d.position); setJudging(true) }} />}</div>)}</div></>}
       <div className="p-conversation-dock">
-      {!voted && <div className="p-vote-pill-row"><div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
+      {!voted && <div className="p-vote-pill-row">{voteHint && <div className="p-vote-hint" role="note"><strong>Vote here</strong><p>Pick the response you prefer to cast your vote.</p><button type="button" onClick={dismissVoteHint}>Got it</button></div>}<div className="p-vote-pill" role="group" aria-label="Choose a preferred response"><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('a'); setJudging(true) }}>I prefer A</button><CalibratedMark size={20} /><button type="button" disabled={generating} onClick={() => { dismissVoteHint(); setChoice('b'); setJudging(true) }}>I prefer B</button></div></div>}
       {run.kind === 'ask' && <RevisionComposer key={`composer-${run.id}`} run={run} onBusy={setGenerating} />}
       </div>
       {!voted && <>
         <dialog ref={voteDialog} className="p-vote-dialog" aria-labelledby="vote-title" onCancel={e => { if (busy) e.preventDefault(); else setJudging(false) }} onClose={() => setJudging(false)}>
+          <button type="button" className="p-vote-close" disabled={busy} onClick={() => setJudging(false)} aria-label="Close"><X size={18} /></button>
           <div className="p-decision">
           <Eyebrow>Choose & reveal</Eyebrow>
           <h2 id="vote-title">Which response do you prefer?</h2>
-          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-pressed={choice === p} onClick={() => setChoice(p)}>I prefer {p.toUpperCase()}</button>)}</div>
-          {choice && <form className="p-vote-reason" onSubmit={e => { e.preventDefault(); save('preference', { preference: choice, rationale: why }) }}><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /><div><button className="p-button" disabled={busy || generating}>Reveal models <ArrowRight size={16} /></button><button type="button" className="p-text-link" disabled={busy || generating} onClick={() => save('preference', { preference: choice, rationale: '' })}>Skip & reveal</button></div></form>}
-          <button className="p-text-link" disabled={busy} onClick={() => setJudging(false)}>Keep comparing</button>
-          {busy && <p role="status">Revealing the models…</p>}
+          <div className="p-vote-reason"><label htmlFor="vote-reason">What made the difference? <span className="p-fine">Optional</span></label><textarea id="vote-reason" rows={2} maxLength={3000} value={why} onChange={e => setWhy(e.target.value)} placeholder="What specifically led you to choose this response?" /></div>
+          <div className="p-vote-bar" role="group" aria-label="Choose a preferred response">{['a', 'b'].map(p => <button key={p} disabled={busy || generating} aria-current={choice === p ? 'true' : undefined} onClick={() => { setChoice(p); save('preference', { preference: p, rationale: why }) }}>I prefer {p.toUpperCase()}</button>)}</div>
+          <p className="p-fine p-vote-note">{busy ? 'Revealing the models…' : 'Choosing reveals the models.'}</p>
           <ErrorNote message={error} />
           </div>
         </dialog>
@@ -664,7 +692,13 @@ function RetryComposer({ run }: { run: Run }) {
 }
 
 // One project row: the thread's latest turn, with inline rename and the shared actions menu.
-function ProjectRow({ run }: { run: Run }) {
+const projectStatus: Record<string, string> = { completed: 'Revealed', review: 'Ready to compare', conclusion: 'Ready to compare', generating: 'Drafting', failed: 'Needs a retry' }
+// The workflow the person picked, else the one the backend inferred; open-ended questions have none and show their topic.
+const projectWorkflow = (run: Run) => financeWorkflows.find(w => w.id === (run.workflow_id || run.category))
+const projectTimes: [string, string, number][] = [['all', 'All time', 0], ['7', 'Past 7 days', 7], ['30', 'Past 30 days', 30], ['90', 'Past 90 days', 90]]
+
+// One project as a card (grid) or a compact row (list), with inline rename and the actions menu either way.
+function ProjectItem({ run, view }: { run: Run; view: 'grid' | 'list' }) {
   const { refresh } = usePilot()
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(run.title)
@@ -674,25 +708,49 @@ function ProjectRow({ run }: { run: Run }) {
     if (!next || next === run.title) { setTitle(run.title); return }
     try { await call(`/runs/${run.id}/title`, { title: next }); await refresh() } catch { setTitle(run.title) }
   }
-  if (editing) return <form className="p-project-row" onSubmit={e => { e.preventDefault(); void save() }}><input autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
-  return <div className="p-project-row"><Link className="p-notebook-row" to={`/session/${run.id}`}><span><span className="p-meta">{date(run.created_at)}</span><h3>{run.title}</h3><p>{run.brief.slice(0, 140)}</p></span><ArrowUpRight size={18} /></Link><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
+  const workflow = projectWorkflow(run); const Icon = workflow?.icon ?? MessageCircleQuestion; const kind = workflow?.label ?? run.topic ?? 'Open question'
+  const name = editing
+    ? <form onSubmit={e => { e.preventDefault(); void save() }}><input className="p-project-rename" autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
+    : <h3><Link to={`/session/${run.id}`}>{run.title}</Link></h3>
+  const meta = <span className="p-project-meta"><span>{date(run.created_at)}</span>{(run.turn_number || 1) > 1 && <span>{run.turn_number} turns</span>}<span className={`p-project-status is-${run.status}`}>{projectStatus[run.status] ?? run.status}</span></span>
+  const menu = <RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} />
+  if (view === 'list') return <div className="p-project-line" data-tone={workflow?.tone}><span className="p-project-line-icon p-tone-tile"><Icon size={15} aria-hidden="true" /></span><div className="p-project-line-body">{name}<span className="p-project-kind">{kind}</span></div>{meta}{menu}</div>
+  return <article className="p-project-card" data-tone={workflow?.tone}>
+    <Link className="p-project-cover" to={`/session/${run.id}`} tabIndex={-1} aria-hidden="true"><span className="p-project-cover-icon p-tone-tile"><Icon size={20} /></span><span className="p-project-cover-text">{run.brief.slice(0, 160)}</span></Link>
+    <div className="p-project-card-body"><span className="p-project-kind"><Icon size={13} aria-hidden="true" />{kind}</span>{name}{meta}</div>
+    {menu}
+  </article>
 }
 
 // Blank by design until the person has projects, like a fresh workspace; questions and tasks they start land here.
-// A project is a whole thread: follow-ups share the first run's root_run_id, so each thread is one row.
+// A project is a whole thread: follow-ups share the first run's root_run_id, so each thread is one card.
+// Cards by default, a compact list on request (remembered per browser); search, category and time narrow either view.
 function MyProjects() {
   const { me } = usePilot()
   const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('all')
+  const [since, setSince] = useState('all')
   const [showArchived, setShowArchived] = useState(false)
+  const [view, setView] = useState<'grid' | 'list'>(() => { try { return localStorage.getItem(projectsViewKey) === 'list' ? 'list' : 'grid' } catch { return 'grid' } })
+  const pickView = (next: 'grid' | 'list') => { setView(next); try { localStorage.setItem(projectsViewKey, next) } catch { /* storage blocked: the choice lasts this visit */ } }
   const all = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && !!r.archived === showArchived) ?? [])
   const archivedCount = latestPerThread(me?.runs.filter(r => r.kind === 'ask' && r.archived) ?? []).length
   const needle = query.trim().toLowerCase()
-  const runs = needle ? all.filter(r => `${r.title} ${r.brief}`.toLowerCase().includes(needle)) : all
+  const days = projectTimes.find(t => t[0] === since)?.[2] ?? 0
+  const runs = all.filter(r => (!needle || `${r.title} ${r.brief}`.toLowerCase().includes(needle))
+    && (category === 'all' || (category === 'question' ? !projectWorkflow(r) : r.workflow_id === category))
+    && (!days || Date.now() - new Date(r.created_at).getTime() <= days * 864e5))
+  const filtered = !!needle || category !== 'all' || since !== 'all'
   return <div className="p-projects"><h1>My projects</h1>
-    <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    <div className="p-projects-toolbar">
+      <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
+      <select className="p-projects-filter" aria-label="Category" value={category} onChange={e => setCategory(e.target.value)}><option value="all">All categories</option>{financeWorkflows.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}<option value="question">Open questions</option></select>
+      <select className="p-projects-filter" aria-label="Time" value={since} onChange={e => setSince(e.target.value)}>{projectTimes.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
+      <div className="p-projects-views" role="group" aria-label="View as">{([['grid', LayoutGrid, 'Cards'], ['list', List, 'List']] as const).map(([id, ViewIcon, label]) => <button key={id} type="button" aria-pressed={view === id} aria-label={label} title={label} onClick={() => pickView(id)}><ViewIcon size={16} /></button>)}</div>
+    </div>
     {!!archivedCount && <button type="button" className="p-projects-archived" aria-pressed={showArchived} onClick={() => setShowArchived(!showArchived)}><Archive size={13} />{showArchived ? 'Back to projects' : `Archived · ${archivedCount}`}</button>}
-    {runs.length ? <div className="p-projects-list">{runs.map(r => <ProjectRow key={r.id} run={r} />)}</div>
-      : <p className="p-projects-empty">{all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
+    {runs.length ? <div className={view === 'grid' ? 'p-projects-grid' : 'p-projects-lines'}>{runs.map(r => <ProjectItem key={r.id} run={r} view={view} />)}</div>
+      : <p className="p-projects-empty">{filtered && all.length ? 'No projects match' : showArchived ? 'Nothing archived' : 'No projects yet'}</p>}
   </div>
 }
 

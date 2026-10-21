@@ -13,6 +13,8 @@ _TEST_DB = BACKEND / "test_designarena.db"
 # (its tables are dropped at the start of the session).
 _PG_URL = os.getenv("ARENA_TEST_DATABASE_URL", "")
 os.environ["ARENA_DATABASE_URL"] = _PG_URL or f"sqlite:///{_TEST_DB}"
+# Project labels use keyword matching in tests; a model call would leave the machine.
+os.environ["ARENA_RUN_LABELS"] = "keyword"
 
 import pytest  # noqa: E402
 

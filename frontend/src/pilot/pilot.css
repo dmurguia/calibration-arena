@@ -558,7 +558,7 @@
 @media(max-width:640px){.p-projects-toolbar .p-projects-search{flex-basis:100%}.p-projects-filter{flex:1}.p-projects-grid{grid-template-columns:1fr 1fr;gap:14px}.p-project-cover{height:112px;padding:12px}.p-project-cover-text{font-size:10px;-webkit-line-clamp:2}.p-project-line{flex-wrap:wrap}.p-project-line .p-project-meta{width:100%;justify-content:flex-start;padding-left:46px}}
 @media(max-width:420px){.p-projects-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.p-project-cover{transition:none}.p-project-card:hover .p-project-cover{translate:none}}
-/* Result actions, after Design Arena: one labelled pill ("Add reasoning") then quiet icon-only Copy and Download. The reasoning form opens under the bar. */
+/* Result actions, after Design Arena: one labelled pill ("Give feedback") then quiet icon-only Copy and Download. The feedback form opens under the bar. */
 .p-result-actions{align-items:center;gap:4px}
 .p-result-actions .p-reasoning-toggle{gap:9px;margin-right:6px;padding:9px 18px 9px 15px;font-weight:500;font-size:14px}
 .p-result-actions .p-icon-action{justify-content:center;width:38px;height:38px;padding:0;border-color:transparent;background:transparent;color:var(--cal-graphite)}

@@ -542,7 +542,7 @@ function PickReasoning({ run, onRun, onClose }: { run: Run; onRun: (r: Run) => v
     <label htmlFor="pick-reasoning-text">Why did {pick?.author || 'your pick'} come out on top? <span className="p-fine">Optional</span></label>
     <textarea id="pick-reasoning-text" rows={3} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="What specifically made it the better response?" autoFocus onKeyDown={e => { if (e.key === 'Escape') onClose() }} />
     <ErrorNote message={error} />
-    <div className="p-reasoning-actions"><button type="button" onClick={onClose}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save reasoning'}</button></div>
+    <div className="p-reasoning-actions"><button type="button" onClick={onClose}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save feedback'}</button></div>
   </form>
 }
 
@@ -564,7 +564,7 @@ function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: 
         {rank(d) && <span className={`p-result-rank ${rank(d)![1]}`}>{rank(d)![0]}{d.position === preferred && <span className="sr-only"> (your pick)</span>}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
       </button>)}</div>
       <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
-        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions">{preferred && <button className={`p-reasoning-toggle ${run.judgment?.rationale ? 'is-saved' : ''}`} aria-expanded={reasoning} aria-controls="pick-reasoning" onClick={() => setReasoning(!reasoning)}>{run.judgment?.rationale ? <MessageSquareText size={17} /> : <MessageSquarePlus size={17} />}{run.judgment?.rationale ? 'Reasoning saved' : 'Add reasoning'}</button>}<button className="p-icon-action" onClick={copy} aria-label="Copy response" title="Copy response">{copied ? <Check size={17} /> : <Copy size={17} />}</button><button className="p-icon-action" onClick={download} aria-label="Download as Markdown" title="Download .md"><Download size={17} /></button></div></div>
+        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions">{preferred && <button className={`p-reasoning-toggle ${run.judgment?.rationale ? 'is-saved' : ''}`} aria-expanded={reasoning} aria-controls="pick-reasoning" onClick={() => setReasoning(!reasoning)}>{run.judgment?.rationale ? <MessageSquareText size={17} /> : <MessageSquarePlus size={17} />}{run.judgment?.rationale ? 'Feedback saved' : 'Give feedback'}</button>}<button className="p-icon-action" onClick={copy} aria-label="Copy response" title="Copy response">{copied ? <Check size={17} /> : <Copy size={17} />}</button><button className="p-icon-action" onClick={download} aria-label="Download as Markdown" title="Download .md"><Download size={17} /></button></div></div>
         {reasoning && preferred && <PickReasoning key={run.id} run={run} onRun={onRun} onClose={() => setReasoning(false)} />}
         <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
       </div>

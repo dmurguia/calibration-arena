@@ -923,7 +923,7 @@ def give_reasoning(run_id: str, body: Reasoning, p=Depends(participant), db: Ses
     run = owned(db, p, run_id)
     judgment = run.data.get('judgment') or {}
     if run.status != 'completed' or judgment.get('mechanism') != 'preference-v2':
-        raise HTTPException(409, "Vote before adding your reasoning.")
+        raise HTTPException(409, "Vote before leaving feedback on your pick.")
     text = body.rationale.strip()
     if not text:
         raise HTTPException(422, "Write a few words about your pick.")

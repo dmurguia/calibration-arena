@@ -248,7 +248,7 @@
 .p-sidebar-account+.p-sidebar-bottom{margin-top:14px}
 
 /* Workflow accents: muted, in the paper/leather family, one per task so they read as a set. */
-[data-tone=gold]{--tone:#A98A3A}
+[data-tone=gold]{--tone:var(--cal-gold)}
 [data-tone=sage]{--tone:#6F8260}
 [data-tone=slate]{--tone:#5C6C7E}
 [data-tone=clay]{--tone:#A66A4C}
@@ -438,8 +438,8 @@
 
 /* Choosing is in the eye line, centered just above the follow-up composer, and never required. */
 .p-vote-pill-row{display:flex;justify-content:center;margin:0 0 12px}
-.p-vote-pill{display:inline-flex;align-items:center;gap:6px;padding:5px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);box-shadow:0 8px 24px #46464318}
-.p-vote-pill>svg{color:var(--cal-graphite);margin:0 6px}
+.p-vote-pill{display:inline-flex;align-items:center;gap:6px;padding:5px;border:2px solid var(--cal-gold);border-radius:999px;background:var(--cal-white);box-shadow:0 8px 24px color-mix(in srgb,var(--cal-gold) 22%,transparent)}
+.p-vote-pill>svg{color:var(--cal-gold);margin:0 6px}
 .p-vote-pill button{min-height:36px;padding:8px 18px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--cal-ink);font:400 13px/1.2 var(--cal-font-body);cursor:pointer;transition:background-color var(--cal-duration-fast) var(--cal-ease),color var(--cal-duration-fast) var(--cal-ease)}
 .p-vote-pill button:hover{background:var(--cal-ink);color:var(--cal-paper)}
 .p-vote-pill button:disabled{opacity:.45;cursor:not-allowed}
@@ -448,6 +448,9 @@
 .p-draft header .p-prefer-button+.p-focus-button{margin-left:4px}
 .p-draft header .p-meta{margin-left:auto}
 .p-draft header .p-meta+.p-prefer-button{margin-left:10px}
+/* A mist title row ties each response's label, author and actions into one package. */
+.p-draft>header{background:var(--cal-mist);border-bottom-color:var(--cal-rule)}
+.p-draft>header .p-focus-button:hover{background:var(--cal-hover-wash)}
 .p-conversation-dock{margin-bottom:0}
 .p-floating-vote{display:none!important}
 

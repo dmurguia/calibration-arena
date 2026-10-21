@@ -1,7 +1,9 @@
 /* Calibrated Co. design system — brand kit 3.0 (September 2026).
    Source of truth: the "Calibrated Co." Design System artifact and brand/calibrated.
    Six colors only; no additional accents or shadows. Arena UI uses rounded
-   rectangles, following the September 2026 product design update. */
+   rectangles, following the September 2026 product design update.
+   October 2026 exception for the comparison screen: gold marks the vote and
+   mist (a light steel gray) heads each response card. */
 
 @font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/ArchivoBlack-Regular.woff2') format('woff2')}
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('/fonts/IBMPlexSans-Variable.woff2') format('woff2')}
@@ -16,6 +18,8 @@
   --cal-steel:#929698;
   --cal-leather:#70543E;
   --cal-white:#FAF9F6;
+  --cal-gold:#A98A3A;
+  --cal-mist:#EAEAE8;
   /* Hairlines: charcoal at low alpha */
   --cal-rule:#46464333;
   --cal-rule-strong:#46464355;

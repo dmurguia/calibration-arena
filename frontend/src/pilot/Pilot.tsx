@@ -524,10 +524,18 @@ function ArtifactPanel({ artifacts, position, focused, onFocus }: { artifacts: A
     const next = e.key === 'Home' ? 0 : e.key === 'End' ? artifacts.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : artifacts.length - 1)) % artifacts.length
     setActiveId(artifacts[next].id); document.getElementById(`${idBase}-tab-${artifacts[next].id}`)?.focus()
   }
+  const download = () => {
+    const slug = active.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || active.kind
+    const url = URL.createObjectURL(new Blob([active.content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
+    link.href = url; link.download = `${slug}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
   return <section className="p-artifacts" aria-label={`Response ${position.toUpperCase()} artifacts`}>
     <div className="p-artifacts-head">
       <Eyebrow>{artifacts.length === 1 ? artifactLabels[active.kind] : `${artifacts.length} artifacts`}</Eyebrow>
-      {onFocus && !focused && <button type="button" className="p-artifact-expand" onClick={onFocus}><Maximize2 size={13} />Expand</button>}
+      <div className="p-artifacts-actions">
+        <button type="button" className="p-artifact-expand" onClick={download} aria-label={`Download ${active.title} as Markdown`} title="Download .md"><Download size={13} />Download</button>
+        {onFocus && !focused && <button type="button" className="p-artifact-expand" onClick={onFocus}><Maximize2 size={13} />Expand</button>}
+      </div>
     </div>
     {artifacts.length > 1 && <div className="p-artifact-tabs" role="tablist" aria-label="Artifacts">{artifacts.map((a, i) => <button key={a.id} id={`${idBase}-tab-${a.id}`} role="tab" aria-selected={a.id === active.id} aria-controls={`${idBase}-panel`} tabIndex={a.id === active.id ? 0 : -1} onKeyDown={e => move(e, i)} onClick={() => setActiveId(a.id)}><span className="p-artifact-kind">{artifactLabels[a.kind]}</span><span>{a.title}</span></button>)}</div>}
     <article id={`${idBase}-panel`} role={artifacts.length > 1 ? 'tabpanel' : undefined} aria-labelledby={artifacts.length > 1 ? `${idBase}-tab-${active.id}` : undefined} className={`p-artifact p-artifact-${active.kind}`}>

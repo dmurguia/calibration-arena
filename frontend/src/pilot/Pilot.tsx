@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquareText, Check } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -533,42 +533,39 @@ function ImprovementForm({ run, position }: { run: Run; position: string }) {
   </section>
 }
 
-// Optional "why this pick" note, asked after the reveal so choosing A or B stays a single click.
-function PickReasoning({ run, onRun }: { run: Run; onRun: (r: Run) => void }) {
-  const saved = run.judgment?.rationale || ''
-  const [open, setOpen] = useState(false); const [text, setText] = useState(saved); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+// Optional "why this pick" note, asked after the reveal so choosing A or B stays a single click. Its pill sits with Copy and Download.
+function PickReasoning({ run, onRun, onClose }: { run: Run; onRun: (r: Run) => void; onClose: () => void }) {
+  const [text, setText] = useState(run.judgment?.rationale || ''); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const pick = run.drafts.find(d => d.position === run.judgment?.preference)
-  const save = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { onRun(await call<Run>(`/runs/${run.id}/reasoning`, { rationale: text })); setOpen(false) } catch (err) { setError(errorText(err)) } finally { setBusy(false) } }
-  return <>
-    <button type="button" className={`p-reasoning-toggle ${saved ? 'is-saved' : ''}`} aria-expanded={open} aria-controls="pick-reasoning" onClick={() => { setText(saved); setError(''); setOpen(!open) }}>{saved ? <Check size={15} /> : <MessageSquareText size={15} />}{saved ? 'Reasoning saved' : 'Add reasoning'}</button>
-    {open && <form id="pick-reasoning" className="p-reasoning" onSubmit={save}>
-      <label htmlFor="pick-reasoning-text">Why did {pick?.author || 'your pick'} come out on top? <span className="p-fine">Optional</span></label>
-      <textarea id="pick-reasoning-text" rows={3} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="What specifically made it the better response?" autoFocus onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }} />
-      <ErrorNote message={error} />
-      <div className="p-reasoning-actions"><button type="button" onClick={() => setOpen(false)}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save reasoning'}</button></div>
-    </form>}
-  </>
+  const save = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { onRun(await call<Run>(`/runs/${run.id}/reasoning`, { rationale: text })); onClose() } catch (err) { setError(errorText(err)) } finally { setBusy(false) } }
+  return <form id="pick-reasoning" className="p-reasoning" onSubmit={save}>
+    <label htmlFor="pick-reasoning-text">Why did {pick?.author || 'your pick'} come out on top? <span className="p-fine">Optional</span></label>
+    <textarea id="pick-reasoning-text" rows={3} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="What specifically made it the better response?" autoFocus onKeyDown={e => { if (e.key === 'Escape') onClose() }} />
+    <ErrorNote message={error} />
+    <div className="p-reasoning-actions"><button type="button" onClick={onClose}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save reasoning'}</button></div>
+  </form>
 }
 
 function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: string; onSelect: (p: string) => void; onRun: (r: Run) => void }) {
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(''); const [reasoning, setReasoning] = useState(false); const [copied, setCopied] = useState(false)
   const preferred = ['a', 'b'].includes(run.judgment!.preference) ? run.judgment!.preference : null
   const ordered = [...run.drafts].sort((a, b) => Number(b.position === preferred) - Number(a.position === preferred))
   const active = run.drafts.find(d => d.position === position) || ordered[0]
-  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.') } catch { setMessage('Copy is unavailable. Download the response instead.') } }
+  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
   const download = () => {
     const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${(run.conversation?.find(t => t.position === active.position)?.messages || run.history)?.length ? '\n\n## Earlier conversation\n\n' + (run.conversation?.find(t => t.position === active.position)?.messages || run.history || []).map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
   const rank = (d: Draft) => d.position === preferred ? ['1st', 'is-first'] : run.judgment!.preference === 'tie' ? ['Tie', 'is-second'] : preferred ? ['2nd', 'is-second'] : null
-  return <section className="p-result p-reveal-arrival"><div className="p-result-head"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>{preferred && <PickReasoning key={run.id} run={run} onRun={onRun} />}</div>
+  return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>
     <div className="p-result-main">
       <div className="p-result-tabstrip" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
         {rank(d) && <span className={`p-result-rank ${rank(d)![1]}`}>{rank(d)![0]}{d.position === preferred && <span className="sr-only"> (your pick)</span>}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
       </button>)}</div>
       <div id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${active.position}`}>
-        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions"><button onClick={copy}><Copy size={14} />Copy</button><button onClick={download}><Download size={14} />Download .md</button></div></div>
+        <div className="p-result-bar"><span>Response {active.position.toUpperCase()}</span><div className="p-result-actions">{preferred && <button className={`p-reasoning-toggle ${run.judgment?.rationale ? 'is-saved' : ''}`} aria-expanded={reasoning} aria-controls="pick-reasoning" onClick={() => setReasoning(!reasoning)}>{run.judgment?.rationale ? <MessageSquareText size={17} /> : <MessageSquarePlus size={17} />}{run.judgment?.rationale ? 'Reasoning saved' : 'Add reasoning'}</button>}<button className="p-icon-action" onClick={copy} aria-label="Copy response" title="Copy response">{copied ? <Check size={17} /> : <Copy size={17} />}</button><button className="p-icon-action" onClick={download} aria-label="Download as Markdown" title="Download .md"><Download size={17} /></button></div></div>
+        {reasoning && preferred && <PickReasoning key={run.id} run={run} onRun={onRun} onClose={() => setReasoning(false)} />}
         <DraftPanel draft={active} reveal authored={run.mode === 'authored-fixture'} />
       </div>
     </div>

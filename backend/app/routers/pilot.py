@@ -28,7 +28,7 @@ from ..pilot_accounts import (
     record_admin_failure, reset_limits as reset_rate_limits, verify_password,
     UNUSABLE_PASSWORD,
 )
-from .. import pilot_clerk, pilot_limits
+from .. import pilot_clerk, pilot_labels, pilot_limits
 from ..pilot_usage import usage_tokens
 from ..pilot_models import pool_labels
 from ..pilot_leaderboard import build_leaderboard
@@ -266,6 +266,14 @@ def auto_title(question: str, fallback: str) -> str:
     return first or fallback
 
 
+def apply_labels(labels, workflow_id):
+    """Run-data fields from pilot_labels: a model title replaces the first sentence; a chosen workflow always wins the category."""
+    update = {"category": workflow_id or labels["category"], "topic": labels.get("topic"), "label_source": labels["label_source"]}
+    if labels.get("title"):
+        update.update(title=labels["title"], title_source="model")
+    return update
+
+
 def owned(db, p, run_id):
     run = db.get(Run, run_id)
     if run is None or run.participant_id != p.id:
@@ -280,6 +288,8 @@ def public_run(run):
     result = {"id": run.id, "status": run.status, "created_at": run.created_at,
               **{k: data.get(k) for k in ("kind", "case_id", "title", "brief", "conclusion", "mode", "version", "drafts_shown_at", "task_type", "source_run_id", "evaluation_scope", "history", "turn_number", "source_position", "retry_of_run_id", "source_example_id", "root_run_id", "limit_rejection")}}
     result['workflow_id'] = data.get('workflow_id')
+    result['category'] = data.get('category') or data.get('workflow_id')
+    result['topic'] = data.get('topic')
     result['attachments'] = [{k: document[k] for k in ('name', 'role', 'size', 'sha256')}
                              for document in data.get('input_documents', [])]
     if data.get('pair_histories'):
@@ -736,7 +746,9 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
         if not live_ready():
             raise HTTPException(503, "Live models are not connected yet. You can review a sample case from the sidebar; your prompt has not been replaced with a sample.")
         inherited = (source or retry) and (source or retry).data.get("title")
+        earlier = (source or retry).data if (source or retry) else {}
         data = {"kind": "ask", "case_id": None, "title": inherited or auto_title(body.question, TASKS[body.task_type]["label"]), "brief": body.question,
+                "category": workflow_id or earlier.get("category"), "topic": earlier.get("topic"), "title_source": earlier.get("title_source", "first-sentence"),
                 "workflow_id": workflow_id, "input_documents": documents, "model_prompt": effective_prompt,
                 "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4", "drafts": [], "privacy_ack": body.privacy_ack,
                 "task_type": body.task_type, "routing": "explicit-user-selection",
@@ -758,6 +770,8 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
     db.commit()
     if not body.case_id:
         attempts = []
+        # A new thread gets a takeaway title and category while the pair drafts; follow-ups and retries keep the thread's.
+        labels = None if inherited else asyncio.create_task(pilot_labels.label_question(body.question, inference_backend()))
         try:
             reservation = pilot_limits.reserve(
                 db, p, run.id, pilot_limits.reservation_tokens(effective_prompt, pair_histories or history))
@@ -766,6 +780,8 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             run.status = "failed"
             emit(db, p, "generation_failed", run)
             db.commit()
+            if labels:
+                labels.cancel()
             raise HTTPException(exc.status_code, exc.detail)
         try:
             coro = generate(effective_prompt, body.task_type, history=pair_histories or history) if history or pair_histories else generate(effective_prompt, body.task_type)
@@ -793,6 +809,8 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             emit(db, p, "generation_failed", run)
         record_attempt_usage(db, p.id, run.id, attempts)
         pilot_limits.reconcile(db, reservation, attempts)
+        if labels:
+            run.data = {**run.data, **apply_labels(await labels, workflow_id)}
         db.commit()
     return public_run(run)
 
@@ -820,7 +838,7 @@ def rename_run(run_id: str, body: RunTitle, p=Depends(participant), db: Session 
     root = run.data.get("root_run_id") or run.id
     for r in db.scalars(select(Run).where(Run.participant_id == p.id)).all():
         if r.id == root or r.data.get("root_run_id") == root:
-            r.data = {**r.data, "title": title}
+            r.data = {**r.data, "title": title, "title_source": "user"}
     emit(db, p, "run_renamed", run)
     db.commit()
     return public_run(run)

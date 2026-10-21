@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageSquareText } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -693,7 +693,8 @@ function RetryComposer({ run }: { run: Run }) {
 
 // One project row: the thread's latest turn, with inline rename and the shared actions menu.
 const projectStatus: Record<string, string> = { completed: 'Revealed', review: 'Ready to compare', conclusion: 'Ready to compare', generating: 'Drafting', failed: 'Needs a retry' }
-const projectWorkflow = (run: Run) => financeWorkflows.find(w => w.id === run.workflow_id)
+// The workflow the person picked, else the one the backend inferred; open-ended questions have none and show their topic.
+const projectWorkflow = (run: Run) => financeWorkflows.find(w => w.id === (run.workflow_id || run.category))
 const projectTimes: [string, string, number][] = [['all', 'All time', 0], ['7', 'Past 7 days', 7], ['30', 'Past 30 days', 30], ['90', 'Past 90 days', 90]]
 
 // One project as a card (grid) or a compact row (list), with inline rename and the actions menu either way.
@@ -707,16 +708,16 @@ function ProjectItem({ run, view }: { run: Run; view: 'grid' | 'list' }) {
     if (!next || next === run.title) { setTitle(run.title); return }
     try { await call(`/runs/${run.id}/title`, { title: next }); await refresh() } catch { setTitle(run.title) }
   }
-  const workflow = projectWorkflow(run); const Icon = workflow?.icon ?? MessageSquareText
+  const workflow = projectWorkflow(run); const Icon = workflow?.icon ?? MessageCircleQuestion; const kind = workflow?.label ?? run.topic ?? 'Open question'
   const name = editing
     ? <form onSubmit={e => { e.preventDefault(); void save() }}><input className="p-project-rename" autoFocus aria-label="Project name" maxLength={120} value={title} onChange={e => setTitle(e.target.value)} onBlur={() => void save()} onKeyDown={e => { if (e.key === 'Escape') { setTitle(run.title); setEditing(false) } }} /></form>
     : <h3><Link to={`/session/${run.id}`}>{run.title}</Link></h3>
   const meta = <span className="p-project-meta"><span>{date(run.created_at)}</span>{(run.turn_number || 1) > 1 && <span>{run.turn_number} turns</span>}<span className={`p-project-status is-${run.status}`}>{projectStatus[run.status] ?? run.status}</span></span>
   const menu = <RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} />
-  if (view === 'list') return <div className="p-project-line" data-tone={workflow?.tone}><span className="p-project-line-icon p-tone-tile"><Icon size={15} aria-hidden="true" /></span><div className="p-project-line-body">{name}<span className="p-project-kind">{workflow?.label ?? 'Your question'}</span></div>{meta}{menu}</div>
+  if (view === 'list') return <div className="p-project-line" data-tone={workflow?.tone}><span className="p-project-line-icon p-tone-tile"><Icon size={15} aria-hidden="true" /></span><div className="p-project-line-body">{name}<span className="p-project-kind">{kind}</span></div>{meta}{menu}</div>
   return <article className="p-project-card" data-tone={workflow?.tone}>
-    <Link className="p-project-cover" to={`/session/${run.id}`} tabIndex={-1} aria-hidden="true"><span className="p-project-cover-icon p-tone-tile"><Icon size={20} /></span><span className="p-project-cover-text">{run.brief.slice(0, 220)}</span></Link>
-    <div className="p-project-card-body"><span className="p-project-kind"><Icon size={13} aria-hidden="true" />{workflow?.label ?? 'Your question'}</span>{name}{meta}</div>
+    <Link className="p-project-cover" to={`/session/${run.id}`} tabIndex={-1} aria-hidden="true"><span className="p-project-cover-icon p-tone-tile"><Icon size={20} /></span><span className="p-project-cover-text">{run.brief.slice(0, 160)}</span></Link>
+    <div className="p-project-card-body"><span className="p-project-kind"><Icon size={13} aria-hidden="true" />{kind}</span>{name}{meta}</div>
     {menu}
   </article>
 }
@@ -743,7 +744,7 @@ function MyProjects() {
   return <div className="p-projects"><h1>My projects</h1>
     <div className="p-projects-toolbar">
       <label className="p-projects-search"><Search size={15} aria-hidden="true" /><input type="search" placeholder="Search across all projects…" aria-label="Search projects" value={query} onChange={e => setQuery(e.target.value)} /></label>
-      <select className="p-projects-filter" aria-label="Category" value={category} onChange={e => setCategory(e.target.value)}><option value="all">All categories</option>{financeWorkflows.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}<option value="question">Your questions</option></select>
+      <select className="p-projects-filter" aria-label="Category" value={category} onChange={e => setCategory(e.target.value)}><option value="all">All categories</option>{financeWorkflows.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}<option value="question">Open questions</option></select>
       <select className="p-projects-filter" aria-label="Time" value={since} onChange={e => setSince(e.target.value)}>{projectTimes.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
       <div className="p-projects-views" role="group" aria-label="View as">{([['grid', LayoutGrid, 'Cards'], ['list', List, 'List']] as const).map(([id, ViewIcon, label]) => <button key={id} type="button" aria-pressed={view === id} aria-label={label} title={label} onClick={() => pickView(id)}><ViewIcon size={16} /></button>)}</div>
     </div>

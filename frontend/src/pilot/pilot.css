@@ -558,6 +558,19 @@
 @media(max-width:640px){.p-projects-toolbar .p-projects-search{flex-basis:100%}.p-projects-filter{flex:1}.p-projects-grid{grid-template-columns:1fr 1fr;gap:14px}.p-project-cover{height:112px;padding:12px}.p-project-cover-text{font-size:10px;-webkit-line-clamp:2}.p-project-line{flex-wrap:wrap}.p-project-line .p-project-meta{width:100%;justify-content:flex-start;padding-left:46px}}
 @media(max-width:420px){.p-projects-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.p-project-cover{transition:none}.p-project-card:hover .p-project-cover{translate:none}}
+/* Reveal head: the one-line intro on the left, the optional "Add reasoning" control top right; its form opens beneath. */
+.p-result-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 18px}
+.p-result-head .p-result-intro,.p-reveal-arrival .p-result-head .p-result-intro{margin:0}
+.p-reasoning-toggle{display:inline-flex;align-items:center;gap:8px;margin-left:auto;padding:10px 16px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);color:var(--cal-ink);font:400 13px/1.2 var(--cal-font-body);cursor:pointer}
+.p-reasoning-toggle:hover,.p-reasoning-toggle[aria-expanded=true]{background:var(--cal-ink);border-color:var(--cal-ink);color:var(--cal-paper)}
+.p-reasoning-toggle.is-saved:not(:hover):not([aria-expanded=true]){color:var(--cal-graphite)}
+.p-reasoning{flex-basis:100%;margin-left:auto;max-width:520px;padding:18px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius-lg);background:var(--cal-white)}
+.p-reasoning label{display:block;margin:0 0 9px;font-size:14px;color:var(--cal-ink)}
+.p-reasoning textarea{width:100%;min-height:84px;padding:12px 14px;border:1px solid var(--cal-rule);border-radius:var(--cal-radius);background:var(--cal-white);font:inherit;font-size:14px;color:var(--cal-ink);resize:vertical}
+.p-reasoning-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.p-reasoning-actions button{padding:8px 14px;border:1px solid var(--cal-rule);border-radius:999px;background:var(--cal-white);color:var(--cal-ink);font:400 13px/1.2 var(--cal-font-body);cursor:pointer}
+.p-reasoning-actions button.is-primary{background:var(--cal-ink);border-color:var(--cal-ink);color:var(--cal-paper)}
+.p-reasoning-actions button:disabled{opacity:.45;cursor:default}
 /* One click on the vote pill casts the vote; the mark breathes while the models are revealed. */
 .p-vote-pill[aria-busy=true] button{cursor:wait}
 @media(prefers-reduced-motion:no-preference){.p-vote-pill[aria-busy=true] svg{animation:vote-pulse 1s ease-in-out infinite}@keyframes vote-pulse{50%{opacity:.35}}}

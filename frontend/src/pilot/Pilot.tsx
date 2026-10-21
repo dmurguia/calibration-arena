@@ -1,7 +1,7 @@
 import { createContext, FormEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
-import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
@@ -533,7 +533,24 @@ function ImprovementForm({ run, position }: { run: Run; position: string }) {
   </section>
 }
 
-function ResultReveal({ run, position, onSelect }: { run: Run; position: string; onSelect: (p: string) => void }) {
+// Optional "why this pick" note, asked after the reveal so choosing A or B stays a single click.
+function PickReasoning({ run, onRun }: { run: Run; onRun: (r: Run) => void }) {
+  const saved = run.judgment?.rationale || ''
+  const [open, setOpen] = useState(false); const [text, setText] = useState(saved); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const pick = run.drafts.find(d => d.position === run.judgment?.preference)
+  const save = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { onRun(await call<Run>(`/runs/${run.id}/reasoning`, { rationale: text })); setOpen(false) } catch (err) { setError(errorText(err)) } finally { setBusy(false) } }
+  return <>
+    <button type="button" className={`p-reasoning-toggle ${saved ? 'is-saved' : ''}`} aria-expanded={open} aria-controls="pick-reasoning" onClick={() => { setText(saved); setError(''); setOpen(!open) }}>{saved ? <Check size={15} /> : <MessageSquareText size={15} />}{saved ? 'Reasoning saved' : 'Add reasoning'}</button>
+    {open && <form id="pick-reasoning" className="p-reasoning" onSubmit={save}>
+      <label htmlFor="pick-reasoning-text">Why did {pick?.author || 'your pick'} come out on top? <span className="p-fine">Optional</span></label>
+      <textarea id="pick-reasoning-text" rows={3} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="What specifically made it the better response?" autoFocus onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }} />
+      <ErrorNote message={error} />
+      <div className="p-reasoning-actions"><button type="button" onClick={() => setOpen(false)}>Cancel</button><button className="is-primary" disabled={busy || !text.trim()}>{busy ? 'Saving…' : 'Save reasoning'}</button></div>
+    </form>}
+  </>
+}
+
+function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: string; onSelect: (p: string) => void; onRun: (r: Run) => void }) {
   const [message, setMessage] = useState('')
   const preferred = ['a', 'b'].includes(run.judgment!.preference) ? run.judgment!.preference : null
   const ordered = [...run.drafts].sort((a, b) => Number(b.position === preferred) - Number(a.position === preferred))
@@ -545,7 +562,7 @@ function ResultReveal({ run, position, onSelect }: { run: Run; position: string;
     link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
   const rank = (d: Draft) => d.position === preferred ? ['1st', 'is-first'] : run.judgment!.preference === 'tie' ? ['Tie', 'is-second'] : preferred ? ['2nd', 'is-second'] : null
-  return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>
+  return <section className="p-result p-reveal-arrival"><div className="p-result-head"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>{preferred && <PickReasoning key={run.id} run={run} onRun={onRun} />}</div>
     <div className="p-result-main">
       <div className="p-result-tabstrip" role="tablist" aria-label="Revealed responses">{ordered.map(d => <button key={d.position} id={`result-tab-${d.position}`} role="tab" className={d.position === preferred ? 'is-pick' : ''} aria-selected={active.position === d.position} aria-controls="result-panel" tabIndex={active.position === d.position ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? ordered[0] : e.key === 'End' ? ordered[ordered.length - 1] : ordered.find(x => x.position !== active.position)!; onSelect(next.position); setMessage(''); document.getElementById(`result-tab-${next.position}`)?.focus() } }} onClick={() => { onSelect(d.position); setMessage('') }}>
         {rank(d) && <span className={`p-result-rank ${rank(d)![1]}`}>{rank(d)![0]}{d.position === preferred && <span className="sr-only"> (your pick)</span>}</span>}<span className="p-result-tab-author">{d.author}</span><span className="p-result-position">{d.position.toUpperCase()}</span>
@@ -652,7 +669,7 @@ function Session() {
     {run.status === 'conclusion' && <div className="p-independent"><h2>Compare the responses.</h2><button className="p-button" disabled={busy} onClick={() => save('skip-conclusion', {})}>Show responses <ArrowRight size={16} /></button>
       <details className="p-own"><summary>Make an independent note first (optional)</summary><form onSubmit={e => { e.preventDefault(); save('conclusion', { conclusion }) }}><label htmlFor="independent-note">Initial conclusion</label><textarea id="independent-note" value={conclusion} onChange={e => setConclusion(e.target.value)} minLength={10} maxLength={3000} required rows={3} /><button className="p-secondary" disabled={busy}>Save note and show responses</button></form></details></div>}
     {showing && <>
-      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} /> : <>
+      {voted ? <ResultReveal run={run} position={position} onSelect={setPosition} onRun={setRun} /> : <>
       <div className="p-mobile-choices" role="group" aria-label="Read a response">{['a', 'b'].map(p => <button key={p} aria-pressed={(focus || 'a') === p} onClick={() => setFocus(p)}>Response {p.toUpperCase()}</button>)}</div><div className={`p-drafts p-focus-grid ${focus ? `p-focus-${focus}` : ''}`}>{run.drafts.map(d => <div className={`p-focus-column ${(focus || 'a') === d.position ? 'mobile-active' : ''} ${focus && focus !== d.position ? 'is-rail' : ''}`} key={`${run.id}-${d.position}`}>{focus && focus !== d.position
         ? <button type="button" className="p-focus-rail" onClick={() => setFocus(d.position)} aria-label={`Expand response ${d.position.toUpperCase()}`}><Maximize2 size={15} /><span>Response {d.position.toUpperCase()}</span></button>
         : <DraftPanel draft={d} reveal={false} authored={run.mode === 'authored-fixture'} focused={focus === d.position} onFocus={() => setFocus(focus === d.position ? null : d.position)} onPrefer={generating || busy ? undefined : () => vote(d.position)} />}</div>)}</div></>}
@@ -663,7 +680,7 @@ function Session() {
       <ErrorNote message={error} />
       {voted && run.expected && <details className="p-case-explanation"><summary>Read the case explanation</summary><p>{run.expected}</p><p className="p-fine">{run.mode === 'authored-fixture' ? 'Based on the stated policy. This practice sample has not been independently validated.' : 'Applies to this case version and its stated requirements.'}</p></details>}
       {run.conclusion && <details className="p-own"><summary>Initial note</summary><p>{run.conclusion}</p></details>}
-      {voted && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
+      {voted && run.judgment?.a !== null && (run.judgment?.rationale || run.judgment?.correction) && <details className="p-own"><summary>Saved review notes</summary><p>{run.judgment.rationale}</p><p>{run.judgment.correction}</p></details>}
       {voted && <details className="p-own"><summary>Suggest an improvement</summary><ImprovementForm key={`feedback-${run.id}`} run={run} position={position} /></details>}
       {voted && <div className="p-after-links"><Link to="/cases">Close examples <ArrowRight size={14} /></Link>{run.mode === 'authored-fixture' && run.case_id && <button onClick={share}><Copy size={14} />{copied ? 'Case link copied' : 'Share this case'}</button>}</div>}
     </>}

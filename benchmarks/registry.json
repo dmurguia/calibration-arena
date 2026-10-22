@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-10-21",
+  "catalog_updated": "2026-10-22",
   "benchmarks": [
     {
       "id": "apex-accounting",
@@ -108,7 +108,7 @@
         "metric": "Overall accuracy",
         "leader": "Gemini 4 Argon",
         "leader_score": "91.1%",
-        "models_evaluated": 19,
+        "models_evaluated": 20,
         "source_url": "https://www.dualentry.com/benchmark",
         "source_type": "vendor_report",
         "note": "No explicit publisher update date for scores. The current round lists 19 models, down from 55 in the previous snapshot; historical scores should not be assumed to use identical test conditions."
@@ -1648,7 +1648,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Argon (High)",
         "leader_score": "87.4%",
-        "models_evaluated": 56,
+        "models_evaluated": 57,
         "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
         "source_type": "first_party",
         "note": null

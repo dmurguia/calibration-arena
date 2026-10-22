@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-10-21",
+  "retrieved": "2026-10-22",
   "metrics": [
     {
       "key": "mean-score",
@@ -85,6 +85,16 @@
       "scores": {
         "pass-1": 65.8,
         "mean-score": 77
+      },
+      "cost": null
+    },
+    {
+      "model": "deepseekv4-1flash1017",
+      "label": "DeepSeek-V4.1-Flash-1017",
+      "config": "Max",
+      "scores": {
+        "pass-1": 63.4,
+        "mean-score": 75.5
       },
       "cost": null
     },
@@ -265,16 +275,6 @@
       "scores": {
         "pass-1": 52.8,
         "mean-score": 66.8
-      },
-      "cost": null
-    },
-    {
-      "model": "deepseekv4-1flash1017",
-      "label": "DeepSeek-V4.1-Flash-1017",
-      "config": "Max",
-      "scores": {
-        "pass-1": 56.7,
-        "mean-score": 66.2
       },
       "cost": null
     },
@@ -569,6 +569,16 @@
       "cost": null
     },
     {
+      "model": "nemotron3-5supervl",
+      "label": "Nemotron 3.5 Super VL",
+      "config": "High",
+      "scores": {
+        "pass-1": 29.5,
+        "mean-score": 45.9
+      },
+      "cost": null
+    },
+    {
       "model": "gemini3-5flash",
       "label": "Gemini 3.5 Flash",
       "config": "High",
@@ -619,7 +629,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-21T18:05:55.445850+00:00",
+  "last_successful_check": "2026-10-22T18:01:02.138816+00:00",
   "methodology_sha256": null,
-  "source_sha256": "8bb1fd8edc6e25542ee47c74db0c1607cfe74886fb5f10d9150b264b08f031e8"
+  "source_sha256": "f1d1acc4ed53dac7da1aeb24034e08059270b63f1646d10cbf487924e4acc2ad"
 }

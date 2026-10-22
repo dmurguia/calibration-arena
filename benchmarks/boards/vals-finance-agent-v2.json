@@ -3,7 +3,7 @@
   "source_url": "https://www.vals.ai/benchmarks/fabv2",
   "adapter": "vals",
   "as_of": "2026-10-18",
-  "retrieved": "2026-10-21",
+  "retrieved": "2026-10-22",
   "archived": true,
   "metrics": [
     {
@@ -815,7 +815,7 @@
       "cost": 1.63003
     }
   ],
-  "last_successful_check": "2026-10-21T18:05:55.445850+00:00",
+  "last_successful_check": "2026-10-22T18:01:02.138816+00:00",
   "methodology_sha256": "ff34fe110b910c63ee01d93d6dca9b591c70541cbc3c8a0c9285e143d99a05e4",
-  "source_sha256": "e7d5c8d0e21f2fcf9d213af27589759a75bbdca1bc66325eeee1a9dc30a037a8"
+  "source_sha256": "238e18ab290f5a314236c73c6dbfa911fbceeb6a47fb26cfe0687db63e77a26d"
 }

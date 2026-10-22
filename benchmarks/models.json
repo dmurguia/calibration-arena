@@ -1040,7 +1040,7 @@
     {
       "id": "mercury3",
       "name": "Mercury 3",
-      "org": null,
+      "org": "Inception Labs",
       "weights_reported": {},
       "weights": "unknown",
       "weights_basis": "none"
@@ -1259,6 +1259,14 @@
       "id": "nemotron3-5lightning",
       "name": "Nemotron 3.5 Lightning",
       "org": "NVIDIA",
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
+    },
+    {
+      "id": "nemotron3-5supervl",
+      "name": "Nemotron 3.5 Super VL",
+      "org": null,
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"

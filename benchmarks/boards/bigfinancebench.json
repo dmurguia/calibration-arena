@@ -3,7 +3,7 @@
   "source_url": "https://bigfinancebench.com/",
   "adapter": "bigfinancebench",
   "as_of": "2026-10-19",
-  "retrieved": "2026-10-22",
+  "retrieved": "2026-10-23",
   "metrics": [
     {
       "key": "answer",
@@ -838,7 +838,7 @@
       "cost": 0.017
     }
   ],
-  "last_successful_check": "2026-10-22T18:01:02.138816+00:00",
+  "last_successful_check": "2026-10-23T17:54:10.055707+00:00",
   "methodology_sha256": null,
   "source_sha256": "9ef85e1b7867e5cda96e2fafa6efdfbae4d703a22d77e22abf27cf089658549a"
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-10-22",
+  "catalog_updated": "2026-10-23",
   "benchmarks": [
     {
       "id": "apex-accounting",
@@ -942,11 +942,11 @@
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
       "results_status": "archived",
       "results": {
-        "as_of": "2026-10-18",
+        "as_of": "2026-10-20",
         "metric": "Accuracy",
         "leader": "Gemini 4 Argon",
         "leader_score": "65.4%",
-        "models_evaluated": 80,
+        "models_evaluated": 81,
         "source_url": "https://vals.ai/benchmarks/fabv2",
         "source_type": "first_party",
         "note": "Cost is Vals' reported USD per test."
@@ -1648,7 +1648,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Argon (High)",
         "leader_score": "87.4%",
-        "models_evaluated": 57,
+        "models_evaluated": 58,
         "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
         "source_type": "first_party",
         "note": null

@@ -1120,6 +1120,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "minimaxm3-1flash",
+      "name": "MiniMax-M3.1-Flash",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mistrallarge2411",
       "name": "Mistral Large 2411",
       "org": "Mistral",
@@ -1475,6 +1483,14 @@
     {
       "id": "qwen3-8max",
       "name": "Qwen3.8 Max",
+      "org": "Alibaba",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
+      "id": "qwen3-8maxinternal",
+      "name": "Qwen3.8 Max Internal",
       "org": "Alibaba",
       "weights_reported": {},
       "weights": "unknown",

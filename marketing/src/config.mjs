@@ -3,7 +3,7 @@ export const site = {
   domain: "calibrated.co",
   defaultDirection: "outcomes",
   description:
-    "Hone your agents with your company’s expertise. Training data, evaluations and reinforcement learning environments for knowledge work.",
+    "We turn expert judgment into training data, evaluations and environments for AI agents.",
 };
 
 export function validatedDestination(value, name, allowMail = false) {

@@ -910,6 +910,16 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "kimik3-1pro",
+      "name": "Kimi K3.1 Pro",
+      "org": "Moonshot AI",
+      "weights_reported": {
+        "dualentry-accounting-ai-benchmark": "open"
+      },
+      "weights": "open",
+      "weights_basis": "publisher"
+    },
+    {
       "id": "lagunam-1",
       "name": "Laguna M.1",
       "org": "Poolside",

@@ -3,7 +3,7 @@
   "source_url": "https://www.dualentry.com/benchmark",
   "adapter": "dualentry",
   "as_of": null,
-  "retrieved": "2026-10-24",
+  "retrieved": "2026-10-25",
   "metrics": [
     {
       "key": "accuracy",
@@ -37,6 +37,15 @@
       "config": null,
       "scores": {
         "accuracy": 88.1
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3-1pro",
+      "label": "Kimi K3.1 Pro",
+      "config": null,
+      "scores": {
+        "accuracy": 86.1
       },
       "cost": null
     },
@@ -194,7 +203,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-24T16:38:22.801496+00:00",
+  "last_successful_check": "2026-10-25T17:04:49.932155+00:00",
   "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-  "source_sha256": "6e1c5fed3e7e75c0e842ddc5c2387986bba43d3f2c46d4fc1bb07c95cda32612"
+  "source_sha256": "44b3cdd754850a6f1dd675114415fddaa3b000da581f425f6ec96f27d477dad9"
 }

@@ -245,3 +245,45 @@ def test_daily_run_limit_is_configurable(client, monkeypatch):
         assert client.post('/api/pilot/runs', headers=h, json={'question': f'Question number {i} today.'}).status_code == 200
     r = client.post('/api/pilot/runs', headers=h, json={'question': 'One question too many today.'})
     assert r.status_code == 429 and '2-session limit' in r.json()['detail']
+
+
+def test_daily_run_limit_preserves_prompt_as_failed_run(client, monkeypatch):
+    from app.routers import pilot
+    monkeypatch.setattr(pilot, 'live_ready', lambda: True)
+    monkeypatch.setattr(pilot, 'generate', live_generate())
+    monkeypatch.setenv('PILOT_DAILY_RUN_LIMIT', '1')
+    h = guest(client)
+    assert client.post('/api/pilot/runs', headers=h, json={'question': 'The one question allowed today.'}).status_code == 200
+    question = 'A question typed after the daily cap was reached.'
+    r = client.post('/api/pilot/runs', headers=h, json={'question': question, 'task_type': 'journal-entry'})
+    assert r.status_code == 429 and '1-session limit' in r.json()['detail']
+    me = client.get('/api/pilot/me', headers=h).json()
+    saved = next(run for run in me['runs'] if run['brief'] == question)
+    assert saved['status'] == 'failed' and saved['task_type'] == 'journal-entry'
+    assert '1-session limit' in saved['limit_rejection']
+    # A fixed practice case is simply refused; there is no prompt to keep.
+    assert client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff'}).status_code == 429
+    assert sum(run['status'] == 'failed' for run in client.get('/api/pilot/me', headers=h).json()['runs']) == 1
+
+
+def test_founder_usage_lists_budget_runs_and_last_rejection(client, monkeypatch):
+    from app.routers import pilot
+    monkeypatch.setattr(pilot, 'live_ready', lambda: True)
+    monkeypatch.setattr(pilot, 'generate', live_generate(attempt={'usage': {'input_tokens': 2000, 'output_tokens': 500}}))
+    monkeypatch.setenv('PILOT_ADMIN_TOKEN', 'a-long-private-test-admin-token')
+    monkeypatch.setenv('PILOT_GUEST_TOKEN_BUDGET', '4500')  # above one reservation (~4,018), below the 5,000 the pair reports
+    admin = {'X-Pilot-Admin': 'a-long-private-test-admin-token'}
+    assert client.get('/api/pilot/founder/usage').status_code == 403
+
+    h = guest(client)
+    pid = client.get('/api/pilot/me', headers=h).json()['participant']['id']
+    assert client.post('/api/pilot/runs', headers=h, json={'question': 'First question that spends tokens.'}).status_code == 200
+    r = client.post('/api/pilot/runs', headers=h, json={'question': 'Second question beyond the budget.'})
+    assert r.status_code == 402
+
+    rows = client.get('/api/pilot/founder/usage', headers=admin).json()['participants']
+    me = next(row for row in rows if row['participant_id'] == pid)
+    assert me['provider'] == 'guest' and me['email'] is None
+    assert me['used'] == 5000 and me['budget'] == 4500 and me['remaining'] == 0 and me['budget_exhausted'] is True
+    assert me['runs_total'] == 2 and me['runs_today'] == 2 and me['runs_failed'] == 1
+    assert 'included model tokens' in me['last_rejection']['detail']

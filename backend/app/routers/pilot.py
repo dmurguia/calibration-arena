@@ -676,7 +676,21 @@ def record_attempt_usage(db, participant_id, run_id, attempts):
 async def start(body: Start, p=Depends(participant), db: Session = Depends(get_db)):
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
     if count >= pilot_limits.daily_run_limit():
-        raise HTTPException(429, f"You've reached today's {pilot_limits.daily_run_limit()}-session limit. Come back tomorrow.")
+        detail = f"You've reached today's {pilot_limits.daily_run_limit()}-session limit. Come back tomorrow."
+        if body.question and not body.case_id:
+            # Keep the prompt as a failed run so nothing typed is lost and the
+            # founder view shows the rejection; the person retries it tomorrow.
+            data = {"kind": "ask", "case_id": None, "title": auto_title(body.question, TASKS[body.task_type]["label"]),
+                    "brief": body.question, "workflow_id": body.workflow_id, "task_type": body.task_type,
+                    "mode": inference_backend(), "version": "ask-local-v3" if inference_backend() == "local-cli" else "ask-v4",
+                    "drafts": [], "source_run_id": body.source_run_id, "retry_of_run_id": body.retry_of_run_id,
+                    "source_example_id": body.source_example_id, "evaluation_scope": "exploratory-first-pair",
+                    "generation_error_type": "DailyRunLimit", "limit_rejection": detail}
+            run = Run(id=secrets.token_hex(16), participant_id=p.id, created_at=now(), status="failed", data=data)
+            db.add(run)
+            emit(db, p, "generation_failed", run, {"reason": "daily-run-limit"})
+            db.commit()
+        raise HTTPException(429, detail)
     source = owned(db, p, body.source_run_id) if body.source_run_id else None
     retry = owned(db, p, body.retry_of_run_id) if body.retry_of_run_id else None
     if retry and retry.status != 'failed':
@@ -1072,6 +1086,44 @@ class GenerationPause(Strict):
 def founder_generation(request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
     require_admin(x_pilot_admin, request)
     return pilot_limits.generation_state(db)
+
+
+@router.get("/founder/usage")
+def founder_usage(request: Request, x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db)):
+    """One row per participant: tokens used against budget, runs today, and
+    the most recent limit rejection, so a 'ran out of credits' report is one call."""
+    require_admin(x_pilot_admin, request)
+    today = now()[:10]
+    accounts = {a.participant_id: a for a in db.scalars(select(PilotAccount)).all()}
+    recorded = dict(db.execute(
+        select(PilotUsage.participant_id, func.sum(PilotUsage.input_tokens + PilotUsage.output_tokens))
+        .group_by(PilotUsage.participant_id)).all())
+    pilot_limits.sweep_expired(db)
+    committed = {}
+    for row in db.scalars(select(pilot_limits.PilotReservation)):
+        held = row.reserved_tokens if row.status == "active" else (row.counted_tokens or 0) if row.status == "reconciled" else 0
+        committed[row.participant_id] = committed.get(row.participant_id, 0) + held
+    runs = {}
+    for run in db.scalars(select(Run).order_by(Run.created_at)):
+        entry = runs.setdefault(run.participant_id, {"runs_total": 0, "runs_today": 0, "runs_failed": 0, "last_run_at": None, "last_rejection": None})
+        entry["runs_total"] += 1
+        entry["runs_today"] += run.created_at >= today
+        entry["runs_failed"] += run.status == "failed"
+        entry["last_run_at"] = run.created_at
+        if run.data.get("limit_rejection"):
+            entry["last_rejection"] = {"at": run.created_at, "run_id": run.id, "detail": run.data["limit_rejection"]}
+    rows = []
+    for p in db.scalars(select(Participant)).all():
+        account = accounts.get(p.id)
+        used = (recorded.get(p.id) or 0) + committed.get(p.id, 0)
+        budget = pilot_limits.participant_budget(account)
+        rows.append({"participant_id": p.id, "name": p.profile.get("name"), "email": account.email if account else None,
+                     "provider": ("clerk" if account.clerk_user_id else "password") if account else "guest",
+                     "used": used, "budget": budget, "remaining": max(0, budget - used),
+                     "budget_exhausted": used >= budget, "daily_run_limit": pilot_limits.daily_run_limit(),
+                     **runs.get(p.id, {"runs_total": 0, "runs_today": 0, "runs_failed": 0, "last_run_at": None, "last_rejection": None})})
+    rows.sort(key=lambda r: r["last_run_at"] or "", reverse=True)
+    return {"generated_at": now(), "generation": pilot_limits.generation_state(db), "participants": rows}
 
 
 @router.post("/founder/generation")

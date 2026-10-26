@@ -46,9 +46,10 @@ async def call_openrouter(model, instructions, messages, task_type):
                        cost=(data.get('usage') or {}).get('cost'), provider_routing=data.get('provider'))
         choice = data['choices'][0]
         attempt['finish_reason'] = choice.get('finish_reason')
-        if choice.get('finish_reason') not in (None, 'stop'):
+        truncated = choice.get('finish_reason') == 'length'
+        if choice.get('finish_reason') not in (None, 'stop') and not truncated:
             raise ValueError('Incomplete or refused response')
-        return finish_artifact(attempt, choice['message']['content'], task_type, CONFIG, 'ask-v4')
+        return finish_artifact(attempt, choice['message']['content'], task_type, CONFIG, 'ask-v4', truncated=truncated)
     except Exception as exc:
         attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__, error=str(exc) if isinstance(exc, ValueError) else 'The request did not complete.')
         return attempt

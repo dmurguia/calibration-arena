@@ -41,7 +41,8 @@ async def call_openai(model, instructions, messages, task_type):
             data = response.json()
         attempt.update(response=data, provider_response_id=data.get('id'), resolved_model=data.get('model'), usage=data.get('usage'))
         attempt['finish_reason'] = data.get('status')
-        if data.get('status') != 'completed':
+        truncated = data.get('status') == 'incomplete' and (data.get('incomplete_details') or {}).get('reason') == 'max_output_tokens'
+        if data.get('status') != 'completed' and not truncated:
             raise ValueError('Incomplete response')
         output = data.get('output', [])
         if any(item.get('type') not in ('message', 'reasoning') for item in output):
@@ -52,7 +53,7 @@ async def call_openai(model, instructions, messages, task_type):
         text = ''.join(block['text'] for block in blocks)
         settings = {k: v for k, v in payload.items() if k not in ('model', 'instructions', 'input', 'system', 'messages')}
         settings['sampling'] = 'provider-default'
-        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2')
+        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2', truncated=truncated)
     except Exception as exc:
         attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
         return attempt
@@ -74,7 +75,8 @@ async def call_anthropic(model, instructions, messages, task_type):
             data = response.json()
         attempt.update(response=data, provider_response_id=data.get('id'), resolved_model=data.get('model'), usage=data.get('usage'))
         attempt['finish_reason'] = data.get('stop_reason')
-        if data.get('stop_reason') != 'end_turn':
+        truncated = data.get('stop_reason') == 'max_tokens'
+        if data.get('stop_reason') != 'end_turn' and not truncated:
             raise ValueError('Incomplete response')
         blocks = data.get('content', [])
         if any(block.get('type') not in ('text', 'thinking', 'redacted_thinking') for block in blocks):
@@ -82,7 +84,7 @@ async def call_anthropic(model, instructions, messages, task_type):
         text = ''.join(block['text'] for block in blocks if block.get('type') == 'text')
         settings = {k: v for k, v in payload.items() if k not in ('model', 'instructions', 'input', 'system', 'messages')}
         settings['sampling'] = 'provider-default'
-        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2')
+        return finish_artifact(attempt, text, task_type, settings, 'ask-direct-v2', truncated=truncated)
     except Exception as exc:
         attempt.update(status='failed', finished_at=timestamp(), error_type=type(exc).__name__)
         return attempt

@@ -54,11 +54,13 @@ def hygiene(text, supplied_text=''):
     return flags
 
 
-def finish_artifact(attempt, text, task_type, settings, prompt_version, *, cli=None):
+def finish_artifact(attempt, text, task_type, settings, prompt_version, *, cli=None, truncated=False):
     if not isinstance(text, str) or not text.strip():
         raise ValueError('Empty response')
     # Store the original response verbatim. UI/export use the same bytes and hash.
-    attempt.update(status='complete', finished_at=timestamp(), output_text=text, output_sha256=text_hash(text))
+    # A response cut off at the output-token cap is still an answer the person
+    # can judge; it is kept and flagged rather than failing the comparison.
+    attempt.update(status='complete', finished_at=timestamp(), output_text=text, output_sha256=text_hash(text), truncated=truncated)
     supplied = json.dumps(attempt['request'], ensure_ascii=False)
     flags = hygiene(text, supplied)
     attempt['hygiene_flags'] = flags
@@ -70,4 +72,4 @@ def finish_artifact(attempt, text, task_type, settings, prompt_version, *, cli=N
             'review_note': 'Exploratory response. No independently verified accounting assessment.',
             'settings': settings, 'prompt_version': prompt_version,
             'request_sha256': attempt['request_sha256'], 'generated_at': attempt['finished_at'],
-            'hygiene_flags': flags, 'attempt': attempt})
+            'hygiene_flags': flags, 'truncated': truncated, 'attempt': attempt})

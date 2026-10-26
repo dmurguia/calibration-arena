@@ -362,3 +362,66 @@ def test_direct_separate_histories_and_changed_pair(monkeypatch):
     monkeypatch.setenv('OPENAI_MODEL', 'changed')
     with pytest.raises(ValueError, match='model pair changed'):
         asyncio.run(pilot_inference.generate('Explain', history=histories))
+
+
+def test_length_capped_responses_complete_with_truncated_flag(monkeypatch):
+    """A response cut off at the output cap is kept and flagged, not failed:
+    the person judges what both models produced within the same limit."""
+    from app import pilot_direct, pilot_inference
+    for k, v in {'ARENA_INFERENCE_BACKEND': 'direct', 'OPENAI_API_KEY': 'SECRET-O', 'ANTHROPIC_API_KEY': 'SECRET-A',
+                 'OPENAI_MODEL': 'qa/gpt', 'ANTHROPIC_MODEL': 'qa/claude'}.items():
+        monkeypatch.setenv(k, v)
+    class Response:
+        status_code = 200
+        headers = {}
+        def __init__(self, provider): self.provider = provider
+        def raise_for_status(self): pass
+        def json(self):
+            if self.provider == 'openai':
+                return {'id': 'o', 'model': 'qa/gpt', 'status': 'incomplete', 'incomplete_details': {'reason': 'max_output_tokens'},
+                        'usage': {'input_tokens': 8, 'output_tokens': 4000},
+                        'output': [{'type': 'message', 'role': 'assistant', 'content': [{'type': 'output_text', 'text': 'A long answer that stops mid'}]}]}
+            return {'id': 'a', 'model': 'qa/claude', 'stop_reason': 'max_tokens', 'usage': {'input_tokens': 8, 'output_tokens': 4000},
+                    'content': [{'type': 'text', 'text': 'Another long answer that stops'}]}
+    class Client:
+        def __init__(self, **kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): pass
+        async def post(self, url, headers, json):
+            return Response('openai' if 'api.openai.com' in url else 'anthropic')
+    monkeypatch.setattr(pilot_direct.httpx, 'AsyncClient', Client)
+    drafts = asyncio.run(pilot_inference.generate('Explain the treatment in full detail.'))
+    assert [d['truncated'] for d in drafts] == [True, True]
+    assert [d['attempt']['status'] for d in drafts] == ['complete', 'complete']
+    assert [d['attempt']['finish_reason'] for d in drafts] == ['incomplete', 'max_tokens']
+    # Any other incomplete reason is still a failure.
+    class Refused(Response):
+        def json(self):
+            if self.provider == 'openai':
+                return {'id': 'o', 'model': 'qa/gpt', 'status': 'incomplete', 'incomplete_details': {'reason': 'content_filter'}, 'output': []}
+            return {'id': 'a', 'model': 'qa/claude', 'stop_reason': 'refusal', 'content': []}
+    class RefusedClient(Client):
+        async def post(self, url, headers, json): return Refused('openai' if 'api.openai.com' in url else 'anthropic')
+    monkeypatch.setattr(pilot_direct.httpx, 'AsyncClient', RefusedClient)
+    import pytest
+    from app.pilot_audit import GenerationFailure
+    with pytest.raises(GenerationFailure):
+        asyncio.run(pilot_inference.generate('Explain the treatment in full detail.'))
+
+
+def test_truncated_flag_is_visible_before_reveal(client, monkeypatch):
+    from app.routers import pilot
+    monkeypatch.setattr(pilot, 'live_ready', lambda: True)
+    async def generate(*args, **kwargs):
+        return [{'text': 'Finished answer.', 'truncated': False, 'attempt': {'usage': {'input_tokens': 5, 'output_tokens': 5}}},
+                {'text': 'Cut-off answer', 'truncated': True, 'attempt': {'usage': {'input_tokens': 5, 'output_tokens': 4000}}}]
+    monkeypatch.setattr(pilot, 'generate', generate)
+    from app.pilot_accounts import reset_limits
+    reset_limits()  # the in-process guest rate limit accumulates across the suite
+    guest = client.post('/api/pilot/guests', json={'source': 'qa-truncated'}).json()
+    h = {'Authorization': 'Bearer ' + guest['token']}
+    run = client.post('/api/pilot/runs', headers=h, json={'question': 'A question long enough to run.'}).json()
+    assert run['status'] == 'review'
+    flags = {d['text']: d.get('truncated', False) for d in run['drafts']}
+    assert flags == {'Finished answer.': False, 'Cut-off answer': True}
+    assert all('author' not in d for d in run['drafts'])

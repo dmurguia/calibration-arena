@@ -60,7 +60,7 @@ def participant_budget(account):
     if account and account.token_budget is not None:
         return account.token_budget
     if account:
-        return _env_int("PILOT_TOKEN_BUDGET", 200000)
+        return _env_int("PILOT_TOKEN_BUDGET", 2000000)
     return _env_int("PILOT_GUEST_TOKEN_BUDGET", 30000)
 
 
@@ -69,7 +69,7 @@ def global_daily_tokens():
 
 
 def daily_run_limit():
-    return _env_int("PILOT_DAILY_RUN_LIMIT", 20)
+    return _env_int("PILOT_DAILY_RUN_LIMIT", 100)
 
 
 def max_concurrent_generations():
@@ -274,7 +274,7 @@ def generation_state(db):
         "daily_tokens_used": recorded_tokens(db, since=today) + committed_tokens(db, since=today),
         "daily_tokens_limit": global_daily_tokens(),
         "limits": {
-            "participant_tokens": _env_int("PILOT_TOKEN_BUDGET", 200000),
+            "participant_tokens": _env_int("PILOT_TOKEN_BUDGET", 2000000),
             "guest_tokens": _env_int("PILOT_GUEST_TOKEN_BUDGET", 30000),
             "daily_runs_per_participant": daily_run_limit(),
             "max_concurrent_generations": max_concurrent_generations(),

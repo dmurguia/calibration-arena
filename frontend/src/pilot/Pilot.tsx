@@ -690,7 +690,12 @@ function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) =
 function Session() {
   const { runId } = useParams(); const { refresh } = usePilot(); const [run, setRun] = useState<Run | null>(null)
   const [position, setPosition] = useState('a'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [conclusion, setConclusion] = useState(''); const [copied, setCopied] = useState(false)
-  useEffect(() => { setRun(null); setConclusion(''); setError(''); setCopied(false); call<Run>(`/runs/${runId}`).then(r => { setRun(r); setPosition(r.judgment?.preference === 'b' ? 'b' : 'a') }).catch(e => setError(errorText(e))) }, [runId])
+  useEffect(() => { setRun(null); setConclusion(''); setError(''); setCopied(false); call<Run>(`/runs/${runId}`).then(r => {
+    setRun(r); setPosition(r.judgment?.preference === 'b' ? 'b' : 'a')
+    // A follow-up turn opens on its own prompt and fresh A/B pair, not on the earlier turns above it. The only other
+    // scroll in a session is after a vote, which brings the reveal into view.
+    if (r.conversation?.length && r.status === 'review') requestAnimationFrame(() => document.querySelector('.p-comparison > .p-question')?.scrollIntoView({ block: 'start' }))
+  }).catch(e => setError(errorText(e))) }, [runId])
   const [focus, setFocus] = useState<string | null>(null); const [generating, setGenerating] = useState(false)
   useEffect(() => { setFocus(null); setGenerating(false) }, [runId])
   const [voteHint, setVoteHint] = useState(() => { try { return !localStorage.getItem(voteHintKey) } catch { return true } })

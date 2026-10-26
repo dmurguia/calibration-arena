@@ -160,7 +160,7 @@ def test_daily_limit(client):
     h = enroll(client)
     pid = client.get('/api/pilot/me', headers=h).json()['participant']['id']
     with SessionLocal() as db:
-        for i in range(20): db.add(Run(id=f'{pid}-{i}', participant_id=pid, created_at=now(), status='failed', data={}))
+        for i in range(100): db.add(Run(id=f'{pid}-{i}', participant_id=pid, created_at=now(), status='failed', data={}))
         db.commit()
     assert client.post('/api/pilot/runs', headers=h, json={'case_id': 'insurance-cutoff'}).status_code == 429
 

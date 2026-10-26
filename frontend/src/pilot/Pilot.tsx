@@ -550,6 +550,7 @@ function DraftPanel({ draft, reveal, authored, focused, onFocus, onPrefer }: { d
   return <article className="p-draft">
     <header><strong>Response {draft.position.toUpperCase()}</strong><span className="p-meta">{reveal ? draft.author : 'Anonymous'}</span>{onPrefer && <button type="button" className="p-prefer-button" onClick={onPrefer}>{draft.position.toUpperCase()} is better</button>}{onFocus && <button className="p-focus-button" onClick={onFocus} aria-label={focused ? 'Restore equal columns' : `Expand response ${draft.position.toUpperCase()}`} aria-pressed={focused}>{focused ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>}</header>
     <div className={`p-answer ${authored ? 'p-authored' : ''}`}>{authored ? draft.text : <Prose text={artifacts.length ? draft.narrative || draft.text : draft.text} />}</div>
+    {draft.truncated && <p className="p-length-note">This response reached its length limit.</p>}
     {!!artifacts.length && <ArtifactPanel key={draft.position} artifacts={artifacts} position={draft.position} focused={focused} onFocus={onFocus} />}
     {reveal && !!draft.checks?.length && <details className="p-check-details"><summary>Case checks</summary>{draft.checks.map(check => <p key={check.label}>{check.passed ? '✓' : '↳'} {check.label}: {check.passed ? 'pass' : 'needs correction'}</p>)}<p>{draft.review_note}</p></details>}
   </article>

@@ -307,7 +307,7 @@ def public_run(run):
         result['failures'] = [{'side': (a.get('request') or {}).get('cli') or 'One model',
                                'error': a.get('error') or 'The request did not complete.'}
                               for a in data.get('generation_attempts', []) if a.get('status') == 'failed']
-    result["drafts"] = [{"position": "ab"[i], "text": d["text"], **pilot_artifacts.public(d), **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
+    result["drafts"] = [{"position": "ab"[i], "text": d["text"], **({"truncated": True} if d.get("truncated") else {}), **pilot_artifacts.public(d), **({k: d.get(k) for k in ("author", "model_id", "origin", "checks", "review_note", "artifact_id")} if revealed else {})} for i, d in enumerate(data.get("drafts", []))] if visible else []
     if revealed:
         result.update({k: data.get(k) for k in ("expected", "takeaway", "validation", "judgment", "feedback")})
     return result

@@ -622,6 +622,16 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "gpt6-1terra",
+      "name": "GPT 6.1 Terra",
+      "org": "OpenAI",
+      "weights_reported": {
+        "dualentry-accounting-ai-benchmark": "closed"
+      },
+      "weights": "closed",
+      "weights_basis": "publisher"
+    },
+    {
       "id": "gpt6astra",
       "name": "GPT-6 Astra",
       "org": "OpenAI",
@@ -1264,6 +1274,14 @@
       },
       "weights": "closed",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "musewonder1-0",
+      "name": "Muse Wonder 1.0",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "musewonderfull",

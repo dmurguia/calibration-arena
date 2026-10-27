@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
   "adapter": "apex_accounting",
   "as_of": null,
-  "retrieved": "2026-10-26",
+  "retrieved": "2026-10-27",
   "metrics": [
     {
       "key": "mean-score",
@@ -37,6 +37,26 @@
         ]
       },
       "cost": 2.04
+    },
+    {
+      "model": "musewonder1-0",
+      "label": "Muse Wonder 1.0",
+      "config": "Max",
+      "scores": {
+        "pass-1": 21.3,
+        "mean-score": 67.1
+      },
+      "ci": {
+        "pass-1": [
+          14.2,
+          28.4
+        ],
+        "mean-score": [
+          62.2,
+          72.0
+        ]
+      },
+      "cost": 4.91
     },
     {
       "model": "fable5-1",
@@ -759,7 +779,7 @@
       "cost": 0.07
     }
   ],
-  "last_successful_check": "2026-10-26T19:21:59.671692+00:00",
+  "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
   "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-  "source_sha256": "cf797fc2f58674cb15ff2f01d9fa1637893c3f2d6f4a829d9329b52d79208ff7"
+  "source_sha256": "88ed852b5ae2d17305c257445fe8db2f6bb10d7dc7ba72581c56b80045d20862"
 }

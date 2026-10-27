@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-10-26",
+  "retrieved": "2026-10-27",
   "metrics": [
     {
       "key": "mean-score",
@@ -49,12 +49,32 @@
       "cost": null
     },
     {
+      "model": "deepseekv4-1flash1017",
+      "label": "DeepSeek-V4.1-Flash-1017",
+      "config": "Max",
+      "scores": {
+        "pass-1": 69.8,
+        "mean-score": 79.4
+      },
+      "cost": null
+    },
+    {
       "model": "gemini3-7flash",
       "label": "Gemini 3.7 Flash",
       "config": "High",
       "scores": {
         "pass-1": 67.8,
         "mean-score": 79.4
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt6-1terra",
+      "label": "GPT-6.1 Terra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 68.3,
+        "mean-score": 79.3
       },
       "cost": null
     },
@@ -75,6 +95,16 @@
       "scores": {
         "pass-1": 68.6,
         "mean-score": 77.1
+      },
+      "cost": null
+    },
+    {
+      "model": "musewonder1-0",
+      "label": "Muse Wonder 1.0",
+      "config": "Max",
+      "scores": {
+        "pass-1": 66.1,
+        "mean-score": 77
       },
       "cost": null
     },
@@ -244,7 +274,7 @@
       "config": "Max",
       "scores": {
         "pass-1": 53.9,
-        "mean-score": 68
+        "mean-score": 68.1
       },
       "cost": null
     },
@@ -639,7 +669,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-26T19:21:59.671692+00:00",
+  "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
   "methodology_sha256": null,
-  "source_sha256": "697779b2414aaae9ed5010d8953dffab7292c875989a494ca9e42f64f107a21c"
+  "source_sha256": "5c43049a328ce1dbf260a041efc068756576dbf209941b7e2bc74e4691de0712"
 }

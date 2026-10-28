@@ -1142,7 +1142,7 @@
     {
       "id": "minimaxm3-1flash",
       "name": "MiniMax-M3.1-Flash",
-      "org": null,
+      "org": "MiniMax",
       "weights_reported": {},
       "weights": "unknown",
       "weights_basis": "none"
@@ -1292,6 +1292,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "nemotron3-5bolt",
+      "name": "Nemotron 3.5 Bolt",
+      "org": "NVIDIA",
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
+    },
+    {
       "id": "nemotron3-5lightning",
       "name": "Nemotron 3.5 Lightning",
       "org": "NVIDIA",
@@ -1302,7 +1310,7 @@
     {
       "id": "nemotron3-5supervl",
       "name": "Nemotron 3.5 Super VL",
-      "org": null,
+      "org": "NVIDIA",
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"

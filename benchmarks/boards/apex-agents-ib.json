@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-10-27",
+  "retrieved": "2026-10-28",
   "metrics": [
     {
       "key": "mean-score",
@@ -629,6 +629,16 @@
       "cost": null
     },
     {
+      "model": "nemotron3-5bolt",
+      "label": "Nemotron 3.5 Bolt",
+      "config": "High",
+      "scores": {
+        "pass-1": 27.4,
+        "mean-score": 43.9
+      },
+      "cost": null
+    },
+    {
       "model": "qwen3-5",
       "label": "Qwen3.5",
       "config": null,
@@ -669,7 +679,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
+  "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
   "methodology_sha256": null,
-  "source_sha256": "5c43049a328ce1dbf260a041efc068756576dbf209941b7e2bc74e4691de0712"
+  "source_sha256": "caceba3f31cb39e618bf833432b2d96d200dab2f6bc9ec569ac3238f13d98263"
 }

@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
   "adapter": "apex_accounting",
   "as_of": null,
-  "retrieved": "2026-10-27",
+  "retrieved": "2026-10-28",
   "metrics": [
     {
       "key": "mean-score",
@@ -199,6 +199,26 @@
       "cost": 3.29
     },
     {
+      "model": "gpt6-1terra",
+      "label": "GPT-6.1 Terra",
+      "config": "Max",
+      "scores": {
+        "pass-1": 16.8,
+        "mean-score": 63.7
+      },
+      "ci": {
+        "pass-1": [
+          10.3,
+          23.3
+        ],
+        "mean-score": [
+          58.7,
+          68.7
+        ]
+      },
+      "cost": 0.46
+    },
+    {
       "model": "gpt5-6sol",
       "label": "GPT-5.6 Sol",
       "config": "Max · Pro",
@@ -279,6 +299,26 @@
       "cost": 2.08
     },
     {
+      "model": "minimaxm3-1flash",
+      "label": "MiniMax-M3.1-Flash",
+      "config": "Max",
+      "scores": {
+        "pass-1": 13.5,
+        "mean-score": 60
+      },
+      "ci": {
+        "pass-1": [
+          8.0,
+          19.0
+        ],
+        "mean-score": [
+          55.1,
+          64.9
+        ]
+      },
+      "cost": 0.16
+    },
+    {
       "model": "gpt5-6terra",
       "label": "GPT-5.6 Terra",
       "config": "Max",
@@ -357,6 +397,26 @@
         ]
       },
       "cost": 0.79
+    },
+    {
+      "model": "musesparkopen",
+      "label": "Muse Spark Open",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 13.8,
+        "mean-score": 58
+      },
+      "ci": {
+        "pass-1": [
+          8.3,
+          19.3
+        ],
+        "mean-score": [
+          53.3,
+          62.7
+        ]
+      },
+      "cost": 1.1
     },
     {
       "model": "grok4-5",
@@ -659,6 +719,26 @@
       "cost": 0.57
     },
     {
+      "model": "mercury3",
+      "label": "Mercury 3",
+      "config": "High",
+      "scores": {
+        "pass-1": 7.8,
+        "mean-score": 50.8
+      },
+      "ci": {
+        "pass-1": [
+          3.6,
+          12.0
+        ],
+        "mean-score": [
+          46.4,
+          55.2
+        ]
+      },
+      "cost": 0.05
+    },
+    {
       "model": "deepseekv4-1flash",
       "label": "DeepSeek-V4.1-Flash",
       "config": "Max",
@@ -697,6 +777,46 @@
         ]
       },
       "cost": 0.15
+    },
+    {
+      "model": "nemotron3-5supervl",
+      "label": "Nemotron 3.5 Super VL",
+      "config": "High",
+      "scores": {
+        "pass-1": 4.3,
+        "mean-score": 38.1
+      },
+      "ci": {
+        "pass-1": [
+          1.2,
+          7.4
+        ],
+        "mean-score": [
+          34.0,
+          42.2
+        ]
+      },
+      "cost": 0.14
+    },
+    {
+      "model": "nemotron3-5bolt",
+      "label": "Nemotron 3.5 Bolt",
+      "config": "High",
+      "scores": {
+        "pass-1": 3.3,
+        "mean-score": 35.7
+      },
+      "ci": {
+        "pass-1": [
+          0.6,
+          6.0
+        ],
+        "mean-score": [
+          31.6,
+          39.8
+        ]
+      },
+      "cost": 0.11
     },
     {
       "model": "gemini3-5flash",
@@ -779,7 +899,7 @@
       "cost": 0.07
     }
   ],
-  "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
+  "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
   "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-  "source_sha256": "88ed852b5ae2d17305c257445fe8db2f6bb10d7dc7ba72581c56b80045d20862"
+  "source_sha256": "54e0aa9a042e27b08eedba90ceb52c20509d20bc3b55ce9991eb226a8015f5ed"
 }

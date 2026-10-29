@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
+import "./lib/posthog";
 import App from "./App";
 import { ClerkRoot } from "./pilot/clerk";
 import "./index.css";

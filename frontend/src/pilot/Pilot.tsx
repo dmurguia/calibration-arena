@@ -1,4 +1,4 @@
-import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
@@ -16,6 +16,8 @@ import './pilot.css'
 import './accounts.css'
 import { encodeAsset, financeAssetMaxBytes, financeWorkflows, type FinanceWorkflow } from './financeWorkflows'
 import { FinanceTaskAssets } from './FinanceTaskAssets'
+import posthog from '../lib/posthog'
+import { posthogLogger } from '../lib/posthogLogger'
 
 type SignInReason = 'ask' | 'button'
 type AuthMode = 'signin' | 'signup'
@@ -57,23 +59,35 @@ export default function Pilot() {
   const toggleCollapsed = () => { setCollapsed(!collapsed); try { localStorage.setItem(sidebarKey, collapsed ? '0' : '1') } catch { /* private mode */ } }
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode>('signin')
+  const identifiedUserId = useRef<string | null>(null)
+  const resetPostHog = useCallback(() => {
+    if (!identifiedUserId.current) return
+    posthog?.reset()
+    identifiedUserId.current = null
+  }, [])
   const openSignIn = (reason: SignInReason, mode: AuthMode = 'signin') => { setAuthMode(mode); setSignIn(reason) }
   const location = useLocation()
   const navigate = useNavigate()
   const publicPage = /^\/benchmarks(\/|$)/.test(location.pathname)
   const refresh = async () => {
-    if (!token()) { setMe(null); return }
+    if (!token()) { resetPostHog(); setMe(null); return }
     try { setMe(await call<Me>('/me')) } catch (error) {
-      if (!token()) setMe(null)
+      if (!token()) { resetPostHog(); setMe(null) }
       else throw error
     }
   }
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
+  useEffect(() => {
+    if (!me?.account) return
+    if (identifiedUserId.current && identifiedUserId.current !== me.participant.id) resetPostHog()
+    posthog?.identify(me.participant.id, { email: me.account.email, name: me.participant.name })
+    identifiedUserId.current = me.participant.id
+  }, [me?.account?.email, me?.participant.id, me?.participant.name, resetPostHog])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
   // Returning from Google/Microsoft/GitHub lands on #/sso-callback; the popup must be open for Clerk to finish.
   useEffect(() => { if (clerkEnabled && window.location.hash.includes('sso-callback')) openSignIn('button', (sessionStorage.getItem(authModeKey) as AuthMode | null) ?? 'signin') }, [])
-  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className={publicPage ? 'pilot p-public' : 'pilot'}>
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} onSignedOut={resetPostHog} />}<div className={publicPage ? 'pilot p-public' : 'pilot'}>
     <a className="p-skip" href="#main">Skip to content</a>
     {!publicPage && <><div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <MobileSignIn onClick={() => openSignIn('button')} />}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
@@ -89,8 +103,8 @@ export default function Pilot() {
       </nav>
       {!!me?.runs.filter(r => !r.archived).length && <div className="p-sidebar-recent"><p>RECENT</p>{latestPerThread(me.runs.filter(r => !r.archived)).slice(0, 5).map(r => <RunRow key={r.id} run={r} onPick={() => setMenuOpen(false)} />)}</div>}
       <div className="p-sidebar-account">{clerkEnabled
-        ? <ClerkAccountBlock me={me} refresh={refresh} />
-        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>
+        ? <ClerkAccountBlock me={me} refresh={refresh} resetPostHog={resetPostHog} />
+        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } resetPostHog(); clearToken(); await refresh(); navigate('/') }} />}</div>
       <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside></>}
     <div className="p-main-column">
@@ -174,7 +188,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
   </dialog>
 }
 
-function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Promise<void> }) {
+function ClerkAccountBlock({ me, refresh, resetPostHog }: { me: Me | null; refresh: () => Promise<void>; resetPostHog: () => void }) {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const clerk = useClerk()
@@ -187,6 +201,7 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
     onManage={() => clerk.openUserProfile()}
     onSignOut={async () => {
       try { await call('/auth/logout') } catch { /* token may already be expired */ }
+      resetPostHog()
       clearToken()
       await clerk.signOut()
       await refresh()
@@ -485,6 +500,8 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     try {
       const assets = await Promise.all((workflow?.assets ?? []).map(async asset => ({ name: files[asset.role].name, role: asset.role, content_base64: await encodeAsset(files[asset.role]) })))
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets })
+      posthog?.capture('comparison_started', { workflow_id: workflow?.id ?? 'open_question', attachment_count: assets.length })
+      posthogLogger.comparisonCreated({ workflowId: workflow?.id ?? 'open_question', attachmentCount: assets.length })
       await refresh(); navigate(`/session/${run.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
@@ -566,7 +583,7 @@ function ImprovementForm({ run, position }: { run: Run; position: string }) {
   useEffect(() => { call<Report[]>(`/runs/${run.id}/issues`).then(setReports).catch(e => setError(errorText(e))) }, [run.id])
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setError(''); setSaved(false)
-    try { setReports(await call<Report[]>(`/runs/${run.id}/improvements`, { position, note, category: category || null })); setInputs(values => ({ ...values, [position]: { note: '', category: '' } })); setSaved(true) } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
+    try { setReports(await call<Report[]>(`/runs/${run.id}/improvements`, { position, note, category: category || null })); posthog?.capture('improvement_feedback_saved', { response_position: position, issue_category: category || 'unspecified' }); setInputs(values => ({ ...values, [position]: { note: '', category: '' } })); setSaved(true) } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
   }
   return <section className="p-improvement"><form onSubmit={submit}>
     <label htmlFor="improvement-note">What should improve?</label><span className="p-feedback-target">{position === 'both' ? 'Feedback on this pair' : `Feedback on Response ${position.toUpperCase()}`}</span>
@@ -595,11 +612,11 @@ function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: 
   const preferred = ['a', 'b'].includes(run.judgment!.preference) ? run.judgment!.preference : null
   const ordered = [...run.drafts].sort((a, b) => Number(b.position === preferred) - Number(a.position === preferred))
   const active = run.drafts.find(d => d.position === position) || ordered[0]
-  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
+  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); posthog?.capture('response_copied', { response_position: active.position }); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
   const download = () => {
     const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${(run.conversation?.find(t => t.position === active.position)?.messages || run.history)?.length ? '\n\n## Earlier conversation\n\n' + (run.conversation?.find(t => t.position === active.position)?.messages || run.history || []).map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
-    link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
+    link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); posthog?.capture('response_downloaded', { response_position: active.position }); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
   const rank = (d: Draft) => d.position === preferred ? ['1st', 'is-first'] : run.judgment!.preference === 'tie' ? ['Tie', 'is-second'] : preferred ? ['2nd', 'is-second'] : null
   return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>
@@ -674,6 +691,8 @@ function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) =
     setBusy(true); onBusy(true)
     try {
       const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', source_run_id: run.id, continuation_mode: 'compare' })
+      posthog?.capture('follow_up_started', { workflow_id: run.workflow_id ?? 'open_question', turn_number: next.turn_number ?? 1 })
+      posthogLogger.followUpCreated({ workflowId: run.workflow_id ?? 'open_question', turnNumber: next.turn_number ?? 1 })
       await refresh(); navigate(`/session/${next.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy(false) }
   }
@@ -702,7 +721,7 @@ function Session() {
   const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
-  const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { posthog?.capture('comparison_preference_submitted', { preference: result.judgment?.preference }); setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; if (path === 'conclusion') posthog?.capture('independent_note_saved'); await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
   const vote = (p: string) => { dismissVoteHint(); save('preference', { preference: p, rationale: '' }) }
   if (!run) return <div className="p-narrow"><ErrorNote message={error} />{!error && <p role="status">Opening comparison…</p>}</div>
   const voted = run.status === 'completed'; const showing = voted || run.status === 'review'
@@ -737,7 +756,7 @@ function Session() {
 
 function RetryComposer({ run }: { run: Run }) {
   const navigate = useNavigate(); const [question, setQuestion] = useState(run.brief); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
+  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); posthog?.capture('comparison_retried', { retry_reason: run.status }); posthogLogger.comparisonRetried({ retryReason: run.status }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
 }
 
 // One project row: the thread's latest turn, with inline rename and the shared actions menu.

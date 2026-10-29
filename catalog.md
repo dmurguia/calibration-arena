@@ -2,7 +2,7 @@
 
 # Public finance & accounting AI benchmarks
 
-Catalog updated: 2026-10-28 · 59 benchmarks · 8 products
+Catalog updated: 2026-10-29 · 59 benchmarks · 8 products
 
 ## How to read this
 
@@ -121,15 +121,15 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | As-of | Models | Metric | Top entry |
 | --- | --- | ---: | --- | --- |
-| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-10-28 | 44 | Mean score | Gemini 4 Argon (High) — 71.5% |
-| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-10-28 | 22 | Overall accuracy | Gemini 4 Argon — 91.1% |
-| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-10-28 | 18 | Mean score | Kimi K3 — 81.4% |
+| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-10-29 | 44 | Mean score | Gemini 4 Argon (High) — 71.5% |
+| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-10-29 | 22 | Overall accuracy | Gemini 4 Argon — 91.1% |
+| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-10-29 | 18 | Mean score | Kimi K3 — 81.4% |
 | [Vals TaxEval v2](https://www.vals.ai/benchmarks/tax_eval_v2) | 2026-09-01 | 133 | Accuracy | Muse Spark 1.2 — 80.376% |
 | [Vals MortgageTax](https://www.vals.ai/benchmarks/mortgage_tax) | 2026-09-01 | 88 | Accuracy | Claude Opus 5 — 72.059% |
 | [Vals Finance Agent v2](https://vals.ai/benchmarks/fabv2) | 2026-10-20 | 81 | Accuracy | Gemini 4 Argon — 65.401% |
 | [Vals CorpFin v2](https://www.vals.ai/benchmarks/corp_fin_v2) | 2026-08-12 | 122 | Accuracy | Claude Opus 5 — 73.194% |
 | [BigFinanceBench](https://bigfinancebench.com/) | 2026-10-19 | 39 | Final answer accuracy | Muse Spark 1.1 — 53.36% |
-| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-10-28 | 62 | Mean score | Gemini 4 Argon (High) — 87.4% |
+| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-10-29 | 62 | Mean score | Gemini 4 Argon (High) — 87.4% |
 
 ## Awaiting public results
 

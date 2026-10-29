@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-10-28",
+  "catalog_updated": "2026-10-29",
   "source": "benchmarks/registry.json",
   "review_after_days": 45,
   "results_stale_after_days": 180,
@@ -4021,7 +4021,7 @@
       "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
       "adapter": "apex_accounting",
       "as_of": null,
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "metrics": [
         {
           "key": "mean-score",
@@ -4917,16 +4917,16 @@
           "cost": 0.07
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-      "source_sha256": "54e0aa9a042e27b08eedba90ceb52c20509d20bc3b55ce9991eb226a8015f5ed"
+      "source_sha256": "eda7fe67db3a465cc265107b1946b1434d77232a9083d516073981a45fbc80c7"
     },
     {
       "benchmark_id": "dualentry-accounting-ai-benchmark",
       "source_url": "https://www.dualentry.com/benchmark",
       "adapter": "dualentry",
       "as_of": null,
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "metrics": [
         {
           "key": "accuracy",
@@ -5135,16 +5135,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-      "source_sha256": "39c9adff7c2672716d20900f41e03b3ff835bf4e9f41c42c8221bf43fec3d815"
+      "source_sha256": "c48b4a22573d96ac52455fdf93e722440418064287eaa6cb5b1cc0d4c866e804"
     },
     {
       "benchmark_id": "taxbench-entendre",
       "source_url": "https://entendre.ai/research/taxbench/",
       "adapter": "entendre",
       "as_of": null,
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "metrics": [
         {
           "key": "mean",
@@ -5317,16 +5317,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": null,
-      "source_sha256": "41674466795a10aca3e67aa1f8a8e1cfde6a72a50ac02158dc4a14850f621d24"
+      "source_sha256": "b5cf9be292759a413d7e19418a5907bf9eb5a9e0b710bd1eb7c0278315076bd6"
     },
     {
       "benchmark_id": "vals-taxeval-v2",
       "source_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "archived": true,
       "metrics": [
         {
@@ -6788,16 +6788,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": null,
-      "source_sha256": "8a077c85c388c765f6f5c52d47e231ce25492b5c644a5aa67f7dd18ea6226def"
+      "source_sha256": "4ba6167dbbea975acbd97c1f40339e195fb4ba4f1b88bdcd9048b1dca0641ebd"
     },
     {
       "benchmark_id": "vals-mortgagetax",
       "source_url": "https://www.vals.ai/benchmarks/mortgage_tax",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "archived": true,
       "metrics": [
         {
@@ -7789,9 +7789,9 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": null,
-      "source_sha256": "f2139f3876254885a738d2180465e7f79e82c0b40b7a983d8fa6eb2a73a98807"
+      "source_sha256": "09ac7b8f2214ada26ba44d5ec9ed737d9249c5862d3190fea433f845d04d4d17"
     },
     {
       "benchmark_id": "vals-finance-agent-v2",
@@ -8629,7 +8629,7 @@
       "source_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
       "adapter": "vals",
       "as_of": "2026-08-12",
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "archived": true,
       "metrics": [
         {
@@ -9981,16 +9981,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": "3c2d89717c9dc6349bc0617dbc6da3a42044a18a5f2dea0958f5dfc8665b30eb",
-      "source_sha256": "192aa9ede12153ff5a4200dffeda6739f443d98bd9272fb2a821883d657d8d22"
+      "source_sha256": "a956e0552844f2de747c744c190d88fc7c85704b56fbb85682477f757779141a"
     },
     {
       "benchmark_id": "bigfinancebench",
       "source_url": "https://bigfinancebench.com/",
       "adapter": "bigfinancebench",
       "as_of": "2026-10-19",
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "metrics": [
         {
           "key": "answer",
@@ -10825,7 +10825,7 @@
           "cost": 0.017
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": null,
       "source_sha256": "9ef85e1b7867e5cda96e2fafa6efdfbae4d703a22d77e22abf27cf089658549a"
     },
@@ -10834,7 +10834,7 @@
       "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
       "adapter": "apex_agents",
       "as_of": null,
-      "retrieved": "2026-10-28",
+      "retrieved": "2026-10-29",
       "metrics": [
         {
           "key": "mean-score",
@@ -11510,24 +11510,24 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-28T18:53:00.710734+00:00",
+      "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
       "methodology_sha256": null,
-      "source_sha256": "caceba3f31cb39e618bf833432b2d96d200dab2f6bc9ec569ac3238f13d98263"
+      "source_sha256": "2f1c739afa9976a41c14565c82f71dda7d8f2270468af1dc23c4631621454404"
     }
   ],
   "refresh": {
-    "checked_at": "2026-10-28T18:53:00.710734+00:00",
+    "checked_at": "2026-10-29T18:58:55.479528+00:00",
     "cadence": "daily",
     "sources": {
       "apex-accounting": {
         "status": "ok",
         "rows": 44,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "dualentry-accounting-ai-benchmark": {
         "status": "ok",
         "rows": 22,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "vals-finance-agent-v2": {
         "status": "failed",
@@ -11536,34 +11536,34 @@
       "vals-corpfin-v2": {
         "status": "ok",
         "rows": 134,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "vals-taxeval-v2": {
         "status": "ok",
         "rows": 145,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "vals-mortgagetax": {
         "status": "ok",
         "rows": 98,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "taxbench-entendre": {
         "status": "ok",
         "rows": 18,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "apex-agents-ib": {
         "status": "ok",
         "rows": 66,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       },
       "bigfinancebench": {
         "status": "ok",
         "rows": 39,
-        "last_successful_check": "2026-10-28T18:53:00.710734+00:00"
+        "last_successful_check": "2026-10-29T18:58:55.479528+00:00"
       }
     },
-    "snapshot_id": "c30c861211c1bd376c6d727b31b08c31b6bc9ab256c7ce35b361328860da4f93"
+    "snapshot_id": "6ede8106c12caa6469258d64ed010326bf2d53bfbdd0ca1f89645753ed5d423e"
   }
 }

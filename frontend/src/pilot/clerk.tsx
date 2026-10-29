@@ -60,11 +60,13 @@ export function ClerkBridge({
   me,
   refresh,
   onError,
+  onSignedOut,
 }: {
   ready: boolean
   me: Me | null
   refresh: () => Promise<void>
   onError: (message: string) => void
+  onSignedOut: () => void
 }) {
   const { getToken, isLoaded, isSignedIn } = useAuth()
   const exchanging = useRef(false)
@@ -99,11 +101,12 @@ export function ClerkBridge({
     exchanging.current = false
     if (!me?.account || clearingSignedOut.current) return
     clearingSignedOut.current = true
+    onSignedOut()
     clearToken()
     void refresh().catch(error => {
       onError(error instanceof Error ? error.message : 'Could not refresh your session.')
     })
-  }, [getToken, isLoaded, isSignedIn, me?.account, onError, ready, refresh])
+  }, [getToken, isLoaded, isSignedIn, me?.account, onError, onSignedOut, ready, refresh])
 
   return null
 }

@@ -3,7 +3,6 @@ import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, usePa
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
-import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
 import { Artifact, call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
@@ -14,8 +13,11 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
 import './accounts.css'
+import './accounting-entry.css'
 import { encodeAsset, financeAssetMaxBytes, financeWorkflows, type FinanceWorkflow } from './financeWorkflows'
 import { FinanceTaskAssets } from './FinanceTaskAssets'
+import { AccountingFlow } from './AccountingFlow'
+import { QuestionAttachments } from './QuestionAttachments'
 import posthog from '../lib/posthog'
 import { posthogLogger } from '../lib/posthogLogger'
 
@@ -24,6 +26,7 @@ type AuthMode = 'signin' | 'signup'
 const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason, mode?: AuthMode) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
 const pendingKey = 'calibrated.pendingQuestion'
 const pendingWorkflowKey = 'calibrated.pendingWorkflow'
+const pendingFileCountKey = 'calibrated.pendingFileCount'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
 const sidebarKey = 'calibrated.sidebarCollapsed'
@@ -175,7 +178,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
     history.replaceState(null, '', window.location.pathname + window.location.search)
     onMode(mode === 'signin' ? 'signup' : 'signin')
   }
-  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) sessionStorage.removeItem(pendingKey); finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
+  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) { sessionStorage.removeItem(pendingKey); sessionStorage.removeItem(pendingFileCountKey) }; finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
     <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
     <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in'}</h2>
     {reason === 'ask' && <p className="p-signin-note">{`Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.`}</p>}
@@ -299,7 +302,7 @@ function RunRow({ run, className = '', onPick }: { run: Run; className?: string;
   return <div className={`p-run-row ${className}`}><NavLink to={`/session/${run.id}`} onClick={onPick} title={run.brief}>{run.title || run.brief.slice(0, 48)}</NavLink><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
 }
 
-// Finance is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
+// Accounting is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
 function WorkspaceSwitcher() {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
@@ -313,16 +316,16 @@ function WorkspaceSwitcher() {
   }, [open])
   return <div className="p-area p-workspace-switcher" ref={root}>
     <span>WORKSPACE</span>
-    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Finance"><BookOpen size={15} /><span>Finance</span><ChevronsUpDown size={14} /></button>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Accounting"><BookOpen size={15} /><span>Accounting</span><ChevronsUpDown size={14} /></button>
     {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
-      <p className="p-workspace-current"><BookOpen size={14} />Finance<span>Current</span></p>
+      <p className="p-workspace-current"><BookOpen size={14} />Accounting<span>Current</span></p>
       <p className="p-workspace-tease">Don’t see the knowledge work you want? Coming soon.</p>
     </div>}
   </div>
 }
 
-// "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
-// Clicking "New project" again while the panel is open skips the workflows and starts a blank project.
+// "New task" opens a panel of the same accounting workflows as the home page chips; picking one starts a comparison with that prompt.
+// Clicking "New task" again while the panel is open skips the workflows and starts a blank project.
 function NewProjectMenu({ onPick }: { onPick: () => void }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -338,9 +341,9 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
   }, [open])
   const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
   return <div className="p-new-project" ref={root}>
-    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New project</span></button>
-    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
-      <h2>New project</h2>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New task" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New task</span></button>
+    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New task">
+      <h2>New task</h2>
       <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
       <button type="button" className="p-new-project-blank" onClick={() => pick()}><Plus size={14} />Ask your own question</button>
     </div>}
@@ -349,7 +352,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
 
 function Home() {
   const [loading, setLoading] = useState(false)
-  return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <CalibrationLens radius={76} intensity={0.10} />}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
+  return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <div className="p-arena-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true"><img src="/brand/the-first-mark.webp" alt="" /></div>}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
 }
 
 async function beginGuest(refresh: () => Promise<void>) {
@@ -398,56 +401,6 @@ function CaseStart() {
   </div>
 }
 
-const promptTeasers = [
-  'Why is gross margin down 4 points this quarter when volume is up?',
-  'Can we recognize an annual SaaS contract up front if it was paid in full?',
-  'Does this prepaid insurance cutoff look right for the August close?',
-  'How should I book an accrual that was recorded twice last month?',
-  'Which intercompany balances still need eliminating before consolidation?',
-]
-
-// Types each teaser out character by character, holds it, clears, and moves to the next; plain text under reduced motion.
-function usePromptTeaser(active: boolean) {
-  const [index, setIndex] = useState(0)
-  const [typed, setTyped] = useState(0)
-  const [animated, setAnimated] = useState(false)
-  useEffect(() => {
-    if (!active) return
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let timer: number | undefined
-    const stop = () => window.clearTimeout(timer)
-    const run = () => {
-      stop()
-      if (reducedMotion.matches || document.hidden) { setAnimated(false); setTyped(promptTeasers[index].length); return }
-      setAnimated(true)
-      const full = promptTeasers[index].length
-      const text = promptTeasers[index]
-      const delay = (n: number) => {
-        const prev = text[n - 1]
-        const base = 70 + Math.random() * 90
-        if (prev === ',' || prev === '?') return base + 260
-        if (prev === ' ') return base + 60 + (Math.random() < 0.12 ? 350 : 0)
-        return base
-      }
-      // Keep the counter outside React state: an updater that schedules timers runs twice under StrictMode.
-      let n = 0
-      setTyped(0)
-      const step = () => {
-        n += 1
-        setTyped(n)
-        if (n < full) timer = window.setTimeout(step, delay(n + 1))
-        else timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
-      }
-      timer = window.setTimeout(step, 700)
-    }
-    run()
-    reducedMotion.addEventListener('change', run)
-    document.addEventListener('visibilitychange', run)
-    return () => { stop(); reducedMotion.removeEventListener('change', run); document.removeEventListener('visibilitychange', run) }
-  }, [active, index])
-  return { text: promptTeasers[index].slice(0, animated ? typed : undefined), full: promptTeasers[index], animated }
-}
-
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
   const handedWorkflow = financeWorkflows.find(task => task.id === (useLocation().state as { workflow?: string } | null)?.workflow)
@@ -456,19 +409,26 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
   // Reloads keep history state, so forget the handed-over workflow once it is in the composer.
   useEffect(() => { if (handedWorkflow) window.history.replaceState({ ...window.history.state, usr: null }, '') }, [])
   const [files, setFiles] = useState<Record<string, File>>({})
+  const [questionFiles, setQuestionFiles] = useState<File[]>([])
+  const [pendingFileCount, setPendingFileCount] = useState(() => Number(sessionStorage.getItem(pendingFileCountKey)) || 0)
   const workflow = financeWorkflows.find(task => task.id === workflowId)
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
+  const attachedCount = workflow ? Object.keys(files).length : questionFiles.length
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  const [promptFocused, setPromptFocused] = useState(false)
-  const teaser = usePromptTeaser(!question && !promptFocused && !busy)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
   // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
-  useEffect(() => { if (me?.account && sessionStorage.getItem(pendingKey) && !missingAssets.length) form.current?.requestSubmit() }, [me?.account])
+  useEffect(() => {
+    if (!me?.account || !sessionStorage.getItem(pendingKey)) return
+    if (attachedCount < pendingFileCount) { setError('Your question is saved. Reattach your files to compare, or remove the missing attachments below.'); return }
+    if (!missingAssets.length) form.current?.requestSubmit()
+  }, [me?.account])
+  const forgetPendingFiles = () => { setPendingFileCount(0); sessionStorage.removeItem(pendingFileCountKey) }
   const selectWorkflow = (id: string) => {
     const task = financeWorkflows.find(candidate => candidate.id === id)!
     if (id !== workflowId) setFiles({})
     setWorkflowId(id); setQuestion(task.prompt); setError('')
+    forgetPendingFiles()
     sessionStorage.removeItem(pendingKey); sessionStorage.removeItem(pendingWorkflowKey)
     document.getElementById('open-prompt')?.focus()
   }
@@ -484,21 +444,36 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
       return next
     })
   }
+  const addQuestionFiles = (incoming: File[]) => {
+    if (!incoming.length) return
+    const added = incoming.filter(file => !questionFiles.some(existing => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified))
+    if (questionFiles.length + added.length > 2) { setError('Attach up to two files. Remove a file before adding another.'); return }
+    if (added.some(file => !/\.(csv|xlsx|pdf|txt)$/i.test(file.name) || !file.size || file.size > financeAssetMaxBytes || file.name.length > 160)) {
+      setError('Choose a non-empty CSV, XLSX, text-based PDF or TXT file up to 2 MB, with a filename under 161 characters.'); return
+    }
+    setQuestionFiles(current => [...current, ...added]); setError(''); forgetPendingFiles()
+  }
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
+    if (attachedCount < pendingFileCount) { setError('Reattach your files or remove the missing attachments before comparing.'); return }
     if (missingAssets.length) { setError(`Add ${missingAssets.map(asset => asset.label.toLowerCase()).join(' and ')} before comparing.`); return }
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
     if (!me?.account) {
       sessionStorage.setItem(pendingKey, question)
       if (workflowId) sessionStorage.setItem(pendingWorkflowKey, workflowId)
       else sessionStorage.removeItem(pendingWorkflowKey)
+      sessionStorage.setItem(pendingFileCountKey, String(attachedCount)); setPendingFileCount(attachedCount)
       openSignIn('ask'); return
     }
     sessionStorage.removeItem(pendingKey)
     sessionStorage.removeItem(pendingWorkflowKey)
+    forgetPendingFiles()
     setBusy(true); onBusy?.(true); window.scrollTo({ top: 0 })
     try {
-      const assets = await Promise.all((workflow?.assets ?? []).map(async asset => ({ name: files[asset.role].name, role: asset.role, content_base64: await encodeAsset(files[asset.role]) })))
+      const sourceFiles = workflow
+        ? workflow.assets.map(asset => ({ role: asset.role, file: files[asset.role] }))
+        : questionFiles.map((file, index) => ({ role: `supporting-document-${index + 1}`, file }))
+      const assets = await Promise.all(sourceFiles.map(async ({ role, file }) => ({ name: file.name, role, content_base64: await encodeAsset(file) })))
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets })
       posthog?.capture('comparison_started', { workflow_id: workflow?.id ?? 'open_question', attachment_count: assets.length })
       posthogLogger.comparisonCreated({ workflowId: workflow?.id ?? 'open_question', attachmentCount: assets.length })
@@ -506,16 +481,18 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. • for the finance community</p></>}
+    {!busy && <><Resolve as="h1">Your accounting work starts here.</Resolve><p className="p-prompt-sub">Work through reconciliations, month-end close, and reporting.</p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><span className="p-meta">You</span>{workflow && <span className="p-submitted-task" data-tone={workflow.tone}><span className="p-tone-tile"><workflow.icon size={12} /></span>{workflow.label}</span>}<p>{question}</p></section><WaitingPair workflow={workflow} /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
-      <label htmlFor="open-prompt" className="sr-only">Finance question</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={teaser.animated && !promptFocused ? '' : teaser.full} />
-      {teaser.animated && !question && !promptFocused && <span className="p-prompt-teaser" aria-hidden="true">{teaser.text}<i className="p-caret" /></span>}
-      {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
+      <label htmlFor="open-prompt" className="p-accounting-prompt-label">Ask an accounting question or describe a task</label>
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={2} value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder="Help me investigate the difference between my bank statement and general ledger…" />
+      {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); forgetPendingFiles(); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
+      {!workflow && <QuestionAttachments files={questionFiles} onAdd={addQuestionFiles} onRemove={index => { setQuestionFiles(current => current.filter((_, i) => i !== index)); setError(''); forgetPendingFiles() }} />}
+      {attachedCount < pendingFileCount && <div className="p-missing-attachments"><span>Reattach files from before sign-in.</span><button type="button" onClick={() => { forgetPendingFiles(); setError('') }}>Remove missing attachments</button></div>}
       <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
-    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
+    <div className="p-finance-tasks" role="group" aria-label="Accounting task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
+    <AccountingFlow workflow={workflow} />
     </>}
   </div>
 }

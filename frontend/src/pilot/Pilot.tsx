@@ -10,6 +10,7 @@ import { Reset, SignIn, SignUp } from './Account'
 import { clerkEnabled, ClerkBridge } from './clerk'
 import Leaderboard from './Leaderboard'
 import Benchmarks from './Benchmarks'
+import { About } from './About'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
@@ -124,7 +125,7 @@ export default function Pilot() {
       <Route path="/leaderboard" element={<Leaderboard />} /><Route path="/benchmarks/*" element={<Benchmarks />} />
       <Route path="/founder" element={<Founder />} /><Route path="*" element={<NotFound />} />
     </Routes>}</main>
-    <footer className="p-footer"><div className="p-footer-row"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/method#data-use">Data use <ArrowUpRight size={13} /></Link></div><div className="p-footer-legal"><Link to="/privacy">Privacy Policy</Link><Link to="/terms">Terms of Use</Link></div></footer>
+    <footer className="p-footer"><div className="p-footer-row"><span>Calibration Arena · Built by Calibrated Co.</span><span>Professional judgment, in practice.</span><Link to="/privacy">Data use <ArrowUpRight size={13} /></Link></div><div className="p-footer-legal"><Link to="/privacy">Privacy Policy</Link><Link to="/terms">Terms of Use</Link></div></footer>
   </div></div>
   <SignInDialog reason={signIn} mode={authMode} onMode={setAuthMode} signedIn={!!me?.account} onClose={() => setSignIn(null)} refresh={refresh} /></Context.Provider>
 }
@@ -834,18 +835,7 @@ function Notebook() {
   </div>
 }
 
-function Method() {
-  const { config, me } = usePilot()
-  return <div className="p-narrow p-method"><Eyebrow>Calibrated · Finance</Eyebrow><h1>How comparisons work</h1><p className="p-lead">Bring a question, compare two drafts, and decide what you would use.</p>
-    <h2>One workspace, two sources of drafts</h2><p>Ask a finance or accounting question in your own words, or choose a finance task to prefill an editable prompt and add its required source files. Both models receive the same question and extracted file contents. Close examples use a fixed, approved case and saved model responses so everyone compares the same work. The separate practice library contains authored drafts with a policy-based explanation. Open prompts are never replaced with sample answers.</p><h2>What you do</h2><p>Read the two anonymous responses and continue the conversation before choosing a preference. Finish & reveal opens the A-or-B vote and an optional explanation before showing the authors. Copy it or download a Markdown file with the prompt and author. One feedback box captures improvements, with an optional issue type. Samples use the same simple comparison. Older sessions also let you save an independent note before opening the responses. The same follow-up goes to both models, each with its own response history. Choose A or B, optionally explain what made the difference, then reveal. Continuing after a reveal is recorded as unblinded. Follow-ups are recorded separately from first comparisons. New question starts without that history. Earlier sessions labeled prompt revisions sent only the edited prompt.</p>
-    <h2>What the checks can tell you</h2><p>Sample cases use explicit policies and frozen, authored drafts. Structured checks compare debit/credit balance and the accounts, dates and amounts in the supplied case. They do not establish overall accounting competence. The explanation applies to the supplied facts and policy; you can flag missing facts or suggest a correction.</p>
-    <h2>What your judgment tells us</h2><p>Preference tells us which answer people want to use. Optional issue reports identify possible calculation, timing, treatment, policy, evidence or missing-fact problems. Reports are observations, not verified correctness scores. A preferred response can still be wrong. Independent case validation and assessment of actual outputs are separate work.</p>
-    <h2 id="data-use">What is saved—and what stays private</h2><p>The Calibrated team can inspect your self-reported background, submitted questions, conclusions, judgments, notes, optional contact details and interaction timestamps. Your notebook and service activity are stored to provide the service. Under the Terms of Use, your questions, uploaded file text, notes and judgments may be used for rankings and research and licensed to AI model providers and others, with your name, email and account identifiers removed. We may email you about your account, to ask for feedback on the service, or to follow up on research built from judgments; every email that is not about your account carries an unsubscribe link. To withdraw or request deletion, contact the Calibrated team.</p><p>{config?.inference_backend === 'local-cli' ? 'Questions are sent through the locally installed Codex and Claude Code applications using the host’s signed-in accounts. Responses run on their providers, not on this computer. The applications use different model harnesses and account data settings; OpenRouter routing settings do not apply.' : config?.inference_backend === 'direct' ? 'Questions and selected conversation context are sent directly to OpenAI and Anthropic. Provider retention follows the configured API accounts; API access alone does not guarantee zero retention.' : 'Questions are sent to the configured models through OpenRouter with model training on prompts disabled; provider endpoints may still retain their own request logs.'} Your question and answers are saved in your private notebook. Never submit confidential client or employer information.</p>
-    <p>For finance tasks, extracted file text, file names and file fingerprints are saved with your comparison. Original files are not retained. Readable text from PDFs and values or formulas from spreadsheets are included; images are not interpreted and formulas are not recalculated. Required uploads and format checks do not establish the correctness of the source data.</p>
-    <h2>Your notebook</h2><p>{me?.account ? 'Your comparisons and judgments follow your account across devices.' : <>Your comparisons and judgments are saved in this browser. <Link to="/signup">Create an account</Link> to keep your notebook across devices.</>}</p>
-    {SHOW_LIBRARY && <Link className="p-button" to="/cases">Close examples <ArrowRight size={16} /></Link>}
-  </div>
-}
+function Method() { return <About /> }
 
 // Draft policies for legal review — written from how the app actually works today, not from a template.
 const LEGAL_DOCS = { terms: { file: 'terms-of-use.md', title: 'Terms of Use' }, privacy: { file: 'privacy-policy.md', title: 'Privacy Policy' } } as const

@@ -1,4 +1,4 @@
-"""Bounded document extraction for explicit finance tasks; no raw file retention."""
+"""Bounded document extraction for accounting questions and tasks; no raw file retention."""
 import base64
 import binascii
 import csv
@@ -114,16 +114,17 @@ def extract_asset(asset: AssetUpload) -> dict:
 
 
 def prepare_assets(workflow_id: str | None, assets: list[AssetUpload]) -> list[dict]:
-    if not workflow_id:
-        if assets:
-            raise ValueError('Choose a finance task before attaching files.')
-        return []
-    required = WORKFLOW_ROLES.get(workflow_id)
-    if not required:
-        raise ValueError('Unknown finance task.')
+    if len(assets) > 2:
+        raise ValueError('Attach up to two files per question.')
     roles = [asset.role for asset in assets]
-    if set(roles) != required or len(roles) != len(required):
-        raise ValueError('Attach one file for each required document in this finance task.')
+    if workflow_id:
+        required = WORKFLOW_ROLES.get(workflow_id)
+        if not required:
+            raise ValueError('Unknown finance task.')
+        if set(roles) != required or len(roles) != len(required):
+            raise ValueError('Attach one file for each required document in this finance task.')
+    elif len(set(roles)) != len(roles) or not set(roles).issubset({'supporting-document-1', 'supporting-document-2'}):
+        raise ValueError('Attach each supporting document once.')
     documents = [extract_asset(asset) for asset in assets]
     if sum(len(document['text']) for document in documents) > MAX_TOTAL_CHARS:
         raise ValueError('The combined files exceed 25,000 text characters. Export a smaller selection.')

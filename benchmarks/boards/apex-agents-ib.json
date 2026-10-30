@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-10-29",
+  "retrieved": "2026-10-30",
   "metrics": [
     {
       "key": "mean-score",
@@ -18,6 +18,16 @@
   ],
   "cost_label": null,
   "entries": [
+    {
+      "model": "gemini4carbon",
+      "label": "Gemini 4 Carbon",
+      "config": "High",
+      "scores": {
+        "pass-1": 84.2,
+        "mean-score": 90.4
+      },
+      "cost": null
+    },
     {
       "model": "gemini4argon",
       "label": "Gemini 4 Argon",
@@ -45,6 +55,16 @@
       "scores": {
         "pass-1": 73.5,
         "mean-score": 81.3
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3-1pro",
+      "label": "Kimi K3.1 Pro",
+      "config": "Max",
+      "scores": {
+        "pass-1": 69.4,
+        "mean-score": 79.6
       },
       "cost": null
     },
@@ -679,7 +699,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
+  "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
   "methodology_sha256": null,
-  "source_sha256": "2f1c739afa9976a41c14565c82f71dda7d8f2270468af1dc23c4631621454404"
+  "source_sha256": "63c9a232835ea1aad1a06e316098bcf271e9286144df5f966b023c00dacd95fe"
 }

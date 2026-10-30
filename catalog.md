@@ -2,7 +2,7 @@
 
 # Public finance & accounting AI benchmarks
 
-Catalog updated: 2026-10-29 · 59 benchmarks · 8 products
+Catalog updated: 2026-10-30 · 59 benchmarks · 8 products
 
 ## How to read this
 
@@ -83,7 +83,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | Mercor | agentic | partial | — | rubric_llm | yes | leaderboard, leader Gemini 4 Argon (High) score 87.4% | adjacent |
+| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | Mercor | agentic | partial | — | rubric_llm | yes | leaderboard, leader Gemini 4 Carbon (High) score 90.4% | adjacent |
 | [IB-bench](https://ib-bench.com/) | IB-bench maintainers | agentic | open | — | unspecified | yes | leaderboard, leader claude-opus-4-5 score 30.5 | reference |
 | [BankerToolBench](https://joinhandshake.com/research/benchmarks/bankertool-bench/) | Handshake AI | agentic | open | Apache-2.0 | rubric | yes | snapshot (as of 2026) | adjacent |
 
@@ -121,15 +121,15 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | As-of | Models | Metric | Top entry |
 | --- | --- | ---: | --- | --- |
-| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-10-29 | 44 | Mean score | Gemini 4 Argon (High) — 71.5% |
-| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-10-29 | 22 | Overall accuracy | Gemini 4 Argon — 91.1% |
-| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-10-29 | 18 | Mean score | Kimi K3 — 81.4% |
+| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-10-30 | 46 | Mean score | Gemini 4 Argon (High) — 71.5% |
+| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-10-30 | 22 | Overall accuracy | Gemini 4 Argon — 91.1% |
+| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-10-30 | 18 | Mean score | Kimi K3 — 81.4% |
 | [Vals TaxEval v2](https://www.vals.ai/benchmarks/tax_eval_v2) | 2026-09-01 | 133 | Accuracy | Muse Spark 1.2 — 80.376% |
 | [Vals MortgageTax](https://www.vals.ai/benchmarks/mortgage_tax) | 2026-09-01 | 88 | Accuracy | Claude Opus 5 — 72.059% |
 | [Vals Finance Agent v2](https://vals.ai/benchmarks/fabv2) | 2026-10-20 | 81 | Accuracy | Gemini 4 Argon — 65.401% |
 | [Vals CorpFin v2](https://www.vals.ai/benchmarks/corp_fin_v2) | 2026-08-12 | 122 | Accuracy | Claude Opus 5 — 73.194% |
 | [BigFinanceBench](https://bigfinancebench.com/) | 2026-10-19 | 39 | Final answer accuracy | Muse Spark 1.1 — 53.36% |
-| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-10-29 | 62 | Mean score | Gemini 4 Argon (High) — 87.4% |
+| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-10-30 | 64 | Mean score | Gemini 4 Carbon (High) — 90.4% |
 
 ## Awaiting public results
 

@@ -3,7 +3,7 @@
   "source_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
   "adapter": "vals",
   "as_of": "2026-08-12",
-  "retrieved": "2026-10-29",
+  "retrieved": "2026-10-30",
   "archived": true,
   "metrics": [
     {
@@ -1355,7 +1355,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-10-29T18:58:55.479528+00:00",
+  "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
   "methodology_sha256": "3c2d89717c9dc6349bc0617dbc6da3a42044a18a5f2dea0958f5dfc8665b30eb",
   "source_sha256": "a956e0552844f2de747c744c190d88fc7c85704b56fbb85682477f757779141a"
 }

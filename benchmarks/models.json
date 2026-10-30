@@ -367,6 +367,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "gemini4carbon",
+      "name": "Gemini 4 Carbon",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "gemma431bit",
       "name": "Gemma 4 31B IT",
       "org": "Google",

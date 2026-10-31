@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-10-30",
+  "catalog_updated": "2026-10-31",
   "source": "benchmarks/registry.json",
   "review_after_days": 45,
   "results_stale_after_days": 180,
@@ -53,7 +53,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Argon (High)",
         "leader_score": "71.5%",
-        "models_evaluated": 46,
+        "models_evaluated": 47,
         "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
         "source_type": "first_party",
         "note": "Publisher reports costs per run where available. The current page header and earlier paper describe different task counts; do not assume scores from different snapshots use an unchanged evaluation protocol."
@@ -4029,7 +4029,7 @@
       "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
       "adapter": "apex_accounting",
       "as_of": null,
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "metrics": [
         {
           "key": "mean-score",
@@ -4263,6 +4263,26 @@
             ]
           },
           "cost": 0.46
+        },
+        {
+          "model": "kimik3-1pro",
+          "label": "Kimi K3.1 Pro",
+          "config": "Max",
+          "scores": {
+            "pass-1": 17.2,
+            "mean-score": 62.4
+          },
+          "ci": {
+            "pass-1": [
+              10.8,
+              23.6
+            ],
+            "mean-score": [
+              57.6,
+              67.2
+            ]
+          },
+          "cost": 2.98
         },
         {
           "model": "gpt5-6sol",
@@ -4965,16 +4985,16 @@
           "cost": 0.07
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-      "source_sha256": "8b6423cd61680ce9aad0bf0fbabd2bd93adea9c3167cfb1160900809cd8cfb3b"
+      "source_sha256": "d7ffe0d22c6382c73d91784720f8728c8cb59dd870b762a5a4f9e8f92f95f6ea"
     },
     {
       "benchmark_id": "dualentry-accounting-ai-benchmark",
       "source_url": "https://www.dualentry.com/benchmark",
       "adapter": "dualentry",
       "as_of": null,
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "metrics": [
         {
           "key": "accuracy",
@@ -5183,16 +5203,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-      "source_sha256": "83a9110410fcd78c5627de3ae6e0f4addcbce2ffe21f715f3b0f6f32907b443b"
+      "source_sha256": "5151292b7e06de4a1aac3ec6d2709361c1c0e03b77856772df2adb7f62bfbad5"
     },
     {
       "benchmark_id": "taxbench-entendre",
       "source_url": "https://entendre.ai/research/taxbench/",
       "adapter": "entendre",
       "as_of": null,
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "metrics": [
         {
           "key": "mean",
@@ -5365,16 +5385,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": null,
-      "source_sha256": "94199ce4e0c339455b34c9e8786b37da6396e3c6e4e541ecba31cf42ab8c081f"
+      "source_sha256": "5cfefec47ddb2ffdac826b6f48ce71a63cfb75b04ca736ce8e49b8ce2f3a4879"
     },
     {
       "benchmark_id": "vals-taxeval-v2",
       "source_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "archived": true,
       "metrics": [
         {
@@ -6836,16 +6856,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": null,
-      "source_sha256": "4ba6167dbbea975acbd97c1f40339e195fb4ba4f1b88bdcd9048b1dca0641ebd"
+      "source_sha256": "71a6641fb128e49fedba11d29f4301368995c771791d5e462825425c1c98c092"
     },
     {
       "benchmark_id": "vals-mortgagetax",
       "source_url": "https://www.vals.ai/benchmarks/mortgage_tax",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "archived": true,
       "metrics": [
         {
@@ -7837,9 +7857,9 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": null,
-      "source_sha256": "09ac7b8f2214ada26ba44d5ec9ed737d9249c5862d3190fea433f845d04d4d17"
+      "source_sha256": "a849d2eccd7622dbb571618667c4bbc12ce03fe0048549d36b7ad13026ff56fd"
     },
     {
       "benchmark_id": "vals-finance-agent-v2",
@@ -8677,7 +8697,7 @@
       "source_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
       "adapter": "vals",
       "as_of": "2026-08-12",
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "archived": true,
       "metrics": [
         {
@@ -10029,16 +10049,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": "3c2d89717c9dc6349bc0617dbc6da3a42044a18a5f2dea0958f5dfc8665b30eb",
-      "source_sha256": "a956e0552844f2de747c744c190d88fc7c85704b56fbb85682477f757779141a"
+      "source_sha256": "7e4c30f8c1744764163edf61b0cbab21d4f2d8bf450a14c0b471234c97446b99"
     },
     {
       "benchmark_id": "bigfinancebench",
       "source_url": "https://bigfinancebench.com/",
       "adapter": "bigfinancebench",
       "as_of": "2026-10-19",
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "metrics": [
         {
           "key": "answer",
@@ -10873,7 +10893,7 @@
           "cost": 0.017
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": null,
       "source_sha256": "9ef85e1b7867e5cda96e2fafa6efdfbae4d703a22d77e22abf27cf089658549a"
     },
@@ -10882,7 +10902,7 @@
       "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
       "adapter": "apex_agents",
       "as_of": null,
-      "retrieved": "2026-10-30",
+      "retrieved": "2026-10-31",
       "metrics": [
         {
           "key": "mean-score",
@@ -11578,24 +11598,24 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-10-30T18:39:08.828361+00:00",
+      "last_successful_check": "2026-10-31T17:47:11.822619+00:00",
       "methodology_sha256": null,
-      "source_sha256": "63c9a232835ea1aad1a06e316098bcf271e9286144df5f966b023c00dacd95fe"
+      "source_sha256": "cddc4d3b1eb19548237d4b58004ef5a88c9e376679f9e314d9e1f07b9cc165c6"
     }
   ],
   "refresh": {
-    "checked_at": "2026-10-30T18:39:08.828361+00:00",
+    "checked_at": "2026-10-31T17:47:11.822619+00:00",
     "cadence": "daily",
     "sources": {
       "apex-accounting": {
         "status": "ok",
-        "rows": 46,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "rows": 47,
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "dualentry-accounting-ai-benchmark": {
         "status": "ok",
         "rows": 22,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "vals-finance-agent-v2": {
         "status": "failed",
@@ -11604,34 +11624,34 @@
       "vals-corpfin-v2": {
         "status": "ok",
         "rows": 134,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "vals-taxeval-v2": {
         "status": "ok",
         "rows": 145,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "vals-mortgagetax": {
         "status": "ok",
         "rows": 98,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "taxbench-entendre": {
         "status": "ok",
         "rows": 18,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "apex-agents-ib": {
         "status": "ok",
         "rows": 68,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       },
       "bigfinancebench": {
         "status": "ok",
         "rows": 39,
-        "last_successful_check": "2026-10-30T18:39:08.828361+00:00"
+        "last_successful_check": "2026-10-31T17:47:11.822619+00:00"
       }
     },
-    "snapshot_id": "d2a639c76aa2cd9bf30023fffb866d06b54d9bd2afe89a81aff841b8bb13f4be"
+    "snapshot_id": "e435134fc9d10300a0548e54c19b3712c010cb2bd70d1b42464299759e1b9c4b"
   }
 }

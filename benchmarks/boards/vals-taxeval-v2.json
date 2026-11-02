@@ -3,7 +3,7 @@
   "source_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
   "adapter": "vals",
   "as_of": "2026-09-01",
-  "retrieved": "2026-11-01",
+  "retrieved": "2026-11-02",
   "archived": true,
   "metrics": [
     {
@@ -1465,7 +1465,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-01T18:26:42.280153+00:00",
+  "last_successful_check": "2026-11-02T22:20:45.712061+00:00",
   "methodology_sha256": null,
-  "source_sha256": "71a6641fb128e49fedba11d29f4301368995c771791d5e462825425c1c98c092"
+  "source_sha256": "1189fcb9bcaac5dcb5efb6489e7f61f9578481db4855622796b553cfed9a3481"
 }

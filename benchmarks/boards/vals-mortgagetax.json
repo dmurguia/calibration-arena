@@ -3,7 +3,7 @@
   "source_url": "https://www.vals.ai/benchmarks/mortgage_tax",
   "adapter": "vals",
   "as_of": "2026-09-01",
-  "retrieved": "2026-11-02",
+  "retrieved": "2026-11-03",
   "archived": true,
   "metrics": [
     {
@@ -995,7 +995,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-02T22:20:45.712061+00:00",
+  "last_successful_check": "2026-11-03T20:09:06.410566+00:00",
   "methodology_sha256": null,
-  "source_sha256": "295e0d7c796dc29264a4f9adffbe0fe4778e35145d283dc415981fc2ef58a43a"
+  "source_sha256": "288785cd8011c5d376d3e95236f4fd6536f5e203fe993c0fb85e5efab703abe8"
 }

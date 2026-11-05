@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-11-04",
+  "retrieved": "2026-11-05",
   "metrics": [
     {
       "key": "mean-score",
@@ -39,6 +39,16 @@
       "cost": null
     },
     {
+      "model": "hy4",
+      "label": "Hy4",
+      "config": "High",
+      "scores": {
+        "pass-1": 77.6,
+        "mean-score": 85.1
+      },
+      "cost": null
+    },
+    {
       "model": "sonnet5-5",
       "label": "Sonnet 5.5",
       "config": "Max",
@@ -55,16 +65,6 @@
       "scores": {
         "pass-1": 73.5,
         "mean-score": 81.3
-      },
-      "cost": null
-    },
-    {
-      "model": "kimik3-1pro",
-      "label": "Kimi K3.1 Pro",
-      "config": "Max",
-      "scores": {
-        "pass-1": 69.4,
-        "mean-score": 79.6
       },
       "cost": null
     },
@@ -135,6 +135,16 @@
       "scores": {
         "pass-1": 65.8,
         "mean-score": 77
+      },
+      "cost": null
+    },
+    {
+      "model": "kimik3-1pro",
+      "label": "Kimi K3.1 Pro",
+      "config": "Max",
+      "scores": {
+        "pass-1": 65.5,
+        "mean-score": 75.9
       },
       "cost": null
     },
@@ -699,7 +709,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-04T20:27:36.974291+00:00",
+  "last_successful_check": "2026-11-05T20:41:42.309401+00:00",
   "methodology_sha256": null,
-  "source_sha256": "728ee8c8d915faa8b87c3a746eca5cf49cd5b27f773671011b7dced42f87585f"
+  "source_sha256": "88449a44a7c684cc5d90797087a008361325be59252624f41fd678edf18e41ca"
 }

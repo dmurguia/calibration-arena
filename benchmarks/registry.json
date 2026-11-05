@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-11-04",
+  "catalog_updated": "2026-11-05",
   "benchmarks": [
     {
       "id": "apex-accounting",
@@ -1648,7 +1648,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Carbon (High)",
         "leader_score": "90.4%",
-        "models_evaluated": 64,
+        "models_evaluated": 65,
         "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
         "source_type": "first_party",
         "note": null

@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
   "adapter": "apex_accounting",
   "as_of": null,
-  "retrieved": "2026-11-05",
+  "retrieved": "2026-11-06",
   "metrics": [
     {
       "key": "mean-score",
@@ -297,6 +297,26 @@
         ]
       },
       "cost": 0.15
+    },
+    {
+      "model": "inkling2small",
+      "label": "Inkling 2 Small",
+      "config": null,
+      "scores": {
+        "pass-1": 14.5,
+        "mean-score": 62
+      },
+      "ci": {
+        "pass-1": [
+          9.0,
+          20.0
+        ],
+        "mean-score": [
+          57.4,
+          66.6
+        ]
+      },
+      "cost": null
     },
     {
       "model": "fable5",
@@ -959,7 +979,7 @@
       "cost": 0.07
     }
   ],
-  "last_successful_check": "2026-11-05T20:41:42.309401+00:00",
+  "last_successful_check": "2026-11-06T19:58:29.685462+00:00",
   "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-  "source_sha256": "bd5d03eb7c2c7cc2edb9c5c369be7aae3cb6ce0616fd68e9892feb1b11a5b239"
+  "source_sha256": "18da141907f9dbfdf4dbd2da1bd57a67c610d9d7d544a601a9fd86ef86739f9f"
 }

@@ -833,6 +833,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "inkling2small",
+      "name": "Inkling 2 Small",
+      "org": "Thinking Machines",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "inklingsmall",
       "name": "Inkling Small",
       "org": "Thinking Machines",

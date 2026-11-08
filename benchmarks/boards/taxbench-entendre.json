@@ -3,7 +3,7 @@
   "source_url": "https://entendre.ai/research/taxbench/",
   "adapter": "entendre",
   "as_of": null,
-  "retrieved": "2026-11-07",
+  "retrieved": "2026-11-08",
   "metrics": [
     {
       "key": "mean",
@@ -176,7 +176,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-07T18:04:12.071918+00:00",
+  "last_successful_check": "2026-11-08T18:23:29.052199+00:00",
   "methodology_sha256": null,
-  "source_sha256": "2b4c0edae4bf4f5918a610a89826a3dece533dadbeaefd60bdb3f8d010e401bc"
+  "source_sha256": "7aa488b22f3cb98dda5acfd1808a99c101ef34fe9a79ade96d4c518e03cf37a9"
 }

@@ -173,6 +173,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "fable5-2",
+      "name": "Claude Fable 5.2",
+      "org": "Anthropic",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "gemini1-5flash001",
       "name": "Gemini 1.5 Flash 001",
       "org": "Google",

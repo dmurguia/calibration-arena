@@ -105,7 +105,7 @@ export default function Builder() {
     setTimeout(() => {
       setPending(false)
       const next = step + 1
-      set({ builderStep: next, ...(step === 1 ? { taskMix: /real claims|no synthetic|only real/i.test(text) ? 'real' : 'mixed' } : {}), ...(step === 3 ? { leakageWeighted: !/equal/i.test(text) } : {}) })
+      set({ builderStep: next, ...(step === 1 ? { taskMix: /no synthetic|without synthetic|only (use )?real|real (claims )?only/i.test(text) ? 'real' : 'mixed' } : {}), ...(step === 3 ? { leakageWeighted: !/equal/i.test(text) } : {}) })
       setTab(next === 1 ? 'tools' : next === 2 ? 'tasks' : next >= 3 ? 'reward' : 'overview')
     }, 1600)
   }

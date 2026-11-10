@@ -11,6 +11,7 @@ import Leaderboard from './Leaderboard'
 import Benchmarks from './Benchmarks'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { createPortal } from 'react-dom'
 import './pilot.css'
 import './accounts.css'
 import './accounting-entry.css'
@@ -261,8 +262,11 @@ function RunMenu({ run, onRename }: { run: Run; onRename?: () => void }) {
   const { refresh } = usePilot()
   const [open, setOpen] = useState(false)
   // Fixed to the viewport, anchored to the button: lists scroll and later rows paint over an absolute card.
+  // Portalled to the app root: a transformed ancestor (the centred trigger, the mobile drawer) would otherwise
+  // become the card's containing block and push it out of view, leaving only scroll bars on the list.
   const [at, setAt] = useState<{ top: number; left: number } | null>(null)
   const root = useRef<HTMLDivElement>(null)
+  const card = useRef<HTMLDivElement>(null)
   const toggle = (e: MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
     setAt({ top: rect.bottom + 4, left: Math.max(8, Math.min(rect.right - 184, window.innerWidth - 192)) })
@@ -270,7 +274,7 @@ function RunMenu({ run, onRename }: { run: Run; onRename?: () => void }) {
   }
   useEffect(() => {
     if (!open) return
-    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false) }
+    const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node) && !card.current?.contains(e.target as Node)) setOpen(false) }
     const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     const close = () => setOpen(false)
     document.addEventListener('pointerdown', outside)
@@ -282,11 +286,11 @@ function RunMenu({ run, onRename }: { run: Run; onRename?: () => void }) {
   const archive = async () => { setOpen(false); try { await call(`/runs/${run.id}/archive`, { archived: !run.archived }); await refresh() } catch { /* list refresh will show the truth */ } }
   return <div className="p-run-menu" ref={root} onClick={e => { e.preventDefault(); e.stopPropagation() }}>
     <button type="button" aria-label="Project actions" aria-haspopup="menu" aria-expanded={open} onClick={toggle}><MoreVertical size={15} /></button>
-    {open && at && <div role="menu" className="p-run-menu-card" style={{ top: at.top, left: at.left }}>
+    {open && at && createPortal(<div role="menu" className="p-run-menu-card" ref={card} style={{ top: at.top, left: at.left }}>
       <a role="menuitem" href={`/session/${run.id}`} target="_blank" rel="noreferrer" onClick={() => setOpen(false)}><ExternalLink size={14} />Open in new tab</a>
       {onRename && <button role="menuitem" type="button" onClick={() => { setOpen(false); onRename() }}><Pencil size={14} />Rename</button>}
       <button role="menuitem" type="button" onClick={archive}><Archive size={14} />{run.archived ? 'Restore' : 'Archive'}</button>
-    </div>}
+    </div>, root.current?.closest('.pilot') ?? document.body)}
   </div>
 }
 

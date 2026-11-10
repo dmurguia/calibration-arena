@@ -150,6 +150,7 @@ def refresh(root: Path, output: Path, evidence: Path, client: httpx.Client, *, p
     approvals_path = root / "benchmarks/refresh-approvals.json"
     approvals = read(approvals_path) if approvals_path.exists() else {}
     current = {p.stem: read(p) for p in (root / "benchmarks/boards").glob("*.json")}
+    committed = dict(current)
     model_records = read(root / "benchmarks/models.json")["models"]
     # Editorial metadata always comes from reviewed application code. Only prior
     # board snapshots and model observations are taken from the publication branch.
@@ -168,6 +169,16 @@ def refresh(root: Path, output: Path, evidence: Path, client: httpx.Client, *, p
     for bid in ids if ids is not None else boards.SOURCES:
         source = boards.SOURCES[bid]
         old = current.get(bid)
+        if source.get("status") == "frozen":
+            # Frozen boards are reviewed, committed snapshots; they are not fetched.
+            final = committed.get(bid) or old
+            if final is None:
+                report["sources"][bid] = {"status": "failed", "error": "Frozen source has no committed board", "last_successful_check": None}
+            else:
+                current[bid] = {**final, "frozen": True, "archived": True}
+                boards.sync_registry(registry, current[bid])
+                report["sources"][bid] = {"status": "frozen", "last_successful_check": final.get("last_successful_check", final.get("retrieved"))}
+            continue
         try:
             response = download(client, source["url"], evidence / bid, sleep=sleep)
             candidate, raw = boards.build_board(bid, response.text, today)
@@ -193,6 +204,9 @@ def refresh(root: Path, output: Path, evidence: Path, client: httpx.Client, *, p
                 raise ValueError("; ".join(errors))
             current, models, registry = trial_boards, trial_models, trial_registry
             report["sources"][bid] = {"status": "ok", "rows": len(candidate["entries"]), "last_successful_check": stamp}
+            if candidate.get("archived") or candidate.get("superseded_by"):
+                successor = f" Successor: {candidate['superseded_by']}." if candidate.get("superseded_by") else ""
+                report["sources"][bid]["attention"] = f"Publisher archived this board.{successor} Set its status to frozen in benchmarks/sources.json."
         except (httpx.HTTPError, ValueError, KeyError, IndexError, StopIteration, TypeError) as exc:
             report["sources"][bid] = {"status": "failed", "error": str(exc),
                 "last_successful_check": old.get("last_successful_check", old.get("retrieved")) if old else None}
@@ -213,7 +227,7 @@ def refresh(root: Path, output: Path, evidence: Path, client: httpx.Client, *, p
             boards_dir=stage / "benchmarks/boards", models_path=stage / "benchmarks/models.json")
         catalog = read(stage / "benchmarks.json")
         # No source exception text is exposed in the public UI/feed.
-        catalog["refresh"] = {**report, "sources": {bid: {k: v for k, v in state.items() if k != "error"} for bid, state in report["sources"].items()}}
+        catalog["refresh"] = {**report, "sources": {bid: {k: v for k, v in state.items() if k not in ("error", "attention")} for bid, state in report["sources"].items()}}
         catalog["refresh"]["snapshot_id"] = sha256(json.dumps(catalog, sort_keys=True).encode()).hexdigest()
         dump(stage / "benchmarks.json", catalog)
         os.replace(stage, output)

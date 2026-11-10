@@ -25,6 +25,14 @@
       "weights_basis": "family"
     },
     {
+      "id": "beam1-0",
+      "name": "Beam 1.0",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "commanda032025",
       "name": "Command A 03 2025",
       "org": "Cohere",
@@ -89,6 +97,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "deepseekv4-1flash1017",
+      "name": "DeepSeek V4.1 Flash 1017",
+      "org": "DeepSeek",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "deepseekv4flash",
       "name": "DeepSeek V4 Flash",
       "org": "DeepSeek",
@@ -127,6 +143,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "ember1",
+      "name": "Ember 1",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "fable5",
       "name": "Claude Fable 5",
       "org": "Anthropic",
@@ -146,6 +170,14 @@
       },
       "weights": "closed",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "fable5-2",
+      "name": "Claude Fable 5.2",
+      "org": "Anthropic",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
     },
     {
       "id": "gemini1-5flash001",
@@ -328,6 +360,22 @@
     {
       "id": "gemini3pro",
       "name": "Gemini 3 Pro Preview",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gemini4argon",
+      "name": "Gemini 4 Argon",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gemini4carbon",
+      "name": "Gemini 4 Carbon",
       "org": "Google",
       "weights_reported": {},
       "weights": "closed",
@@ -591,6 +639,22 @@
       "weights_basis": "family"
     },
     {
+      "id": "gpt6-1sol",
+      "name": "GPT 6.1 Sol",
+      "org": "OpenAI",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gpt6-1terra",
+      "name": "GPT 6.1 Terra",
+      "org": "OpenAI",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "gpt6astra",
       "name": "GPT-6 Astra",
       "org": "OpenAI",
@@ -761,6 +825,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "haiku5-5",
+      "name": "Claude Haiku 5.5",
+      "org": "Anthropic",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "hy4",
       "name": "HY4 Preview",
       "org": "Tencent",
@@ -777,6 +849,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "inkling2small",
+      "name": "Inkling 2 Small",
+      "org": "Thinking Machines",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "inklingsmall",
@@ -875,6 +955,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "kimik3-1pro",
+      "name": "Kimi K3.1 Pro",
+      "org": "Moonshot AI",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "lagunam-1",
@@ -1005,6 +1093,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "mercury3",
+      "name": "Mercury 3",
+      "org": "Inception",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mimov2-5",
       "name": "MiMo V2.5",
       "org": "Xiaomi",
@@ -1076,6 +1172,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "minimaxm3-1flash",
+      "name": "MiniMax M3.1 Flash",
+      "org": "MiniMax",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mistrallarge2411",
       "name": "Mistral Large 2411",
       "org": "Mistral",
@@ -1101,6 +1205,22 @@
       },
       "weights": "unknown",
       "weights_basis": "conflict"
+    },
+    {
+      "id": "mistrallarge4",
+      "name": "Mistral Large 4",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
+      "id": "mistrallarge4oss",
+      "name": "Mistral Large 4 OSS",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "mistralmedium2505",
@@ -1133,6 +1253,14 @@
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"
+    },
+    {
+      "id": "museember",
+      "name": "Muse Ember",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "musespark",
@@ -1178,6 +1306,30 @@
       "weights_basis": "family"
     },
     {
+      "id": "musesparkopen",
+      "name": "Muse Spark Open",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "musewonder",
+      "name": "Muse Wonder",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
+      "id": "musewonderfull",
+      "name": "Muse Wonder Full",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "nemotron3-5lightning",
       "name": "Nemotron 3.5 Lightning",
       "org": "NVIDIA",
@@ -1186,6 +1338,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "nemotron3-5supervl120ba12b",
+      "name": "Nemotron 3.5 Super Vl 120B A12B",
+      "org": null,
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
     },
     {
       "id": "nemotron3ultra",
@@ -1408,6 +1568,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "qwen3-8maxinternal",
+      "name": "Qwen3.8 Max Internal",
+      "org": "Alibaba",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "qwen3235ba22b",
       "name": "Qwen3 235B A22B",
       "org": "Alibaba",
@@ -1482,6 +1650,14 @@
       },
       "weights": "closed",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "step5",
+      "name": "Step 5 Preview",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "trinitylarge",

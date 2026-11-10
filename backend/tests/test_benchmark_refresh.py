@@ -12,7 +12,7 @@ from pipeline.verify_benchmarks import health_errors
 from pipeline import publish_benchmarks
 
 ROOT = Path(__file__).resolve().parents[2]
-NOW = datetime(2026, 10, 20, 13, 17, tzinfo=timezone.utc)
+NOW = datetime(2026, 11, 11, 13, 17, tzinfo=timezone.utc)
 
 
 def board(bid="apex-accounting"):
@@ -144,7 +144,7 @@ def test_watchdog_detects_stopped_scheduler_and_failed_sources():
             "boards": [{"benchmark_id": "a", "last_successful_check": NOW.isoformat()}]}
     assert health_errors(feed, NOW, 'good') == []
     assert health_errors(feed, NOW, 'wrong')
-    assert health_errors(feed, datetime(2026, 10, 23, tzinfo=timezone.utc))
+    assert health_errors(feed, datetime(2026, 11, 14, tzinfo=timezone.utc))
     feed["refresh"]["sources"]["a"]["status"] = 'failed'
     assert health_errors(feed, NOW)
 
@@ -166,3 +166,44 @@ def test_publication_updates_only_data_ref_after_complete_tree(tmp_path, monkeyp
     paths = {entry['path'] for entry in requests[1][2]['tree']}
     assert paths == {'benchmarks.json', 'vercel.json', 'frontend/vercel.json', 'marketing/vercel.json'}
     assert all('/heads/main' not in path for _, path, _ in requests)
+
+
+def test_frozen_source_is_not_fetched_and_skips_health(tmp_path):
+    attempts = []
+    def respond(request):
+        attempts.append(str(request.url))
+        return httpx.Response(503)
+    with httpx.Client(transport=httpx.MockTransport(respond)) as client:
+        report = refresh.refresh(ROOT, tmp_path / "output", tmp_path / "evidence", client, ids=["vals-finance-agent-v2"], now=NOW)
+    assert attempts == []
+    assert report["sources"]["vals-finance-agent-v2"]["status"] == "frozen"
+    feed = refresh.read(tmp_path / "output/benchmarks.json")
+    frozen = next(b for b in feed["boards"] if b["benchmark_id"] == "vals-finance-agent-v2")
+    assert frozen["frozen"] is True and frozen["entries"] == board("vals-finance-agent-v2")["entries"]
+    assert next(b for b in feed["benchmarks"] if b["id"] == "vals-finance-agent-v2")["results_status"] == "archived"
+    assert not [e for e in health_errors(feed, NOW) if e.startswith("vals-finance-agent-v2:")]
+
+
+def test_active_source_reported_archived_needs_attention_privately(tmp_path, monkeypatch):
+    def archived(bid, page, retrieved):
+        value, raw = parsed(bid, page, retrieved)
+        return {**value, "archived": True, "superseded_by": "APEX v2"}, raw
+    monkeypatch.setattr(boards, "build_board", archived)
+    monkeypatch.setattr(refresh, "check_candidate", lambda *a: None)
+    with httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, text="ok"))) as client:
+        report = refresh.refresh(ROOT, tmp_path / "output", tmp_path / "evidence", client, ids=["apex-accounting"], now=NOW, sleep=lambda _: None)
+    assert "APEX v2" in report["sources"]["apex-accounting"]["attention"]
+    assert "attention" not in refresh.read(tmp_path / "output/benchmarks.json")["refresh"]["sources"]["apex-accounting"]
+
+
+def test_vals_successor_keeps_version_numbers():
+    page = '<p>Archived Benchmark</p><p>Finance Agent v2 has been superseded by Finance Agent v2.1, which replaces it.</p>'
+    assert boards.vals_successor(page) == "Finance Agent v2.1"
+    assert boards.vals_successor('<p>Current benchmark</p>') is None
+
+
+def test_sources_config_matches_boards():
+    for bid, source in boards.SOURCES.items():
+        assert source["adapter"] in boards.ADAPTERS
+        assert source["status"] in boards.SOURCE_STATUSES
+        assert (ROOT / "benchmarks/boards" / f"{bid}.json").exists()

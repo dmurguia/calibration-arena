@@ -86,9 +86,15 @@ validation in a staging directory → one Git commit/ref update → public-feed 
 browser verification of all nine boards. A source failure retains that source's
 previous board and model observations while healthy sources advance. The job is
 marked failed *after* publishing and verifying a coherent partial update. A build
-or aggregate-validation failure publishes nothing. Failed Actions runs are the
-alert channel; repository watchers/maintainers must enable Actions failure
-notifications in their GitHub notification preferences to receive email/web alerts.
+or aggregate-validation failure publishes nothing.
+
+Alerts: after every refresh, `pipeline.alert_benchmarks` writes a per-board summary
+to the run page and keeps one open issue labelled `benchmark-pipeline`, assigned
+to the repository owner. It opens the issue when a source fails, a publisher
+archives an active board, or a workflow step fails. It comments when the set of
+broken boards changes and closes the issue once a refresh is clean. The watchdog
+uses the same issue for missed runs. Error text appears only in the issue and run
+logs, never in the public feed.
 The watchdog uses GitHub too: a GitHub-wide scheduler outage cannot notify until it
 recovers. The website independently marks checks older than 36 hours overdue.
 
@@ -177,6 +183,19 @@ Frontier charts are within-benchmark only and must never be compared across benc
 daily refresh cadence above. Publisher page changes can break an adapter, in which case
 that source keeps its last good snapshot and the workflow reports failure: fix the adapter and
 regenerate the snapshot; never hand-edit a board snapshot.
+
+### Swapping a source (`benchmarks/sources.json`)
+
+Each daily board is one entry in `benchmarks/sources.json`: `url`, `adapter` and `status`.
+`active` boards are fetched daily. `frozen` boards are not fetched. They keep their committed
+snapshot, show under "Archived by publisher", and are excluded from health checks.
+
+- **Page moved:** change `url`.
+- **New version (e.g. Vals Finance Agent v2 → v2.1):** set the old entry to `frozen` and commit
+  its final snapshot. Add a new registry entry and board under a new id. Never reuse the old id:
+  the scores come from a different task set or grader.
+- **Publisher archived the board:** the alert issue says so, including any successor Vals names.
+  Set it to `frozen`.
 
 ## Adding a benchmark
 

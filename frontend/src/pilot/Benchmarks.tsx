@@ -63,26 +63,31 @@ function Row({ b }: { b: Benchmark }) {
       </div>
       <div><span className={`bm-rel bm-rel-${b.relevance}`} title={RELEVANCE_HELP[b.relevance]}>{RELEVANCE[b.relevance]}</span></div>
     </summary>
-    <div className="bm-detail">
-      <p>{b.summary}</p>
-      <dl>
-        {b.size && <><dt>Size</dt><dd>{b.size}</dd></>}
-        <dt>Grading</dt><dd>{GRADER[b.grader]}</dd>
-        <dt>License</dt><dd>{b.license ?? 'Not stated'}</dd>
-        {r?.metric && <><dt>Metric</dt><dd>{r.metric}</dd></>}
-        {r?.models_evaluated && <><dt>Models</dt><dd>{r.models_evaluated}</dd></>}
-        {r && <><dt>Result source</dt><dd>{r.source_url ? <Ext href={r.source_url}>{SOURCE[r.source_type]}</Ext> : SOURCE[r.source_type]}</dd></>}
-        <dt>Why it matters</dt><dd>{b.relevance_note}</dd>
-        {(r?.note || b.notes) && <><dt>Notes</dt><dd>{[r?.note, b.notes].filter(Boolean).join(' ')}</dd></>}
-        <dt>Last checked</dt><dd>{monthLabel(b.last_verified)}</dd>
-      </dl>
-      {b.flags.length > 0 && <p className="bm-flags">{b.flags.map(f => <span key={f}>{FLAGS[f]}</span>)}</p>}
-      <p className="bm-links">{LINKS.filter(([k]) => b.links[k]).map(([k, label]) => <Ext key={k} href={b.links[k]!}>{label}</Ext>)}</p>
-    </div>
+    <Details b={b} />
   </details>
 }
 
-type Section = 'leaderboards' | 'all' | 'awaiting' | 'method'
+function Details({ b, page = false }: { b: Benchmark; page?: boolean }) {
+  const r = b.results
+  return <div className="bm-detail">
+    {!page && <p>{b.summary}</p>}
+    <dl>
+      {b.size && <><dt>Size</dt><dd>{b.size}</dd></>}
+      <dt>Grading</dt><dd>{GRADER[b.grader]}</dd>
+      <dt>License</dt><dd>{b.license ?? 'Not stated'}</dd>
+      {r?.metric && <><dt>Metric</dt><dd>{r.metric}</dd></>}
+      {r?.models_evaluated && <><dt>Models</dt><dd>{r.models_evaluated}</dd></>}
+      {r && <><dt>Result source</dt><dd>{r.source_url ? <Ext href={r.source_url}>{SOURCE[r.source_type]}</Ext> : SOURCE[r.source_type]}</dd></>}
+      <dt>Why it matters</dt><dd>{b.relevance_note}</dd>
+      {(r?.note || b.notes) && <><dt>Notes</dt><dd>{[r?.note, b.notes].filter(Boolean).join(' ')}</dd></>}
+      <dt>Last checked</dt><dd>{monthLabel(b.last_verified)}</dd>
+    </dl>
+    {b.flags.length > 0 && <p className="bm-flags">{b.flags.map(f => <span key={f}>{FLAGS[f]}</span>)}</p>}
+    <p className="bm-links">{!page && <Link to={`/benchmarks/${b.id}`}>Benchmark page</Link>}{LINKS.filter(([k]) => b.links[k]).map(([k, label]) => <Ext key={k} href={b.links[k]!}>{label}</Ext>)}</p>
+  </div>
+}
+
+type Section = 'leaderboards' | 'all' | 'awaiting' | 'method' | 'detail'
 const SECTIONS: Record<string, Section> = { '': 'leaderboards', all: 'all', awaiting: 'awaiting', method: 'method' }
 
 const PUBLISHER: Record<string, string> = { academic: 'Academic', eval_lab: 'Eval lab', vendor: 'Vendor', aggregator: 'Aggregator', community: 'Community', consortium: 'Consortium', other: 'Other' }
@@ -152,9 +157,59 @@ function Overview({ data, benchmarks }: { data: Catalog; benchmarks: Benchmark[]
   </section>
 }
 
+const AREA_WORD: Record<string, string> = { accounting: 'accounting', audit: 'audit', tax: 'tax', financial_analysis: 'finance', modeling_spreadsheets: 'financial modeling', investment_banking: 'investment banking', financial_nlp: 'financial NLP', reporting_xbrl: 'financial reporting', exams_knowledge: 'accounting exam', general_work: 'professional work' }
+const SITE = 'Calibration Arena'
+const SECTION_TITLES: Record<Exclude<Section, 'detail'>, string> = {
+  leaderboards: `Finance & Accounting AI Benchmark Leaderboards | ${SITE}`,
+  all: `All Finance & Accounting AI Benchmarks | ${SITE}`,
+  awaiting: `Finance AI Benchmarks Awaiting Public Results | ${SITE}`,
+  method: `How the Benchmark Directory Works | ${SITE}`,
+}
+const SECTION_DESCRIPTIONS: Record<Exclude<Section, 'detail'>, string> = {
+  leaderboards: 'Which AI models lead each public accounting and finance benchmark: Vals AI, APEX-Accounting, DualEntry, TaxBench and more, in each publisher\'s own metric, checked daily.',
+  all: 'Directory of public accounting, tax, audit and finance AI benchmarks, with data access, grading method, license and the latest published results.',
+  awaiting: 'Accounting and finance AI benchmarks and products that have no public model results yet.',
+  method: 'How Calibration Arena tracks publisher-owned accounting and finance AI benchmarks: checked daily, never re-run, rescaled or combined.',
+}
+// Keep in sync with scripts/prerender-benchmarks.mjs, which writes the same tags into static HTML.
+export function benchmarkTitle(b: Pick<Benchmark, 'name' | 'publisher' | 'domains'>) {
+  return `${b.name} Leaderboard · ${b.publisher} ${AREA_WORD[b.domains[0]] ?? 'finance'} benchmark | ${SITE}`
+}
+export function benchmarkDescription(b: Pick<Benchmark, 'summary' | 'publisher' | 'results'>) {
+  const r = b.results
+  const lead = r?.leader && r.leader_score ? ` Top model: ${r.leader} (${r.leader_score}${r.metric ? ` ${r.metric.toLowerCase()}` : ''}${r.as_of ? `, ${r.as_of}` : ''}).` : ''
+  return `${b.summary}${lead} Results from ${b.publisher}, linked to the source.`.slice(0, 300)
+}
+
+function setHeadTag(selector: string, create: () => HTMLElement, attr: string, value: string) {
+  let el = document.head.querySelector<HTMLElement>(selector)
+  if (!el) { el = create(); document.head.appendChild(el) }
+  const previous = el.getAttribute(attr)
+  el.setAttribute(attr, value)
+  return () => { if (previous === null) el!.remove(); else el!.setAttribute(attr, previous) }
+}
+
+function usePageMeta(title: string | null, description: string | null, path: string) {
+  useEffect(() => {
+    if (!title) return
+    const previousTitle = document.title
+    document.title = title
+    const restore = [
+      description && setHeadTag('meta[name="description"]', () => Object.assign(document.createElement('meta'), { name: 'description' }), 'content', description),
+      setHeadTag('link[rel="canonical"]', () => Object.assign(document.createElement('link'), { rel: 'canonical' }), 'href', `https://calibrationarena.ai${path}`),
+    ]
+    return () => { document.title = previousTitle; restore.forEach(undo => undo && undo()) }
+  }, [title, description, path])
+}
+
+function TryIt() {
+  return <Link className="p-button bm-try" to="/ask">Try it on your own task<ArrowUpRight size={14} aria-hidden /></Link>
+}
+
 export default function Benchmarks() {
   const location = useLocation()
-  const section = SECTIONS[location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')]
+  const slug = location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')
+  const section: Section | undefined = SECTIONS[slug] ?? (/^[a-z0-9-]+$/.test(slug) ? 'detail' : undefined)
   const [data, setData] = useState<Catalog | null>(null)
   const [usingFallback, setUsingFallback] = useState(false)
   const now = useFreshnessClock()
@@ -201,12 +256,24 @@ export default function Benchmarks() {
   const awaiting = data?.benchmarks.filter(b => b.results_status === 'unpublished' || b.results_status === 'unknown') ?? []
   const quiet = data?.products.filter(p => p.status !== 'published') ?? []
   const filtered = !!(query || domain || status || access || relevance || agentic)
-  if (!section) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
+  const page = section === 'detail' ? data?.benchmarks.find(b => b.id === slug) : undefined
+  const pageBoard = page && data?.boards?.find(b => b.benchmark_id === page.id)
+  usePageMeta(section === 'detail' ? (page ? benchmarkTitle(page) : null) : section ? SECTION_TITLES[section] : null,
+    page ? benchmarkDescription(page) : section && section !== 'detail' ? SECTION_DESCRIPTIONS[section] : null,
+    `/benchmarks${slug ? `/${slug}` : ''}`)
+  if (!section || (section === 'detail' && data && !page)) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
   return <div className="p-workspace bm-page" data-snapshot-id={data?.refresh?.snapshot_id ?? 'bundled'}>
     <header className="bm-intro">
-      <h1 className="bm-title">Industry Benchmarks</h1>
-      <p className="bm-tagline">Calibration Arena's pulse on accounting and financial AI benchmarks.</p>
-      {data && <p className="bm-tally">
+      {page ? <>
+        <p className="bm-crumb"><Link to="/benchmarks">Industry Benchmarks</Link> / <Link to="/benchmarks/all">All benchmarks</Link></p>
+        <h1 className="bm-title">{page.name}</h1>
+        <p className="bm-tagline">{page.publisher} · {page.domains.map(d => DOMAINS[d]).join(' · ')} · {STATUS[page.results_status]}</p>
+      </> : <>
+        <h1 className="bm-title">Industry Benchmarks</h1>
+        <p className="bm-tagline">Calibration Arena's pulse on accounting and financial AI benchmarks.</p>
+      </>}
+      <TryIt />
+      {data && section !== 'detail' && <p className="bm-tally">
         <span><b>{data.counts.benchmarks}</b> benchmarks tracked</span>
         <span><b>{data.counts.by_results_status.leaderboard}</b> live leaderboards</span>
         <Link to="/benchmarks/awaiting"><b>{awaiting.length + quiet.length}</b> awaiting public results</Link>
@@ -216,12 +283,12 @@ export default function Benchmarks() {
       </p>}
       {usingFallback && <p className="bm-freshness-notice" role="status">Daily feed unavailable. Showing the saved catalog; check each board’s date.</p>}
     </header>
-    <nav className="bm-tabs" aria-label="Benchmark sections">
+    {section !== 'detail' && <nav className="bm-tabs" aria-label="Benchmark sections">
       <NavLink to="/benchmarks" end>Leaderboards</NavLink>
       <NavLink to="/benchmarks/all">All benchmarks{data && <span>{data.counts.benchmarks}</span>}</NavLink>
       <NavLink to="/benchmarks/awaiting">Awaiting results{data && <span>{awaiting.length + quiet.length}</span>}</NavLink>
       <NavLink to="/benchmarks/method">Overview</NavLink>
-    </nav>
+    </nav>}
     {error && <p className="p-error" role="alert">{error}</p>}
     {!data && !error && <p className="p-loading" role="status">Loading the catalog…</p>}
     {data && section === 'leaderboards' && (data.boards?.length
@@ -267,5 +334,18 @@ export default function Benchmarks() {
     </section>}
 
     {data && section === 'method' && <Overview data={data} benchmarks={data.benchmarks} />}
+
+    {page && data && <section className="bm-bench-page" aria-label={`${page.name} details`}>
+      {pageBoard
+        ? <BenchmarkBoards boards={[pageBoard]} models={data.models ?? []} benchmarks={data.benchmarks} single />
+        : <p className="bm-empty">{page.results?.leader_score ? `Published top score: ${page.results.leader ?? 'not named'} · ${page.results.leader_score}${page.results.metric ? ` ${page.results.metric}` : ''}.` : 'No model-by-model board is published for this benchmark.'}</p>}
+      {!pageBoard && <p className="bd-what">{page.summary}</p>}
+      <div className="bm-detail-card"><Details b={page} page /></div>
+      <aside className="bm-try-panel">
+        <h2>How do models handle your own work?</h2>
+        <p>{page.name} tests the tasks its publisher chose. Bring a task from your own close, reconciliation or reporting work and compare two models' answers side by side.</p>
+        <TryIt />
+      </aside>
+    </section>}
   </div>
 }

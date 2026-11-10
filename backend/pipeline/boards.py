@@ -23,6 +23,8 @@ ROOT = Path(__file__).resolve().parents[2]
 BOARDS_DIR = ROOT / "benchmarks" / "boards"
 MODELS = ROOT / "benchmarks" / "models.json"
 REGISTRY = ROOT / "benchmarks" / "registry.json"
+SOURCES_PATH = ROOT / "benchmarks" / "sources.json"
+SOURCE_STATUSES = ("active", "frozen")
 WEIGHTS = ("open", "closed", "unknown")
 
 PREFIXES = ("anthropic ", "claude ", "openai ", "z.ai ", "google ", "meta ", "xai ")
@@ -193,8 +195,15 @@ def adapt_vals(page: str) -> dict:
         # Vals currently renders retirement notices even when its embedded
         # metadata.archived is false. The explicit publisher notice wins.
         "archived": meta.get("archived") is True or "Archived Benchmark" in text_tokens(page),
+        **({"superseded_by": successor} if (successor := vals_successor(page)) else {}),
         "entries": entries,
     }
+
+
+def vals_successor(page: str) -> str | None:
+    """Name of the replacement version when Vals marks a board superseded."""
+    match = re.search(r"has been superseded by (.+?)(?:,\s|\.\s|\s+which|$)", " ".join(text_tokens(page)))
+    return match.group(1).strip() if match else None
 
 
 APEX_METRICS = {"mean-score": "Mean score", "pass-1": "Pass@1"}
@@ -334,17 +343,16 @@ def adapt_bigfinancebench(page: str) -> dict:
     }
 
 
-SOURCES: dict[str, dict] = {
-    "apex-accounting": {"url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score", "adapter": "apex_accounting"},
-    "dualentry-accounting-ai-benchmark": {"url": "https://www.dualentry.com/accounting-ai-benchmark", "adapter": "dualentry"},
-    "vals-finance-agent-v2": {"url": "https://www.vals.ai/benchmarks/fabv2", "adapter": "vals"},
-    "vals-corpfin-v2": {"url": "https://www.vals.ai/benchmarks/corp_fin_v2", "adapter": "vals"},
-    "vals-taxeval-v2": {"url": "https://www.vals.ai/benchmarks/tax_eval_v2", "adapter": "vals"},
-    "vals-mortgagetax": {"url": "https://www.vals.ai/benchmarks/mortgage_tax", "adapter": "vals"},
-    "taxbench-entendre": {"url": "https://entendre.ai/research/taxbench/", "adapter": "entendre"},
-    "apex-agents-ib": {"url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/", "adapter": "apex_agents"},
-    "bigfinancebench": {"url": "https://bigfinancebench.com/", "adapter": "bigfinancebench"},
-}
+def load_sources(path: Path = SOURCES_PATH) -> dict[str, dict]:
+    """Board sources live in benchmarks/sources.json so a version swap is a config edit.
+
+    status "active" is fetched daily; "frozen" keeps the last published board and
+    is not fetched (the publisher archived or superseded it).
+    """
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+SOURCES: dict[str, dict] = load_sources()
 ADAPTERS: dict[str, Callable[[str], dict]] = {
     "vals": adapt_vals, "apex_accounting": adapt_apex_accounting, "apex_agents": adapt_apex_agents,
     "dualentry": adapt_dualentry, "entendre": adapt_entendre, "bigfinancebench": adapt_bigfinancebench,
@@ -376,6 +384,7 @@ def build_board(benchmark_id: str, page: str, retrieved: str) -> tuple[dict, lis
         "as_of": parsed.get("as_of"),
         "retrieved": retrieved,
         **({"archived": parsed["archived"]} if "archived" in parsed else {}),
+        **({"superseded_by": parsed["superseded_by"]} if parsed.get("superseded_by") else {}),
         "metrics": metrics,
         "cost_label": parsed.get("cost_label") if any(e["cost"] is not None for e in entries) else None,
         "entries": entries,

@@ -1,0 +1,56 @@
+{
+  "apex-accounting": {
+    "url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
+    "adapter": "apex_accounting",
+    "status": "active"
+  },
+  "dualentry-accounting-ai-benchmark": {
+    "url": "https://www.dualentry.com/accounting-ai-benchmark",
+    "adapter": "dualentry",
+    "status": "active"
+  },
+  "vals-finance-agent-v2-1": {
+    "url": "https://www.vals.ai/benchmarks/fabv2-1",
+    "adapter": "vals",
+    "status": "active"
+  },
+  "vals-finance-agent-v2": {
+    "url": "https://www.vals.ai/benchmarks/fabv2",
+    "adapter": "vals",
+    "status": "frozen",
+    "note": "Superseded by Finance Agent v2.1 (vals-finance-agent-v2-1)."
+  },
+  "vals-corpfin-v2": {
+    "url": "https://www.vals.ai/benchmarks/corp_fin_v2",
+    "adapter": "vals",
+    "status": "frozen",
+    "note": "Archived by Vals."
+  },
+  "vals-taxeval-v2": {
+    "url": "https://www.vals.ai/benchmarks/tax_eval_v2",
+    "adapter": "vals",
+    "status": "frozen",
+    "note": "Archived by Vals: performance saturated."
+  },
+  "vals-mortgagetax": {
+    "url": "https://www.vals.ai/benchmarks/mortgage_tax",
+    "adapter": "vals",
+    "status": "frozen",
+    "note": "Archived by Vals."
+  },
+  "taxbench-entendre": {
+    "url": "https://entendre.ai/research/taxbench/",
+    "adapter": "entendre",
+    "status": "active"
+  },
+  "apex-agents-ib": {
+    "url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
+    "adapter": "apex_agents",
+    "status": "active"
+  },
+  "bigfinancebench": {
+    "url": "https://bigfinancebench.com/",
+    "adapter": "bigfinancebench",
+    "status": "active"
+  }
+}

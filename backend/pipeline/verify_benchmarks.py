@@ -31,6 +31,8 @@ def health_errors(catalog: dict, now: datetime, expected: str | None = None) -> 
         errors.append("No published boards")
     for board in board_list:
         bid = board["benchmark_id"]
+        if refresh.get("sources", {}).get(bid, {}).get("status") == "frozen":
+            continue
         if overdue(board.get("last_successful_check", board.get("retrieved"))):
             errors.append(f"{bid}: last successful check is overdue")
         if refresh.get("sources", {}).get(bid, {}).get("status") != "ok":

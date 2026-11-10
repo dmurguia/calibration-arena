@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-09-29",
+  "catalog_updated": "2026-11-10",
   "benchmarks": [
     {
       "id": "apex-accounting",
@@ -824,7 +824,7 @@
       "license": null,
       "relevance": "adjacent",
       "relevance_note": "Large expert-written tax set with a held-out test split.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
         "as_of": "2026-09-01",
         "metric": "Accuracy",
@@ -863,7 +863,7 @@
       "license": null,
       "relevance": "reference",
       "relevance_note": "Document extraction from scanned financial documents.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
         "as_of": "2026-09-01",
         "metric": "Accuracy",
@@ -920,6 +920,46 @@
       "notes": null
     },
     {
+      "id": "vals-finance-agent-v2-1",
+      "name": "Vals Finance Agent v2.1",
+      "publisher": "Vals AI",
+      "publisher_type": "eval_lab",
+      "kind": "benchmark",
+      "domains": [
+        "financial_analysis"
+      ],
+      "summary": "Analyst research tasks where agents search the web and SEC EDGAR to answer questions about public companies.",
+      "metric_definitions": {
+        "accuracy": "Share of research questions answered correctly, graded against expert rubrics by an LLM judge."
+      },
+      "task_format": "agentic",
+      "size": null,
+      "stateful": false,
+      "grader": "rubric_llm",
+      "data_access": "partial",
+      "license": "Harness MIT",
+      "relevance": "adjacent",
+      "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
+      "results_status": "leaderboard",
+      "results": {
+        "as_of": "2026-11-09",
+        "metric": "Accuracy",
+        "leader": "Claude Fable 5.2",
+        "leader_score": "69.47%",
+        "models_evaluated": 38,
+        "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
+        "source_type": "first_party",
+        "note": "Cost is Vals' reported USD per test."
+      },
+      "links": {
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2-1",
+        "code": "https://github.com/vals-ai/finance-agent"
+      },
+      "first_published": "2026",
+      "last_verified": "2026-11-10",
+      "notes": "Revision of Finance Agent v2: new judge jury, grading prompt updated for hedged answers, question and rubric fixes, and a larger held-out test split."
+    },
+    {
       "id": "vals-finance-agent-v2",
       "name": "Vals Finance Agent v2",
       "publisher": "Vals AI",
@@ -940,24 +980,24 @@
       "license": "Harness MIT",
       "relevance": "adjacent",
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
-        "as_of": "2026-09-26",
+        "as_of": "2026-10-29",
         "metric": "Accuracy",
-        "leader": "Gemini 3.8 Flash",
-        "leader_score": "61.44%",
-        "models_evaluated": 70,
-        "source_url": "https://vals.ai/benchmarks/fabv2",
+        "leader": "Gemini 4 Argon",
+        "leader_score": "65.4%",
+        "models_evaluated": 81,
+        "source_url": "https://www.vals.ai/benchmarks/fabv2",
         "source_type": "first_party",
         "note": "Cost is Vals' reported USD per test."
       },
       "links": {
-        "leaderboard": "https://vals.ai/benchmarks/fabv2",
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2",
         "code": "https://github.com/vals-ai/finance-agent"
       },
       "first_published": "2026",
-      "last_verified": "2026-09-29",
-      "notes": "Public, private-validation and held-out test splits."
+      "last_verified": "2026-11-10",
+      "notes": "Public, private-validation and held-out test splits. Superseded by Finance Agent v2.1; Vals no longer runs new models on v2."
     },
     {
       "id": "vals-corpfin-v2",

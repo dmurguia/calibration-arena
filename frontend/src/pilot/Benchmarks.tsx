@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { ArrowUpRight, Search } from 'lucide-react'
+import { ArrowUpRight, Ban, Building2, Columns3, LayoutGrid, Quote, RefreshCw, Search, ShieldCheck } from 'lucide-react'
 import BenchmarkBoards, { Board, ModelRec } from './BenchmarkBoards'
-import { checkOverdue, currentFlags, useFreshnessClock } from './benchmarkFreshness'
+import { currentFlags, useFreshnessClock } from './benchmarkFreshness'
 import './benchmarks.css'
 
 type ResultsStatus = 'leaderboard' | 'snapshot' | 'archived' | 'unpublished' | 'unknown'
@@ -63,39 +63,153 @@ function Row({ b }: { b: Benchmark }) {
       </div>
       <div><span className={`bm-rel bm-rel-${b.relevance}`} title={RELEVANCE_HELP[b.relevance]}>{RELEVANCE[b.relevance]}</span></div>
     </summary>
-    <div className="bm-detail">
-      <p>{b.summary}</p>
-      <dl>
-        {b.size && <><dt>Size</dt><dd>{b.size}</dd></>}
-        <dt>Grading</dt><dd>{GRADER[b.grader]}</dd>
-        <dt>License</dt><dd>{b.license ?? 'Not stated'}</dd>
-        {r?.metric && <><dt>Metric</dt><dd>{r.metric}</dd></>}
-        {r?.models_evaluated && <><dt>Models</dt><dd>{r.models_evaluated}</dd></>}
-        {r && <><dt>Result source</dt><dd>{r.source_url ? <Ext href={r.source_url}>{SOURCE[r.source_type]}</Ext> : SOURCE[r.source_type]}</dd></>}
-        <dt>Why it matters</dt><dd>{b.relevance_note}</dd>
-        {(r?.note || b.notes) && <><dt>Notes</dt><dd>{[r?.note, b.notes].filter(Boolean).join(' ')}</dd></>}
-        <dt>Last checked</dt><dd>{monthLabel(b.last_verified)}</dd>
-      </dl>
-      {b.flags.length > 0 && <p className="bm-flags">{b.flags.map(f => <span key={f}>{FLAGS[f]}</span>)}</p>}
-      <p className="bm-links">{LINKS.filter(([k]) => b.links[k]).map(([k, label]) => <Ext key={k} href={b.links[k]!}>{label}</Ext>)}</p>
-    </div>
+    <Details b={b} />
   </details>
 }
 
-type Section = 'leaderboards' | 'all' | 'awaiting' | 'method'
+function Details({ b, page = false }: { b: Benchmark; page?: boolean }) {
+  const r = b.results
+  return <div className="bm-detail">
+    {!page && <p>{b.summary}</p>}
+    <dl>
+      {b.size && <><dt>Size</dt><dd>{b.size}</dd></>}
+      <dt>Grading</dt><dd>{GRADER[b.grader]}</dd>
+      <dt>License</dt><dd>{b.license ?? 'Not stated'}</dd>
+      {r?.metric && <><dt>Metric</dt><dd>{r.metric}</dd></>}
+      {r?.models_evaluated && <><dt>Models</dt><dd>{r.models_evaluated}</dd></>}
+      {r && <><dt>Result source</dt><dd>{r.source_url ? <Ext href={r.source_url}>{SOURCE[r.source_type]}</Ext> : SOURCE[r.source_type]}</dd></>}
+      <dt>Why it matters</dt><dd>{b.relevance_note}</dd>
+      {(r?.note || b.notes) && <><dt>Notes</dt><dd>{[r?.note, b.notes].filter(Boolean).join(' ')}</dd></>}
+      <dt>Last checked</dt><dd>{monthLabel(b.last_verified)}</dd>
+    </dl>
+    {b.flags.length > 0 && <p className="bm-flags">{b.flags.map(f => <span key={f}>{FLAGS[f]}</span>)}</p>}
+    <p className="bm-links">{!page && <Link to={`/benchmarks/${b.id}`}>Benchmark page</Link>}{LINKS.filter(([k]) => b.links[k]).map(([k, label]) => <Ext key={k} href={b.links[k]!}>{label}</Ext>)}</p>
+  </div>
+}
+
+type Section = 'leaderboards' | 'all' | 'awaiting' | 'method' | 'detail'
 const SECTIONS: Record<string, Section> = { '': 'leaderboards', all: 'all', awaiting: 'awaiting', method: 'method' }
 
-function Glossary() {
-  return <dl className="bm-glossary" id="labels">
-    <dt>Published results</dt><dd>{(Object.keys(STATUS) as ResultsStatus[]).map(k => <p key={k}><b>{STATUS[k]}.</b> {STATUS_HELP[k]}</p>)}</dd>
-    <dt>Data</dt><dd>{Object.keys(ACCESS).map(k => <p key={k}><b>{ACCESS[k]}.</b> {ACCESS_HELP[k]}</p>)}</dd>
-    <dt>Relevance</dt><dd>{Object.keys(RELEVANCE).map(k => <p key={k}><b>{RELEVANCE[k]}.</b> {RELEVANCE_HELP[k]}</p>)}</dd>
-  </dl>
+const PUBLISHER: Record<string, string> = { academic: 'Academic', eval_lab: 'Eval lab', vendor: 'Vendor', aggregator: 'Aggregator', community: 'Community', consortium: 'Consortium', other: 'Other' }
+const PIPELINE: [ReactNode, string, string][] = [
+  [<Building2 size={18} aria-hidden />, 'Publisher runs it', 'Tasks, grading and scores stay with the publisher.'],
+  [<RefreshCw size={18} aria-hidden />, 'Checked daily', 'Each model board is fetched from its source every day.'],
+  [<ShieldCheck size={18} aria-hidden />, 'Validated', 'A failed check keeps the last verified board.'],
+  [<LayoutGrid size={18} aria-hidden />, 'Shown here', 'One board per benchmark, linked to its source.'],
+]
+const PRINCIPLES: [ReactNode, string][] = [
+  [<Quote size={16} aria-hidden />, "The publisher's own score"],
+  [<Columns3 size={16} aria-hidden />, 'One board per benchmark'],
+  [<Ban size={16} aria-hidden />, 'Never re-run, rescaled or combined'],
+]
+
+function tally<T extends string>(items: T[]): Record<string, number> {
+  return items.reduce<Record<string, number>>((acc, k) => ({ ...acc, [k]: (acc[k] ?? 0) + 1 }), {})
+}
+
+function Split({ title, labels, counts, help, total }: { title: string; labels: Record<string, string>; counts: Record<string, number>; help?: Record<string, string>; total: number }) {
+  const keys = Object.keys(labels).filter(k => counts[k])
+  return <figure className="bm-split">
+    <figcaption>{title}</figcaption>
+    <div className="bm-split-bar" role="img" aria-label={keys.map(k => `${labels[k]} ${counts[k]}`).join(', ')}>
+      {keys.map((k, i) => <span key={k} className={`bm-tone-${i}`} style={{ flexGrow: counts[k] }} title={`${labels[k]}: ${counts[k]}`} />)}
+    </div>
+    <ul>{keys.map((k, i) => <li key={k} title={help?.[k]}><i className={`bm-tone-${i}`} aria-hidden /><b>{counts[k]}</b> {labels[k]}<span className="sr-only"> of {total}</span></li>)}</ul>
+  </figure>
+}
+
+function Overview({ data, benchmarks }: { data: Catalog; benchmarks: Benchmark[] }) {
+  const areas = tally(benchmarks.flatMap(b => b.domains))
+  const maxArea = Math.max(...Object.values(areas))
+  const boardIds = new Set(data.boards?.map(b => b.benchmark_id))
+  const n = benchmarks.length
+  return <section className="bm-overview" aria-labelledby="method">
+    <h2 id="method" className="bm-section-title">Overview</h2>
+    <ul className="bm-principles">{PRINCIPLES.map(([icon, text]) => <li key={text}>{icon}{text}</li>)}</ul>
+
+    <h3>How a score gets here</h3>
+    <ol className="bm-flow">{PIPELINE.map(([icon, title, text]) => <li key={title}>{icon}<b>{title}</b><span>{text}</span></li>)}</ol>
+    <p className="bm-fine">{data.boards?.length ?? 0} model boards are checked daily; a check older than 36 hours is marked overdue on that board. The rest of the directory is reviewed every {data.review_after_days} days.</p>
+
+    <h3>What exists</h3>
+    <div className="bm-areas-chart" role="list">
+      {Object.entries(DOMAINS).filter(([k]) => areas[k]).sort((a, b) => areas[b[0]] - areas[a[0]]).map(([k, label]) => {
+        const withBoard = benchmarks.filter(b => b.domains.includes(k) && boardIds.has(b.id)).length
+        return <div role="listitem" key={k} className="bm-area-row">
+          <span>{label}</span>
+          <span className="bm-area-track" title={`${areas[k]} benchmarks, ${withBoard} with a daily model board`}>
+            <span className="bm-area-fill" style={{ width: `${(areas[k] / maxArea) * 100}%` }}><span className="bm-area-board" style={{ width: `${(withBoard / areas[k]) * 100}%` }} /></span>
+          </span>
+          <b>{areas[k]}</b>
+        </div>
+      })}
+      <p className="bm-legend"><i className="bm-area-board" aria-hidden /> With a daily model board <i className="bm-area-fill" aria-hidden /> Listed</p>
+    </div>
+
+    <div className="bm-splits" id="labels">
+      <Split title="Published results" labels={STATUS} help={STATUS_HELP} counts={tally(benchmarks.map(b => b.results_status))} total={n} />
+      <Split title="Data access" labels={ACCESS} help={ACCESS_HELP} counts={tally(benchmarks.map(b => b.data_access))} total={n} />
+      <Split title="Relevance to accounting work" labels={RELEVANCE} help={RELEVANCE_HELP} counts={tally(benchmarks.map(b => b.relevance))} total={n} />
+      <Split title="Who publishes" labels={PUBLISHER} counts={tally(benchmarks.map(b => b.publisher_type))} total={n} />
+    </div>
+
+    <p className="bm-fine">Catalog metadata is open as <a href="/benchmarks.json">benchmarks.json</a> (CC BY 4.0). Scores stay under each publisher's terms. <a href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a></p>
+  </section>
+}
+
+const AREA_WORD: Record<string, string> = { accounting: 'accounting', audit: 'audit', tax: 'tax', financial_analysis: 'finance', modeling_spreadsheets: 'financial modeling', investment_banking: 'investment banking', financial_nlp: 'financial NLP', reporting_xbrl: 'financial reporting', exams_knowledge: 'accounting exam', general_work: 'professional work' }
+const SITE = 'Calibration Arena'
+const SECTION_TITLES: Record<Exclude<Section, 'detail'>, string> = {
+  leaderboards: `Finance & Accounting AI Benchmark Leaderboards | ${SITE}`,
+  all: `All Finance & Accounting AI Benchmarks | ${SITE}`,
+  awaiting: `Finance AI Benchmarks Awaiting Public Results | ${SITE}`,
+  method: `How the Benchmark Directory Works | ${SITE}`,
+}
+const SECTION_DESCRIPTIONS: Record<Exclude<Section, 'detail'>, string> = {
+  leaderboards: 'Which AI models lead each public accounting and finance benchmark: Vals AI, APEX-Accounting, DualEntry, TaxBench and more, in each publisher\'s own metric, checked daily.',
+  all: 'Directory of public accounting, tax, audit and finance AI benchmarks, with data access, grading method, license and the latest published results.',
+  awaiting: 'Accounting and finance AI benchmarks and products that have no public model results yet.',
+  method: 'How Calibration Arena tracks publisher-owned accounting and finance AI benchmarks: checked daily, never re-run, rescaled or combined.',
+}
+// Keep in sync with scripts/prerender-benchmarks.mjs, which writes the same tags into static HTML.
+export function benchmarkTitle(b: Pick<Benchmark, 'name' | 'publisher' | 'domains'>) {
+  return `${b.name} Leaderboard · ${b.publisher} ${AREA_WORD[b.domains[0]] ?? 'finance'} benchmark | ${SITE}`
+}
+export function benchmarkDescription(b: Pick<Benchmark, 'summary' | 'publisher' | 'results'>) {
+  const r = b.results
+  const lead = r?.leader && r.leader_score ? ` Top model: ${r.leader} (${r.leader_score}${r.metric ? ` ${r.metric.toLowerCase()}` : ''}${r.as_of ? `, ${r.as_of}` : ''}).` : ''
+  return `${b.summary}${lead} Results from ${b.publisher}, linked to the source.`.slice(0, 300)
+}
+
+function setHeadTag(selector: string, create: () => HTMLElement, attr: string, value: string) {
+  let el = document.head.querySelector<HTMLElement>(selector)
+  if (!el) { el = create(); document.head.appendChild(el) }
+  const previous = el.getAttribute(attr)
+  el.setAttribute(attr, value)
+  return () => { if (previous === null) el!.remove(); else el!.setAttribute(attr, previous) }
+}
+
+function usePageMeta(title: string | null, description: string | null, path: string) {
+  useEffect(() => {
+    if (!title) return
+    const previousTitle = document.title
+    document.title = title
+    const restore = [
+      description && setHeadTag('meta[name="description"]', () => Object.assign(document.createElement('meta'), { name: 'description' }), 'content', description),
+      setHeadTag('link[rel="canonical"]', () => Object.assign(document.createElement('link'), { rel: 'canonical' }), 'href', `https://calibrationarena.ai${path}`),
+    ]
+    return () => { document.title = previousTitle; restore.forEach(undo => undo && undo()) }
+  }, [title, description, path])
+}
+
+function TryIt() {
+  return <Link className="p-button bm-try" to="/ask">Try it on your own task<ArrowUpRight size={14} aria-hidden /></Link>
 }
 
 export default function Benchmarks() {
   const location = useLocation()
-  const section = SECTIONS[location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')]
+  const slug = location.pathname.replace(/^\/benchmarks\/?/, '').replace(/\/$/, '')
+  const section: Section | undefined = SECTIONS[slug] ?? (/^[a-z0-9-]+$/.test(slug) ? 'detail' : undefined)
   const [data, setData] = useState<Catalog | null>(null)
   const [usingFallback, setUsingFallback] = useState(false)
   const now = useFreshnessClock()
@@ -142,13 +256,24 @@ export default function Benchmarks() {
   const awaiting = data?.benchmarks.filter(b => b.results_status === 'unpublished' || b.results_status === 'unknown') ?? []
   const quiet = data?.products.filter(p => p.status !== 'published') ?? []
   const filtered = !!(query || domain || status || access || relevance || agentic)
-  if (!section) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
-  const overdue = data?.boards?.filter(b => checkOverdue(b.last_successful_check ?? b.retrieved, now)).length ?? 0
+  const page = section === 'detail' ? data?.benchmarks.find(b => b.id === slug) : undefined
+  const pageBoard = page && data?.boards?.find(b => b.benchmark_id === page.id)
+  usePageMeta(section === 'detail' ? (page ? benchmarkTitle(page) : null) : section ? SECTION_TITLES[section] : null,
+    page ? benchmarkDescription(page) : section && section !== 'detail' ? SECTION_DESCRIPTIONS[section] : null,
+    `/benchmarks${slug ? `/${slug}` : ''}`)
+  if (!section || (section === 'detail' && data && !page)) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
   return <div className="p-workspace bm-page" data-snapshot-id={data?.refresh?.snapshot_id ?? 'bundled'}>
     <header className="bm-intro">
-      <p className="p-eyebrow">Finance &amp; accounting AI benchmarks</p>
-      <h1 className="bm-title">Which models lead each public finance and accounting benchmark</h1>
-      {data && <p className="bm-tally">
+      {page ? <>
+        <p className="bm-crumb"><Link to="/benchmarks">Industry Benchmarks</Link> / <Link to="/benchmarks/all">All benchmarks</Link></p>
+        <h1 className="bm-title">{page.name}</h1>
+        <p className="bm-tagline">{page.publisher} · {page.domains.map(d => DOMAINS[d]).join(' · ')} · {STATUS[page.results_status]}</p>
+      </> : <>
+        <h1 className="bm-title">Industry Benchmarks</h1>
+        <p className="bm-tagline">Calibration Arena's pulse on accounting and financial AI benchmarks.</p>
+      </>}
+      <TryIt />
+      {data && section !== 'detail' && <p className="bm-tally">
         <span><b>{data.counts.benchmarks}</b> benchmarks tracked</span>
         <span><b>{data.counts.by_results_status.leaderboard}</b> live leaderboards</span>
         <Link to="/benchmarks/awaiting"><b>{awaiting.length + quiet.length}</b> awaiting public results</Link>
@@ -156,18 +281,14 @@ export default function Benchmarks() {
           ? <span>Checked daily · {data.boards?.length} model boards</span>
           : <span>Snapshot {monthLabel(data.catalog_updated)}</span>}
       </p>}
-      {data && (usingFallback || overdue > 0 || (data.refresh && checkOverdue(data.refresh.checked_at, now))) && <p className="bm-freshness-notice" role="status">
-        {usingFallback ? 'Daily feed unavailable. Showing the saved catalog; check each board’s date.'
-          : `${overdue ? `${overdue} ${overdue === 1 ? 'board is' : 'boards are'} overdue for a successful check.` : 'The daily refresh is overdue.'} Last verified results remain available.`}
-      </p>}
-      <p className="bm-promise">Every score is the publisher's own, linked to its source. We don't re-run, rescale or combine them.</p>
+      {usingFallback && <p className="bm-freshness-notice" role="status">Daily feed unavailable. Showing the saved catalog; check each board’s date.</p>}
     </header>
-    <nav className="bm-tabs" aria-label="Benchmark sections">
+    {section !== 'detail' && <nav className="bm-tabs" aria-label="Benchmark sections">
       <NavLink to="/benchmarks" end>Leaderboards</NavLink>
       <NavLink to="/benchmarks/all">All benchmarks{data && <span>{data.counts.benchmarks}</span>}</NavLink>
       <NavLink to="/benchmarks/awaiting">Awaiting results{data && <span>{awaiting.length + quiet.length}</span>}</NavLink>
-      <NavLink to="/benchmarks/method">How we maintain this</NavLink>
-    </nav>
+      <NavLink to="/benchmarks/method">Overview</NavLink>
+    </nav>}
     {error && <p className="p-error" role="alert">{error}</p>}
     {!data && !error && <p className="p-loading" role="status">Loading the catalog…</p>}
     {data && section === 'leaderboards' && (data.boards?.length
@@ -212,18 +333,19 @@ export default function Benchmarks() {
       <a className="p-secondary" href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a>
     </section>}
 
-    {data && section === 'method' && <section className="bm-method" aria-labelledby="method">
-      <h2 id="method" className="bm-section-title">How we maintain this list</h2>
-      <ul>
-        <li><b>Publishers own their results.</b> We copy the headline figure, metric and date as stated at the linked source, and label where it came from: the publisher, a vendor report, a paper, or a third-party mirror.</li>
-        <li><b>One board per benchmark.</b> Each board keeps its publisher's metric. We never combine boards into a single score, because they use different tasks, graders and metrics.</li>
-        <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
-        <li><b>Daily board checks.</b> We check the nine model boards daily. Each board shows its last successful check separately from the publisher’s own update date, when available. A check can succeed without any scores changing. Checks more than 36 hours old are marked overdue; failed checks keep the last verified results.</li>
-        <li><b>Editorial review is separate.</b> The wider directory is reviewed separately. Listings not reviewed within {data.review_after_days} days, or active leaderboards whose publisher-dated results are more than {data.results_stale_after_days} days old, are flagged using today’s date.</li>
-        <li><b>Open metadata, cited results.</b> Our catalog metadata (ids, taxonomy, status, freshness and links) is published as <a href="/benchmarks.json">benchmarks.json</a> under CC BY 4.0. The result figures and board snapshots in that file are reproduced from each publisher as cited facts with a link to the source. They stay under the publisher's own terms and are not relicensed by us; reuse them under those terms and credit the publisher.</li>
-      </ul>
-      <h3>What the labels mean</h3>
-      <Glossary />
+    {data && section === 'method' && <Overview data={data} benchmarks={data.benchmarks} />}
+
+    {page && data && <section className="bm-bench-page" aria-label={`${page.name} details`}>
+      {pageBoard
+        ? <BenchmarkBoards boards={[pageBoard]} models={data.models ?? []} benchmarks={data.benchmarks} single />
+        : <p className="bm-empty">{page.results?.leader_score ? `Published top score: ${page.results.leader ?? 'not named'} · ${page.results.leader_score}${page.results.metric ? ` ${page.results.metric}` : ''}.` : 'No model-by-model board is published for this benchmark.'}</p>}
+      {!pageBoard && <p className="bd-what">{page.summary}</p>}
+      <div className="bm-detail-card"><Details b={page} page /></div>
+      <aside className="bm-try-panel">
+        <h2>How do models handle your own work?</h2>
+        <p>{page.name} tests the tasks its publisher chose. Bring a task from your own close, reconciliation or reporting work and compare two models' answers side by side.</p>
+        <TryIt />
+      </aside>
     </section>}
   </div>
 }

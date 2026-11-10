@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /session/
+Disallow: /record
+Disallow: /projects
+Disallow: /signin
+Disallow: /signup
+Disallow: /reset
+
+Sitemap: https://calibrationarena.ai/sitemap.xml

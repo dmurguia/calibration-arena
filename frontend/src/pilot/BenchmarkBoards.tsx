@@ -1,12 +1,12 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowUpRight, Search } from 'lucide-react'
 import { checkLabel, checkOverdue, useFreshnessClock } from './benchmarkFreshness'
 
 export type Weights = 'open' | 'closed' | 'unknown'
 export interface ModelRec { id: string; name: string; org: string | null; weights: Weights; weights_basis: 'publisher' | 'family' | 'conflict' | 'none'; weights_reported: Record<string, 'open' | 'closed'> }
 export interface BoardEntry { model: string; label: string; config: string | null; scores: Record<string, number>; ci?: Record<string, [number, number]>; cost: number | null }
-export interface Board { benchmark_id: string; source_url: string; adapter: string; as_of: string | null; retrieved: string; last_successful_check?: string; metrics: { key: string; label: string; unit: string }[]; cost_label: string | null; entries: BoardEntry[] }
+export interface Board { benchmark_id: string; source_url: string; adapter: string; as_of: string | null; retrieved: string; last_successful_check?: string; frozen?: boolean; superseded_by?: string; metrics: { key: string; label: string; unit: string }[]; cost_label: string | null; entries: BoardEntry[] }
 export interface BoardBenchmark { id: string; name: string; publisher: string; domains: string[]; summary: string; metric_definitions?: Record<string, string>; results_status: string; relevance: string; results: { source_type: string; note: string | null } | null }
 
 type Filter = 'all' | 'open' | 'closed'
@@ -64,13 +64,28 @@ function Weight({ r }: { r: Row }) {
   return <span className={`bd-w bd-w-${r.weights}`} title={r.m ? `${WEIGHTS[r.weights]}: ${BASIS[r.m.weights_basis]}` : undefined}>{WEIGHTS[r.weights]}</span>
 }
 
-function Leaders({ boards, selected, benchmarks, models, onPick }: { boards: Board[]; selected: Board; benchmarks: Map<string, BoardBenchmark>; models: Map<string, ModelRec>; onPick: (id: string) => void }) {
-  return <ul className="bd-leaders" aria-label="Leader on each benchmark">
+const isArchived = (b: Board, benchmarks: Map<string, BoardBenchmark>) => !!b.frozen || benchmarks.get(b.benchmark_id)?.results_status === 'archived'
+
+function Leaders({ boards, selected, benchmarks, models, now, onPick }: { boards: Board[]; selected: Board; benchmarks: Map<string, BoardBenchmark>; models: Map<string, ModelRec>; now: number; onPick: (id: string) => void }) {
+  const current = boards.filter(b => !isArchived(b, benchmarks))
+  const archived = boards.filter(b => isArchived(b, benchmarks))
+  return <>
+    <LeaderCards boards={current} label="Leader on each current benchmark" {...{ selected, benchmarks, models, now, onPick }} />
+    {archived.length > 0 && <details className="bd-archived" open={archived.includes(selected)}>
+      <summary>Archived by publisher ({archived.length}) · no longer updated</summary>
+      <LeaderCards boards={archived} label="Leader on each archived benchmark" {...{ selected, benchmarks, models, now, onPick }} />
+    </details>}
+  </>
+}
+
+function LeaderCards({ boards, label, selected, benchmarks, models, now, onPick }: { boards: Board[]; label: string; selected: Board; benchmarks: Map<string, BoardBenchmark>; models: Map<string, ModelRec>; now: number; onPick: (id: string) => void }) {
+  if (!boards.length) return null
+  return <ul className="bd-leaders" aria-label={label}>
     {boards.map(b => {
       const info = benchmarks.get(b.benchmark_id)
       const top = ranked(b, b.metrics[0].key, models, true)[0]
       return <li key={b.benchmark_id}><button type="button" aria-pressed={b === selected} onClick={() => onPick(b.benchmark_id)}>
-        <span className="bd-leader-board">{info?.name}{info?.results_status === 'archived' ? ' · archived' : ''}</span>
+        <span className="bd-leader-board">{info?.name}{!b.frozen && checkOverdue(b.last_successful_check ?? b.retrieved, now) && <em title="The last daily check didn't succeed. Showing the last verified results."> · check overdue</em>}</span>
         {top && <>
           <span className="bd-leader-model"><Logo org={top.m?.org} size={20} /><b>{rowName(top)}</b></span>
           <span className="bd-leader-score"><strong>{pct(top.score)}</strong><span>{b.metrics[0].label}</span></span>
@@ -238,7 +253,7 @@ function Coverage({ boards, benchmarks, models, filter, onPick }: { boards: Boar
   </section>
 }
 
-export default function BenchmarkBoards({ boards, models: modelList, benchmarks: benchmarkList }: { boards: Board[]; models: ModelRec[]; benchmarks: BoardBenchmark[] }) {
+export default function BenchmarkBoards({ boards, models: modelList, benchmarks: benchmarkList, single = false }: { boards: Board[]; models: ModelRec[]; benchmarks: BoardBenchmark[]; single?: boolean }) {
   const [params, setParams] = useSearchParams()
   const now = useFreshnessClock()
   const [showAll, setShowAll] = useState(false)
@@ -248,7 +263,7 @@ export default function BenchmarkBoards({ boards, models: modelList, benchmarks:
   const areas = AREAS.filter(([key]) => boards.some(b => benchmarks.get(b.benchmark_id)?.domains.includes(key)))
   const area = params.get('area') ?? ''
   const inArea = boards.filter(b => !area || benchmarks.get(b.benchmark_id)?.domains.includes(area))
-  const board = inArea.find(b => b.benchmark_id === params.get('board')) ?? inArea[0]
+  const board = inArea.find(b => b.benchmark_id === params.get('board')) ?? inArea.find(b => !isArchived(b, benchmarks)) ?? inArea[0]
   const filter = (['open', 'closed'].includes(params.get('models') ?? '') ? params.get('models') : 'all') as Filter
   const allConfigs = params.get('configs') === 'all'
   const metric = board?.metrics.find(m => m.key === params.get('metric')) ?? board?.metrics[0]
@@ -272,28 +287,31 @@ export default function BenchmarkBoards({ boards, models: modelList, benchmarks:
   const unstated = all.filter(r => r.weights === 'unknown').length
   const definition = bm?.metric_definitions?.[metric.key]
   const checked = board.last_successful_check ?? board.retrieved
-  const overdue = checkOverdue(checked, now)
+  const overdue = !board.frozen && checkOverdue(checked, now)
   return <section className="bd" aria-labelledby="boards">
-    <nav className="bd-areas" aria-label="Area">
+    <h2 id="boards" className="sr-only">Model leaderboards</h2>
+    {!single && <><nav className="bd-areas" aria-label="Area">
       <button type="button" aria-pressed={!area} onClick={() => set({ area: null, board: null, metric: null })}>All areas <span>{boards.length}</span></button>
       {areas.map(([key, label]) => <button type="button" key={key} aria-pressed={area === key} onClick={() => set({ area: key, board: null, metric: null })}>{label} <span>{boards.filter(b => benchmarks.get(b.benchmark_id)?.domains.includes(key)).length}</span></button>)}
     </nav>
-    <h2 id="boards" className="sr-only">Model leaderboards</h2>
     <p className="bd-explain">The top model on each benchmark, in that publisher's own metric. Pick one to see its full ranking. Boards can't be compared with each other.</p>
-    <Leaders boards={inArea} selected={board} benchmarks={benchmarks} models={models} onPick={id => set({ board: id, metric: null })} />
+    <Leaders boards={inArea} selected={board} benchmarks={benchmarks} models={models} now={now} onPick={id => set({ board: id, metric: null })} /></>}
 
     <article className="bd-panel" aria-labelledby="board-title">
       <header className="bd-panel-head">
         <div>
           <h3 id="board-title">{bm?.name}</h3>
-          <p className="bd-sub">{bm?.publisher} · {modelCount} models{configCount > modelCount ? ` (${configCount} configurations)` : ''}{bm?.results_status === 'archived' ? ' · archived by publisher' : ''}</p>
+          <p className="bd-sub">{bm?.publisher} · {modelCount} models{configCount > modelCount ? ` (${configCount} configurations)` : ''}{isArchived(board, benchmarks) ? ` · archived by publisher${board.superseded_by ? `, replaced by ${board.superseded_by}` : ''}` : ''}</p>
           <p className="bd-freshness">
             <span>Last successful check <time dateTime={checked}>{checkLabel(checked)}</time></span>
             <span>{board.as_of ? <>Publisher updated <time dateTime={board.as_of}>{dateLabel(board.as_of)}</time></> : 'Publisher update date not provided'}</span>
             {overdue && <strong>Check overdue · showing last verified results</strong>}
           </p>
         </div>
-        <Ext href={board.source_url}>{SOURCE[bm?.results?.source_type ?? 'first_party']} source</Ext>
+        <span className="bd-panel-links">
+          {!single && <Link to={`/benchmarks/${board.benchmark_id}`}>Benchmark page</Link>}
+          <Ext href={board.source_url}>{SOURCE[bm?.results?.source_type ?? 'first_party']} source</Ext>
+        </span>
       </header>
       {bm?.summary && <p className="bd-what">{bm.summary}</p>}
       <p className="bd-metric-def"><b>{metric.label}</b>{definition ? `: ${definition}` : '.'} Higher is better.</p>

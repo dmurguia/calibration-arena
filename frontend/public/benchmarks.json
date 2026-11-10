@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-09-29",
+  "catalog_updated": "2026-11-10",
   "source": "benchmarks/registry.json",
   "review_after_days": 45,
   "results_stale_after_days": 180,
@@ -10,11 +10,11 @@
     "results": "Result figures and board snapshots remain the property of their publishers and are reproduced as cited facts with source links. Reuse them under each publisher's own terms."
   },
   "counts": {
-    "benchmarks": 59,
+    "benchmarks": 60,
     "by_results_status": {
-      "leaderboard": 25,
+      "leaderboard": 23,
       "snapshot": 30,
-      "archived": 2,
+      "archived": 5,
       "unpublished": 1,
       "unknown": 1
     },
@@ -443,7 +443,9 @@
       "first_published": "2025-03",
       "last_verified": "2026-09-23",
       "notes": "Data-only repo; no grader and no license.",
-      "flags": []
+      "flags": [
+        "review_due"
+      ]
     },
     {
       "id": "bankertoolbench",
@@ -1170,24 +1172,65 @@
       "license": "Harness MIT",
       "relevance": "adjacent",
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
-        "as_of": "2026-09-26",
+        "as_of": "2026-10-29",
         "metric": "Accuracy",
-        "leader": "Gemini 3.8 Flash",
-        "leader_score": "61.44%",
-        "models_evaluated": 70,
-        "source_url": "https://vals.ai/benchmarks/fabv2",
+        "leader": "Gemini 4 Argon",
+        "leader_score": "65.4%",
+        "models_evaluated": 81,
+        "source_url": "https://www.vals.ai/benchmarks/fabv2",
         "source_type": "first_party",
         "note": "Cost is Vals' reported USD per test."
       },
       "links": {
-        "leaderboard": "https://vals.ai/benchmarks/fabv2",
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2",
         "code": "https://github.com/vals-ai/finance-agent"
       },
       "first_published": "2026",
-      "last_verified": "2026-09-29",
-      "notes": "Public, private-validation and held-out test splits.",
+      "last_verified": "2026-11-10",
+      "notes": "Public, private-validation and held-out test splits. Superseded by Finance Agent v2.1; Vals no longer runs new models on v2.",
+      "flags": []
+    },
+    {
+      "id": "vals-finance-agent-v2-1",
+      "name": "Vals Finance Agent v2.1",
+      "publisher": "Vals AI",
+      "publisher_type": "eval_lab",
+      "kind": "benchmark",
+      "domains": [
+        "financial_analysis"
+      ],
+      "summary": "Analyst research tasks where agents search the web and SEC EDGAR to answer questions about public companies.",
+      "metric_definitions": {
+        "accuracy": "Share of research questions answered correctly, graded against expert rubrics by an LLM judge."
+      },
+      "task_format": "agentic",
+      "size": null,
+      "stateful": false,
+      "grader": "rubric_llm",
+      "data_access": "partial",
+      "license": "Harness MIT",
+      "relevance": "adjacent",
+      "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
+      "results_status": "leaderboard",
+      "results": {
+        "as_of": "2026-11-09",
+        "metric": "Accuracy",
+        "leader": "Claude Fable 5.2",
+        "leader_score": "69.47%",
+        "models_evaluated": 38,
+        "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
+        "source_type": "first_party",
+        "note": "Cost is Vals' reported USD per test."
+      },
+      "links": {
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2-1",
+        "code": "https://github.com/vals-ai/finance-agent"
+      },
+      "first_published": "2026",
+      "last_verified": "2026-11-10",
+      "notes": "Revision of Finance Agent v2: new judge jury, grading prompt updated for hedged answers, question and rubric fixes, and a larger held-out test split.",
       "flags": []
     },
     {
@@ -1211,7 +1254,7 @@
       "license": null,
       "relevance": "adjacent",
       "relevance_note": "Large expert-written tax set with a held-out test split.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
         "as_of": "2026-09-01",
         "metric": "Accuracy",
@@ -1265,7 +1308,9 @@
       "first_published": "2026-04",
       "last_verified": "2026-09-29",
       "notes": null,
-      "flags": []
+      "flags": [
+        "results_stale"
+      ]
     },
     {
       "id": "aa-finance-accounting-index",
@@ -2249,7 +2294,7 @@
       "license": null,
       "relevance": "reference",
       "relevance_note": "Document extraction from scanned financial documents.",
-      "results_status": "leaderboard",
+      "results_status": "archived",
       "results": {
         "as_of": "2026-09-01",
         "metric": "Accuracy",
@@ -2418,6 +2463,14 @@
       "weights_basis": "family"
     },
     {
+      "id": "beam1-0",
+      "name": "Beam 1.0",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "commanda032025",
       "name": "Command A 03 2025",
       "org": "Cohere",
@@ -2482,6 +2535,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "deepseekv4-1flash1017",
+      "name": "DeepSeek V4.1 Flash 1017",
+      "org": "DeepSeek",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "deepseekv4flash",
       "name": "DeepSeek V4 Flash",
       "org": "DeepSeek",
@@ -2520,6 +2581,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "ember1",
+      "name": "Ember 1",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "fable5",
       "name": "Claude Fable 5",
       "org": "Anthropic",
@@ -2539,6 +2608,14 @@
       },
       "weights": "closed",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "fable5-2",
+      "name": "Claude Fable 5.2",
+      "org": "Anthropic",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
     },
     {
       "id": "gemini1-5flash001",
@@ -2721,6 +2798,22 @@
     {
       "id": "gemini3pro",
       "name": "Gemini 3 Pro Preview",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gemini4argon",
+      "name": "Gemini 4 Argon",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gemini4carbon",
+      "name": "Gemini 4 Carbon",
       "org": "Google",
       "weights_reported": {},
       "weights": "closed",
@@ -2984,6 +3077,22 @@
       "weights_basis": "family"
     },
     {
+      "id": "gpt6-1sol",
+      "name": "GPT 6.1 Sol",
+      "org": "OpenAI",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "gpt6-1terra",
+      "name": "GPT 6.1 Terra",
+      "org": "OpenAI",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "gpt6astra",
       "name": "GPT-6 Astra",
       "org": "OpenAI",
@@ -3154,6 +3263,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "haiku5-5",
+      "name": "Claude Haiku 5.5",
+      "org": "Anthropic",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "hy4",
       "name": "HY4 Preview",
       "org": "Tencent",
@@ -3170,6 +3287,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "inkling2small",
+      "name": "Inkling 2 Small",
+      "org": "Thinking Machines",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "inklingsmall",
@@ -3268,6 +3393,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "kimik3-1pro",
+      "name": "Kimi K3.1 Pro",
+      "org": "Moonshot AI",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "lagunam-1",
@@ -3398,6 +3531,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "mercury3",
+      "name": "Mercury 3",
+      "org": "Inception",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mimov2-5",
       "name": "MiMo V2.5",
       "org": "Xiaomi",
@@ -3469,6 +3610,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "minimaxm3-1flash",
+      "name": "MiniMax M3.1 Flash",
+      "org": "MiniMax",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mistrallarge2411",
       "name": "Mistral Large 2411",
       "org": "Mistral",
@@ -3494,6 +3643,22 @@
       },
       "weights": "unknown",
       "weights_basis": "conflict"
+    },
+    {
+      "id": "mistrallarge4",
+      "name": "Mistral Large 4",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
+      "id": "mistrallarge4oss",
+      "name": "Mistral Large 4 OSS",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "mistralmedium2505",
@@ -3526,6 +3691,14 @@
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"
+    },
+    {
+      "id": "museember",
+      "name": "Muse Ember",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "musespark",
@@ -3571,6 +3744,30 @@
       "weights_basis": "family"
     },
     {
+      "id": "musesparkopen",
+      "name": "Muse Spark Open",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
+      "id": "musewonder",
+      "name": "Muse Wonder",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
+      "id": "musewonderfull",
+      "name": "Muse Wonder Full",
+      "org": "Meta",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "nemotron3-5lightning",
       "name": "Nemotron 3.5 Lightning",
       "org": "NVIDIA",
@@ -3579,6 +3776,14 @@
       },
       "weights": "open",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "nemotron3-5supervl120ba12b",
+      "name": "Nemotron 3.5 Super Vl 120B A12B",
+      "org": null,
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
     },
     {
       "id": "nemotron3ultra",
@@ -3801,6 +4006,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "qwen3-8maxinternal",
+      "name": "Qwen3.8 Max Internal",
+      "org": "Alibaba",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "qwen3235ba22b",
       "name": "Qwen3 235B A22B",
       "org": "Alibaba",
@@ -3875,6 +4088,14 @@
       },
       "weights": "closed",
       "weights_basis": "publisher"
+    },
+    {
+      "id": "step5",
+      "name": "Step 5 Preview",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "trinitylarge",
@@ -5324,7 +5545,8 @@
       "source_url": "https://www.vals.ai/benchmarks/tax_eval_v2",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-09-29",
+      "retrieved": "2026-11-10",
+      "archived": true,
       "metrics": [
         {
           "key": "accuracy",
@@ -5341,6 +5563,7 @@
           "scores": {
             "accuracy": 80.376
           },
+          "source_model_id": "meta/muse_spark_1_2",
           "cost": null
         },
         {
@@ -5350,6 +5573,7 @@
           "scores": {
             "accuracy": 79.722
           },
+          "source_model_id": "meta/muse_spark_1_1",
           "cost": null
         },
         {
@@ -5359,6 +5583,7 @@
           "scores": {
             "accuracy": 77.678
           },
+          "source_model_id": "meta/muse_spark",
           "cost": null
         },
         {
@@ -5368,6 +5593,7 @@
           "scores": {
             "accuracy": 77.106
           },
+          "source_model_id": "anthropic/claude-sonnet-4-6",
           "cost": null
         },
         {
@@ -5377,6 +5603,7 @@
           "scores": {
             "accuracy": 76.942
           },
+          "source_model_id": "anthropic/claude-fable-5",
           "cost": null
         },
         {
@@ -5386,6 +5613,7 @@
           "scores": {
             "accuracy": 76.166
           },
+          "source_model_id": "openai/gpt-5.6-luna",
           "cost": null
         },
         {
@@ -5395,6 +5623,7 @@
           "scores": {
             "accuracy": 76.166
           },
+          "source_model_id": "openai/gpt-5.6-terra",
           "cost": null
         },
         {
@@ -5404,6 +5633,7 @@
           "scores": {
             "accuracy": 75.961
           },
+          "source_model_id": "anthropic/claude-fable-5-1",
           "cost": null
         },
         {
@@ -5413,6 +5643,7 @@
           "scores": {
             "accuracy": 75.961
           },
+          "source_model_id": "anthropic/claude-opus-4-6-thinking",
           "cost": null
         },
         {
@@ -5422,6 +5653,7 @@
           "scores": {
             "accuracy": 75.879
           },
+          "source_model_id": "grok/grok-3",
           "cost": null
         },
         {
@@ -5431,6 +5663,7 @@
           "scores": {
             "accuracy": 75.756
           },
+          "source_model_id": "openai/gpt-5.2-2025-12-11",
           "cost": null
         },
         {
@@ -5440,6 +5673,7 @@
           "scores": {
             "accuracy": 75.716
           },
+          "source_model_id": "kimi/kimi-k3",
           "cost": null
         },
         {
@@ -5449,6 +5683,7 @@
           "scores": {
             "accuracy": 75.697
           },
+          "source_model_id": "grok/grok-4-fast-reasoning",
           "cost": null
         },
         {
@@ -5458,6 +5693,7 @@
           "scores": {
             "accuracy": 75.634
           },
+          "source_model_id": "anthropic/claude-opus-4-8",
           "cost": null
         },
         {
@@ -5467,6 +5703,7 @@
           "scores": {
             "accuracy": 75.634
           },
+          "source_model_id": "anthropic/claude-sonnet-5",
           "cost": null
         },
         {
@@ -5476,6 +5713,7 @@
           "scores": {
             "accuracy": 75.593
           },
+          "source_model_id": "zai/glm-5.3-flash",
           "cost": null
         },
         {
@@ -5485,6 +5723,7 @@
           "scores": {
             "accuracy": 75.552
           },
+          "source_model_id": "alibaba/qwen3.8-max",
           "cost": null
         },
         {
@@ -5494,6 +5733,7 @@
           "scores": {
             "accuracy": 75.511
           },
+          "source_model_id": "thinkingmachines/inkling-small",
           "cost": null
         },
         {
@@ -5503,6 +5743,7 @@
           "scores": {
             "accuracy": 75.306
           },
+          "source_model_id": "thinkingmachines/inkling",
           "cost": null
         },
         {
@@ -5512,6 +5753,7 @@
           "scores": {
             "accuracy": 75.306
           },
+          "source_model_id": "alibaba/qwen3.7-max",
           "cost": null
         },
         {
@@ -5521,6 +5763,7 @@
           "scores": {
             "accuracy": 75.266
           },
+          "source_model_id": "anthropic/claude-opus-4-7",
           "cost": null
         },
         {
@@ -5530,6 +5773,7 @@
           "scores": {
             "accuracy": 75.225
           },
+          "source_model_id": "openai/gpt-5-mini-2025-08-07",
           "cost": null
         },
         {
@@ -5539,6 +5783,7 @@
           "scores": {
             "accuracy": 75.143
           },
+          "source_model_id": "anthropic/claude-opus-5",
           "cost": null
         },
         {
@@ -5548,6 +5793,7 @@
           "scores": {
             "accuracy": 75.061
           },
+          "source_model_id": "openai/gpt-4.1-2025-04-14",
           "cost": null
         },
         {
@@ -5557,6 +5803,7 @@
           "scores": {
             "accuracy": 74.98
           },
+          "source_model_id": "openai/gpt-5.5",
           "cost": null
         },
         {
@@ -5566,6 +5813,7 @@
           "scores": {
             "accuracy": 74.857
           },
+          "source_model_id": "openai/gpt-5.1-2025-11-13",
           "cost": null
         },
         {
@@ -5575,6 +5823,7 @@
           "scores": {
             "accuracy": 74.857
           },
+          "source_model_id": "google/gemini-3.6-flash",
           "cost": null
         },
         {
@@ -5584,6 +5833,7 @@
           "scores": {
             "accuracy": 74.856
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101-thinking",
           "cost": null
         },
         {
@@ -5593,6 +5843,7 @@
           "scores": {
             "accuracy": 74.776
           },
+          "source_model_id": "openai/o4-mini-2025-04-16",
           "cost": null
         },
         {
@@ -5602,6 +5853,7 @@
           "scores": {
             "accuracy": 74.775
           },
+          "source_model_id": "openai/gpt-5.6-sol",
           "cost": null
         },
         {
@@ -5611,6 +5863,7 @@
           "scores": {
             "accuracy": 74.734
           },
+          "source_model_id": "google/gemini-3.7-flash",
           "cost": null
         },
         {
@@ -5620,6 +5873,7 @@
           "scores": {
             "accuracy": 74.734
           },
+          "source_model_id": "alibaba/qwen3.6-plus",
           "cost": null
         },
         {
@@ -5629,6 +5883,7 @@
           "scores": {
             "accuracy": 74.652
           },
+          "source_model_id": "kimi/kimi-k2.6",
           "cost": null
         },
         {
@@ -5638,6 +5893,7 @@
           "scores": {
             "accuracy": 74.571
           },
+          "source_model_id": "openai/o3-2025-04-16",
           "cost": null
         },
         {
@@ -5647,6 +5903,7 @@
           "scores": {
             "accuracy": 74.53
           },
+          "source_model_id": "openai/gpt-4o-2024-11-20",
           "cost": null
         },
         {
@@ -5656,6 +5913,7 @@
           "scores": {
             "accuracy": 74.448
           },
+          "source_model_id": "google/gemini-3.8-flash",
           "cost": null
         },
         {
@@ -5665,6 +5923,7 @@
           "scores": {
             "accuracy": 74.366
           },
+          "source_model_id": "google/gemini-3.5-flash",
           "cost": null
         },
         {
@@ -5674,6 +5933,7 @@
           "scores": {
             "accuracy": 74.325
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101",
           "cost": null
         },
         {
@@ -5683,6 +5943,7 @@
           "scores": {
             "accuracy": 74.284
           },
+          "source_model_id": "openai/o1-2024-12-17",
           "cost": null
         },
         {
@@ -5692,6 +5953,7 @@
           "scores": {
             "accuracy": 74.202
           },
+          "source_model_id": "kimi/kimi-k2.5-thinking",
           "cost": null
         },
         {
@@ -5701,6 +5963,7 @@
           "scores": {
             "accuracy": 74.121
           },
+          "source_model_id": "grok/grok-4.20-0309-reasoning",
           "cost": null
         },
         {
@@ -5710,6 +5973,7 @@
           "scores": {
             "accuracy": 74.039
           },
+          "source_model_id": "anthropic/claude-3-7-sonnet-20250219-thinking",
           "cost": null
         },
         {
@@ -5719,6 +5983,7 @@
           "scores": {
             "accuracy": 73.958
           },
+          "source_model_id": "openai/gpt-5.4-2026-03-05",
           "cost": null
         },
         {
@@ -5728,6 +5993,7 @@
           "scores": {
             "accuracy": 73.958
           },
+          "source_model_id": "alibaba/qwen3-max-preview",
           "cost": null
         },
         {
@@ -5737,6 +6003,7 @@
           "scores": {
             "accuracy": 73.876
           },
+          "source_model_id": "google/gemini-3-flash-preview",
           "cost": null
         },
         {
@@ -5746,6 +6013,7 @@
           "scores": {
             "accuracy": 73.794
           },
+          "source_model_id": "xiaomi/mimo-v2.5-pro",
           "cost": null
         },
         {
@@ -5755,6 +6023,7 @@
           "scores": {
             "accuracy": 73.672
           },
+          "source_model_id": "anthropic/claude-opus-4-1-20250805-thinking",
           "cost": null
         },
         {
@@ -5764,6 +6033,7 @@
           "scores": {
             "accuracy": 73.508
           },
+          "source_model_id": "alibaba/qwen3-max",
           "cost": null
         },
         {
@@ -5773,6 +6043,7 @@
           "scores": {
             "accuracy": 73.385
           },
+          "source_model_id": "openai/gpt-5-2025-08-07",
           "cost": null
         },
         {
@@ -5782,6 +6053,7 @@
           "scores": {
             "accuracy": 73.344
           },
+          "source_model_id": "zai/glm-5.2",
           "cost": null
         },
         {
@@ -5791,6 +6063,7 @@
           "scores": {
             "accuracy": 73.303
           },
+          "source_model_id": "anthropic/claude-sonnet-4-5-20250929-thinking",
           "cost": null
         },
         {
@@ -5800,6 +6073,7 @@
           "scores": {
             "accuracy": 73.14
           },
+          "source_model_id": "grok/grok-4-1-fast-reasoning",
           "cost": null
         },
         {
@@ -5809,6 +6083,7 @@
           "scores": {
             "accuracy": 73.099
           },
+          "source_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
           "cost": null
         },
         {
@@ -5818,6 +6093,7 @@
           "scores": {
             "accuracy": 73.058
           },
+          "source_model_id": "deepseek/deepseek-v4-pro-0813",
           "cost": null
         },
         {
@@ -5827,6 +6103,7 @@
           "scores": {
             "accuracy": 73.058
           },
+          "source_model_id": "mistralai/mistral-large-2512",
           "cost": null
         },
         {
@@ -5836,6 +6113,7 @@
           "scores": {
             "accuracy": 72.976
           },
+          "source_model_id": "grok/grok-3-mini-fast-low-reasoning",
           "cost": null
         },
         {
@@ -5845,6 +6123,7 @@
           "scores": {
             "accuracy": 72.894
           },
+          "source_model_id": "google/gemini-2.5-pro-exp-03-25",
           "cost": null
         },
         {
@@ -5854,6 +6133,7 @@
           "scores": {
             "accuracy": 72.882
           },
+          "source_model_id": "google/gemini-3.1-pro-preview",
           "cost": null
         },
         {
@@ -5863,6 +6143,7 @@
           "scores": {
             "accuracy": 72.731
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025",
           "cost": null
         },
         {
@@ -5872,6 +6153,7 @@
           "scores": {
             "accuracy": 72.731
           },
+          "source_model_id": "minimax/MiniMax-M3",
           "cost": null
         },
         {
@@ -5881,6 +6163,7 @@
           "scores": {
             "accuracy": 72.608
           },
+          "source_model_id": "google/gemini-3.5-flash-lite",
           "cost": null
         },
         {
@@ -5890,6 +6173,7 @@
           "scores": {
             "accuracy": 72.568
           },
+          "source_model_id": "google/gemini-3-pro-preview",
           "cost": null
         },
         {
@@ -5899,6 +6183,7 @@
           "scores": {
             "accuracy": 72.404
           },
+          "source_model_id": "anthropic/claude-3-7-sonnet-20250219",
           "cost": null
         },
         {
@@ -5908,6 +6193,7 @@
           "scores": {
             "accuracy": 72.404
           },
+          "source_model_id": "zai/glm-4.5",
           "cost": null
         },
         {
@@ -5917,6 +6203,7 @@
           "scores": {
             "accuracy": 72.404
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -5926,6 +6213,7 @@
           "scores": {
             "accuracy": 72.363
           },
+          "source_model_id": "zai/glm-5.3",
           "cost": null
         },
         {
@@ -5935,6 +6223,7 @@
           "scores": {
             "accuracy": 72.281
           },
+          "source_model_id": "fireworks/deepseek-r1",
           "cost": null
         },
         {
@@ -5944,6 +6233,7 @@
           "scores": {
             "accuracy": 72.158
           },
+          "source_model_id": "alibaba/qwen3.5-flash",
           "cost": null
         },
         {
@@ -5953,6 +6243,7 @@
           "scores": {
             "accuracy": 72.077
           },
+          "source_model_id": "deepseek/deepseek-v4-pro",
           "cost": null
         },
         {
@@ -5962,6 +6253,7 @@
           "scores": {
             "accuracy": 71.995
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514-thinking",
           "cost": null
         },
         {
@@ -5971,6 +6263,7 @@
           "scores": {
             "accuracy": 71.914
           },
+          "source_model_id": "anthropic/claude-opus-4-20250514",
           "cost": null
         },
         {
@@ -5980,6 +6273,7 @@
           "scores": {
             "accuracy": 71.914
           },
+          "source_model_id": "openai/gpt-4.1-mini-2025-04-14",
           "cost": null
         },
         {
@@ -5989,6 +6283,7 @@
           "scores": {
             "accuracy": 71.832
           },
+          "source_model_id": "xiaomi/mimo-v2.5",
           "cost": null
         },
         {
@@ -5998,6 +6293,7 @@
           "scores": {
             "accuracy": 71.79
           },
+          "source_model_id": "google/gemini-3.1-flash-lite-preview",
           "cost": null
         },
         {
@@ -6007,6 +6303,7 @@
           "scores": {
             "accuracy": 71.709
           },
+          "source_model_id": "kimi/kimi-k2-thinking",
           "cost": null
         },
         {
@@ -6016,6 +6313,7 @@
           "scores": {
             "accuracy": 71.668
           },
+          "source_model_id": "grok/grok-4.5",
           "cost": null
         },
         {
@@ -6025,6 +6323,7 @@
           "scores": {
             "accuracy": 71.586
           },
+          "source_model_id": "fireworks/gpt-oss-120b",
           "cost": null
         },
         {
@@ -6034,6 +6333,7 @@
           "scores": {
             "accuracy": 71.581
           },
+          "source_model_id": "grok/grok-4-fast-non-reasoning",
           "cost": null
         },
         {
@@ -6043,6 +6343,7 @@
           "scores": {
             "accuracy": 71.464
           },
+          "source_model_id": "anthropic/claude-opus-4-1-20250805",
           "cost": null
         },
         {
@@ -6052,6 +6353,7 @@
           "scores": {
             "accuracy": 71.26
           },
+          "source_model_id": "alibaba/qwen3.6-27b",
           "cost": null
         },
         {
@@ -6061,6 +6363,7 @@
           "scores": {
             "accuracy": 71.218
           },
+          "source_model_id": "openai/gpt-5.4-mini-2026-03-17",
           "cost": null
         },
         {
@@ -6070,6 +6373,7 @@
           "scores": {
             "accuracy": 71.194
           },
+          "source_model_id": "zai/glm-5.1",
           "cost": null
         },
         {
@@ -6079,6 +6383,7 @@
           "scores": {
             "accuracy": 71.178
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-04-17",
           "cost": null
         },
         {
@@ -6088,6 +6393,7 @@
           "scores": {
             "accuracy": 71.136
           },
+          "source_model_id": "openai/gpt-4o-2024-08-06",
           "cost": null
         },
         {
@@ -6097,6 +6403,7 @@
           "scores": {
             "accuracy": 71.136
           },
+          "source_model_id": "grok/grok-3-mini-fast-high-reasoning",
           "cost": null
         },
         {
@@ -6106,6 +6413,7 @@
           "scores": {
             "accuracy": 71.096
           },
+          "source_model_id": "fireworks/deepseek-v3-0324",
           "cost": null
         },
         {
@@ -6115,6 +6423,7 @@
           "scores": {
             "accuracy": 71.096
           },
+          "source_model_id": "grok/grok-4.6",
           "cost": null
         },
         {
@@ -6124,6 +6433,7 @@
           "scores": {
             "accuracy": 70.85
           },
+          "source_model_id": "alibaba/qwen3.8-27b",
           "cost": null
         },
         {
@@ -6133,6 +6443,7 @@
           "scores": {
             "accuracy": 70.81
           },
+          "source_model_id": "grok/grok-4.3",
           "cost": null
         },
         {
@@ -6142,6 +6453,7 @@
           "scores": {
             "accuracy": 70.687
           },
+          "source_model_id": "deepseek/deepseek-v4-flash-0731",
           "cost": null
         },
         {
@@ -6151,6 +6463,7 @@
           "scores": {
             "accuracy": 70.646
           },
+          "source_model_id": "ant/ling-3.0-flash-2607",
           "cost": null
         },
         {
@@ -6160,6 +6473,7 @@
           "scores": {
             "accuracy": 70.646
           },
+          "source_model_id": "fireworks/qwen3-235b-a22b",
           "cost": null
         },
         {
@@ -6169,6 +6483,7 @@
           "scores": {
             "accuracy": 70.524
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-04-17-thinking",
           "cost": null
         },
         {
@@ -6178,6 +6493,7 @@
           "scores": {
             "accuracy": 70.319
           },
+          "source_model_id": "mistralai/mistral-medium-2505",
           "cost": null
         },
         {
@@ -6187,6 +6503,7 @@
           "scores": {
             "accuracy": 70.196
           },
+          "source_model_id": "together/moonshotai/Kimi-K2-Instruct",
           "cost": null
         },
         {
@@ -6196,6 +6513,7 @@
           "scores": {
             "accuracy": 70.156
           },
+          "source_model_id": "anthropic/claude-3-5-sonnet-20241022",
           "cost": null
         },
         {
@@ -6205,6 +6523,7 @@
           "scores": {
             "accuracy": 70.033
           },
+          "source_model_id": "zai/glm-5-thinking",
           "cost": null
         },
         {
@@ -6214,6 +6533,7 @@
           "scores": {
             "accuracy": 69.788
           },
+          "source_model_id": "google/gemini-2.0-flash-thinking-exp-01-21",
           "cost": null
         },
         {
@@ -6223,6 +6543,7 @@
           "scores": {
             "accuracy": 69.624
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514",
           "cost": null
         },
         {
@@ -6232,6 +6553,7 @@
           "scores": {
             "accuracy": 69.42
           },
+          "source_model_id": "openai/o3-mini-2025-01-31",
           "cost": null
         },
         {
@@ -6241,6 +6563,7 @@
           "scores": {
             "accuracy": 68.766
           },
+          "source_model_id": "zai/glm-4.7",
           "cost": null
         },
         {
@@ -6250,6 +6573,7 @@
           "scores": {
             "accuracy": 68.152
           },
+          "source_model_id": "fireworks/deepseek-v3p2-thinking",
           "cost": null
         },
         {
@@ -6259,6 +6583,7 @@
           "scores": {
             "accuracy": 68.152
           },
+          "source_model_id": "google/gemini-2.0-pro-exp-02-05",
           "cost": null
         },
         {
@@ -6268,6 +6593,7 @@
           "scores": {
             "accuracy": 68.152
           },
+          "source_model_id": "minimax/MiniMax-M2.5",
           "cost": null
         },
         {
@@ -6277,6 +6603,7 @@
           "scores": {
             "accuracy": 67.988
           },
+          "source_model_id": "mistralai/mistral-medium-3.5",
           "cost": null
         },
         {
@@ -6286,6 +6613,7 @@
           "scores": {
             "accuracy": 67.907
           },
+          "source_model_id": "fireworks/deepseek-v3",
           "cost": null
         },
         {
@@ -6295,6 +6623,7 @@
           "scores": {
             "accuracy": 67.744
           },
+          "source_model_id": "google/gemini-2.0-flash-exp",
           "cost": null
         },
         {
@@ -6304,6 +6633,7 @@
           "scores": {
             "accuracy": 67.539
           },
+          "source_model_id": "anthropic/claude-haiku-4-5-20251001-thinking",
           "cost": null
         },
         {
@@ -6313,6 +6643,7 @@
           "scores": {
             "accuracy": 67.416
           },
+          "source_model_id": "openai/gpt-5.4-nano-2026-03-17",
           "cost": null
         },
         {
@@ -6322,6 +6653,7 @@
           "scores": {
             "accuracy": 67.376
           },
+          "source_model_id": "openai/gpt-5-nano-2025-08-07",
           "cost": null
         },
         {
@@ -6331,6 +6663,7 @@
           "scores": {
             "accuracy": 67.048
           },
+          "source_model_id": "grok/grok-2-1212",
           "cost": null
         },
         {
@@ -6340,6 +6673,7 @@
           "scores": {
             "accuracy": 66.558
           },
+          "source_model_id": "fireworks/llama4-maverick-instruct-basic",
           "cost": null
         },
         {
@@ -6349,6 +6683,7 @@
           "scores": {
             "accuracy": 66.558
           },
+          "source_model_id": "minimax/MiniMax-M2.7",
           "cost": null
         },
         {
@@ -6358,6 +6693,7 @@
           "scores": {
             "accuracy": 66.353
           },
+          "source_model_id": "minimax/MiniMax-M2.1",
           "cost": null
         },
         {
@@ -6367,6 +6703,7 @@
           "scores": {
             "accuracy": 66.235
           },
+          "source_model_id": "zai/glm-4.6",
           "cost": null
         },
         {
@@ -6376,6 +6713,7 @@
           "scores": {
             "accuracy": 66.231
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025",
           "cost": null
         },
         {
@@ -6385,6 +6723,7 @@
           "scores": {
             "accuracy": 65.25
           },
+          "source_model_id": "google/gemini-2.0-flash-001",
           "cost": null
         },
         {
@@ -6394,6 +6733,7 @@
           "scores": {
             "accuracy": 65.086
           },
+          "source_model_id": "grok/grok-4-0709",
           "cost": null
         },
         {
@@ -6403,6 +6743,7 @@
           "scores": {
             "accuracy": 64.718
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -6412,6 +6753,7 @@
           "scores": {
             "accuracy": 63.778
           },
+          "source_model_id": "mistralai/mistral-large-2411",
           "cost": null
         },
         {
@@ -6421,6 +6763,7 @@
           "scores": {
             "accuracy": 63.736
           },
+          "source_model_id": "together/langston/nim/nvidia/llama-3.3-nemotron-super-49b-v1-42e84561-thinking",
           "cost": null
         },
         {
@@ -6430,6 +6773,7 @@
           "scores": {
             "accuracy": 63.696
           },
+          "source_model_id": "fireworks/gpt-oss-20b",
           "cost": null
         },
         {
@@ -6439,6 +6783,7 @@
           "scores": {
             "accuracy": 61.938
           },
+          "source_model_id": "mistralai/magistral-medium-2509",
           "cost": null
         },
         {
@@ -6448,6 +6793,7 @@
           "scores": {
             "accuracy": 61.856
           },
+          "source_model_id": "grok/grok-4-1-fast-non-reasoning",
           "cost": null
         },
         {
@@ -6457,6 +6803,7 @@
           "scores": {
             "accuracy": 61.366
           },
+          "source_model_id": "cohere/command-a-03-2025",
           "cost": null
         },
         {
@@ -6466,6 +6813,7 @@
           "scores": {
             "accuracy": 60.875
           },
+          "source_model_id": "ai21labs/jamba-large-1.6",
           "cost": null
         },
         {
@@ -6475,6 +6823,7 @@
           "scores": {
             "accuracy": 60.875
           },
+          "source_model_id": "together/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -6484,6 +6833,7 @@
           "scores": {
             "accuracy": 60.752
           },
+          "source_model_id": "openai/gpt-4.1-nano-2025-04-14",
           "cost": null
         },
         {
@@ -6493,6 +6843,7 @@
           "scores": {
             "accuracy": 60.548
           },
+          "source_model_id": "openai/gpt-4o-mini-2024-07-18",
           "cost": null
         },
         {
@@ -6502,6 +6853,7 @@
           "scores": {
             "accuracy": 60.302
           },
+          "source_model_id": "mistralai/magistral-small-2509",
           "cost": null
         },
         {
@@ -6511,6 +6863,7 @@
           "scores": {
             "accuracy": 60.22
           },
+          "source_model_id": "together/langston/nim/nvidia/llama-3.3-nemotron-super-49b-v1-42e84561",
           "cost": null
         },
         {
@@ -6520,6 +6873,7 @@
           "scores": {
             "accuracy": 59.485
           },
+          "source_model_id": "google/gemini-1.5-pro-002",
           "cost": null
         },
         {
@@ -6529,6 +6883,7 @@
           "scores": {
             "accuracy": 59.444
           },
+          "source_model_id": "together/meta-llama/Llama-3.3-70B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -6538,6 +6893,7 @@
           "scores": {
             "accuracy": 58.953
           },
+          "source_model_id": "poolside/laguna-xs.2",
           "cost": null
         },
         {
@@ -6547,6 +6903,7 @@
           "scores": {
             "accuracy": 58.3
           },
+          "source_model_id": "mistralai/mistral-small-2503",
           "cost": null
         },
         {
@@ -6556,6 +6913,7 @@
           "scores": {
             "accuracy": 58.176
           },
+          "source_model_id": "ai21labs/jamba-1.5-large",
           "cost": null
         },
         {
@@ -6565,6 +6923,7 @@
           "scores": {
             "accuracy": 57.359
           },
+          "source_model_id": "anthropic/claude-3-5-haiku-20241022",
           "cost": null
         },
         {
@@ -6574,6 +6933,7 @@
           "scores": {
             "accuracy": 56.174
           },
+          "source_model_id": "together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -6583,6 +6943,7 @@
           "scores": {
             "accuracy": 55.192
           },
+          "source_model_id": "together/meta-llama/Llama-4-Scout-17B-16E-Instruct",
           "cost": null
         },
         {
@@ -6592,6 +6953,7 @@
           "scores": {
             "accuracy": 49.142
           },
+          "source_model_id": "mistralai/mistral-small-2402",
           "cost": null
         },
         {
@@ -6601,6 +6963,7 @@
           "scores": {
             "accuracy": 48.202
           },
+          "source_model_id": "google/gemini-1.5-flash-002",
           "cost": null
         },
         {
@@ -6610,6 +6973,7 @@
           "scores": {
             "accuracy": 44.604
           },
+          "source_model_id": "ai21labs/jamba-mini-1.6",
           "cost": null
         },
         {
@@ -6619,6 +6983,7 @@
           "scores": {
             "accuracy": 41.864
           },
+          "source_model_id": "ai21labs/jamba-1.5-mini",
           "cost": null
         },
         {
@@ -6628,6 +6993,7 @@
           "scores": {
             "accuracy": 32.338
           },
+          "source_model_id": "together/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -6637,6 +7003,7 @@
           "scores": {
             "accuracy": 1.636
           },
+          "source_model_id": "poolside/laguna-m.1",
           "cost": null
         }
       ]
@@ -6646,7 +7013,8 @@
       "source_url": "https://www.vals.ai/benchmarks/mortgage_tax",
       "adapter": "vals",
       "as_of": "2026-09-01",
-      "retrieved": "2026-09-29",
+      "retrieved": "2026-11-10",
+      "archived": true,
       "metrics": [
         {
           "key": "accuracy",
@@ -6663,6 +7031,7 @@
           "scores": {
             "accuracy": 72.059
           },
+          "source_model_id": "anthropic/claude-opus-5",
           "cost": null
         },
         {
@@ -6672,6 +7041,7 @@
           "scores": {
             "accuracy": 70.786
           },
+          "source_model_id": "anthropic/claude-fable-5-1",
           "cost": null
         },
         {
@@ -6681,6 +7051,7 @@
           "scores": {
             "accuracy": 70.27
           },
+          "source_model_id": "anthropic/claude-opus-4-7",
           "cost": null
         },
         {
@@ -6690,6 +7061,7 @@
           "scores": {
             "accuracy": 70.032
           },
+          "source_model_id": "anthropic/claude-sonnet-5",
           "cost": null
         },
         {
@@ -6699,6 +7071,7 @@
           "scores": {
             "accuracy": 69.912
           },
+          "source_model_id": "anthropic/claude-opus-4-8",
           "cost": null
         },
         {
@@ -6708,6 +7081,7 @@
           "scores": {
             "accuracy": 69.396
           },
+          "source_model_id": "google/gemini-3.1-pro-preview",
           "cost": null
         },
         {
@@ -6717,6 +7091,7 @@
           "scores": {
             "accuracy": 69.078
           },
+          "source_model_id": "google/gemini-3-pro-preview",
           "cost": null
         },
         {
@@ -6726,6 +7101,7 @@
           "scores": {
             "accuracy": 68.919
           },
+          "source_model_id": "anthropic/claude-fable-5",
           "cost": null
         },
         {
@@ -6735,6 +7111,7 @@
           "scores": {
             "accuracy": 68.918
           },
+          "source_model_id": "google/gemini-2.5-pro",
           "cost": null
         },
         {
@@ -6744,6 +7121,7 @@
           "scores": {
             "accuracy": 68.76
           },
+          "source_model_id": "openai/gpt-5.5",
           "cost": null
         },
         {
@@ -6753,6 +7131,7 @@
           "scores": {
             "accuracy": 68.72
           },
+          "source_model_id": "google/gemini-3-flash-preview",
           "cost": null
         },
         {
@@ -6762,6 +7141,7 @@
           "scores": {
             "accuracy": 68.68
           },
+          "source_model_id": "anthropic/claude-3-7-sonnet-20250219",
           "cost": null
         },
         {
@@ -6771,6 +7151,7 @@
           "scores": {
             "accuracy": 68.68
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101",
           "cost": null
         },
         {
@@ -6780,6 +7161,7 @@
           "scores": {
             "accuracy": 68.68
           },
+          "source_model_id": "google/gemini-3.5-flash-lite",
           "cost": null
         },
         {
@@ -6789,6 +7171,7 @@
           "scores": {
             "accuracy": 68.522
           },
+          "source_model_id": "anthropic/claude-opus-4-6-thinking",
           "cost": null
         },
         {
@@ -6798,6 +7181,7 @@
           "scores": {
             "accuracy": 68.362
           },
+          "source_model_id": "minimax/MiniMax-M3",
           "cost": null
         },
         {
@@ -6807,6 +7191,7 @@
           "scores": {
             "accuracy": 68.323
           },
+          "source_model_id": "openai/gpt-5.4-2026-03-05",
           "cost": null
         },
         {
@@ -6816,6 +7201,7 @@
           "scores": {
             "accuracy": 68.283
           },
+          "source_model_id": "alibaba/qwen3.6-27b",
           "cost": null
         },
         {
@@ -6825,6 +7211,7 @@
           "scores": {
             "accuracy": 68.124
           },
+          "source_model_id": "google/gemini-3.5-flash",
           "cost": null
         },
         {
@@ -6834,6 +7221,7 @@
           "scores": {
             "accuracy": 68.044
           },
+          "source_model_id": "google/gemini-3.1-flash-lite-preview",
           "cost": null
         },
         {
@@ -6843,6 +7231,7 @@
           "scores": {
             "accuracy": 67.965
           },
+          "source_model_id": "alibaba/qwen3.6-plus",
           "cost": null
         },
         {
@@ -6852,6 +7241,7 @@
           "scores": {
             "accuracy": 67.726
           },
+          "source_model_id": "anthropic/claude-sonnet-4-6",
           "cost": null
         },
         {
@@ -6861,6 +7251,7 @@
           "scores": {
             "accuracy": 67.686
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101-thinking",
           "cost": null
         },
         {
@@ -6870,6 +7261,7 @@
           "scores": {
             "accuracy": 67.608
           },
+          "source_model_id": "google/gemini-3.6-flash",
           "cost": null
         },
         {
@@ -6879,6 +7271,7 @@
           "scores": {
             "accuracy": 67.368
           },
+          "source_model_id": "alibaba/qwen3.5-flash",
           "cost": null
         },
         {
@@ -6888,6 +7281,7 @@
           "scores": {
             "accuracy": 67.329
           },
+          "source_model_id": "openai/gpt-5.6-terra",
           "cost": null
         },
         {
@@ -6897,6 +7291,7 @@
           "scores": {
             "accuracy": 67.29
           },
+          "source_model_id": "openai/gpt-5.6-luna",
           "cost": null
         },
         {
@@ -6906,6 +7301,7 @@
           "scores": {
             "accuracy": 67.289
           },
+          "source_model_id": "openai/gpt-5.6-sol",
           "cost": null
         },
         {
@@ -6915,6 +7311,7 @@
           "scores": {
             "accuracy": 67.17
           },
+          "source_model_id": "google/gemini-2.5-pro-exp-03-25",
           "cost": null
         },
         {
@@ -6924,6 +7321,7 @@
           "scores": {
             "accuracy": 67.13
           },
+          "source_model_id": "openai/gpt-5.2-2025-12-11",
           "cost": null
         },
         {
@@ -6933,6 +7331,7 @@
           "scores": {
             "accuracy": 66.892
           },
+          "source_model_id": "openai/gpt-5-mini-2025-08-07",
           "cost": null
         },
         {
@@ -6942,6 +7341,7 @@
           "scores": {
             "accuracy": 66.852
           },
+          "source_model_id": "anthropic/claude-3-7-sonnet-20250219-thinking",
           "cost": null
         },
         {
@@ -6951,6 +7351,7 @@
           "scores": {
             "accuracy": 66.654
           },
+          "source_model_id": "google/gemini-3.7-flash",
           "cost": null
         },
         {
@@ -6960,6 +7361,7 @@
           "scores": {
             "accuracy": 66.534
           },
+          "source_model_id": "kimi/kimi-k2.5-thinking",
           "cost": null
         },
         {
@@ -6969,6 +7371,7 @@
           "scores": {
             "accuracy": 66.336
           },
+          "source_model_id": "kimi/kimi-k3",
           "cost": null
         },
         {
@@ -6978,6 +7381,7 @@
           "scores": {
             "accuracy": 66.176
           },
+          "source_model_id": "alibaba/qwen3.7-plus",
           "cost": null
         },
         {
@@ -6987,6 +7391,7 @@
           "scores": {
             "accuracy": 66.136
           },
+          "source_model_id": "meta/muse_spark_1_1",
           "cost": null
         },
         {
@@ -6996,6 +7401,7 @@
           "scores": {
             "accuracy": 65.938
           },
+          "source_model_id": "openai/gpt-4.1-2025-04-14",
           "cost": null
         },
         {
@@ -7005,6 +7411,7 @@
           "scores": {
             "accuracy": 65.818
           },
+          "source_model_id": "kimi/kimi-k2.6",
           "cost": null
         },
         {
@@ -7014,6 +7421,7 @@
           "scores": {
             "accuracy": 65.7
           },
+          "source_model_id": "openai/o3-2025-04-16",
           "cost": null
         },
         {
@@ -7023,6 +7431,7 @@
           "scores": {
             "accuracy": 65.501
           },
+          "source_model_id": "openai/gpt-4.1-mini-2025-04-14",
           "cost": null
         },
         {
@@ -7032,6 +7441,7 @@
           "scores": {
             "accuracy": 65.454
           },
+          "source_model_id": "openai/gpt-5-2025-08-07",
           "cost": null
         },
         {
@@ -7041,6 +7451,7 @@
           "scores": {
             "accuracy": 65.422
           },
+          "source_model_id": "meta/muse_spark_1_2",
           "cost": null
         },
         {
@@ -7050,6 +7461,7 @@
           "scores": {
             "accuracy": 65.342
           },
+          "source_model_id": "google/gemini-3.8-flash",
           "cost": null
         },
         {
@@ -7059,6 +7471,7 @@
           "scores": {
             "accuracy": 64.944
           },
+          "source_model_id": "alibaba/qwen3.8-27b",
           "cost": null
         },
         {
@@ -7068,6 +7481,7 @@
           "scores": {
             "accuracy": 64.826
           },
+          "source_model_id": "openai/o4-mini-2025-04-16",
           "cost": null
         },
         {
@@ -7077,6 +7491,7 @@
           "scores": {
             "accuracy": 64.189
           },
+          "source_model_id": "grok/grok-4.6",
           "cost": null
         },
         {
@@ -7086,6 +7501,7 @@
           "scores": {
             "accuracy": 64.07
           },
+          "source_model_id": "anthropic/claude-3-5-sonnet-20241022",
           "cost": null
         },
         {
@@ -7095,6 +7511,7 @@
           "scores": {
             "accuracy": 63.99
           },
+          "source_model_id": "anthropic/claude-sonnet-4-5-20250929-thinking",
           "cost": null
         },
         {
@@ -7104,6 +7521,7 @@
           "scores": {
             "accuracy": 63.99
           },
+          "source_model_id": "thinkingmachines/inkling",
           "cost": null
         },
         {
@@ -7113,6 +7531,7 @@
           "scores": {
             "accuracy": 63.99
           },
+          "source_model_id": "alibaba/qwen3.8-max",
           "cost": null
         },
         {
@@ -7122,6 +7541,7 @@
           "scores": {
             "accuracy": 63.514
           },
+          "source_model_id": "openai/gpt-5.4-mini-2026-03-17",
           "cost": null
         },
         {
@@ -7131,6 +7551,7 @@
           "scores": {
             "accuracy": 62.599
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025",
           "cost": null
         },
         {
@@ -7140,6 +7561,7 @@
           "scores": {
             "accuracy": 62.468
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514",
           "cost": null
         },
         {
@@ -7149,6 +7571,7 @@
           "scores": {
             "accuracy": 62.282
           },
+          "source_model_id": "thinkingmachines/inkling-small",
           "cost": null
         },
         {
@@ -7158,6 +7581,7 @@
           "scores": {
             "accuracy": 62.162
           },
+          "source_model_id": "anthropic/claude-haiku-4-5-20251001-thinking",
           "cost": null
         },
         {
@@ -7167,6 +7591,7 @@
           "scores": {
             "accuracy": 62.122
           },
+          "source_model_id": "mistralai/magistral-small-2509",
           "cost": null
         },
         {
@@ -7176,6 +7601,7 @@
           "scores": {
             "accuracy": 61.924
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -7185,6 +7611,7 @@
           "scores": {
             "accuracy": 61.804
           },
+          "source_model_id": "grok/grok-4.5",
           "cost": null
         },
         {
@@ -7194,6 +7621,7 @@
           "scores": {
             "accuracy": 61.368
           },
+          "source_model_id": "openai/gpt-5.1-2025-11-13",
           "cost": null
         },
         {
@@ -7203,6 +7631,7 @@
           "scores": {
             "accuracy": 61.368
           },
+          "source_model_id": "google/gemma-4-31b-it",
           "cost": null
         },
         {
@@ -7212,6 +7641,7 @@
           "scores": {
             "accuracy": 61.208
           },
+          "source_model_id": "mistralai/mistral-small-2503",
           "cost": null
         },
         {
@@ -7221,6 +7651,7 @@
           "scores": {
             "accuracy": 61.089
           },
+          "source_model_id": "anthropic/claude-opus-4-1-20250805",
           "cost": null
         },
         {
@@ -7230,6 +7661,7 @@
           "scores": {
             "accuracy": 60.97
           },
+          "source_model_id": "openai/gpt-4o-2024-08-06",
           "cost": null
         },
         {
@@ -7239,6 +7671,7 @@
           "scores": {
             "accuracy": 60.772
           },
+          "source_model_id": "alibaba/qwen3.5-plus-thinking",
           "cost": null
         },
         {
@@ -7248,6 +7681,7 @@
           "scores": {
             "accuracy": 60.374
           },
+          "source_model_id": "google/gemini-2.0-flash-exp",
           "cost": null
         },
         {
@@ -7257,6 +7691,7 @@
           "scores": {
             "accuracy": 59.658
           },
+          "source_model_id": "google/gemini-2.0-flash-001",
           "cost": null
         },
         {
@@ -7266,6 +7701,7 @@
           "scores": {
             "accuracy": 59.26
           },
+          "source_model_id": "xiaomi/mimo-v2.5",
           "cost": null
         },
         {
@@ -7275,6 +7711,7 @@
           "scores": {
             "accuracy": 59.102
           },
+          "source_model_id": "openai/gpt-5.4-nano-2026-03-17",
           "cost": null
         },
         {
@@ -7284,6 +7721,7 @@
           "scores": {
             "accuracy": 58.586
           },
+          "source_model_id": "anthropic/claude-opus-4-20250514",
           "cost": null
         },
         {
@@ -7293,6 +7731,7 @@
           "scores": {
             "accuracy": 58.506
           },
+          "source_model_id": "fireworks/llama4-maverick-instruct-basic",
           "cost": null
         },
         {
@@ -7302,6 +7741,7 @@
           "scores": {
             "accuracy": 58.426
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-04-17",
           "cost": null
         },
         {
@@ -7311,6 +7751,7 @@
           "scores": {
             "accuracy": 57.75
           },
+          "source_model_id": "together/meta-llama/Llama-4-Scout-17B-16E-Instruct",
           "cost": null
         },
         {
@@ -7320,6 +7761,7 @@
           "scores": {
             "accuracy": 57.552
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -7329,6 +7771,7 @@
           "scores": {
             "accuracy": 57.512
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-04-17-thinking",
           "cost": null
         },
         {
@@ -7338,6 +7781,7 @@
           "scores": {
             "accuracy": 57.432
           },
+          "source_model_id": "openai/gpt-4o-2024-11-20",
           "cost": null
         },
         {
@@ -7347,6 +7791,7 @@
           "scores": {
             "accuracy": 56.756
           },
+          "source_model_id": "google/gemini-1.5-pro-002",
           "cost": null
         },
         {
@@ -7356,6 +7801,7 @@
           "scores": {
             "accuracy": 56.121
           },
+          "source_model_id": "anthropic/claude-opus-4-1-20250805-thinking",
           "cost": null
         },
         {
@@ -7365,6 +7811,7 @@
           "scores": {
             "accuracy": 55.803
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025",
           "cost": null
         },
         {
@@ -7374,6 +7821,7 @@
           "scores": {
             "accuracy": 54.492
           },
+          "source_model_id": "openai/gpt-4o-mini-2024-07-18",
           "cost": null
         },
         {
@@ -7383,6 +7831,7 @@
           "scores": {
             "accuracy": 53.617
           },
+          "source_model_id": "openai/gpt-5-nano-2025-08-07",
           "cost": null
         },
         {
@@ -7392,6 +7841,7 @@
           "scores": {
             "accuracy": 52.822
           },
+          "source_model_id": "openai/gpt-4.1-nano-2025-04-14",
           "cost": null
         },
         {
@@ -7401,6 +7851,7 @@
           "scores": {
             "accuracy": 52.106
           },
+          "source_model_id": "mistralai/mistral-large-2512",
           "cost": null
         },
         {
@@ -7410,6 +7861,7 @@
           "scores": {
             "accuracy": 51.868
           },
+          "source_model_id": "mistralai/magistral-medium-2509",
           "cost": null
         },
         {
@@ -7419,6 +7871,7 @@
           "scores": {
             "accuracy": 49.88
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514-thinking",
           "cost": null
         },
         {
@@ -7428,6 +7881,7 @@
           "scores": {
             "accuracy": 48.252
           },
+          "source_model_id": "grok/grok-4.3",
           "cost": null
         },
         {
@@ -7437,6 +7891,7 @@
           "scores": {
             "accuracy": 45.35
           },
+          "source_model_id": "grok/grok-4.20-0309-reasoning",
           "cost": null
         },
         {
@@ -7446,6 +7901,7 @@
           "scores": {
             "accuracy": 44.475
           },
+          "source_model_id": "grok/grok-4-0709",
           "cost": null
         },
         {
@@ -7455,6 +7911,7 @@
           "scores": {
             "accuracy": 42.766
           },
+          "source_model_id": "google/gemini-1.5-flash-002",
           "cost": null
         },
         {
@@ -7464,6 +7921,7 @@
           "scores": {
             "accuracy": 42.607
           },
+          "source_model_id": "grok/grok-4-1-fast-reasoning",
           "cost": null
         },
         {
@@ -7473,6 +7931,7 @@
           "scores": {
             "accuracy": 42.09
           },
+          "source_model_id": "grok/grok-4-fast-reasoning",
           "cost": null
         },
         {
@@ -7482,6 +7941,7 @@
           "scores": {
             "accuracy": 38.792
           },
+          "source_model_id": "together/meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
           "cost": null
         },
         {
@@ -7491,6 +7951,7 @@
           "scores": {
             "accuracy": 36.446
           },
+          "source_model_id": "mistralai/mistral-medium-2505",
           "cost": null
         },
         {
@@ -7500,6 +7961,7 @@
           "scores": {
             "accuracy": 34.26
           },
+          "source_model_id": "grok/grok-4-1-fast-non-reasoning",
           "cost": null
         },
         {
@@ -7509,6 +7971,7 @@
           "scores": {
             "accuracy": 28.895
           },
+          "source_model_id": "mistralai/mistral-medium-3.5",
           "cost": null
         },
         {
@@ -7518,6 +7981,7 @@
           "scores": {
             "accuracy": 25.318
           },
+          "source_model_id": "grok/grok-4-fast-non-reasoning",
           "cost": null
         },
         {
@@ -7527,6 +7991,7 @@
           "scores": {
             "accuracy": 23.291
           },
+          "source_model_id": "together/meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
           "cost": null
         },
         {
@@ -7536,16 +8001,18 @@
           "scores": {
             "accuracy": 3.458
           },
+          "source_model_id": "grok/grok-2-vision-1212",
           "cost": null
         }
       ]
     },
     {
-      "benchmark_id": "vals-finance-agent-v2",
-      "source_url": "https://www.vals.ai/benchmarks/fabv2",
+      "benchmark_id": "vals-finance-agent-v2-1",
+      "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
       "adapter": "vals",
-      "as_of": "2026-09-26",
-      "retrieved": "2026-09-29",
+      "as_of": "2026-11-09",
+      "retrieved": "2026-11-10",
+      "archived": false,
       "metrics": [
         {
           "key": "accuracy",
@@ -7556,13 +8023,443 @@
       "cost_label": "USD per test (publisher-reported)",
       "entries": [
         {
+          "model": "fable5-2",
+          "label": "Claude Fable 5.2",
+          "config": null,
+          "scores": {
+            "accuracy": 69.47
+          },
+          "source_model_id": "anthropic/claude-fable-5-2",
+          "cost": 4.833915
+        },
+        {
+          "model": "opus5-5",
+          "label": "Claude Opus 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 67.846
+          },
+          "source_model_id": "anthropic/claude-opus-5-5",
+          "cost": 8.908721
+        },
+        {
+          "model": "gemini4argon",
+          "label": "Gemini 4 Argon",
+          "config": null,
+          "scores": {
+            "accuracy": 67.658
+          },
+          "source_model_id": "google/gemini-4-argon",
+          "cost": 4.315759
+        },
+        {
+          "model": "musewonderfull",
+          "label": "Muse Wonder Full",
+          "config": null,
+          "scores": {
+            "accuracy": 67.575
+          },
+          "source_model_id": "meta/muse-wonder-full",
+          "cost": 2.680843
+        },
+        {
+          "model": "inkling2small",
+          "label": "Inkling 2 Small",
+          "config": null,
+          "scores": {
+            "accuracy": 67.536
+          },
+          "source_model_id": "thinkingmachines/inkling-2-small",
+          "cost": 0.175784
+        },
+        {
+          "model": "sonnet5-5",
+          "label": "Claude Sonnet 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 67.275
+          },
+          "source_model_id": "anthropic/claude-sonnet-5-5",
+          "cost": 6.950246
+        },
+        {
+          "model": "gemini4carbon",
+          "label": "Gemini 4 Carbon",
+          "config": null,
+          "scores": {
+            "accuracy": 67.162
+          },
+          "source_model_id": "google/gemini-4-carbon",
+          "cost": 7.290456
+        },
+        {
+          "model": "gemini3-8flash",
+          "label": "Gemini 3.8 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 65.761
+          },
+          "source_model_id": "google/gemini-3.8-flash",
+          "cost": 1.991077
+        },
+        {
+          "model": "musewonder",
+          "label": "Muse Wonder",
+          "config": null,
+          "scores": {
+            "accuracy": 65.545
+          },
+          "source_model_id": "meta/muse-wonder",
+          "cost": 2.620705
+        },
+        {
+          "model": "deepseekv4-1flash",
+          "label": "DeepSeek V4.1 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 65.428
+          },
+          "source_model_id": "deepseek/deepseek-v4.1-flash",
+          "cost": 0.366574
+        },
+        {
+          "model": "haiku5-5",
+          "label": "Claude Haiku 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 65.373
+          },
+          "source_model_id": "anthropic/claude-haiku-5-5",
+          "cost": 1.637243
+        },
+        {
+          "model": "glm5-3",
+          "label": "GLM 5.3",
+          "config": null,
+          "scores": {
+            "accuracy": 65.004
+          },
+          "source_model_id": "zai/glm-5.3",
+          "cost": 1.030939
+        },
+        {
+          "model": "hy4",
+          "label": "HY4",
+          "config": null,
+          "scores": {
+            "accuracy": 64.705
+          },
+          "source_model_id": "tencent/hy4",
+          "cost": 1.277206
+        },
+        {
+          "model": "mimov2-6pro",
+          "label": "MiMo V2.6 Pro",
+          "config": null,
+          "scores": {
+            "accuracy": 64.259
+          },
+          "source_model_id": "xiaomi/mimo-v2.6-pro",
+          "cost": 0.183321
+        },
+        {
+          "model": "museember",
+          "label": "Muse Ember",
+          "config": null,
+          "scores": {
+            "accuracy": 63.834
+          },
+          "source_model_id": "meta/muse-ember",
+          "cost": 0.056396
+        },
+        {
+          "model": "mimov2-6flash",
+          "label": "MiMo V2.6 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 63.316
+          },
+          "source_model_id": "xiaomi/mimo-v2.6-flash",
+          "cost": 0.066534
+        },
+        {
+          "model": "deepseekv4-1flash1017",
+          "label": "DeepSeek V4.1 Flash 1017",
+          "config": null,
+          "scores": {
+            "accuracy": 62.933
+          },
+          "source_model_id": "deepseek/deepseek-v4.1-flash-1017",
+          "cost": 0.466261
+        },
+        {
+          "model": "gpt6-1sol",
+          "label": "GPT 6.1 Sol",
+          "config": null,
+          "scores": {
+            "accuracy": 61.817
+          },
+          "source_model_id": "openai/gpt-6.1-sol",
+          "cost": 1.626543
+        },
+        {
+          "model": "mistrallarge4oss",
+          "label": "Mistral Large 4 OSS",
+          "config": null,
+          "scores": {
+            "accuracy": 61.723
+          },
+          "source_model_id": "mistralai/mistral-large-4-oss",
+          "cost": 0.353164
+        },
+        {
+          "model": "hy4",
+          "label": "HY4 Preview",
+          "config": null,
+          "scores": {
+            "accuracy": 61.623
+          },
+          "source_model_id": "tencent/hy4-preview",
+          "cost": 0.667449
+        },
+        {
+          "model": "kimik3-1pro",
+          "label": "Kimi K3.1 Pro",
+          "config": null,
+          "scores": {
+            "accuracy": 61.488
+          },
+          "source_model_id": "kimi/kimi-k3.1-pro",
+          "cost": 2.290605
+        },
+        {
+          "model": "mistrallarge4",
+          "label": "Mistral Large 4",
+          "config": null,
+          "scores": {
+            "accuracy": 61.383
+          },
+          "source_model_id": "mistralai/mistral-large-4",
+          "cost": 0.521834
+        },
+        {
+          "model": "musesparkopen",
+          "label": "Muse Spark Open",
+          "config": null,
+          "scores": {
+            "accuracy": 60.665
+          },
+          "source_model_id": "meta/muse-spark-open",
+          "cost": 2.758047
+        },
+        {
+          "model": "glm5-3flash",
+          "label": "GLM 5.3 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 60.587
+          },
+          "source_model_id": "zai/glm-5.3-flash",
+          "cost": 0.072473
+        },
+        {
+          "model": "grok4-7",
+          "label": "Grok 4.7",
+          "config": null,
+          "scores": {
+            "accuracy": 60.585
+          },
+          "source_model_id": "grok/grok-4.7",
+          "cost": 2.238652
+        },
+        {
+          "model": "gpt6astra",
+          "label": "GPT 6 Astra",
+          "config": null,
+          "scores": {
+            "accuracy": 60.428
+          },
+          "source_model_id": "openai/gpt-6-astra",
+          "cost": 7.823464
+        },
+        {
+          "model": "kimik3",
+          "label": "Kimi K3",
+          "config": null,
+          "scores": {
+            "accuracy": 60.013
+          },
+          "source_model_id": "kimi/kimi-k3",
+          "cost": 1.881233
+        },
+        {
+          "model": "step5",
+          "label": "Step 5 Preview",
+          "config": null,
+          "scores": {
+            "accuracy": 58.9
+          },
+          "source_model_id": "stepfun/step-5-preview",
+          "cost": 0.575115
+        },
+        {
+          "model": "qwen3-8maxinternal",
+          "label": "Qwen3.8 Max Internal",
+          "config": null,
+          "scores": {
+            "accuracy": 58.829
+          },
+          "source_model_id": "alibaba/qwen3.8-max-internal",
+          "cost": 2.992239
+        },
+        {
+          "model": "minimaxm3-1flash",
+          "label": "MiniMax M3.1 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 58.826
+          },
+          "source_model_id": "minimax/MiniMax-M3.1-flash",
+          "cost": 0.158978
+        },
+        {
+          "model": "deepseekv4pro0813",
+          "label": "DeepSeek V4 Pro 0813",
+          "config": null,
+          "scores": {
+            "accuracy": 57.116
+          },
+          "source_model_id": "deepseek/deepseek-v4-pro-0813",
+          "cost": 0.82234
+        },
+        {
+          "model": "gpt6luna",
+          "label": "GPT 6 Luna",
+          "config": null,
+          "scores": {
+            "accuracy": 56.841
+          },
+          "source_model_id": "openai/gpt-6-luna",
+          "cost": 0.120919
+        },
+        {
+          "model": "gpt6-1terra",
+          "label": "GPT 6.1 Terra",
+          "config": null,
+          "scores": {
+            "accuracy": 55.958
+          },
+          "source_model_id": "openai/gpt-6.1-terra",
+          "cost": 1.922848
+        },
+        {
+          "model": "mercury3",
+          "label": "Mercury 3",
+          "config": null,
+          "scores": {
+            "accuracy": 54.708
+          },
+          "source_model_id": "inception/mercury-3",
+          "cost": 0.064622
+        },
+        {
+          "model": "minimaxm3",
+          "label": "MiniMax M3",
+          "config": null,
+          "scores": {
+            "accuracy": 54.338
+          },
+          "source_model_id": "minimax/MiniMax-M3",
+          "cost": 0.302923
+        },
+        {
+          "model": "beam1-0",
+          "label": "Beam 1.0",
+          "config": null,
+          "scores": {
+            "accuracy": 51.827
+          },
+          "source_model_id": "reflection/Beam-1.0",
+          "cost": null
+        },
+        {
+          "model": "inkling",
+          "label": "Inkling",
+          "config": null,
+          "scores": {
+            "accuracy": 49.873
+          },
+          "source_model_id": "thinkingmachines/inkling",
+          "cost": 0.891309
+        },
+        {
+          "model": "nemotron3-5supervl120ba12b",
+          "label": "Nemotron 3.5 Super Vl 120B A12B",
+          "config": null,
+          "scores": {
+            "accuracy": 47.729
+          },
+          "source_model_id": "baseten/nemotron-3.5-super-vl-120b-a12b",
+          "cost": 0.106934
+        },
+        {
+          "model": "inklingsmall",
+          "label": "Inkling Small",
+          "config": null,
+          "scores": {
+            "accuracy": 44.776
+          },
+          "source_model_id": "thinkingmachines/inkling-small",
+          "cost": 0.207921
+        }
+      ]
+    },
+    {
+      "benchmark_id": "vals-finance-agent-v2",
+      "source_url": "https://www.vals.ai/benchmarks/fabv2",
+      "adapter": "vals",
+      "as_of": "2026-10-29",
+      "retrieved": "2026-11-10",
+      "archived": true,
+      "superseded_by": "Finance Agent v2.1",
+      "metrics": [
+        {
+          "key": "accuracy",
+          "label": "Accuracy",
+          "unit": "%"
+        }
+      ],
+      "cost_label": "USD per test (publisher-reported)",
+      "entries": [
+        {
+          "model": "gemini4argon",
+          "label": "Gemini 4 Argon",
+          "config": null,
+          "scores": {
+            "accuracy": 65.401
+          },
+          "source_model_id": "google/gemini-4-argon",
+          "cost": 4.378161
+        },
+        {
           "model": "gemini3-8flash",
           "label": "Gemini 3.8 Flash",
           "config": null,
           "scores": {
             "accuracy": 61.435
           },
+          "source_model_id": "google/gemini-3.8-flash",
           "cost": 2.000457
+        },
+        {
+          "model": "musesparkopen",
+          "label": "Muse Spark Open",
+          "config": null,
+          "scores": {
+            "accuracy": 61.336
+          },
+          "source_model_id": "meta/muse-spark-open",
+          "cost": 0.770844
         },
         {
           "model": "musespark1-2",
@@ -7571,6 +8468,7 @@
           "scores": {
             "accuracy": 60.599
           },
+          "source_model_id": "meta/muse_spark_1_2",
           "cost": 0.76972
         },
         {
@@ -7580,7 +8478,18 @@
           "scores": {
             "accuracy": 59.958
           },
+          "source_model_id": "meta/muse_spark_1_3_max",
           "cost": 0.756512
+        },
+        {
+          "model": "musewonderfull",
+          "label": "Muse Wonder Full",
+          "config": null,
+          "scores": {
+            "accuracy": 59.061
+          },
+          "source_model_id": "meta/muse-wonder-full",
+          "cost": 2.389758
         },
         {
           "model": "gemini3-7flash",
@@ -7589,6 +8498,7 @@
           "scores": {
             "accuracy": 59.042
           },
+          "source_model_id": "google/gemini-3.7-flash",
           "cost": 1.477884
         },
         {
@@ -7598,6 +8508,7 @@
           "scores": {
             "accuracy": 58.901
           },
+          "source_model_id": "meta/muse_spark_1_3",
           "cost": 0.741132
         },
         {
@@ -7607,6 +8518,7 @@
           "scores": {
             "accuracy": 58.877
           },
+          "source_model_id": "anthropic/claude-fable-5-1",
           "cost": 8.346696
         },
         {
@@ -7616,6 +8528,7 @@
           "scores": {
             "accuracy": 58.633
           },
+          "source_model_id": "anthropic/claude-opus-5",
           "cost": 5.124473
         },
         {
@@ -7625,7 +8538,8 @@
           "scores": {
             "accuracy": 58.587
           },
-          "cost": 9.215734
+          "source_model_id": "anthropic/claude-opus-5-5",
+          "cost": 9.02999
         },
         {
           "model": "sonnet5-5",
@@ -7634,7 +8548,18 @@
           "scores": {
             "accuracy": 58.103
           },
-          "cost": 6.552431
+          "source_model_id": "anthropic/claude-sonnet-5-5",
+          "cost": 6.39361
+        },
+        {
+          "model": "qwen3-8maxinternal",
+          "label": "Qwen3.8 Max Internal",
+          "config": null,
+          "scores": {
+            "accuracy": 57.872
+          },
+          "source_model_id": "alibaba/qwen3.8-max-internal",
+          "cost": 3.026128
         },
         {
           "model": "gemini3-5flash",
@@ -7643,6 +8568,7 @@
           "scores": {
             "accuracy": 57.861
           },
+          "source_model_id": "google/gemini-3.5-flash",
           "cost": 2.505488
         },
         {
@@ -7652,7 +8578,8 @@
           "scores": {
             "accuracy": 57.85
           },
-          "cost": 0.047625
+          "source_model_id": "zai/glm-5.3-flash",
+          "cost": 0.09525
         },
         {
           "model": "mimov2-6pro",
@@ -7661,6 +8588,7 @@
           "scores": {
             "accuracy": 57.339
           },
+          "source_model_id": "xiaomi/mimo-v2.6-pro",
           "cost": 0.198909
         },
         {
@@ -7670,7 +8598,28 @@
           "scores": {
             "accuracy": 57.207
           },
+          "source_model_id": "meta/muse_spark_1_1",
           "cost": 0.723391
+        },
+        {
+          "model": "deepseekv4-1flash1017",
+          "label": "DeepSeek V4.1 Flash 1017",
+          "config": null,
+          "scores": {
+            "accuracy": 56.96
+          },
+          "source_model_id": "deepseek/deepseek-v4.1-flash-1017",
+          "cost": 0.462841
+        },
+        {
+          "model": "musewonder",
+          "label": "Muse Wonder",
+          "config": null,
+          "scores": {
+            "accuracy": 56.637
+          },
+          "source_model_id": "meta/muse-wonder",
+          "cost": 2.668231
         },
         {
           "model": "fable5",
@@ -7679,6 +8628,7 @@
           "scores": {
             "accuracy": 56.314
           },
+          "source_model_id": "anthropic/claude-fable-5",
           "cost": 8.061563
         },
         {
@@ -7688,6 +8638,7 @@
           "scores": {
             "accuracy": 56.296
           },
+          "source_model_id": "google/gemini-3.6-flash",
           "cost": 1.402901
         },
         {
@@ -7697,6 +8648,7 @@
           "scores": {
             "accuracy": 56.277
           },
+          "source_model_id": "xiaomi/mimo-v2.6-flash",
           "cost": 0.071536
         },
         {
@@ -7706,6 +8658,7 @@
           "scores": {
             "accuracy": 55.84
           },
+          "source_model_id": "zai/glm-5.3",
           "cost": 1.072768
         },
         {
@@ -7715,6 +8668,7 @@
           "scores": {
             "accuracy": 55.063
           },
+          "source_model_id": "tencent/hy4-preview",
           "cost": 0.5903
         },
         {
@@ -7724,6 +8678,7 @@
           "scores": {
             "accuracy": 55.044
           },
+          "source_model_id": "openai/gpt-5.6-luna",
           "cost": 0.279224
         },
         {
@@ -7733,7 +8688,18 @@
           "scores": {
             "accuracy": 54.927
           },
+          "source_model_id": "ant/ling-3.0-flash-af-rc3",
           "cost": 0.044792
+        },
+        {
+          "model": "mistrallarge4",
+          "label": "Mistral Large 4",
+          "config": null,
+          "scores": {
+            "accuracy": 54.678
+          },
+          "source_model_id": "mistralai/mistral-large-4",
+          "cost": 0.614903
         },
         {
           "model": "gpt5-6terra",
@@ -7742,16 +8708,18 @@
           "scores": {
             "accuracy": 54.436
           },
+          "source_model_id": "openai/gpt-5.6-terra",
           "cost": 3.629197
         },
         {
-          "model": "kimik3",
-          "label": "Kimi K3",
+          "model": "haiku5-5",
+          "label": "Claude Haiku 5.5",
           "config": null,
           "scores": {
-            "accuracy": 54.36
+            "accuracy": 54.138
           },
-          "cost": 1.066994
+          "source_model_id": "anthropic/claude-haiku-5-5",
+          "cost": 1.636603
         },
         {
           "model": "opus4-8",
@@ -7760,6 +8728,7 @@
           "scores": {
             "accuracy": 53.918
           },
+          "source_model_id": "anthropic/claude-opus-4-8",
           "cost": 4.218538
         },
         {
@@ -7769,6 +8738,7 @@
           "scores": {
             "accuracy": 53.909
           },
+          "source_model_id": "anthropic/claude-sonnet-5",
           "cost": 0.750759
         },
         {
@@ -7778,6 +8748,7 @@
           "scores": {
             "accuracy": 53.756
           },
+          "source_model_id": "openai/gpt-5.6-sol",
           "cost": 1.253419
         },
         {
@@ -7787,6 +8758,7 @@
           "scores": {
             "accuracy": 53.682
           },
+          "source_model_id": "grok/grok-4.6",
           "cost": 1.657732
         },
         {
@@ -7796,6 +8768,7 @@
           "scores": {
             "accuracy": 53.54
           },
+          "source_model_id": "openai/gpt-6-astra",
           "cost": 6.81746
         },
         {
@@ -7805,7 +8778,18 @@
           "scores": {
             "accuracy": 53.481
           },
+          "source_model_id": "deepseek/deepseek-v4.1-flash",
           "cost": 0.207465
+        },
+        {
+          "model": "kimik3",
+          "label": "Kimi K3",
+          "config": null,
+          "scores": {
+            "accuracy": 53.114
+          },
+          "source_model_id": "kimi/kimi-k3",
+          "cost": 1.913224
         },
         {
           "model": "grok4-7",
@@ -7814,7 +8798,28 @@
           "scores": {
             "accuracy": 52.251
           },
+          "source_model_id": "grok/grok-4.7",
           "cost": 2.719136
+        },
+        {
+          "model": "gpt6-1sol",
+          "label": "GPT 6.1 Sol",
+          "config": null,
+          "scores": {
+            "accuracy": 52.033
+          },
+          "source_model_id": "openai/gpt-6.1-sol",
+          "cost": 1.619399
+        },
+        {
+          "model": "ember1",
+          "label": "Ember 1",
+          "config": null,
+          "scores": {
+            "accuracy": 51.853
+          },
+          "source_model_id": "fireworks/ember-1",
+          "cost": 1.95445
         },
         {
           "model": "gpt5-5",
@@ -7823,6 +8828,7 @@
           "scores": {
             "accuracy": 51.76
           },
+          "source_model_id": "openai/gpt-5.5",
           "cost": 4.149702
         },
         {
@@ -7832,6 +8838,7 @@
           "scores": {
             "accuracy": 51.509
           },
+          "source_model_id": "anthropic/claude-opus-4-7",
           "cost": 4.032269
         },
         {
@@ -7841,7 +8848,18 @@
           "scores": {
             "accuracy": 51.035
           },
+          "source_model_id": "anthropic/claude-sonnet-4-6",
           "cost": 2.409559
+        },
+        {
+          "model": "step5",
+          "label": "Step 5 Preview",
+          "config": null,
+          "scores": {
+            "accuracy": 50.671
+          },
+          "source_model_id": "stepfun/step-5-preview",
+          "cost": 0.619283
         },
         {
           "model": "qwen3-8max",
@@ -7850,6 +8868,7 @@
           "scores": {
             "accuracy": 50.593
           },
+          "source_model_id": "alibaba/qwen3.8-max",
           "cost": 1.236977
         },
         {
@@ -7859,6 +8878,7 @@
           "scores": {
             "accuracy": 50.393
           },
+          "source_model_id": "deepseek/deepseek-v4-pro-0813",
           "cost": 0.880465
         },
         {
@@ -7868,6 +8888,7 @@
           "scores": {
             "accuracy": 49.873
           },
+          "source_model_id": "openai/gpt-6-luna",
           "cost": 0.124338
         },
         {
@@ -7877,6 +8898,7 @@
           "scores": {
             "accuracy": 49.699
           },
+          "source_model_id": "zai/glm-5.2",
           "cost": 0.713981
         },
         {
@@ -7886,6 +8908,7 @@
           "scores": {
             "accuracy": 49.517
           },
+          "source_model_id": "deepseek/deepseek-v4-flash-0731",
           "cost": 0.276154
         },
         {
@@ -7895,6 +8918,7 @@
           "scores": {
             "accuracy": 49.05
           },
+          "source_model_id": "openai/gpt-6-sol",
           "cost": 2.122121
         },
         {
@@ -7904,6 +8928,7 @@
           "scores": {
             "accuracy": 48.553
           },
+          "source_model_id": "alibaba/qwen3.8-27b",
           "cost": 0.748532
         },
         {
@@ -7913,6 +8938,7 @@
           "scores": {
             "accuracy": 48.349
           },
+          "source_model_id": "grok/grok-4.5",
           "cost": 1.156495
         },
         {
@@ -7922,6 +8948,7 @@
           "scores": {
             "accuracy": 48.269
           },
+          "source_model_id": "minimax/MiniMax-M3",
           "cost": 0.32345
         },
         {
@@ -7931,6 +8958,7 @@
           "scores": {
             "accuracy": 47.776
           },
+          "source_model_id": "alibaba/qwen3.7-max",
           "cost": 0.553214
         },
         {
@@ -7940,6 +8968,7 @@
           "scores": {
             "accuracy": 47.442
           },
+          "source_model_id": "google/gemini-3.5-flash-lite",
           "cost": 0.389575
         },
         {
@@ -7949,6 +8978,7 @@
           "scores": {
             "accuracy": 46.597
           },
+          "source_model_id": "thinkingmachines/inkling",
           "cost": 0.996264
         },
         {
@@ -7958,6 +8988,7 @@
           "scores": {
             "accuracy": 45.36
           },
+          "source_model_id": "openai/gpt-5.4-mini-2026-03-17",
           "cost": 1.201815
         },
         {
@@ -7967,6 +8998,7 @@
           "scores": {
             "accuracy": 44.899
           },
+          "source_model_id": "kimi/kimi-k2.6",
           "cost": 1.141587
         },
         {
@@ -7976,6 +9008,7 @@
           "scores": {
             "accuracy": 44.792
           },
+          "source_model_id": "zai/glm-5.1",
           "cost": 0.618185
         },
         {
@@ -7985,6 +9018,7 @@
           "scores": {
             "accuracy": 44.083
           },
+          "source_model_id": "deepseek/deepseek-v4-pro",
           "cost": 0.879086
         },
         {
@@ -7994,6 +9028,7 @@
           "scores": {
             "accuracy": 42.982
           },
+          "source_model_id": "google/gemini-3.1-pro-preview",
           "cost": 1.591906
         },
         {
@@ -8003,6 +9038,7 @@
           "scores": {
             "accuracy": 42.551
           },
+          "source_model_id": "google/gemini-3-flash-preview",
           "cost": 0.570657
         },
         {
@@ -8012,6 +9048,7 @@
           "scores": {
             "accuracy": 41.502
           },
+          "source_model_id": "xiaomi/mimo-v2.5-pro",
           "cost": 0.206445
         },
         {
@@ -8021,6 +9058,7 @@
           "scores": {
             "accuracy": 41.257
           },
+          "source_model_id": "thinkingmachines/inkling-small",
           "cost": 0.230271
         },
         {
@@ -8030,6 +9068,7 @@
           "scores": {
             "accuracy": 40.846
           },
+          "source_model_id": "alibaba/qwen3.6-plus",
           "cost": 0.814379
         },
         {
@@ -8039,6 +9078,7 @@
           "scores": {
             "accuracy": 38.22
           },
+          "source_model_id": "alibaba/qwen3.7-plus",
           "cost": 0.357661
         },
         {
@@ -8048,6 +9088,7 @@
           "scores": {
             "accuracy": 38.217
           },
+          "source_model_id": "openai/gpt-5.4-nano-2026-03-17",
           "cost": 0.15925
         },
         {
@@ -8057,6 +9098,7 @@
           "scores": {
             "accuracy": 37.728
           },
+          "source_model_id": "grok/grok-4.3",
           "cost": 0.848345
         },
         {
@@ -8066,6 +9108,7 @@
           "scores": {
             "accuracy": 37.667
           },
+          "source_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
           "cost": null
         },
         {
@@ -8075,6 +9118,7 @@
           "scores": {
             "accuracy": 36.728
           },
+          "source_model_id": "xiaomi/mimo-v2.5",
           "cost": 0.08693
         },
         {
@@ -8084,6 +9128,7 @@
           "scores": {
             "accuracy": 35.792
           },
+          "source_model_id": "kimi/kimi-k2.5-thinking",
           "cost": 0.294389
         },
         {
@@ -8093,6 +9138,7 @@
           "scores": {
             "accuracy": 32.103
           },
+          "source_model_id": "mistralai/mistral-medium-3.5",
           "cost": 1.908513
         },
         {
@@ -8102,6 +9148,7 @@
           "scores": {
             "accuracy": 31.01
           },
+          "source_model_id": "anthropic/claude-haiku-4-5-20251001-thinking",
           "cost": 0.602129
         },
         {
@@ -8111,6 +9158,7 @@
           "scores": {
             "accuracy": 30.314
           },
+          "source_model_id": "ant/ling-3.0-flash-2607",
           "cost": 0.05047
         },
         {
@@ -8120,6 +9168,7 @@
           "scores": {
             "accuracy": 29.988
           },
+          "source_model_id": "google/gemini-3.1-flash-lite-preview",
           "cost": 0.142482
         },
         {
@@ -8129,6 +9178,7 @@
           "scores": {
             "accuracy": 28.492
           },
+          "source_model_id": "grok/grok-4.20-0309-reasoning",
           "cost": 0.791809
         },
         {
@@ -8138,6 +9188,7 @@
           "scores": {
             "accuracy": 27.887
           },
+          "source_model_id": "minimax/MiniMax-M2.7",
           "cost": 0.18348
         },
         {
@@ -8147,6 +9198,7 @@
           "scores": {
             "accuracy": 25.026
           },
+          "source_model_id": "poolside/laguna-m.1",
           "cost": 0.818192
         },
         {
@@ -8154,8 +9206,9 @@
           "label": "Mercury 2.5",
           "config": null,
           "scores": {
-            "accuracy": 18.556
+            "accuracy": 18.894
           },
+          "source_model_id": "inception/mercury-2.5",
           "cost": 0.106441
         },
         {
@@ -8165,6 +9218,7 @@
           "scores": {
             "accuracy": 18.5
           },
+          "source_model_id": "fireworks/nemotron-lightning-3p5-30b-a3b",
           "cost": 0.028554
         },
         {
@@ -8174,6 +9228,7 @@
           "scores": {
             "accuracy": 15.601
           },
+          "source_model_id": "poolside/laguna-xs.2",
           "cost": 0.19216
         },
         {
@@ -8183,6 +9238,7 @@
           "scores": {
             "accuracy": 9.044
           },
+          "source_model_id": "cohere/command-a-plus-05-2026",
           "cost": 1.63003
         }
       ]
@@ -8192,7 +9248,8 @@
       "source_url": "https://www.vals.ai/benchmarks/corp_fin_v2",
       "adapter": "vals",
       "as_of": "2026-08-12",
-      "retrieved": "2026-09-29",
+      "retrieved": "2026-11-10",
+      "archived": true,
       "metrics": [
         {
           "key": "accuracy",
@@ -8209,6 +9266,7 @@
           "scores": {
             "accuracy": 73.194
           },
+          "source_model_id": "anthropic/claude-opus-5",
           "cost": null
         },
         {
@@ -8218,6 +9276,7 @@
           "scores": {
             "accuracy": 71.834
           },
+          "source_model_id": "anthropic/claude-fable-5",
           "cost": null
         },
         {
@@ -8227,6 +9286,7 @@
           "scores": {
             "accuracy": 71.562
           },
+          "source_model_id": "kimi/kimi-k3",
           "cost": null
         },
         {
@@ -8236,6 +9296,7 @@
           "scores": {
             "accuracy": 71.29
           },
+          "source_model_id": "meta/muse_spark_1_1",
           "cost": null
         },
         {
@@ -8245,6 +9306,7 @@
           "scores": {
             "accuracy": 70.94
           },
+          "source_model_id": "meta/muse_spark_1_2",
           "cost": null
         },
         {
@@ -8254,6 +9316,7 @@
           "scores": {
             "accuracy": 69.619
           },
+          "source_model_id": "thinkingmachines/inkling-small",
           "cost": null
         },
         {
@@ -8263,6 +9326,7 @@
           "scores": {
             "accuracy": 68.57
           },
+          "source_model_id": "thinkingmachines/inkling",
           "cost": null
         },
         {
@@ -8272,6 +9336,7 @@
           "scores": {
             "accuracy": 68.532
           },
+          "source_model_id": "grok/grok-4.3",
           "cost": null
         },
         {
@@ -8281,6 +9346,7 @@
           "scores": {
             "accuracy": 68.415
           },
+          "source_model_id": "openai/gpt-5.5",
           "cost": null
         },
         {
@@ -8290,6 +9356,7 @@
           "scores": {
             "accuracy": 68.259
           },
+          "source_model_id": "kimi/kimi-k2.5-thinking",
           "cost": null
         },
         {
@@ -8299,6 +9366,7 @@
           "scores": {
             "accuracy": 68.104
           },
+          "source_model_id": "minimax/MiniMax-M3",
           "cost": null
         },
         {
@@ -8308,6 +9376,7 @@
           "scores": {
             "accuracy": 68.026
           },
+          "source_model_id": "alibaba/qwen3-max-2026-01-23",
           "cost": null
         },
         {
@@ -8317,6 +9386,7 @@
           "scores": {
             "accuracy": 67.405
           },
+          "source_model_id": "grok/grok-4.5",
           "cost": null
         },
         {
@@ -8326,6 +9396,7 @@
           "scores": {
             "accuracy": 67.016
           },
+          "source_model_id": "anthropic/claude-opus-4-6-thinking",
           "cost": null
         },
         {
@@ -8335,6 +9406,7 @@
           "scores": {
             "accuracy": 66.977
           },
+          "source_model_id": "anthropic/claude-sonnet-5",
           "cost": null
         },
         {
@@ -8344,6 +9416,7 @@
           "scores": {
             "accuracy": 66.9
           },
+          "source_model_id": "grok/grok-4-fast-reasoning",
           "cost": null
         },
         {
@@ -8353,6 +9426,7 @@
           "scores": {
             "accuracy": 66.744
           },
+          "source_model_id": "kimi/kimi-k2.6",
           "cost": null
         },
         {
@@ -8362,6 +9436,7 @@
           "scores": {
             "accuracy": 66.706
           },
+          "source_model_id": "anthropic/claude-opus-4-8",
           "cost": null
         },
         {
@@ -8371,6 +9446,7 @@
           "scores": {
             "accuracy": 66.473
           },
+          "source_model_id": "alibaba/qwen3.6-max-preview",
           "cost": null
         },
         {
@@ -8380,6 +9456,7 @@
           "scores": {
             "accuracy": 66.434
           },
+          "source_model_id": "google/gemini-3-flash-preview",
           "cost": null
         },
         {
@@ -8389,6 +9466,7 @@
           "scores": {
             "accuracy": 66.161
           },
+          "source_model_id": "grok/grok-4.6",
           "cost": null
         },
         {
@@ -8398,6 +9476,7 @@
           "scores": {
             "accuracy": 66.123
           },
+          "source_model_id": "zai/glm-5.2",
           "cost": null
         },
         {
@@ -8407,6 +9486,7 @@
           "scores": {
             "accuracy": 66.084
           },
+          "source_model_id": "anthropic/claude-opus-4-7",
           "cost": null
         },
         {
@@ -8416,6 +9496,7 @@
           "scores": {
             "accuracy": 66.045
           },
+          "source_model_id": "grok/grok-4-0709",
           "cost": null
         },
         {
@@ -8425,6 +9506,7 @@
           "scores": {
             "accuracy": 65.967
           },
+          "source_model_id": "grok/grok-4-1-fast-reasoning",
           "cost": null
         },
         {
@@ -8434,6 +9516,7 @@
           "scores": {
             "accuracy": 65.889
           },
+          "source_model_id": "openai/gpt-5.2-2025-12-11",
           "cost": null
         },
         {
@@ -8443,6 +9526,7 @@
           "scores": {
             "accuracy": 65.851
           },
+          "source_model_id": "alibaba/qwen3.8-max",
           "cost": null
         },
         {
@@ -8452,6 +9536,7 @@
           "scores": {
             "accuracy": 65.462
           },
+          "source_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
           "cost": null
         },
         {
@@ -8461,6 +9546,7 @@
           "scores": {
             "accuracy": 65.423
           },
+          "source_model_id": "deepseek/deepseek-v4-pro-0813",
           "cost": null
         },
         {
@@ -8470,6 +9556,7 @@
           "scores": {
             "accuracy": 65.307
           },
+          "source_model_id": "anthropic/claude-sonnet-4-6",
           "cost": null
         },
         {
@@ -8479,6 +9566,7 @@
           "scores": {
             "accuracy": 65.307
           },
+          "source_model_id": "openai/gpt-5.6-terra",
           "cost": null
         },
         {
@@ -8488,6 +9576,7 @@
           "scores": {
             "accuracy": 65.307
           },
+          "source_model_id": "alibaba/qwen3.5-plus-thinking",
           "cost": null
         },
         {
@@ -8497,6 +9586,7 @@
           "scores": {
             "accuracy": 65.268
           },
+          "source_model_id": "openai/gpt-5.4-2026-03-05",
           "cost": null
         },
         {
@@ -8506,6 +9596,7 @@
           "scores": {
             "accuracy": 65.113
           },
+          "source_model_id": "meta/muse_spark",
           "cost": null
         },
         {
@@ -8515,6 +9606,7 @@
           "scores": {
             "accuracy": 65.074
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101-thinking",
           "cost": null
         },
         {
@@ -8524,6 +9616,7 @@
           "scores": {
             "accuracy": 64.686
           },
+          "source_model_id": "google/gemini-3.5-flash",
           "cost": null
         },
         {
@@ -8533,6 +9626,7 @@
           "scores": {
             "accuracy": 64.491
           },
+          "source_model_id": "google/gemini-3.1-pro-preview",
           "cost": null
         },
         {
@@ -8542,6 +9636,7 @@
           "scores": {
             "accuracy": 64.452
           },
+          "source_model_id": "zai/glm-5.1",
           "cost": null
         },
         {
@@ -8551,6 +9646,7 @@
           "scores": {
             "accuracy": 64.375
           },
+          "source_model_id": "openai/gpt-5.6-sol",
           "cost": null
         },
         {
@@ -8560,6 +9656,7 @@
           "scores": {
             "accuracy": 64.219
           },
+          "source_model_id": "openai/gpt-5.6-luna",
           "cost": null
         },
         {
@@ -8569,6 +9666,7 @@
           "scores": {
             "accuracy": 63.831
           },
+          "source_model_id": "openai/gpt-5.1-2025-11-13",
           "cost": null
         },
         {
@@ -8578,6 +9676,7 @@
           "scores": {
             "accuracy": 63.714
           },
+          "source_model_id": "alibaba/qwen3.7-max",
           "cost": null
         },
         {
@@ -8587,6 +9686,7 @@
           "scores": {
             "accuracy": 63.675
           },
+          "source_model_id": "google/gemini-3-pro-preview",
           "cost": null
         },
         {
@@ -8596,6 +9696,7 @@
           "scores": {
             "accuracy": 63.675
           },
+          "source_model_id": "grok/grok-4.20-0309-reasoning",
           "cost": null
         },
         {
@@ -8605,6 +9706,7 @@
           "scores": {
             "accuracy": 63.559
           },
+          "source_model_id": "alibaba/qwen3.5-flash",
           "cost": null
         },
         {
@@ -8614,6 +9716,7 @@
           "scores": {
             "accuracy": 63.326
           },
+          "source_model_id": "google/gemini-3.6-flash",
           "cost": null
         },
         {
@@ -8623,6 +9726,7 @@
           "scores": {
             "accuracy": 63.054
           },
+          "source_model_id": "openai/gpt-4.1-2025-04-14",
           "cost": null
         },
         {
@@ -8632,6 +9736,7 @@
           "scores": {
             "accuracy": 62.898
           },
+          "source_model_id": "zai/glm-5-thinking",
           "cost": null
         },
         {
@@ -8641,6 +9746,7 @@
           "scores": {
             "accuracy": 62.315
           },
+          "source_model_id": "alibaba/qwen3.6-27b",
           "cost": null
         },
         {
@@ -8650,6 +9756,7 @@
           "scores": {
             "accuracy": 61.966
           },
+          "source_model_id": "anthropic/claude-sonnet-4-5-20250929-thinking",
           "cost": null
         },
         {
@@ -8659,6 +9766,7 @@
           "scores": {
             "accuracy": 61.927
           },
+          "source_model_id": "ant/ling-3.0-flash-2607",
           "cost": null
         },
         {
@@ -8668,6 +9776,7 @@
           "scores": {
             "accuracy": 61.927
           },
+          "source_model_id": "alibaba/qwen3.6-plus",
           "cost": null
         },
         {
@@ -8677,6 +9786,7 @@
           "scores": {
             "accuracy": 61.849
           },
+          "source_model_id": "deepseek/deepseek-v4-flash-0731",
           "cost": null
         },
         {
@@ -8686,6 +9796,7 @@
           "scores": {
             "accuracy": 61.422
           },
+          "source_model_id": "xiaomi/mimo-v2.5-pro",
           "cost": null
         },
         {
@@ -8695,6 +9806,7 @@
           "scores": {
             "accuracy": 61.383
           },
+          "source_model_id": "deepseek/deepseek-v4-pro",
           "cost": null
         },
         {
@@ -8704,6 +9816,7 @@
           "scores": {
             "accuracy": 61.305
           },
+          "source_model_id": "anthropic/claude-opus-4-5-20251101",
           "cost": null
         },
         {
@@ -8713,6 +9826,7 @@
           "scores": {
             "accuracy": 61.228
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514-thinking",
           "cost": null
         },
         {
@@ -8722,6 +9836,7 @@
           "scores": {
             "accuracy": 61.189
           },
+          "source_model_id": "openai/gpt-5.4-nano-2026-03-17",
           "cost": null
         },
         {
@@ -8731,6 +9846,7 @@
           "scores": {
             "accuracy": 61.189
           },
+          "source_model_id": "minimax/MiniMax-M2.7",
           "cost": null
         },
         {
@@ -8740,6 +9856,7 @@
           "scores": {
             "accuracy": 61.111
           },
+          "source_model_id": "grok/grok-3-mini-fast-high-reasoning",
           "cost": null
         },
         {
@@ -8749,6 +9866,7 @@
           "scores": {
             "accuracy": 61.072
           },
+          "source_model_id": "openai/gpt-5-2025-08-07",
           "cost": null
         },
         {
@@ -8758,6 +9876,7 @@
           "scores": {
             "accuracy": 61.033
           },
+          "source_model_id": "mistralai/mistral-large-2512",
           "cost": null
         },
         {
@@ -8767,6 +9886,7 @@
           "scores": {
             "accuracy": 60.956
           },
+          "source_model_id": "zai/glm-4.5",
           "cost": null
         },
         {
@@ -8776,6 +9896,7 @@
           "scores": {
             "accuracy": 60.917
           },
+          "source_model_id": "openai/gpt-5.4-mini-2026-03-17",
           "cost": null
         },
         {
@@ -8785,6 +9906,7 @@
           "scores": {
             "accuracy": 60.8
           },
+          "source_model_id": "anthropic/claude-sonnet-4-5-20250929",
           "cost": null
         },
         {
@@ -8794,6 +9916,7 @@
           "scores": {
             "accuracy": 60.8
           },
+          "source_model_id": "google/gemini-2.5-pro",
           "cost": null
         },
         {
@@ -8803,6 +9926,7 @@
           "scores": {
             "accuracy": 60.684
           },
+          "source_model_id": "google/gemini-3.5-flash-lite",
           "cost": null
         },
         {
@@ -8812,6 +9936,7 @@
           "scores": {
             "accuracy": 60.606
           },
+          "source_model_id": "anthropic/claude-haiku-4-5-20251001-thinking",
           "cost": null
         },
         {
@@ -8821,6 +9946,7 @@
           "scores": {
             "accuracy": 60.567
           },
+          "source_model_id": "kimi/kimi-k2-thinking",
           "cost": null
         },
         {
@@ -8830,6 +9956,7 @@
           "scores": {
             "accuracy": 60.412
           },
+          "source_model_id": "anthropic/claude-3-7-sonnet-20250219-thinking",
           "cost": null
         },
         {
@@ -8839,6 +9966,7 @@
           "scores": {
             "accuracy": 60.295
           },
+          "source_model_id": "anthropic/claude-haiku-4-5-20251001",
           "cost": null
         },
         {
@@ -8848,6 +9976,7 @@
           "scores": {
             "accuracy": 60.179
           },
+          "source_model_id": "openai/gpt-5-mini-2025-08-07",
           "cost": null
         },
         {
@@ -8857,6 +9986,7 @@
           "scores": {
             "accuracy": 59.907
           },
+          "source_model_id": "xiaomi/mimo-v2.5",
           "cost": null
         },
         {
@@ -8866,6 +9996,7 @@
           "scores": {
             "accuracy": 59.829
           },
+          "source_model_id": "google/gemini-2.5-pro-exp-03-25",
           "cost": null
         },
         {
@@ -8875,6 +10006,7 @@
           "scores": {
             "accuracy": 59.751
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -8884,6 +10016,7 @@
           "scores": {
             "accuracy": 59.713
           },
+          "source_model_id": "grok/grok-3",
           "cost": null
         },
         {
@@ -8893,6 +10026,7 @@
           "scores": {
             "accuracy": 59.713
           },
+          "source_model_id": "openai/o3-2025-04-16",
           "cost": null
         },
         {
@@ -8902,6 +10036,7 @@
           "scores": {
             "accuracy": 59.596
           },
+          "source_model_id": "minimax/MiniMax-M2.5",
           "cost": null
         },
         {
@@ -8911,6 +10046,7 @@
           "scores": {
             "accuracy": 59.479
           },
+          "source_model_id": "grok/grok-3-mini-fast-low-reasoning",
           "cost": null
         },
         {
@@ -8920,6 +10056,7 @@
           "scores": {
             "accuracy": 59.363
           },
+          "source_model_id": "google/gemini-3.1-flash-lite-preview",
           "cost": null
         },
         {
@@ -8929,6 +10066,7 @@
           "scores": {
             "accuracy": 58.974
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-09-2025",
           "cost": null
         },
         {
@@ -8938,6 +10076,7 @@
           "scores": {
             "accuracy": 58.974
           },
+          "source_model_id": "openai/o4-mini-2025-04-16",
           "cost": null
         },
         {
@@ -8947,6 +10086,7 @@
           "scores": {
             "accuracy": 58.896
           },
+          "source_model_id": "minimax/MiniMax-M2.1",
           "cost": null
         },
         {
@@ -8956,6 +10096,7 @@
           "scores": {
             "accuracy": 58.78
           },
+          "source_model_id": "mistralai/mistral-medium-3.5",
           "cost": null
         },
         {
@@ -8965,6 +10106,7 @@
           "scores": {
             "accuracy": 58.392
           },
+          "source_model_id": "grok/grok-4-fast-non-reasoning",
           "cost": null
         },
         {
@@ -8974,6 +10116,7 @@
           "scores": {
             "accuracy": 58.236
           },
+          "source_model_id": "fireworks/gpt-oss-120b",
           "cost": null
         },
         {
@@ -8983,6 +10126,7 @@
           "scores": {
             "accuracy": 58.159
           },
+          "source_model_id": "poolside/laguna-m.1",
           "cost": null
         },
         {
@@ -8992,6 +10136,7 @@
           "scores": {
             "accuracy": 57.926
           },
+          "source_model_id": "openai/gpt-4.1-mini-2025-04-14",
           "cost": null
         },
         {
@@ -9001,6 +10146,7 @@
           "scores": {
             "accuracy": 57.576
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025-thinking",
           "cost": null
         },
         {
@@ -9010,6 +10156,7 @@
           "scores": {
             "accuracy": 56.838
           },
+          "source_model_id": "zai/glm-4.6",
           "cost": null
         },
         {
@@ -9019,6 +10166,7 @@
           "scores": {
             "accuracy": 56.333
           },
+          "source_model_id": "poolside/laguna-xs.2",
           "cost": null
         },
         {
@@ -9028,6 +10176,7 @@
           "scores": {
             "accuracy": 56.294
           },
+          "source_model_id": "google/gemini-2.5-flash-lite-preview-09-2025",
           "cost": null
         },
         {
@@ -9037,6 +10186,7 @@
           "scores": {
             "accuracy": 55.944
           },
+          "source_model_id": "alibaba/qwen3-max",
           "cost": null
         },
         {
@@ -9046,6 +10196,7 @@
           "scores": {
             "accuracy": 54.74
           },
+          "source_model_id": "fireworks/deepseek-v3-0324",
           "cost": null
         },
         {
@@ -9055,6 +10206,7 @@
           "scores": {
             "accuracy": 54.701
           },
+          "source_model_id": "anthropic/claude-sonnet-4-20250514",
           "cost": null
         },
         {
@@ -9064,6 +10216,7 @@
           "scores": {
             "accuracy": 54.662
           },
+          "source_model_id": "arcee-ai/trinity-large-thinking",
           "cost": null
         },
         {
@@ -9073,6 +10226,7 @@
           "scores": {
             "accuracy": 54.235
           },
+          "source_model_id": "fireworks/nemotron-lightning-3p5-30b-a3b",
           "cost": null
         },
         {
@@ -9082,6 +10236,7 @@
           "scores": {
             "accuracy": 54.157
           },
+          "source_model_id": "google/gemini-2.5-flash-preview-04-17",
           "cost": null
         },
         {
@@ -9091,6 +10246,7 @@
           "scores": {
             "accuracy": 54.118
           },
+          "source_model_id": "fireworks/deepseek-r1",
           "cost": null
         },
         {
@@ -9100,6 +10256,7 @@
           "scores": {
             "accuracy": 53.613
           },
+          "source_model_id": "anthropic/claude-3-5-sonnet-20241022",
           "cost": null
         },
         {
@@ -9109,6 +10266,7 @@
           "scores": {
             "accuracy": 53.147
           },
+          "source_model_id": "fireworks/gpt-oss-20b",
           "cost": null
         },
         {
@@ -9118,6 +10276,7 @@
           "scores": {
             "accuracy": 52.953
           },
+          "source_model_id": "alibaba/qwen3-max-preview",
           "cost": null
         },
         {
@@ -9127,6 +10286,7 @@
           "scores": {
             "accuracy": 52.486
           },
+          "source_model_id": "fireworks/deepseek-v3",
           "cost": null
         },
         {
@@ -9136,6 +10296,7 @@
           "scores": {
             "accuracy": 52.486
           },
+          "source_model_id": "grok/grok-4-1-fast-non-reasoning",
           "cost": null
         },
         {
@@ -9145,6 +10306,7 @@
           "scores": {
             "accuracy": 51.476
           },
+          "source_model_id": "fireworks/deepseek-v3p1",
           "cost": null
         },
         {
@@ -9154,6 +10316,7 @@
           "scores": {
             "accuracy": 51.126
           },
+          "source_model_id": "grok/grok-2-1212",
           "cost": null
         },
         {
@@ -9163,6 +10326,7 @@
           "scores": {
             "accuracy": 50.971
           },
+          "source_model_id": "fireworks/deepseek-v3p2-thinking",
           "cost": null
         },
         {
@@ -9172,6 +10336,7 @@
           "scores": {
             "accuracy": 50.816
           },
+          "source_model_id": "anthropic/claude-3-5-haiku-20241022",
           "cost": null
         },
         {
@@ -9181,6 +10346,7 @@
           "scores": {
             "accuracy": 50.738
           },
+          "source_model_id": "mistralai/mistral-medium-2505",
           "cost": null
         },
         {
@@ -9190,6 +10356,7 @@
           "scores": {
             "accuracy": 50.388
           },
+          "source_model_id": "together/moonshotai/Kimi-K2-Instruct",
           "cost": null
         },
         {
@@ -9199,6 +10366,7 @@
           "scores": {
             "accuracy": 49.728
           },
+          "source_model_id": "fireworks/llama4-maverick-instruct-basic",
           "cost": null
         },
         {
@@ -9208,6 +10376,7 @@
           "scores": {
             "accuracy": 47.941
           },
+          "source_model_id": "fireworks/deepseek-v3p2",
           "cost": null
         },
         {
@@ -9217,6 +10386,7 @@
           "scores": {
             "accuracy": 47.397
           },
+          "source_model_id": "mistralai/magistral-medium-2509",
           "cost": null
         },
         {
@@ -9226,6 +10396,7 @@
           "scores": {
             "accuracy": 46.776
           },
+          "source_model_id": "together/meta-llama/Llama-4-Scout-17B-16E-Instruct",
           "cost": null
         },
         {
@@ -9235,6 +10406,7 @@
           "scores": {
             "accuracy": 46.387
           },
+          "source_model_id": "zai/glm-4.7",
           "cost": null
         },
         {
@@ -9244,6 +10416,7 @@
           "scores": {
             "accuracy": 45.96
           },
+          "source_model_id": "cohere/command-a-03-2025",
           "cost": null
         },
         {
@@ -9253,6 +10426,7 @@
           "scores": {
             "accuracy": 45.921
           },
+          "source_model_id": "openai/gpt-4o-2024-11-20",
           "cost": null
         },
         {
@@ -9262,6 +10436,7 @@
           "scores": {
             "accuracy": 45.455
           },
+          "source_model_id": "openai/gpt-4o-mini-2024-07-18",
           "cost": null
         },
         {
@@ -9271,6 +10446,7 @@
           "scores": {
             "accuracy": 45.299
           },
+          "source_model_id": "openai/o3-mini-2025-01-31",
           "cost": null
         },
         {
@@ -9280,6 +10456,7 @@
           "scores": {
             "accuracy": 44.173
           },
+          "source_model_id": "mistralai/mistral-small-2503",
           "cost": null
         },
         {
@@ -9289,6 +10466,7 @@
           "scores": {
             "accuracy": 44.017
           },
+          "source_model_id": "mistralai/magistral-small-2509",
           "cost": null
         },
         {
@@ -9298,6 +10476,7 @@
           "scores": {
             "accuracy": 43.435
           },
+          "source_model_id": "google/gemini-2.0-pro-exp-02-05",
           "cost": null
         },
         {
@@ -9307,6 +10486,7 @@
           "scores": {
             "accuracy": 42.075
           },
+          "source_model_id": "openai/gpt-4.1-nano-2025-04-14",
           "cost": null
         },
         {
@@ -9316,6 +10496,7 @@
           "scores": {
             "accuracy": 41.531
           },
+          "source_model_id": "ai21labs/jamba-large-1.6",
           "cost": null
         },
         {
@@ -9325,6 +10506,7 @@
           "scores": {
             "accuracy": 40.521
           },
+          "source_model_id": "google/gemini-1.5-pro-002",
           "cost": null
         },
         {
@@ -9334,6 +10516,7 @@
           "scores": {
             "accuracy": 39.433
           },
+          "source_model_id": "openai/gpt-4o-2024-08-06",
           "cost": null
         },
         {
@@ -9343,6 +10526,7 @@
           "scores": {
             "accuracy": 39.433
           },
+          "source_model_id": "ai21labs/jamba-1.5-large",
           "cost": null
         },
         {
@@ -9352,6 +10536,7 @@
           "scores": {
             "accuracy": 38.85
           },
+          "source_model_id": "together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -9361,6 +10546,7 @@
           "scores": {
             "accuracy": 38.19
           },
+          "source_model_id": "google/gemini-1.5-flash-002",
           "cost": null
         },
         {
@@ -9370,6 +10556,7 @@
           "scores": {
             "accuracy": 38.034
           },
+          "source_model_id": "ai21labs/jamba-mini-1.6",
           "cost": null
         },
         {
@@ -9379,6 +10566,7 @@
           "scores": {
             "accuracy": 37.801
           },
+          "source_model_id": "together/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
           "cost": null
         },
         {
@@ -9388,6 +10576,7 @@
           "scores": {
             "accuracy": 33.877
           },
+          "source_model_id": "ai21labs/jamba-1.5-mini",
           "cost": null
         },
         {
@@ -9397,6 +10586,7 @@
           "scores": {
             "accuracy": 33.722
           },
+          "source_model_id": "google/gemini-2.0-flash-001",
           "cost": null
         },
         {
@@ -9406,6 +10596,7 @@
           "scores": {
             "accuracy": 28.633
           },
+          "source_model_id": "google/gemini-1.5-flash-001",
           "cost": null
         }
       ]

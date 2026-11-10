@@ -4,7 +4,7 @@ import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUse
 import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
 import { Resolve } from '../components/brand/Resolve'
-import { Artifact, call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
+import { Artifact, call, callStreamed, Case, CaseAssignment, Config, Draft, Me, PairStream, PanelStream, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
 import { clerkEnabled, ClerkBridge } from './clerk'
 import Leaderboard from './Leaderboard'
@@ -416,7 +416,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
   const workflow = financeWorkflows.find(task => task.id === workflowId)
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
   const attachedCount = workflow ? Object.keys(files).length : questionFiles.length
-  const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [stream, setStream] = useState<PairStream | null>(null)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
   // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
@@ -476,7 +476,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
         ? workflow.assets.map(asset => ({ role: asset.role, file: files[asset.role] }))
         : questionFiles.map((file, index) => ({ role: `supporting-document-${index + 1}`, file }))
       const assets = await Promise.all(sourceFiles.map(async ({ role, file }) => ({ name: file.name, role, content_base64: await encodeAsset(file) })))
-      const run = await call<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets })
+      const run = await callStreamed<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets }, setStream)
       posthog?.capture('comparison_started', { workflow_id: workflow?.id ?? 'open_question', attachment_count: assets.length })
       posthogLogger.comparisonCreated({ workflowId: workflow?.id ?? 'open_question', attachmentCount: assets.length })
       await refresh(); navigate(`/session/${run.id}`)
@@ -484,7 +484,7 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
     {!busy && <><Resolve as="h1">Your accounting work starts here.</Resolve><p className="p-prompt-sub">Work through reconciliations, month-end close, and reporting.</p></>}
-    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><span className="p-meta">You</span>{workflow && <span className="p-submitted-task" data-tone={workflow.tone}><span className="p-tone-tile"><workflow.icon size={12} /></span>{workflow.label}</span>}<p>{question}</p></section><WaitingPair workflow={workflow} /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
+    {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><span className="p-meta">You</span>{workflow && <span className="p-submitted-task" data-tone={workflow.tone}><span className="p-tone-tile"><workflow.icon size={12} /></span>{workflow.label}</span>}<p>{question}</p></section><WaitingPair workflow={workflow} stream={stream} /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
       <label htmlFor="open-prompt" className="p-accounting-prompt-label">Ask an accounting question or describe a task</label>
       <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={2} value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder="Help me investigate the difference between my bank statement and general ledger…" />
       {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); forgetPendingFiles(); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
@@ -645,31 +645,49 @@ function CalibratingOrb() {
   </span>
 }
 
-function WaitingPair({ workflow }: { workflow?: FinanceWorkflow | null }) {
+// One side while its model writes: thinking fills a quiet box above the answer when the provider returns any, and a
+// model that returns none (or whose text was held back) shows the same neutral working state, never invented text.
+function LivePanel({ side, panel }: { side: string; panel: PanelStream }) {
+  const thinking = useRef<HTMLDivElement>(null); const answer = useRef<HTMLDivElement>(null)
+  useEffect(() => { const el = thinking.current; if (el) el.scrollTop = el.scrollHeight }, [panel.thinking])
+  useEffect(() => { const el = answer.current; if (el) el.scrollTop = el.scrollHeight }, [panel.answer])
+  const writing = !!panel.answer, done = panel.state !== 'working'
+  const status = done ? 'Ready' : writing ? 'Writing' : panel.thinking ? 'Thinking' : 'Working'
+  return <article className="p-live-panel" data-state={done ? 'done' : 'working'}>
+    <header><em>Response {side}</em><span>{status}{!done && <span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span>}</span></header>
+    {panel.thinking && <div className={`p-live-thinking ${writing ? 'is-settled' : ''}`}><span className="p-live-label">Thinking</span><div ref={thinking}>{panel.thinking}</div></div>}
+    {writing ? <div className="p-live-answer p-answer" ref={answer}><Prose text={panel.answer} /></div>
+      : !panel.thinking && <div className="p-live-working" aria-hidden="true"><b /><b /><b /></div>}
+  </article>
+}
+
+function WaitingPair({ workflow, stream }: { workflow?: FinanceWorkflow | null; stream?: PairStream | null }) {
   const [seconds, setSeconds] = useState(0)
   const [line, setLine] = useState(0)
   useEffect(() => { const started = Date.now(); const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000); return () => clearInterval(timer) }, [])
   useEffect(() => { const timer = setInterval(() => setLine(l => Math.min(l + 1, waitingLines.length - 1)), 4200); return () => clearInterval(timer) }, [])
-  return <div className="p-waiting" role="status" data-tone={workflow?.tone ?? 'gold'}>
+  const live = !!stream && [stream.a, stream.b].some(p => p.thinking || p.answer || p.state !== 'working')
+  return <div className={`p-waiting ${live ? 'is-live' : ''}`} role="status" aria-live="off" data-tone={workflow?.tone ?? 'gold'}>
     <div className="p-waiting-head">
       <CalibratingOrb />
-      <div><strong>{workflow ? `Preparing a ${workflow.label.toLowerCase()} comparison` : 'Preparing two perspectives'}</strong><p key={line} className="p-waiting-line">{waitingLines[line]}<span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span></p></div>
+      <div><strong>{workflow ? `Preparing a ${workflow.label.toLowerCase()} comparison` : 'Preparing two perspectives'}</strong><p key={live ? 'live' : line} className="p-waiting-line">{live ? 'Two models working independently' : waitingLines[line]}<span className="p-waiting-dots" aria-hidden="true"><i /><i /><i /></span></p></div>
       <span className="p-waiting-clock">{seconds}s</span>
     </div>
-    <div className="p-waiting-cards" aria-hidden="true">{['A', 'B'].map(side => <span key={side} className="p-waiting-card"><em>Response {side}</em><b /><b /><b /></span>)}</div>
+    {live && stream ? <div className="p-live-pair"><LivePanel side="A" panel={stream.a} /><LivePanel side="B" panel={stream.b} /></div>
+      : <div className="p-waiting-cards" aria-hidden="true">{['A', 'B'].map(side => <span key={side} className="p-waiting-card"><em>Response {side}</em><b /><b /><b /></span>)}</div>}
   </div>
 }
 
 function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) => void }) {
   const { config, refresh } = usePilot(); const navigate = useNavigate()
-  const [question, setQuestion] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
+  const [question, setQuestion] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [stream, setStream] = useState<PairStream | null>(null)
   const limit = (run.turn_number || 1) >= 5
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
     if (config?.ask_mode !== 'live') { setError('Live models are not connected. Your follow-up stays here.'); return }
     setBusy(true); onBusy(true)
     try {
-      const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', source_run_id: run.id, continuation_mode: 'compare' })
+      const next = await callStreamed<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', source_run_id: run.id, continuation_mode: 'compare' }, setStream)
       posthog?.capture('follow_up_started', { workflow_id: run.workflow_id ?? 'open_question', turn_number: next.turn_number ?? 1 })
       posthogLogger.followUpCreated({ workflowId: run.workflow_id ?? 'open_question', turnNumber: next.turn_number ?? 1 })
       await refresh(); navigate(`/session/${next.id}`)
@@ -681,7 +699,7 @@ function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) =
       <div className="p-composer-bottom"><span>Same follow-up. Each model continues its own conversation.</span><button className="p-send" disabled={busy || !question.trim()} aria-label="Send follow-up"><ArrowUp size={18} /></button></div>
       <ErrorNote message={error} />
     </form>}
-    {busy && <WaitingPair workflow={financeWorkflows.find(task => task.id === run.workflow_id)} />}
+    {busy && <WaitingPair workflow={financeWorkflows.find(task => task.id === run.workflow_id)} stream={stream} />}
   </section>
 }
 

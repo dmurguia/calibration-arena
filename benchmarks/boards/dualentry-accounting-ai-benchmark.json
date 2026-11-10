@@ -3,7 +3,7 @@
   "source_url": "https://www.dualentry.com/benchmark",
   "adapter": "dualentry",
   "as_of": null,
-  "retrieved": "2026-11-09",
+  "retrieved": "2026-11-10",
   "metrics": [
     {
       "key": "accuracy",
@@ -25,6 +25,15 @@
     {
       "model": "glm5-3flash",
       "label": "GLM-5.3 Flash",
+      "config": null,
+      "scores": {
+        "accuracy": 88.1
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini4carbon",
+      "label": "Gemini 4 Carbon",
       "config": null,
       "scores": {
         "accuracy": 88.1
@@ -131,6 +140,15 @@
       "cost": null
     },
     {
+      "model": "fable5-2",
+      "label": "Claude Fable 5.2",
+      "config": null,
+      "scores": {
+        "accuracy": 81.2
+      },
+      "cost": null
+    },
+    {
       "model": "gpt6astra",
       "label": "GPT-6 Astra",
       "config": null,
@@ -212,7 +230,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-09T23:00:19.146172+00:00",
+  "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
   "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-  "source_sha256": "3107803cba37181b4f326dd3b2cda8fe440b3a47f0fbd578cf134cd39a3fa786"
+  "source_sha256": "8650153506b7b2d922d2c1a5f94e2eb8b297d821882a3dcb45843808317d30cc"
 }

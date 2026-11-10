@@ -176,9 +176,11 @@
       "id": "fable5-2",
       "name": "Claude Fable 5.2",
       "org": "Anthropic",
-      "weights_reported": {},
+      "weights_reported": {
+        "dualentry-accounting-ai-benchmark": "closed"
+      },
       "weights": "closed",
-      "weights_basis": "family"
+      "weights_basis": "publisher"
     },
     {
       "id": "gemini1-5flash001",
@@ -378,9 +380,11 @@
       "id": "gemini4carbon",
       "name": "Gemini 4 Carbon",
       "org": "Google",
-      "weights_reported": {},
+      "weights_reported": {
+        "dualentry-accounting-ai-benchmark": "closed"
+      },
       "weights": "closed",
-      "weights_basis": "family"
+      "weights_basis": "publisher"
     },
     {
       "id": "gemma431bit",
@@ -1238,6 +1242,14 @@
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"
+    },
+    {
+      "id": "museember",
+      "name": "Muse Ember",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
     },
     {
       "id": "musespark",

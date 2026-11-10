@@ -16,8 +16,9 @@ KEYS = {
 # The leaderboard shows only open or closed. When the benchmark catalog has
 # no open/closed record, labs that publish their model weights default to
 # open (checked 10 Nov 2026: DeepSeek V4 Pro 0813 is MIT on Hugging Face,
-# Kimi K3.1 Pro weights went up 4 Nov); every other model defaults to closed.
-OPEN_ORGS = {"deepseek", "moonshot", "moonshotai"}
+# Kimi K3.1 Pro weights went up 4 Nov, GLM-5.3-Flash is MIT on Hugging Face);
+# every other model defaults to closed.
+OPEN_ORGS = {"deepseek", "moonshot", "moonshotai", "zai"}
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 

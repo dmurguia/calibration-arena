@@ -100,6 +100,7 @@ def test_login_rate_limit_and_founder_endpoints(client, monkeypatch):
 
 
 def test_usage_budget_failed_generation_and_global_cap(client, monkeypatch):
+    monkeypatch.setenv('PILOT_MAX_OUTPUT_TOKENS', '2000')  # budgets below assume the old 2,000 cap
     reset_limits()
     account = signup(client, "budget@example.com")
     monkeypatch.setattr("app.routers.pilot.live_ready", lambda: True)
@@ -195,7 +196,7 @@ def test_merge_gateway_pool_entry_calls_gateway_and_records_cost(monkeypatch):
 
 
 def test_pool_routes_openai_and_anthropic_direct_and_only_merge_entries_through_merge(monkeypatch):
-    monkeypatch.setenv("PILOT_MODELS", "openai:gpt-6-astra,anthropic:claude-fable-5-2,merge:google/gemini-4-argon,merge:xai/grok-4.7,merge:deepseek/deepseek-v4-pro-0813,merge:moonshot/kimi-k3.1-pro")
+    monkeypatch.setenv("PILOT_MODELS", "openai:gpt-6-astra,anthropic:claude-fable-5-2,merge:google/gemini-4-argon,merge:deepseek/deepseek-v4-pro-0813,merge:zai/glm-5.3-flash,merge:mistral/mistral-medium-3-5")
     for key in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "MERGE_API_KEY"):
         monkeypatch.setenv(key, "test-" + key)
     monkeypatch.setenv("ARENA_INFERENCE_BACKEND", "pool")
@@ -219,7 +220,7 @@ def test_pool_routes_openai_and_anthropic_direct_and_only_merge_entries_through_
             asyncio.run(pilot_inference.generate("question", "accounting-question"))
     assert {model for name, model in routes if name == "openai-direct"} == {"gpt-6-astra"}
     assert {model for name, model in routes if name == "anthropic-direct"} == {"claude-fable-5-2"}
-    assert {model for name, model in routes if name == "merge"} == {"google/gemini-4-argon", "xai/grok-4.7", "deepseek/deepseek-v4-pro-0813", "moonshot/kimi-k3.1-pro"}
+    assert {model for name, model in routes if name == "merge"} == {"google/gemini-4-argon", "deepseek/deepseek-v4-pro-0813", "zai/glm-5.3-flash", "mistral/mistral-medium-3-5"}
     assert not [r for r in routes if r[0] == "openrouter"]
 
 
@@ -238,6 +239,16 @@ def test_leaderboard_filters_unblinded_and_authored_runs():
     assert result["participants"] == 3
 
 
+def test_default_cap_reserves_two_full_answers_within_guest_budget(monkeypatch):
+    from app import pilot_limits
+    from app.pilot_direct import token_limit
+    monkeypatch.delenv("PILOT_MAX_OUTPUT_TOKENS", raising=False)
+    monkeypatch.delenv("PILOT_GUEST_TOKEN_BUDGET", raising=False)
+    assert token_limit() == 16000
+    reserved = pilot_limits.reservation_tokens("How should a lease schedule be reviewed?")
+    assert 32000 <= reserved < pilot_limits.participant_budget(None)
+
+
 def test_weights_labels():
     from app.pilot_models import weights_for
     assert weights_for("openrouter:deepseek/deepseek-v4-pro") == "open"
@@ -248,4 +259,6 @@ def test_weights_labels():
     assert weights_for("merge:moonshot/kimi-k3.1-pro") == "open"
     assert weights_for("merge:google/gemini-4-argon") == "closed"
     assert weights_for("merge:xai/grok-4.7") == "closed"
+    assert weights_for("merge:zai/glm-5.3-flash") == "open"
+    assert weights_for("merge:mistral/mistral-medium-3-5") == "closed"
     assert weights_for("openrouter:acme/mystery-model") == "closed"

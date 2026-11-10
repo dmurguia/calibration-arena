@@ -303,6 +303,7 @@ def test_live_readiness_does_not_require_invitation(monkeypatch, backend):
 
 
 def test_blind_conversation_histories_limit_and_reveal(client, monkeypatch):
+    monkeypatch.setenv('PILOT_MAX_OUTPUT_TOKENS', '2000')  # budgets below assume the old 2,000 cap
     from app.routers import pilot
     from app.db import SessionLocal
     h = guest(client)

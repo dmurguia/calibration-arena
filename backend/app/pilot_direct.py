@@ -10,8 +10,16 @@ def ready():
     return all(os.getenv(k, '').strip() and not os.environ[k].startswith('PLACEHOLDER') for k in keys)
 
 
+# Output ceiling per model call. Hidden reasoning counts against it, so it is set
+# high enough that a full answer to a hard question is rarely cut off (Nov 2026).
+DEFAULT_MAX_OUTPUT_TOKENS = 16000
+# Per-call wait. Default-setting models can take ~90s on hard questions; this stays
+# under PILOT_GENERATION_TIMEOUT_SECONDS (150) so the run records the real error.
+PROVIDER_TIMEOUT_SECONDS = 140
+
+
 def token_limit():
-    return max(256, min(int(os.getenv('PILOT_MAX_OUTPUT_TOKENS', '2000')), 8000))
+    return max(256, min(int(os.getenv('PILOT_MAX_OUTPUT_TOKENS', str(DEFAULT_MAX_OUTPUT_TOKENS))), 32000))
 
 
 def normalized_messages(provider, request):
@@ -29,7 +37,7 @@ async def call_openai(model, instructions, messages, task_type):
     }
     attempt = new_attempt('openai', model, payload)
     try:
-        async with httpx.AsyncClient(timeout=120) as client:
+        async with httpx.AsyncClient(timeout=PROVIDER_TIMEOUT_SECONDS) as client:
             response = await client.post(
                 'https://api.openai.com/v1/responses',
                 headers={'Authorization': 'Bearer ' + os.environ['OPENAI_API_KEY']},
@@ -63,7 +71,7 @@ async def call_anthropic(model, instructions, messages, task_type):
     payload = {'model': model, 'system': instructions, 'messages': messages, 'max_tokens': token_limit()}
     attempt = new_attempt('anthropic', model, payload)
     try:
-        async with httpx.AsyncClient(timeout=120) as client:
+        async with httpx.AsyncClient(timeout=PROVIDER_TIMEOUT_SECONDS) as client:
             response = await client.post(
                 'https://api.anthropic.com/v1/messages',
                 headers={'x-api-key': os.environ['ANTHROPIC_API_KEY'], 'anthropic-version': '2023-06-01'},

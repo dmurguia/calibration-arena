@@ -191,6 +191,7 @@ def test_merge_gateway_pool_entry_calls_gateway_and_records_cost(monkeypatch):
         assert attempt["provider_routing"]["x-merge-vendor"] in ("xai", "deepseek")
         assert "DO-NOT-RECORD" not in str(attempt)
         assert draft["origin"] == "merge"
+        assert draft["settings"]["max_tokens"] == 1500
 
 
 def test_leaderboard_filters_unblinded_and_authored_runs():

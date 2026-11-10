@@ -85,7 +85,9 @@ def validate_pack(document):
                 raise ValueError('Output hash mismatch.')
             if attempt.get('status') != 'complete' or attempt.get('output_text') != draft['text']:
                 raise ValueError('A complete generation record is required for every output.')
-            if attempt.get('requested_model') != draft['model_id'] or attempt.get('provider') != draft['origin']:
+            # Pool drafts carry the provider-prefixed pool id (merge:xai/grok-4.7); fixed-pair drafts the bare model.
+            requested = attempt.get('requested_model')
+            if draft['model_id'] not in (requested, f"{attempt.get('provider')}:{requested}") or attempt.get('provider') != draft['origin']:
                 raise ValueError('Generation identity does not match the artifact.')
             if not attempt.get('request') or attempt.get('request_sha256') != object_hash(attempt['request']):
                 raise ValueError('Generation request hash mismatch.')

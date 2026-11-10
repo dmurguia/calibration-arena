@@ -122,6 +122,17 @@ def test_partial_generation_is_saved_privately_and_retry_links(client, monkeypat
     assert retry['retry_of_run_id'] == r['id'] and retry['evaluation_scope'] == 'exploratory-retry'
 
 
+def test_pack_accepts_provider_prefixed_pool_ids_only_for_matching_provider():
+    pack = frozen_pack()
+    case = pack['cases'][0]
+    for draft, attempt in zip(case['drafts'], case['generation_attempts']):
+        draft['model_id'] = f"openrouter:{attempt['requested_model']}"
+    validate_pack(pack)
+    case['drafts'][0]['model_id'] = 'merge:' + case['generation_attempts'][0]['requested_model']
+    with pytest.raises(ValueError, match='Generation identity'):
+        validate_pack(pack)
+
+
 def test_pack_rejects_unapproved_changed_or_unrelated_outputs():
     pack = frozen_pack()
     validate_pack(pack)

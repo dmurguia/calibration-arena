@@ -25,6 +25,9 @@ export function StepList({ steps }: { steps: TraceStep[] }) {
 export default function Traces() {
   const [cluster, setCluster] = useState<string | null>(null)
   const [open, setOpen] = useState<string | null>(null)
+  const sel = TRACES.find((t) => t.id === open)
+  const isHero = sel?.claim === HERO_CLAIM.id
+  const selCluster = FAILURE_CLUSTERS.find((x) => x.id === sel?.cluster)
   const rows = cluster ? TRACES.filter((t) => t.cluster === cluster) : TRACES
 
   return (
@@ -93,11 +96,34 @@ export default function Traces() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="font-mono text-[11px] uppercase tracking-wider text-leather">Trace · {open}</div>
-                <div className="mt-1 text-[19px] font-semibold">{HERO_CLAIM.id}</div>
-                <div className="text-[13px] text-graphite">{HERO_CLAIM.vehicle} · {HERO_CLAIM.mileage} · in service {HERO_CLAIM.inService}</div>
+                <div className="mt-1 text-[19px] font-semibold">{sel?.claim}</div>
+                <div className="text-[13px] text-graphite">{isHero ? `${HERO_CLAIM.vehicle} · ${HERO_CLAIM.mileage} · in service ${HERO_CLAIM.inService}` : sel?.vehicle}</div>
               </div>
               <button onClick={() => setOpen(null)} className="text-graphite hover:text-ink"><X size={18} /></button>
             </div>
+            {!isHero && sel && (
+              <>
+                <Card className="mt-4 bg-paper text-[13px]">
+                  <div className="grid grid-cols-[110px_1fr] gap-y-1.5">
+                    <span className="text-graphite">Concern</span><span>{sel.concern}</span>
+                    <span className="text-graphite">Agent decision</span><span>{sel.decision}</span>
+                    <span className="text-graphite">Latency · cost</span><span className="font-mono">{sel.latency}s · ${sel.cost.toFixed(2)}</span>
+                    <span className="text-graphite">Failure mode</span><span className={selCluster ? 'text-bad' : 'text-steel'}>{selCluster ? selCluster.label : 'None detected — decision matched analyst review'}</span>
+                  </div>
+                </Card>
+                {selCluster && (
+                  <Card className="mt-3">
+                    <div className="flex items-center gap-2 text-[13px] font-medium"><Wrench size={14} className="text-leather" /> Studio will turn this into</div>
+                    <ul className="mt-1.5 list-disc pl-5 text-[13px] text-graphite">
+                      <li>A replayable task with the analyst’s decision as the answer key</li>
+                      <li>Example of this failure: {selCluster.example}</li>
+                    </ul>
+                  </Card>
+                )}
+                <div className="mt-4 text-[12px] text-steel">Step-by-step replay is included for {HERO_CLAIM.id} in this demo.</div>
+              </>
+            )}
+            {isHero && (<>
             <Card className="mt-4 bg-paper text-[13px]">
               <div className="grid grid-cols-[90px_1fr] gap-y-1.5">
                 <span className="text-graphite">Concern</span><span>{HERO_CLAIM.concern}</span>
@@ -121,6 +147,7 @@ export default function Traces() {
                 <li>12 synthetic variants across 3.5L / 2.7L EcoBoost model years</li>
               </ul>
             </Card>
+            </>)}
           </div>
         </div>
       )}

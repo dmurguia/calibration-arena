@@ -17,6 +17,7 @@ export interface TrainingRun {
   modelId: string
   warmStart: boolean
   steps: number
+  requestedSteps?: number
   startedAt: number
   durationMs: number
   seed: number
@@ -35,12 +36,13 @@ export interface DemoState {
   agentConnected: boolean
   templateId?: string
   builderStep: number
+  taskMix?: 'mixed' | 'real'
   leakageWeighted: boolean
   validateStartedAt?: number
   expertOrder?: { startedAt: number; durationMs: number; experts: string[]; counts: Record<string, number>; cost: number }
   baselineStartedAt?: number
   runs: TrainingRun[]
-  deployment?: { runId: string; stage: DeployStage; updatedAt: number }
+  deployment?: { runId: string; stage: DeployStage; updatedAt: number; approved?: boolean }
   driftSentAt?: number
   retrainScheduled: boolean
   guideOpen: boolean
@@ -58,6 +60,15 @@ const INITIAL: DemoState = {
 
 const KEY = 'calibrated-studio-demo-v1'
 
+/** Task split for the drafted environment; depends on the copilot's task-source choice. */
+export function taskCounts(s: Pick<DemoState, 'taskMix'>) {
+  const replay = 812
+  const synthetic = s.taskMix === 'real' ? 0 : 428
+  const total = replay + synthetic
+  const test = Math.round(total * 0.15)
+  return { replay, synthetic, total, test, train: total - test }
+}
+
 export function progressOf(startedAt: number | undefined, durationMs: number, now: number) {
   if (!startedAt) return 0
   return clamp((now - startedAt) / durationMs)
@@ -71,24 +82,26 @@ export function makeRun(opts: { recipe: RecipeId; modelId: string; warmStart: bo
   const model = MODELS.find((m) => m.id === opts.modelId)!
   const recipe = RECIPES.find((r) => r.id === opts.recipe)!
   const warmBonus = opts.warmStart && opts.recipe !== 'sft' ? 0.06 : 0
-  const stepFactor = clamp(opts.steps / 120, 0.55, 1.15)
+  const rate = model.id === 'glm' ? 1.5 : model.id === 'nemo' ? 0.7 : 1
+  const steps = Math.max(1, Math.min(opts.steps, Math.floor(opts.budget / (recipe.costPerStep * rate))))
+  const stepFactor = clamp(steps / 120, 0.55, 1.15)
   const finalScore = clamp(model.score + (recipe.uplift + warmBonus) * stepFactor, 0, 0.86)
   const startScore = opts.warmStart && opts.recipe !== 'sft' ? model.score + 0.18 : model.score
-  const rate = model.id === 'glm' ? 1.5 : model.id === 'nemo' ? 0.7 : 1
   return {
     id: `run-${String(opts.index + 1).padStart(2, '0')}`,
     name: opts.name ?? `${recipe.name.split(' (')[0]} · ${model.name}`,
     recipe: opts.recipe,
     modelId: opts.modelId,
     warmStart: opts.warmStart,
-    steps: opts.steps,
+    steps,
+    requestedSteps: opts.steps,
     startedAt: opts.startedAt ?? Date.now(),
     durationMs: opts.durationMs ?? DEMO_SPEED.trainingMs,
     seed: 17 + opts.index * 31,
     startScore,
     finalScore,
     budget: opts.budget,
-    estCost: Math.round(opts.steps * recipe.costPerStep * rate),
+    estCost: Math.round(steps * recipe.costPerStep * rate),
   }
 }
 
@@ -113,7 +126,8 @@ export function completedState(): DemoState {
     expertOrder: { startedAt: t, durationMs: DEMO_SPEED.expertJobMs, experts: ['e1', 'e2', 'e3', 'e6'], counts: { tasks: 300, demos: 200, labels: 1200, redteam: 60 }, cost: 24180 },
     baselineStartedAt: t,
     runs,
-    deployment: { runId: 'run-02', stage: 'canary', updatedAt: t },
+    deployment: { runId: 'run-02', stage: 'canary', updatedAt: t, approved: true },
+    taskMix: 'mixed',
     guideOpen: true,
   }
 }

@@ -36,9 +36,15 @@ export default function Deploy() {
     ['Wrong approvals ≤ production', `${pct(runLeak(run))} vs ${pct(claude.leak)}`, runLeak(run) <= claude.leak],
     ['p95 latency ≤ 60 s', `${model.p50 * 2 + 3}s`, true],
     ['Regression suite (42 golden claims)', '42 / 42 pass', true],
-    ['Approved by rubric owner', 'Anita Kumar · Warranty Policy', stageIdx >= 1],
+    ['Approved by rubric owner', dep?.approved ? 'Anita Kumar · Warranty Policy' : 'pending — Anita Kumar · Warranty Policy', !!dep?.approved],
   ] as const
-  const advance = (stage: DeployStage) => set({ deployment: { runId: run.id, stage, updatedAt: Date.now() } })
+  const qualityOk = gates.slice(0, 4).every((g) => g[2])
+  const allOk = gates.every((g) => g[2])
+  const blocked = (stage: DeployStage) => (stage === 'canary' || stage === 'full') && !allOk
+  const advance = (stage: DeployStage) => {
+    if (blocked(stage)) return
+    set({ deployment: { runId: run.id, stage, updatedAt: Date.now(), approved: stage === 'test' && dep?.runId !== run.id ? false : dep?.approved } })
+  }
 
   return (
     <>
@@ -79,7 +85,8 @@ export default function Deploy() {
                       <div className="flex items-center gap-2 text-[14.5px] font-medium">{st.title} {i === stageIdx && (st.id === 'canary' || st.id === 'full') && <LiveDot />}</div>
                       <div className="text-[12.5px] text-graphite">{st.desc}</div>
                     </div>
-                    {next && <Button size="sm" onClick={() => advance(st.id)}>{['Create deployment', 'Start shadow', 'Start canary', 'Promote to 100%'][i]}</Button>}
+                    {next && blocked(st.id) && <span className="text-[12px] text-bad">{qualityOk ? 'Needs rubric-owner approval' : 'Blocked by deployment gate'}</span>}
+                    {next && <Button size="sm" disabled={blocked(st.id)} onClick={() => advance(st.id)}>{['Create deployment', 'Start shadow', 'Start canary', 'Promote to 100%'][i]}</Button>}
                     {i === stageIdx && i > 0 && <Button size="sm" variant="ghost" onClick={() => advance(STAGES[i - 1].id)}>Roll back</Button>}
                   </div>
                 )
@@ -111,6 +118,11 @@ export default function Deploy() {
                 </div>
               </div>
             ))}
+            {dep && !dep.approved && (
+              <Button size="sm" variant="secondary" className="w-full" disabled={!qualityOk} onClick={() => set({ deployment: { ...dep, approved: true, updatedAt: Date.now() } })}>
+                {qualityOk ? 'Approve as rubric owner (Anita Kumar)' : 'Approval unavailable — quality gates failing'}
+              </Button>
+            )}
           </Card>
           <Card className="mt-4">
             <div className="text-[12.5px] font-medium text-graphite">If promoted to 100%</div>

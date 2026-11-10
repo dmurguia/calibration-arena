@@ -147,10 +147,10 @@ export default function Onboarding() {
               {TEMPLATES.map((t) => {
                 const Icon = ICONS[t.icon]
                 return (
-                  <button key={t.id} onClick={() => setTemplate(t.id)} className={cx('rounded-lg border bg-card p-4 text-left transition-colors', template === t.id ? 'border-ink ring-1 ring-ink' : 'border-hairline hover:border-ink/40')}>
+                  <button key={t.id} disabled={t.id !== 'warranty'} onClick={() => setTemplate(t.id)} className={cx('rounded-lg border bg-card p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-55', template === t.id ? 'border-ink ring-1 ring-ink' : 'border-hairline hover:border-ink/40')}>
                     <div className="flex items-center justify-between">
                       <Icon size={18} className="text-leather" />
-                      {t.id === 'warranty' && <Badge tone="good">Matches your traces</Badge>}
+                      {t.id === 'warranty' ? <Badge tone="good">Matches your traces</Badge> : <Badge>Not in this demo</Badge>}
                     </div>
                     <div className="mt-2 font-medium">{t.title}</div>
                     <div className="mt-0.5 text-[12.5px] leading-snug text-graphite">{t.blurb}</div>

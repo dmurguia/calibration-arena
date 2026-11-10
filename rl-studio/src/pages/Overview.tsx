@@ -2,13 +2,16 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Check, Circle, Loader2 } from 'lucide-react'
 import { AGENT, MODELS } from '../lib/data'
 import { runProgress, useDemo, useMilestones } from '../lib/store'
+import { modelOf, runLeak } from '../lib/runs'
 import { num, pct, usd } from '../lib/sim'
 import { Badge, Button, Card, cx, PageHeader, SectionTitle, Stat } from '../components/ui'
 
 export default function Overview() {
   const { s, now } = useDemo()
   const m = useMilestones()
-  const bestRun = [...s.runs].filter((r) => runProgress(r, now) >= 1).sort((a, b) => b.finalScore - a.finalScore)[0]
+  const live = s.runs.find((r) => r.id === s.deployment?.runId && runProgress(r, now) >= 1)
+  const bestRun = m.live ? live : undefined
+  const stageLabel = s.deployment?.stage === 'full' ? 'at 100%' : 'on canary'
   const claude = MODELS.find((x) => x.id === 'claude')!
 
   const steps = [
@@ -28,9 +31,9 @@ export default function Overview() {
 
       <div className="grid grid-cols-4 gap-4">
         <Stat label="Production traces (30d)" value="1,842" sub={`~${num(AGENT.claimsPerDay)} claims/day at full rollout`} />
-        <Stat label="Task success today" value={pct(bestRun && m.live ? bestRun.finalScore : claude.score)} sub={bestRun && m.live ? `${bestRun.id} on canary` : 'Claude Sonnet 4.6 baseline'} delta={bestRun && m.live ? `+${((bestRun.finalScore - claude.score) * 100).toFixed(1)} pts` : undefined} />
-        <Stat label="Cost per claim" value={bestRun && m.live ? '$0.04' : usd(claude.costPerClaim, 2)} sub={bestRun && m.live ? 'self-owned Qwen 3.6 35B' : 'frontier API'} delta={bestRun && m.live ? '−90%' : undefined} />
-        <Stat label="Leakage (wrong approvals)" value={bestRun && m.live ? '1.9%' : pct(claude.leak)} sub="$1.1M / yr at current rate" delta={bestRun && m.live ? '−4.9 pts' : undefined} />
+        <Stat label="Task success today" value={pct(bestRun && m.live ? bestRun.finalScore : claude.score)} sub={bestRun && m.live ? `${bestRun.id} ${stageLabel}` : 'Claude Sonnet 4.6 baseline'} delta={bestRun && m.live ? `+${((bestRun.finalScore - claude.score) * 100).toFixed(1)} pts` : undefined} />
+        <Stat label="Cost per claim" value={bestRun ? `$${(modelOf(bestRun).costPerClaim * 1.25).toFixed(3)}` : usd(claude.costPerClaim, 2)} sub={bestRun ? `self-owned ${modelOf(bestRun).name}` : 'frontier API'} delta={bestRun ? `−${Math.round((1 - (modelOf(bestRun).costPerClaim * 1.25) / claude.costPerClaim) * 100)}%` : undefined} />
+        <Stat label="Leakage (wrong approvals)" value={pct(bestRun ? runLeak(bestRun) : claude.leak)} sub={bestRun ? `was ${pct(claude.leak)} on Claude` : '$1.1M / yr at current rate'} delta={bestRun ? `−${((claude.leak - runLeak(bestRun)) * 100).toFixed(1)} pts` : undefined} />
       </div>
 
       <div className="mt-8 grid grid-cols-[1.5fr_1fr] gap-6">

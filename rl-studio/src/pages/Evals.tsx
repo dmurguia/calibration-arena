@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Loader2, Play } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis, LabelList } from 'recharts'
 import { BASELINE_STEPS, EVAL_CATEGORIES, HERO_CLAIM, MODELS, TRAINED_STEPS } from '../lib/data'
-import { DEMO_SPEED, progressOf, runProgress, useDemo } from '../lib/store'
+import { DEMO_SPEED, progressOf, runProgress, taskCounts, useDemo } from '../lib/store'
 import { modelOf, runLeak } from '../lib/runs'
 import { pct, rng } from '../lib/sim'
 import { Badge, Button, Card, chartColors, cx, PageHeader, Progress, SectionTitle } from '../components/ui'
@@ -38,7 +38,7 @@ export default function Evals() {
       <PageHeader
         eyebrow="Improve · Evaluations"
         title="Score every model on your environment"
-        desc="Held-out test split · 186 claims · same tools, same grader. This is the number that decides what goes to production."
+        desc={`Held-out test split · ${taskCounts(s).test} claims · same tools, same grader. This is the number that decides what goes to production.`}
         actions={
           !s.baselineStartedAt ? <Button onClick={() => set({ baselineStartedAt: Date.now() })}><Play size={14} /> Run baseline on 6 models</Button>
             : done ? <Link to="/app/training/new"><Button>{trained.length ? 'Train another model' : 'Next: train a model'} <ArrowRight size={14} /></Button></Link>

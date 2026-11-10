@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ArrowUp, Check, Circle, Loader2, Sparkles, Wrench } from 'lucide-react'
 import { ENV_TOOLS, REWARD_TERMS } from '../lib/data'
-import { DEMO_SPEED, progressOf, useDemo } from '../lib/store'
+import { DEMO_SPEED, progressOf, taskCounts, useDemo } from '../lib/store'
 import { Badge, Button, Card, Code, cx, PageHeader, Tabs } from '../components/ui'
 
 const SCRIPT = [
@@ -59,6 +59,10 @@ tasks:
   split: {train: 0.85, test: 0.15, stratify_by: vehicle_line}
 reward: grader.py`
 
+const REAL_ONLY_REPLY = 'Done — 812 tasks, all replayed from production claims where an analyst confirmed or overrode the decision (PII scrubbed, VINs hashed). No synthetic cases, so rare edges like coverage boundaries and commercial use are thin — experts can author those.\n\nI held out 15% as a test split, stratified by vehicle line so F-150 doesn’t dominate.'
+
+const ENV_YAML_FOR = (synthetic: number) => ENV_YAML.replace('synthetic: 428', `synthetic: ${synthetic}`)
+
 const GRADER = (leak: boolean) => `# grader.py — generated, editable
 from calibrated.grading import check, judge, penalty
 
@@ -101,12 +105,13 @@ export default function Builder() {
     setTimeout(() => {
       setPending(false)
       const next = step + 1
-      set({ builderStep: next, ...(step === 3 ? { leakageWeighted: !/equal/i.test(text) } : {}) })
+      set({ builderStep: next, ...(step === 1 ? { taskMix: /real claims|no synthetic|only real/i.test(text) ? 'real' : 'mixed' } : {}), ...(step === 3 ? { leakageWeighted: !/equal/i.test(text) } : {}) })
       setTab(next === 1 ? 'tools' : next === 2 ? 'tasks' : next >= 3 ? 'reward' : 'overview')
     }, 1600)
   }
 
   const current = SCRIPT[step]
+  const tc = taskCounts(s)
 
   return (
     <>
@@ -137,7 +142,7 @@ export default function Builder() {
             {SCRIPT.slice(0, step).map((m, i) => (
               <div key={i} className="space-y-3">
                 <div className="ml-10 rounded-lg bg-ink px-3 py-2 text-[13px] leading-relaxed text-paper">{typed[i] ?? m.user}</div>
-                <div className="whitespace-pre-line rounded-lg border border-hairline p-3 text-[13px] leading-relaxed">{m.reply.replace(/`/g, '')}</div>
+                <div className="whitespace-pre-line rounded-lg border border-hairline p-3 text-[13px] leading-relaxed">{(i === 1 && s.taskMix === 'real' ? REAL_ONLY_REPLY : m.reply).replace(/`/g, '')}</div>
               </div>
             ))}
             {pending && current && (
@@ -179,13 +184,13 @@ export default function Builder() {
             {vp >= 1 ? <Badge tone="good"><Check size={11} /> Validated</Badge> : <Badge>Draft</Badge>}
           </div>
           <div className="px-4 pt-2">
-            <Tabs value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'tools', label: `Tools${step >= 1 ? ' · 7' : ''}` }, { id: 'tasks', label: `Tasks${step >= 2 ? ' · 1,240' : ''}` }, { id: 'reward', label: 'Reward' }, { id: 'files', label: 'Files' }]} />
+            <Tabs value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'tools', label: `Tools${step >= 1 ? ' · 7' : ''}` }, { id: 'tasks', label: `Tasks${step >= 2 ? ` · ${tc.total.toLocaleString()}` : ''}` }, { id: 'reward', label: 'Reward' }, { id: 'files', label: 'Files' }]} />
           </div>
           <div className="scrollbar-thin flex-1 overflow-y-auto p-4">
             {tab === 'overview' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-4 gap-3">
-                  {[['Tools', step >= 1 ? '7' : '—'], ['Tasks', step >= 2 ? '1,240' : '—'], ['Reward terms', step >= 3 ? '7' : '—'], ['Validation', vp >= 1 ? '6/6' : s.validateStartedAt ? `${checksDone}/6` : '—']].map(([k, v]) => (
+                  {[['Tools', step >= 1 ? '7' : '—'], ['Tasks', step >= 2 ? tc.total.toLocaleString() : '—'], ['Reward terms', step >= 3 ? '7' : '—'], ['Validation', vp >= 1 ? '6/6' : s.validateStartedAt ? `${checksDone}/6` : '—']].map(([k, v]) => (
                     <div key={k} className="rounded-md bg-paper p-3">
                       <div className="text-[11.5px] text-graphite">{k}</div>
                       <div className="font-mono text-[18px]">{v}</div>
@@ -239,7 +244,7 @@ export default function Builder() {
             {tab === 'tasks' && (step >= 2 ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  {[['Replayed from production', '812', 'analyst-confirmed answer keys'], ['Synthetic hard cases', '428', 'TSB, coverage-edge, commercial use'], ['Expert-authored', s.expertOrder ? '300' : 'pending', s.expertOrder ? 'from Calibrated experts' : 'add experts →']].map(([k, v, d]) => (
+                  {[['Replayed from production', '812', 'analyst-confirmed answer keys'], ['Synthetic hard cases', tc.synthetic ? String(tc.synthetic) : 'off', tc.synthetic ? 'TSB, coverage-edge, commercial use' : 'real claims only'], ['Expert-authored', s.expertOrder ? '300' : 'pending', s.expertOrder ? 'from Calibrated experts' : 'add experts →']].map(([k, v, d]) => (
                     <div key={k} className="rounded-md bg-paper p-3">
                       <div className="text-[11.5px] text-graphite">{k}</div>
                       <div className="font-mono text-[18px]">{v}</div>
@@ -257,7 +262,7 @@ export default function Builder() {
                       ['Explorer Hybrid HV coolant pump', 'synthetic', 'Approve → hybrid unique 8yr/100k', 'train'],
                       ['Transit fleet van, commercial use, 38k mi', 'synthetic', 'Request info → commercial coverage terms', 'test'],
                       ['Edge 2.0L A/C, invented part in RO', 'synthetic', 'Request info → part not in catalog', 'train'],
-                    ].map((r) => (
+                    ].filter((r) => tc.synthetic || r[1] !== 'synthetic').map((r) => (
                       <tr key={r[0]} className="border-b border-hairline last:border-0">
                         <td className="py-2">{r[0]}</td>
                         <td><Badge tone={r[1] === 'replay' ? 'neutral' : 'leather'}>{r[1]}</Badge></td>
@@ -289,7 +294,7 @@ export default function Builder() {
             ) : <Pending />)}
             {tab === 'files' && (step >= 1 ? (
               <div className="space-y-3">
-                <Code title="environment.yaml" code={ENV_YAML} />
+                <Code title="environment.yaml" code={ENV_YAML_FOR(tc.synthetic)} />
                 {step >= 3 && <Code title="grader.py" code={GRADER(s.leakageWeighted)} />}
               </div>
             ) : <Pending />)}

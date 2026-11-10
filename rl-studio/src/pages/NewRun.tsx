@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Info, Play } from 'lucide-react'
 import { MODELS, RECIPES, type RecipeId } from '../lib/data'
-import { makeRun, useDemo, useMilestones } from '../lib/store'
+import { makeRun, taskCounts, useDemo, useMilestones } from '../lib/store'
 import { pct, usd } from '../lib/sim'
 import { Badge, Button, Card, cx, PageHeader, SectionTitle } from '../components/ui'
 
@@ -18,6 +18,7 @@ export default function NewRun() {
   const [adv, setAdv] = useState(false)
   const preview = makeRun({ recipe, modelId, warmStart: warm, steps, budget, index: s.runs.length })
   const rec = RECIPES.find((r) => r.id === recipe)!
+  const tc = taskCounts(s)
   const trainable = MODELS.filter((x) => x.trainable)
 
   const launch = (alsoNemo = false) => {
@@ -99,7 +100,7 @@ export default function NewRun() {
               <div className="text-[12.5px] font-medium text-graphite">Run summary</div>
               <div className="mt-2 text-[15px] font-semibold">{preview.name}</div>
               <div className="mt-3 space-y-1.5 text-[13px]">
-                {[['Environment', 'ford-warranty-triage v4'], ['Train / test', '1,054 / 186 tasks'], ['Estimated time', `${Math.round(rec.minutes * steps / 120 / 60 * 10) / 10} h`], ['Estimated cost', usd(Math.min(preview.estCost, budget))], ['Expected held-out', `${pct(preview.finalScore - 0.03, 0)}–${pct(preview.finalScore + 0.02, 0)}`]].map(([k, v]) => (
+                {[['Environment', 'ford-warranty-triage v4'], ['Train / test', `${tc.train.toLocaleString()} / ${tc.test} tasks`], ['Steps', preview.steps < steps ? `${preview.steps} of ${steps} (budget cap)` : `${steps}`], ['Estimated time', `${Math.round(rec.minutes * preview.steps / 120 / 60 * 10) / 10} h`], ['Estimated cost', usd(preview.estCost)], ['Expected held-out', `${pct(preview.finalScore - 0.03, 0)}–${pct(preview.finalScore + 0.02, 0)}`]].map(([k, v]) => (
                   <div key={k} className="flex justify-between"><span className="text-graphite">{k}</span><span className="font-mono">{v}</span></div>
                 ))}
               </div>

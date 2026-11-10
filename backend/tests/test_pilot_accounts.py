@@ -194,6 +194,35 @@ def test_merge_gateway_pool_entry_calls_gateway_and_records_cost(monkeypatch):
         assert draft["settings"]["max_tokens"] == 1500
 
 
+def test_pool_routes_openai_and_anthropic_direct_and_only_merge_entries_through_merge(monkeypatch):
+    monkeypatch.setenv("PILOT_MODELS", "openai:gpt-6-astra,anthropic:claude-fable-5-2,merge:google/gemini-4-argon,merge:xai/grok-4.7,merge:deepseek/deepseek-v4-pro-0813,merge:moonshot/kimi-k3.1-pro")
+    for key in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "MERGE_API_KEY"):
+        monkeypatch.setenv(key, "test-" + key)
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", "pool")
+    from app import pilot_inference
+    routes = []
+
+    def route(name):
+        async def call(model, *args, **kwargs):
+            routes.append((name, model))
+            return {"text": model, "attempt": {"status": "complete", "usage": {}}}
+        return call
+
+    monkeypatch.setattr("app.pilot_direct.call_openai", route("openai-direct"))
+    monkeypatch.setattr("app.pilot_direct.call_anthropic", route("anthropic-direct"))
+    monkeypatch.setattr(pilot_inference, "call_merge", route("merge"))
+    monkeypatch.setattr(pilot_inference, "call_openrouter", route("openrouter"))
+    models = parse_pool()
+    for i, first in enumerate(models):
+        for second in models[i + 1:]:
+            monkeypatch.setattr("secrets.SystemRandom.sample", lambda self, values, count, pair=(first, second): list(pair))
+            asyncio.run(pilot_inference.generate("question", "accounting-question"))
+    assert {model for name, model in routes if name == "openai-direct"} == {"gpt-6-astra"}
+    assert {model for name, model in routes if name == "anthropic-direct"} == {"claude-fable-5-2"}
+    assert {model for name, model in routes if name == "merge"} == {"google/gemini-4-argon", "xai/grok-4.7", "deepseek/deepseek-v4-pro-0813", "moonshot/kimi-k3.1-pro"}
+    assert not [r for r in routes if r[0] == "openrouter"]
+
+
 def test_leaderboard_filters_unblinded_and_authored_runs():
     def run(participant, preference, *, mode="pool", scope="blind-conversation", task="accounting-question"):
         drafts = [{"model_id": "openai:gpt"}, {"model_id": "anthropic:claude"}]

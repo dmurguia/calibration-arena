@@ -1,0 +1,77 @@
+/* A prompt-first accounting workspace, with a visual explanation of the comparison. */
+.p-arena-page { padding-block: 48px 56px; }
+.p-arena-backdrop img { width: 100%; height: 100%; object-fit: cover; opacity: .025; filter: grayscale(1) contrast(1.12); }
+.p-prompt-first h1 { font-size: clamp(32px, 3.4vw, 44px); }
+.p-prompt-first .p-prompt-sub { max-width: none; font-size: 15px; line-height: 1.6; margin-bottom: 26px !important; }
+.p-prompt-first .p-composer > .p-accounting-prompt-label { display: block; padding: 18px 23px 0; color: var(--cal-ink); font-size: 13px; font-weight: 500; }
+.p-prompt-first .p-composer > textarea { min-height: 86px; padding-top: 10px; font-size: 15px; }
+.p-prompt-first .p-composer-bottom { padding-bottom: 14px; }
+.p-prompt-first .p-finance-tasks { margin-top: 18px; }
+.p-question-attachments { padding: 0 23px 8px; }
+.p-question-upload-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.p-question-upload { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid var(--cal-rule); border-radius: 8px; color: var(--cal-ink); font-size: 12px; background: var(--cal-paper); }
+.p-question-upload:hover { border-color: var(--cal-rule-strong); }
+.p-question-upload-row > span { color: var(--cal-graphite); font-size: 10px; }
+.p-question-file-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 12px 0 0; }
+.p-question-file-list li { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; padding: 5px 8px 5px 10px; border: 1px solid var(--cal-rule); border-radius: 8px; font-size: 12px; }
+.p-question-file-list li > svg { flex-shrink: 0; color: #6f8260; }
+.p-question-file-list li > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-question-file-list button { display: grid; place-items: center; padding: 7px; border-radius: 4px; }
+.p-question-file-list button:hover { background: var(--cal-hover-wash); }
+.p-question-attachments .p-question-file-note { margin: 9px 0 0; color: var(--cal-graphite); font-size: 10px; line-height: 1.5; }
+.p-missing-attachments { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 23px; font-size: 12px; }
+.p-missing-attachments button { text-decoration: underline; text-underline-offset: 3px; }
+
+/* A diagram, not an output card: source documents become an anonymous A/B pair. */
+.p-accounting-flow { margin: 34px auto 0; padding: 25px 18px 0; border-top: 1px solid var(--cal-rule-faint); text-align: center; }
+.p-accounting-flow .p-flow-eyebrow { margin: 0 0 9px; font: 9px/1.5 var(--cal-font-mono); text-transform: uppercase; letter-spacing: 1.5px; color: var(--cal-graphite); }
+.p-accounting-flow h2 { font: 400 25px/1.25 var(--cal-font-body); letter-spacing: -.6px; margin: 0; text-wrap: balance; }
+.p-accounting-flow .p-flow-intro { max-width: 480px; margin: 10px auto 0; color: var(--cal-graphite); font-size: 12px; line-height: 1.6; text-wrap: balance; }
+.p-flow-visual { display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); align-items: center; max-width: 570px; margin: 25px auto 0; min-height: 148px; }
+.p-flow-documents { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
+.p-flow-document { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #dcd9cf; border-radius: 10px; background: var(--cal-white); box-shadow: 0 5px 15px #46464307; text-align: left; transform: rotate(-3deg); }
+.p-flow-document + .p-flow-document { transform: rotate(2deg) translateX(8px); }
+.p-flow-document > span:last-child { min-width: 0; flex: 1; }
+.p-flow-document strong { display: block; font-size: 11px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+.p-flow-file-icon { flex: 0 0 32px; height: 38px; display: grid; place-items: center; border: 1px solid #6f826030; border-radius: 5px; color: #6f8260; background: #6f82600c; }
+.p-flow-file-1 { color: #a66a4c; background: #a66a4c0c; border-color: #a66a4c30; }
+.p-flow-document-lines, .p-flow-answer-lines { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.p-flow-document-lines i, .p-flow-answer-lines i { display: block; width: 85%; height: 3px; border-radius: 3px; background: #46464317; }
+.p-flow-document-lines i:last-child { width: 60%; }
+.p-flow-engine { position: relative; display: grid; place-items: center; height: 140px; }
+.p-flow-orbit { position: absolute; width: 112px; height: 112px; border: 1px solid #b39a6530; border-radius: 50%; background: radial-gradient(circle, #ddcda845, #f4f1e900 70%); animation: accounting-orbit 5s ease-in-out infinite; }
+.p-flow-core { position: relative; z-index: 2; display: grid; place-items: center; width: 58px; height: 58px; border: 1px solid #cdbf9b; border-radius: 50%; background: var(--cal-white); box-shadow: 0 0 24px #b39a6525; }
+.p-flow-spark { position: absolute; top: 24px; right: 23px; color: #ad914e; z-index: 2; animation: accounting-spark 5s ease-in-out infinite; }
+.p-flow-path { position: absolute; top: 50%; width: 50%; height: 1px; background: linear-gradient(90deg,#c4c6b5,#b39a65); }
+.p-flow-path-in { left: 0; }.p-flow-path-out { right: 0; }
+.p-flow-path::after { content: ''; position: absolute; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: #b39a65; box-shadow: 0 0 8px #b39a65; animation: accounting-travel 4s linear infinite; }
+.p-flow-path-out::after { animation-delay: 2s; }
+.p-flow-responses { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
+.p-flow-response { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border: 1px solid #c8d2c0; border-radius: 9px; background: var(--cal-white); text-align: left; box-shadow: 0 5px 15px #46464307; }
+.p-flow-response-b { border-color: #c6ccd5; }
+.p-flow-response > div { flex: 1; }
+.p-flow-response strong { font-size: 11px; font-weight: 500; }
+.p-flow-response-letter { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border: 1px solid #6f826030; border-radius: 5px; background: #6f826010; color: #6f8260; font: 12px var(--cal-font-mono); }
+.p-flow-response-b .p-flow-response-letter { color: #5c6c7e; background: #5c6c7e10; border-color: #5c6c7e30; }
+.p-flow-answer-lines { margin-top: 6px; gap: 4px; }.p-flow-answer-lines i { height: 3px; width: 100%; }.p-flow-answer-lines i:nth-child(2) { width: 75%; }.p-flow-answer-lines i:last-child { width: 85%; }
+.p-flow-captions { display: flex; justify-content: space-between; max-width: 570px; margin: 14px auto 0; gap: 30px; color: var(--cal-graphite); font-size: 11px; }.p-flow-captions span { width: calc((100% - 120px) / 2); }
+.p-accounting-flow .p-flow-finish { margin: 20px 0 0; color: var(--cal-graphite); font-size: 11px; }
+@keyframes accounting-travel { 0% { left: 0; opacity: 0; } 20%,80% { opacity: .8; } 100% { left: 100%; opacity: 0; } }
+@keyframes accounting-orbit { 50% { transform: scale(.9); opacity: .5; } }
+@keyframes accounting-spark { 50% { opacity: .4; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) { .p-flow-orbit, .p-flow-spark, .p-flow-path::after { animation: none; }.p-flow-path::after { display: none; } }
+@media (max-width: 760px) {
+  .p-arena-page { padding-block: 36px; }
+  .p-prompt-first h1 { max-width: 390px; }
+  .p-prompt-first .p-prompt-sub { max-width: 330px; font-size: 14px; }
+  .p-prompt-first .p-composer > .p-accounting-prompt-label { padding-inline: 18px; }
+  .p-question-attachments { padding-inline: 18px; }
+  .p-accounting-flow { padding-inline: 0; margin-top: 28px; }
+  .p-accounting-flow h2 { font-size: 22px; }
+  .p-flow-visual { grid-template-columns: minmax(0,1fr) 76px minmax(0,1fr); }
+  .p-flow-document { padding: 9px 7px; gap: 6px; }.p-flow-document strong, .p-flow-response strong { font-size: 10px; }
+  .p-flow-file-icon { flex-basis: 25px; height: 32px; }.p-flow-file-icon svg { width: 17px; }
+  .p-flow-response { padding: 10px 7px; gap: 6px; }.p-flow-response-letter { flex-basis: 20px; height: 20px; }
+  .p-flow-core { width: 44px; height: 44px; }.p-flow-core svg { width: 25px; }.p-flow-orbit { width: 74px; height: 74px; }.p-flow-spark { right: 9px; top: 32px; width: 12px; }
+  .p-flow-captions { gap: 25px; font-size: 10px; }.p-flow-captions span { width: calc((100% - 76px) / 2); }
+}

@@ -10,10 +10,15 @@ KEYS = {
     "openai": "OPENAI_API_KEY",
     "anthropic": "ANTHROPIC_API_KEY",
     "openrouter": "OPENROUTER_API_KEY",
+    "merge": "MERGE_API_KEY",
 }
 
-# Org fallback when the benchmark catalog has no record for a model slug.
-CLOSED_ORGS = {"anthropic", "openai", "google", "x-ai"}
+# The leaderboard shows only open or closed. When the benchmark catalog has
+# no open/closed record, labs that publish their model weights default to
+# open (checked 10 Nov 2026: DeepSeek V4 Pro 0813 is MIT on Hugging Face,
+# Kimi K3.1 Pro weights went up 4 Nov, GLM-5.3-Flash is MIT on Hugging Face);
+# every other model defaults to closed.
+OPEN_ORGS = {"deepseek", "moonshot", "moonshotai", "zai"}
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -42,16 +47,16 @@ def _catalog_weights() -> dict[str, str]:
 
 
 def weights_for(model_id: str) -> str:
-    """Weights label for a pool model id like 'openrouter:deepseek/deepseek-v4-pro'."""
+    """'open' or 'closed' for a pool model id like 'merge:deepseek/deepseek-v4-pro'."""
     model = model_id.partition(":")[2] or model_id
     if "/" in model:
         org, _, slug = model.partition("/")
     else:
         org, slug = model_id.partition(":")[0], model
     match = _catalog_weights().get(_norm(slug))
-    if match:
+    if match in ("open", "closed"):
         return match
-    return "closed" if org in CLOSED_ORGS else "unknown"
+    return "open" if org in OPEN_ORGS else "closed"
 
 
 @dataclass(frozen=True)
@@ -76,7 +81,7 @@ def parse_pool(value: str | None = None, environ: dict | None = None) -> list[Po
         provider, separator, model = item.partition(":")
         model = model.strip()
         if not separator or provider not in KEYS or not model:
-            raise ValueError("PILOT_MODELS entries must use openai:model, anthropic:model, or openrouter:model.")
+            raise ValueError("PILOT_MODELS entries must use openai:model, anthropic:model, merge:vendor/model, or openrouter:model.")
         entry = PoolModel(provider, model)
         if entry.id in seen:
             raise ValueError("PILOT_MODELS must contain unique entries.")

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Last updated October 20, 2026.*
+*Last updated October 27, 2026.*
 
 Calibration Arena is operated by Corsac Technologies Inc., a Delaware corporation doing business as Calibrated Co. ("Calibrated", "we", "us"). This policy explains what we collect when you use the service and what we do with it.
 
@@ -14,11 +14,11 @@ To provide the service: saving your notebook, showing your own work back to you,
 
 ## Who receives it
 
-Clerk handles sign-in. Railway and Vercel host the service. OpenAI and Anthropic produce the model answers: your prompts and uploaded file text go to them, directly or through OpenRouter, and their own retention policies apply. Vercel Analytics measures site traffic. Third parties that license de-identified content from us keep and use it under their own terms; we do not control their retention or deletion.
+Clerk handles sign-in. Railway and Vercel host the service. OpenAI and Anthropic produce the model answers: your prompts and uploaded file text go to them, directly or through OpenRouter, and their own retention policies apply. Vercel Analytics measures site traffic. PostHog records product usage events, errors and session replays with on-screen text and form inputs masked, linked to your account ID, name and email address once you sign in. Third parties that license de-identified content from us keep and use it under their own terms; we do not control their retention or deletion.
 
 ## Cookies and local storage
 
-We store a session token, your sidebar preference and a pending question in your browser. Clerk sets its own cookies for authentication.
+We store a session token, your sidebar preference and a pending question in your browser. Clerk sets its own cookies for authentication. PostHog stores an anonymous identifier in a cookie and local storage to measure usage.
 
 ## Social sign-in
 

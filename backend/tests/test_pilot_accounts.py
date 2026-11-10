@@ -100,6 +100,7 @@ def test_login_rate_limit_and_founder_endpoints(client, monkeypatch):
 
 
 def test_usage_budget_failed_generation_and_global_cap(client, monkeypatch):
+    monkeypatch.setenv('PILOT_MAX_OUTPUT_TOKENS', '2000')  # budgets below assume the old 2,000 cap
     reset_limits()
     account = signup(client, "budget@example.com")
     monkeypatch.setattr("app.routers.pilot.live_ready", lambda: True)
@@ -161,6 +162,68 @@ def test_pool_parsing_pair_history_and_pair_validation(monkeypatch):
         asyncio.run(pilot_inference.generate("follow-up", "accounting-question", history={"openai:gpt-test": [], "other:model": []}))
 
 
+def test_merge_gateway_pool_entry_calls_gateway_and_records_cost(monkeypatch):
+    monkeypatch.setenv("PILOT_MODELS", "merge:xai/grok-test,merge:deepseek/deepseek-test")
+    monkeypatch.setenv("MERGE_API_KEY", "DO-NOT-RECORD")
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", "pool")
+    monkeypatch.setenv("PILOT_MAX_OUTPUT_TOKENS", "1500")
+    assert [model.id for model in parse_pool()] == ["merge:xai/grok-test", "merge:deepseek/deepseek-test"]
+    from app import pilot_inference
+    import httpx
+    seen = []
+
+    async def post(self, url, headers=None, json=None):
+        seen.append((url, headers, json))
+        body = {"id": "resp-1", "model": json["model"], "choices": [{"finish_reason": "stop", "message": {"content": "Gateway answer for " + json["model"]}}],
+                "usage": {"input_tokens": 10, "output_tokens": 5, "total_tokens": 15, "cost": 0.0021}}
+        return httpx.Response(200, json=body, headers={"x-request-id": "req-1", "x-merge-vendor": json["model"].split("/")[0]}, request=httpx.Request("POST", url))
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", post)
+    drafts = asyncio.run(pilot_inference.generate("question", "accounting-question"))
+    assert {d["model_id"] for d in drafts} == {"merge:xai/grok-test", "merge:deepseek/deepseek-test"}
+    assert all(url == "https://api-gateway.merge.dev/v1/chat/completions" for url, _, _ in seen)
+    assert all(headers["Authorization"] == "Bearer DO-NOT-RECORD" for _, headers, _ in seen)
+    assert all("provider" not in body and body["max_tokens"] == 1500 for _, _, body in seen)
+    for draft in drafts:
+        attempt = draft["attempt"]
+        assert attempt["provider"] == "merge" and attempt["status"] == "complete"
+        assert attempt["cost"] == 0.0021 and attempt["provider_request_id"] == "req-1"
+        assert attempt["provider_routing"]["x-merge-vendor"] in ("xai", "deepseek")
+        assert "DO-NOT-RECORD" not in str(attempt)
+        assert draft["origin"] == "merge"
+        assert draft["settings"]["max_tokens"] == 1500
+
+
+def test_pool_routes_openai_and_anthropic_direct_and_only_merge_entries_through_merge(monkeypatch):
+    monkeypatch.setenv("PILOT_MODELS", "openai:gpt-6-astra,anthropic:claude-fable-5-2,merge:google/gemini-4-argon,merge:deepseek/deepseek-v4-pro-0813,merge:zai/glm-5.3-flash,merge:mistral/mistral-medium-3-5")
+    for key in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "MERGE_API_KEY"):
+        monkeypatch.setenv(key, "test-" + key)
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", "pool")
+    from app import pilot_inference
+    routes = []
+
+    def route(name):
+        async def call(model, *args, **kwargs):
+            routes.append((name, model))
+            return {"text": model, "attempt": {"status": "complete", "usage": {}}}
+        return call
+
+    monkeypatch.setattr("app.pilot_direct.call_openai", route("openai-direct"))
+    monkeypatch.setattr("app.pilot_direct.call_anthropic", route("anthropic-direct"))
+    monkeypatch.setattr(pilot_inference, "call_merge", route("merge"))
+    monkeypatch.setattr(pilot_inference, "call_openrouter", route("openrouter"))
+    models = parse_pool()
+    for i, first in enumerate(models):
+        for second in models[i + 1:]:
+            monkeypatch.setattr("secrets.SystemRandom.sample", lambda self, values, count, pair=(first, second): list(pair))
+            asyncio.run(pilot_inference.generate("question", "accounting-question"))
+    assert {model for name, model in routes if name == "openai-direct"} == {"gpt-6-astra"}
+    assert {model for name, model in routes if name == "anthropic-direct"} == {"claude-fable-5-2"}
+    assert {model for name, model in routes if name == "merge"} == {"google/gemini-4-argon", "deepseek/deepseek-v4-pro-0813", "zai/glm-5.3-flash", "mistral/mistral-medium-3-5"}
+    assert not [r for r in routes if r[0] == "openrouter"]
+
+
 def test_leaderboard_filters_unblinded_and_authored_runs():
     def run(participant, preference, *, mode="pool", scope="blind-conversation", task="accounting-question"):
         drafts = [{"model_id": "openai:gpt"}, {"model_id": "anthropic:claude"}]
@@ -176,10 +239,26 @@ def test_leaderboard_filters_unblinded_and_authored_runs():
     assert result["participants"] == 3
 
 
+def test_default_cap_reserves_two_full_answers_within_guest_budget(monkeypatch):
+    from app import pilot_limits
+    from app.pilot_direct import token_limit
+    monkeypatch.delenv("PILOT_MAX_OUTPUT_TOKENS", raising=False)
+    monkeypatch.delenv("PILOT_GUEST_TOKEN_BUDGET", raising=False)
+    assert token_limit() == 16000
+    reserved = pilot_limits.reservation_tokens("How should a lease schedule be reviewed?")
+    assert 32000 <= reserved < pilot_limits.participant_budget(None)
+
+
 def test_weights_labels():
     from app.pilot_models import weights_for
     assert weights_for("openrouter:deepseek/deepseek-v4-pro") == "open"
     assert weights_for("openrouter:moonshotai/kimi-k3") == "open"
     assert weights_for("anthropic:claude-opus-5.5") == "closed"
     assert weights_for("openai:gpt-6.1-sol") == "closed"
-    assert weights_for("openrouter:acme/mystery-model") == "unknown"
+    assert weights_for("merge:deepseek/deepseek-v4-pro-0813") == "open"
+    assert weights_for("merge:moonshot/kimi-k3.1-pro") == "open"
+    assert weights_for("merge:google/gemini-4-argon") == "closed"
+    assert weights_for("merge:xai/grok-4.7") == "closed"
+    assert weights_for("merge:zai/glm-5.3-flash") == "open"
+    assert weights_for("merge:mistral/mistral-medium-3-5") == "closed"
+    assert weights_for("openrouter:acme/mystery-model") == "closed"

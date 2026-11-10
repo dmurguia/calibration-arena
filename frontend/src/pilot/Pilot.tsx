@@ -1,9 +1,8 @@
-import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, FormEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SignIn as ClerkSignIn, SignUp as ClerkSignUp, useAuth, useClerk, useUser } from '@clerk/react'
 import { ArrowRight, ArrowUpRight, Archive, Copy, ChevronLeft, ExternalLink, Info, MoreVertical, Pencil, BookOpen, ArrowUp, Plus, SquarePen, Folder, Search, FileText, PanelLeft, X, Download, Maximize2, Minimize2, Library, ChevronsUpDown, LogOut, LayoutGrid, List, MessageCircleQuestion, MessageSquarePlus, MessageSquareText, Check } from 'lucide-react'
 import { CalibratedMark } from '../components/brand/CalibratedMark'
-import { CalibrationLens } from '../components/brand/CalibrationLens'
 import { Resolve } from '../components/brand/Resolve'
 import { Artifact, call, Case, CaseAssignment, Config, Draft, Me, Run, clearToken, saveToken, token } from './api'
 import { Reset, SignIn, SignUp } from './Account'
@@ -15,14 +14,20 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './pilot.css'
 import './accounts.css'
+import './accounting-entry.css'
 import { encodeAsset, financeAssetMaxBytes, financeWorkflows, type FinanceWorkflow } from './financeWorkflows'
 import { FinanceTaskAssets } from './FinanceTaskAssets'
+import { AccountingFlow } from './AccountingFlow'
+import { QuestionAttachments } from './QuestionAttachments'
+import posthog from '../lib/posthog'
+import { posthogLogger } from '../lib/posthogLogger'
 
 type SignInReason = 'ask' | 'button'
 type AuthMode = 'signin' | 'signup'
 const Context = createContext<{ me: Me | null; config: Config | null; cases: Case[]; refresh: () => Promise<void>; openSignIn: (reason: SignInReason, mode?: AuthMode) => void }>({ me: null, config: null, cases: [], refresh: async () => {}, openSignIn: () => {} })
 const pendingKey = 'calibrated.pendingQuestion'
 const pendingWorkflowKey = 'calibrated.pendingWorkflow'
+const pendingFileCountKey = 'calibrated.pendingFileCount'
 // Remembers which auth step an OAuth round trip started from, so the popup can reopen for #/sso-callback.
 const authModeKey = 'calibrated.authMode'
 const sidebarKey = 'calibrated.sidebarCollapsed'
@@ -47,6 +52,7 @@ function ArenaBrand({ markOnly = false, inline = false }: { markOnly?: boolean; 
   </Link>
 }
 function ErrorNote({ message }: { message: string }) { return message ? <p className="p-error" role="alert">{message}</p> : null }
+
 export default function Pilot() {
   const [me, setMe] = useState<Me | null>(null)
   const [config, setConfig] = useState<Config | null>(null)
@@ -58,23 +64,35 @@ export default function Pilot() {
   const toggleCollapsed = () => { setCollapsed(!collapsed); try { localStorage.setItem(sidebarKey, collapsed ? '0' : '1') } catch { /* private mode */ } }
   const [signIn, setSignIn] = useState<SignInReason | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode>('signin')
+  const identifiedUserId = useRef<string | null>(null)
+  const resetPostHog = useCallback(() => {
+    if (!identifiedUserId.current) return
+    posthog?.reset()
+    identifiedUserId.current = null
+  }, [])
   const openSignIn = (reason: SignInReason, mode: AuthMode = 'signin') => { setAuthMode(mode); setSignIn(reason) }
   const location = useLocation()
   const navigate = useNavigate()
   const publicPage = /^\/benchmarks(\/|$)/.test(location.pathname)
   const refresh = async () => {
-    if (!token()) { setMe(null); return }
+    if (!token()) { resetPostHog(); setMe(null); return }
     try { setMe(await call<Me>('/me')) } catch (error) {
-      if (!token()) setMe(null)
+      if (!token()) { resetPostHog(); setMe(null) }
       else throw error
     }
   }
   useEffect(() => { Promise.all([call<Config>('/config').then(setConfig), call<Case[]>('/cases').then(setCases), refresh()]).catch(e => setError(errorText(e))).finally(() => setReady(true)) }, [])
+  useEffect(() => {
+    if (!me?.account) return
+    if (identifiedUserId.current && identifiedUserId.current !== me.participant.id) resetPostHog()
+    posthog?.identify(me.participant.id, { email: me.account.email, name: me.participant.name })
+    identifiedUserId.current = me.participant.id
+  }, [me?.account?.email, me?.participant.id, me?.participant.name, resetPostHog])
   useEffect(() => { if (me) call('/events', { name: 'visit' }).catch(() => {}) }, [me?.participant.id])
   useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false) }, [location.pathname])
   // Returning from Google/Microsoft/GitHub lands on #/sso-callback; the popup must be open for Clerk to finish.
   useEffect(() => { if (clerkEnabled && window.location.hash.includes('sso-callback')) openSignIn('button', (sessionStorage.getItem(authModeKey) as AuthMode | null) ?? 'signin') }, [])
-  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} />}<div className={publicPage ? 'pilot p-public' : 'pilot'}>
+  return <Context.Provider value={{ me, config, cases, refresh, openSignIn }}>{clerkEnabled && <ClerkBridge ready={ready} me={me} refresh={refresh} onError={setError} onSignedOut={resetPostHog} />}<div className={publicPage ? 'pilot p-public' : 'pilot'}>
     <a className="p-skip" href="#main">Skip to content</a>
     {!publicPage && <><div className="p-mobile-header"><ArenaBrand /><div className="p-mobile-actions">{ready && !me?.account && <MobileSignIn onClick={() => openSignIn('button')} />}<button aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="pilot-sidebar" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <PanelLeft size={20} />}</button></div></div>
     {menuOpen && <button className="p-sidebar-backdrop" aria-label="Close navigation overlay" onClick={() => setMenuOpen(false)} />}
@@ -90,8 +108,8 @@ export default function Pilot() {
       </nav>
       {!!me?.runs.filter(r => !r.archived).length && <div className="p-sidebar-recent"><p>RECENT</p>{latestPerThread(me.runs.filter(r => !r.archived)).slice(0, 5).map(r => <RunRow key={r.id} run={r} onPick={() => setMenuOpen(false)} />)}</div>}
       <div className="p-sidebar-account">{clerkEnabled
-        ? <ClerkAccountBlock me={me} refresh={refresh} />
-        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } clearToken(); await refresh(); navigate('/') }} />}</div>
+        ? <ClerkAccountBlock me={me} refresh={refresh} resetPostHog={resetPostHog} />
+        : me?.account && <AccountMenu email={me.account.email} onSignOut={async () => { try { await call('/auth/logout') } catch { /* token may already be expired */ } resetPostHog(); clearToken(); await refresh(); navigate('/') }} />}</div>
       <div className="p-sidebar-bottom">{config?.leaderboard_public && <NavLink to="/leaderboard">Leaderboard</NavLink>}<span>Built by Calibrated Co.</span></div>
     </aside></>}
     <div className="p-main-column">
@@ -162,7 +180,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
     history.replaceState(null, '', window.location.pathname + window.location.search)
     onMode(mode === 'signin' ? 'signup' : 'signin')
   }
-  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) sessionStorage.removeItem(pendingKey); finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
+  return <dialog ref={dialog} className="p-signin-dialog" aria-labelledby="signin-title" onClose={() => { if (!signedIn && !finishing.current) { sessionStorage.removeItem(pendingKey); sessionStorage.removeItem(pendingFileCountKey) }; finishing.current = false; onClose() }} onClick={e => { if (e.target === dialog.current) dialog.current?.close() }}>
     <div className="p-signin-head"><button className="p-signin-close" aria-label="Close" onClick={() => dialog.current?.close()}><X size={18} /></button></div>
     <h2 id="signin-title">{clerkEnabled && mode === 'signup' ? (reason === 'ask' ? 'Create an account to compare.' : 'Keep your notebook.') : reason === 'ask' ? 'Sign in to compare.' : 'Sign in'}</h2>
     {reason === 'ask' && <p className="p-signin-note">{`Your question is saved. Once you’re ${mode === 'signup' ? 'set up' : 'signed in'}, both models answer it.`}</p>}
@@ -175,7 +193,7 @@ function SignInDialog({ reason, mode, onMode, signedIn, onClose, refresh }: { re
   </dialog>
 }
 
-function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Promise<void> }) {
+function ClerkAccountBlock({ me, refresh, resetPostHog }: { me: Me | null; refresh: () => Promise<void>; resetPostHog: () => void }) {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const clerk = useClerk()
@@ -188,6 +206,7 @@ function ClerkAccountBlock({ me, refresh }: { me: Me | null; refresh: () => Prom
     onManage={() => clerk.openUserProfile()}
     onSignOut={async () => {
       try { await call('/auth/logout') } catch { /* token may already be expired */ }
+      resetPostHog()
       clearToken()
       await clerk.signOut()
       await refresh()
@@ -285,7 +304,7 @@ function RunRow({ run, className = '', onPick }: { run: Run; className?: string;
   return <div className={`p-run-row ${className}`}><NavLink to={`/session/${run.id}`} onClick={onPick} title={run.brief}>{run.title || run.brief.slice(0, 48)}</NavLink><RunMenu run={run} onRename={() => { setTitle(run.title); setEditing(true) }} /></div>
 }
 
-// Finance is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
+// Accounting is the only workspace today; clicking it teases the other bodies of knowledge work without naming them.
 function WorkspaceSwitcher() {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
@@ -299,16 +318,16 @@ function WorkspaceSwitcher() {
   }, [open])
   return <div className="p-area p-workspace-switcher" ref={root}>
     <span>WORKSPACE</span>
-    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Finance"><BookOpen size={15} /><span>Finance</span><ChevronsUpDown size={14} /></button>
+    <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls="workspace-menu" onClick={() => setOpen(!open)} title="Workspace: Accounting"><BookOpen size={15} /><span>Accounting</span><ChevronsUpDown size={14} /></button>
     {open && <div className="p-workspace-menu" id="workspace-menu" role="dialog" aria-label="Workspaces">
-      <p className="p-workspace-current"><BookOpen size={14} />Finance<span>Current</span></p>
+      <p className="p-workspace-current"><BookOpen size={14} />Accounting<span>Current</span></p>
       <p className="p-workspace-tease">Don’t see the knowledge work you want? Coming soon.</p>
     </div>}
   </div>
 }
 
-// "New project" opens a panel of the same finance workflows as the home page chips; picking one starts a comparison with that prompt.
-// Clicking "New project" again while the panel is open skips the workflows and starts a blank project.
+// "New task" opens a panel of the same accounting workflows as the home page chips; picking one starts a comparison with that prompt.
+// Clicking "New task" again while the panel is open skips the workflows and starts a blank project.
 function NewProjectMenu({ onPick }: { onPick: () => void }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -324,9 +343,9 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
   }, [open])
   const pick = (id?: string) => { setOpen(false); onPick(); navigate('/', { state: id ? { workflow: id } : null }) }
   return <div className="p-new-project" ref={root}>
-    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New project" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New project</span></button>
-    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New project">
-      <h2>New project</h2>
+    <button type="button" className={location.pathname === '/' ? 'active' : ''} title="New task" aria-haspopup="dialog" aria-expanded={open} aria-controls="new-project-menu" onClick={() => open ? pick() : setOpen(true)}><SquarePen size={16} /><span>New task</span></button>
+    {open && <div className="p-new-project-panel" id="new-project-menu" role="dialog" aria-label="New task">
+      <h2>New task</h2>
       <div className="p-new-project-grid">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} onClick={() => pick(task.id)}><span className="p-new-project-icon p-tone-tile"><task.icon size={22} /></span><span>{task.label}</span></button>)}</div>
       <button type="button" className="p-new-project-blank" onClick={() => pick()}><Plus size={14} />Ask your own question</button>
     </div>}
@@ -335,7 +354,7 @@ function NewProjectMenu({ onPick }: { onPick: () => void }) {
 
 function Home() {
   const [loading, setLoading] = useState(false)
-  return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <CalibrationLens radius={76} intensity={0.10} />}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
+  return <div className={`p-arena-page ${loading ? "p-arena-loading" : ""}`}>{!loading && <div className="p-arena-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true"><img src="/brand/the-first-mark.webp" alt="" /></div>}<div className="p-arena-content"><Ask embedded onBusy={setLoading} /></div></div>
 }
 
 async function beginGuest(refresh: () => Promise<void>) {
@@ -384,56 +403,6 @@ function CaseStart() {
   </div>
 }
 
-const promptTeasers = [
-  'Why is gross margin down 4 points this quarter when volume is up?',
-  'Can we recognize an annual SaaS contract up front if it was paid in full?',
-  'Does this prepaid insurance cutoff look right for the August close?',
-  'How should I book an accrual that was recorded twice last month?',
-  'Which intercompany balances still need eliminating before consolidation?',
-]
-
-// Types each teaser out character by character, holds it, clears, and moves to the next; plain text under reduced motion.
-function usePromptTeaser(active: boolean) {
-  const [index, setIndex] = useState(0)
-  const [typed, setTyped] = useState(0)
-  const [animated, setAnimated] = useState(false)
-  useEffect(() => {
-    if (!active) return
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let timer: number | undefined
-    const stop = () => window.clearTimeout(timer)
-    const run = () => {
-      stop()
-      if (reducedMotion.matches || document.hidden) { setAnimated(false); setTyped(promptTeasers[index].length); return }
-      setAnimated(true)
-      const full = promptTeasers[index].length
-      const text = promptTeasers[index]
-      const delay = (n: number) => {
-        const prev = text[n - 1]
-        const base = 70 + Math.random() * 90
-        if (prev === ',' || prev === '?') return base + 260
-        if (prev === ' ') return base + 60 + (Math.random() < 0.12 ? 350 : 0)
-        return base
-      }
-      // Keep the counter outside React state: an updater that schedules timers runs twice under StrictMode.
-      let n = 0
-      setTyped(0)
-      const step = () => {
-        n += 1
-        setTyped(n)
-        if (n < full) timer = window.setTimeout(step, delay(n + 1))
-        else timer = window.setTimeout(() => { setTyped(0); setIndex(i => (i + 1) % promptTeasers.length) }, 4500)
-      }
-      timer = window.setTimeout(step, 700)
-    }
-    run()
-    reducedMotion.addEventListener('change', run)
-    document.addEventListener('visibilitychange', run)
-    return () => { stop(); reducedMotion.removeEventListener('change', run); document.removeEventListener('visibilitychange', run) }
-  }, [active, index])
-  return { text: promptTeasers[index].slice(0, animated ? typed : undefined), full: promptTeasers[index], animated }
-}
-
 function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy: boolean) => void }) {
   const { config, me, refresh, openSignIn } = usePilot(); const navigate = useNavigate()
   const handedWorkflow = financeWorkflows.find(task => task.id === (useLocation().state as { workflow?: string } | null)?.workflow)
@@ -442,19 +411,26 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
   // Reloads keep history state, so forget the handed-over workflow once it is in the composer.
   useEffect(() => { if (handedWorkflow) window.history.replaceState({ ...window.history.state, usr: null }, '') }, [])
   const [files, setFiles] = useState<Record<string, File>>({})
+  const [questionFiles, setQuestionFiles] = useState<File[]>([])
+  const [pendingFileCount, setPendingFileCount] = useState(() => Number(sessionStorage.getItem(pendingFileCountKey)) || 0)
   const workflow = financeWorkflows.find(task => task.id === workflowId)
   const missingAssets = workflow?.assets.filter(asset => !files[asset.role]) ?? []
+  const attachedCount = workflow ? Object.keys(files).length : questionFiles.length
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  const [promptFocused, setPromptFocused] = useState(false)
-  const teaser = usePromptTeaser(!question && !promptFocused && !busy)
   const form = useRef<HTMLFormElement>(null)
   // A question sent while signed out waits here; it goes out once the account is ready.
   // A full sign-in redirect cannot retain File objects; reattaching files requires a new Compare click.
-  useEffect(() => { if (me?.account && sessionStorage.getItem(pendingKey) && !missingAssets.length) form.current?.requestSubmit() }, [me?.account])
+  useEffect(() => {
+    if (!me?.account || !sessionStorage.getItem(pendingKey)) return
+    if (attachedCount < pendingFileCount) { setError('Your question is saved. Reattach your files to compare, or remove the missing attachments below.'); return }
+    if (!missingAssets.length) form.current?.requestSubmit()
+  }, [me?.account])
+  const forgetPendingFiles = () => { setPendingFileCount(0); sessionStorage.removeItem(pendingFileCountKey) }
   const selectWorkflow = (id: string) => {
     const task = financeWorkflows.find(candidate => candidate.id === id)!
     if (id !== workflowId) setFiles({})
     setWorkflowId(id); setQuestion(task.prompt); setError('')
+    forgetPendingFiles()
     sessionStorage.removeItem(pendingKey); sessionStorage.removeItem(pendingWorkflowKey)
     document.getElementById('open-prompt')?.focus()
   }
@@ -470,36 +446,55 @@ function Ask({ embedded = false, onBusy }: { embedded?: boolean; onBusy?: (busy:
       return next
     })
   }
+  const addQuestionFiles = (incoming: File[]) => {
+    if (!incoming.length) return
+    const added = incoming.filter(file => !questionFiles.some(existing => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified))
+    if (questionFiles.length + added.length > 2) { setError('Attach up to two files. Remove a file before adding another.'); return }
+    if (added.some(file => !/\.(csv|xlsx|pdf|txt)$/i.test(file.name) || !file.size || file.size > financeAssetMaxBytes || file.name.length > 160)) {
+      setError('Choose a non-empty CSV, XLSX, text-based PDF or TXT file up to 2 MB, with a filename under 161 characters.'); return
+    }
+    setQuestionFiles(current => [...current, ...added]); setError(''); forgetPendingFiles()
+  }
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setError('')
+    if (attachedCount < pendingFileCount) { setError('Reattach your files or remove the missing attachments before comparing.'); return }
     if (missingAssets.length) { setError(`Add ${missingAssets.map(asset => asset.label.toLowerCase()).join(' and ')} before comparing.`); return }
     if (config?.ask_mode !== 'live') { setError('Live models are not connected yet. Your prompt stays here until they are available.'); return }
     if (!me?.account) {
       sessionStorage.setItem(pendingKey, question)
       if (workflowId) sessionStorage.setItem(pendingWorkflowKey, workflowId)
       else sessionStorage.removeItem(pendingWorkflowKey)
+      sessionStorage.setItem(pendingFileCountKey, String(attachedCount)); setPendingFileCount(attachedCount)
       openSignIn('ask'); return
     }
     sessionStorage.removeItem(pendingKey)
     sessionStorage.removeItem(pendingWorkflowKey)
+    forgetPendingFiles()
     setBusy(true); onBusy?.(true); window.scrollTo({ top: 0 })
     try {
-      const assets = await Promise.all((workflow?.assets ?? []).map(async asset => ({ name: files[asset.role].name, role: asset.role, content_base64: await encodeAsset(files[asset.role]) })))
+      const sourceFiles = workflow
+        ? workflow.assets.map(asset => ({ role: asset.role, file: files[asset.role] }))
+        : questionFiles.map((file, index) => ({ role: `supporting-document-${index + 1}`, file }))
+      const assets = await Promise.all(sourceFiles.map(async ({ role, file }) => ({ name: file.name, role, content_base64: await encodeAsset(file) })))
       const run = await call<Run>('/runs', { question, task_type: 'accounting-question', workflow_id: workflow?.id ?? null, assets })
+      posthog?.capture('comparison_started', { workflow_id: workflow?.id ?? 'open_question', attachment_count: assets.length })
+      posthogLogger.comparisonCreated({ workflowId: workflow?.id ?? 'open_question', attachmentCount: assets.length })
       await refresh(); navigate(`/session/${run.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy?.(false) }
   }
   return <div className={embedded ? 'p-prompt-first' : 'p-narrow p-prompt-first'}>
-    {!busy && <><Resolve as="h1">What are you working on?</Resolve><p className="p-prompt-sub">by Calibrated Co. • for the finance community</p></>}
+    {!busy && <><Resolve as="h1">Your accounting work starts here.</Resolve><p className="p-prompt-sub">Work through reconciliations, month-end close, and reporting.</p></>}
     {busy ? <div className="p-ask-loading"><section className="p-submitted-prompt"><span className="p-meta">You</span>{workflow && <span className="p-submitted-task" data-tone={workflow.tone}><span className="p-tone-tile"><workflow.icon size={12} /></span>{workflow.label}</span>}<p>{question}</p></section><WaitingPair workflow={workflow} /></div> : <><form ref={form} className="p-composer" onSubmit={submit}>
-      <label htmlFor="open-prompt" className="sr-only">Finance question</label>
-      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={4} value={question} onChange={e => setQuestion(e.target.value)} onFocus={() => setPromptFocused(true)} onBlur={() => setPromptFocused(false)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder={teaser.animated && !promptFocused ? '' : teaser.full} />
-      {teaser.animated && !question && !promptFocused && <span className="p-prompt-teaser" aria-hidden="true">{teaser.text}<i className="p-caret" /></span>}
-      {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
+      <label htmlFor="open-prompt" className="p-accounting-prompt-label">Ask an accounting question or describe a task</label>
+      <textarea id="open-prompt" required minLength={15} maxLength={5000} rows={2} value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); form.current?.requestSubmit() } }} placeholder="Help me investigate the difference between my bank statement and general ledger…" />
+      {workflow && <FinanceTaskAssets workflow={workflow} files={files} onFile={attachFile} onClear={() => { setWorkflowId(null); setFiles({}); setError(''); forgetPendingFiles(); sessionStorage.removeItem(pendingWorkflowKey); sessionStorage.removeItem(pendingKey) }} />}
+      {!workflow && <QuestionAttachments files={questionFiles} onAdd={addQuestionFiles} onRemove={index => { setQuestionFiles(current => current.filter((_, i) => i !== index)); setError(''); forgetPendingFiles() }} />}
+      {attachedCount < pendingFileCount && <div className="p-missing-attachments"><span>Reattach files from before sign-in.</span><button type="button" onClick={() => { forgetPendingFiles(); setError('') }}>Remove missing attachments</button></div>}
       <div className="p-composer-bottom"><span>{missingAssets.length ? `Add ${missingAssets.length} required ${missingAssets.length === 1 ? 'file' : 'files'} to compare` : config?.ask_mode === 'live' ? '' : 'Live models not connected'}</span><button className="p-send" aria-label="Compare answers" disabled={busy || missingAssets.length > 0}><ArrowUp size={19} /></button></div>
       <ErrorNote message={error} />
     </form>
-    <div className="p-finance-tasks" role="group" aria-label="Finance task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
+    <div className="p-finance-tasks" role="group" aria-label="Accounting task examples">{financeWorkflows.map(task => <button key={task.id} type="button" data-tone={task.tone} aria-pressed={workflowId === task.id} onClick={() => selectWorkflow(task.id)}><span className="p-tone-tile"><task.icon size={15} aria-hidden="true" /></span><span>{task.label}</span></button>)}</div>
+    <AccountingFlow workflow={workflow} />
     </>}
   </div>
 }
@@ -567,7 +562,7 @@ function ImprovementForm({ run, position }: { run: Run; position: string }) {
   useEffect(() => { call<Report[]>(`/runs/${run.id}/issues`).then(setReports).catch(e => setError(errorText(e))) }, [run.id])
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setError(''); setSaved(false)
-    try { setReports(await call<Report[]>(`/runs/${run.id}/improvements`, { position, note, category: category || null })); setInputs(values => ({ ...values, [position]: { note: '', category: '' } })); setSaved(true) } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
+    try { setReports(await call<Report[]>(`/runs/${run.id}/improvements`, { position, note, category: category || null })); posthog?.capture('improvement_feedback_saved', { response_position: position, issue_category: category || 'unspecified' }); setInputs(values => ({ ...values, [position]: { note: '', category: '' } })); setSaved(true) } catch (e) { setError(errorText(e)) } finally { setBusy(false) }
   }
   return <section className="p-improvement"><form onSubmit={submit}>
     <label htmlFor="improvement-note">What should improve?</label><span className="p-feedback-target">{position === 'both' ? 'Feedback on this pair' : `Feedback on Response ${position.toUpperCase()}`}</span>
@@ -596,11 +591,11 @@ function ResultReveal({ run, position, onSelect, onRun }: { run: Run; position: 
   const preferred = ['a', 'b'].includes(run.judgment!.preference) ? run.judgment!.preference : null
   const ordered = [...run.drafts].sort((a, b) => Number(b.position === preferred) - Number(a.position === preferred))
   const active = run.drafts.find(d => d.position === position) || ordered[0]
-  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
+  const copy = async () => { try { await navigator.clipboard.writeText(active.text); call('/events', { name: 'response_copied', run_id: run.id, position: active.position }).catch(() => {}); posthog?.capture('response_copied', { response_position: active.position }); setMessage('Response copied.'); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { setMessage('Copy is unavailable. Download the response instead.') } }
   const download = () => {
     const content = `# ${run.title}\n\nAuthor: ${active.author || 'Unknown'}\nSource: ${run.mode}\nResponse: ${active.position.toUpperCase()}\nCreated: ${run.created_at}${(run.conversation?.find(t => t.position === active.position)?.messages || run.history)?.length ? '\n\n## Earlier conversation\n\n' + (run.conversation?.find(t => t.position === active.position)?.messages || run.history || []).map(m => '### ' + (m.role === 'user' ? 'Prompt' : 'Selected response') + '\n\n' + m.content).join('\n\n') : ''}\n\n## Prompt\n\n${run.brief}\n\n## Response\n\n${active.text}\n`
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a')
-    link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
+    link.href = url; link.download = `calibrated-${run.id.slice(0, 8)}-${active.position}.md`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); posthog?.capture('response_downloaded', { response_position: active.position }); setMessage('Markdown download started.'); call('/events', { name: 'response_downloaded', run_id: run.id, position: active.position }).catch(() => {})
   }
   const rank = (d: Draft) => d.position === preferred ? ['1st', 'is-first'] : run.judgment!.preference === 'tie' ? ['Tie', 'is-second'] : preferred ? ['2nd', 'is-second'] : null
   return <section className="p-result p-reveal-arrival"><div className="p-result-intro"><CalibratedMark size={22} /><p>{preferred ? 'Here’s how your preference ranked the two responses.' : run.judgment!.preference === 'tie' ? 'A close call. Here are the authors.' : 'Here are the authors behind the responses.'}{run.mode === 'authored-fixture' && <span className="p-fine">Sample responses are authored examples.</span>}</p></div>
@@ -675,6 +670,8 @@ function RevisionComposer({ run, onBusy }: { run: Run; onBusy: (busy: boolean) =
     setBusy(true); onBusy(true)
     try {
       const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', source_run_id: run.id, continuation_mode: 'compare' })
+      posthog?.capture('follow_up_started', { workflow_id: run.workflow_id ?? 'open_question', turn_number: next.turn_number ?? 1 })
+      posthogLogger.followUpCreated({ workflowId: run.workflow_id ?? 'open_question', turnNumber: next.turn_number ?? 1 })
       await refresh(); navigate(`/session/${next.id}`)
     } catch (e) { setError(errorText(e)) } finally { setBusy(false); onBusy(false) }
   }
@@ -703,7 +700,7 @@ function Session() {
   const dismissVoteHint = () => { setVoteHint(false); try { localStorage.setItem(voteHintKey, '1') } catch { /* storage blocked: the hint just returns next visit */ } }
   const latestRun = useRef<Run | null>(null); latestRun.current = run
   useEffect(() => () => { const r = latestRun.current; if (r && !['completed', 'failed'].includes(r.status)) call('/events', { name: 'left_session', run_id: r.id }).catch(() => {}) }, [runId])
-  const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
+  const save = async (path: string, data: unknown) => { setBusy(true); setError(''); try { const result = await call<Run>(`/runs/${runId}/${path}`, data); setRun(result); if (path === 'preference') { posthog?.capture('comparison_preference_submitted', { preference: result.judgment?.preference }); setPosition(result.judgment?.preference === 'b' ? 'b' : 'a'); requestAnimationFrame(() => document.querySelector('.p-result')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })) }; if (path === 'conclusion') posthog?.capture('independent_note_saved'); await refresh() } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
   const vote = (p: string) => { dismissVoteHint(); save('preference', { preference: p, rationale: '' }) }
   if (!run) return <div className="p-narrow"><ErrorNote message={error} />{!error && <p role="status">Opening comparison…</p>}</div>
   const voted = run.status === 'completed'; const showing = voted || run.status === 'review'
@@ -738,7 +735,7 @@ function Session() {
 
 function RetryComposer({ run }: { run: Run }) {
   const navigate = useNavigate(); const [question, setQuestion] = useState(run.brief); const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
+  return <form className="p-composer" onSubmit={async e => { e.preventDefault(); setBusy(true); setError(''); try { const next = await call<Run>('/runs', { question, task_type: run.task_type || 'accounting-question', ...(run.status === 'failed' ? { retry_of_run_id: run.id } : {}) }); posthog?.capture('comparison_retried', { retry_reason: run.status }); posthogLogger.comparisonRetried({ retryReason: run.status }); navigate(`/session/${next.id}`) } catch(e) { setError(errorText(e)) } finally { setBusy(false) } }}><label htmlFor="retry-prompt">Prompt</label><textarea id="retry-prompt" value={question} onChange={e => setQuestion(e.target.value)} minLength={run.history?.length || run.conversation?.length ? 1 : 15} maxLength={5000} required /><div className="p-composer-bottom"><span>{busy ? 'Preparing both responses…' : 'Fresh comparison'}</span><button className="p-send" disabled={busy} aria-label="Retry comparison"><ArrowUp size={18} /></button></div><ErrorNote message={error} /></form>
 }
 
 // One project row: the thread's latest turn, with inline rename and the shared actions menu.
@@ -833,7 +830,7 @@ function Legal({ doc }: { doc: keyof typeof LEGAL_DOCS }) {
 function NotFound() { return <div className="p-narrow"><h1>Page not found.</h1><p>The practice room has the current cases and your notebook has your saved work.</p><Link className="p-button" to="/">Go to practice</Link></div> }
 
 interface ExportData { schema_version: string; participants: (Me['participant'] & { created_at: string; source: string; dataset?: string; account_email?: string | null; token_budget?: number | null })[]; runs: (Run & { participant_id: string })[]; events: { participant_id: string; run_id?: string; name: string; at: string; data?: { position?: string; category?: string; note?: string; after_reveal?: boolean } }[] }
-interface FounderLeaderboard { rows: { rank: number; model_id: string; rating: number; ci_low: number; ci_high: number; wins: number; losses: number; votes: number; weights?: 'open' | 'closed' | 'unknown' }[]; total_votes: number; participants: number; note: string }
+interface FounderLeaderboard { rows: { rank: number; model_id: string; rating: number; ci_low: number; ci_high: number; wins: number; losses: number; votes: number; weights?: 'open' | 'closed' }[]; total_votes: number; participants: number; note: string }
 function Founder() {
   const [key, setKey] = useState(''); const [data, setData] = useState<ExportData | null>(null); const [leaderboard, setLeaderboard] = useState<FounderLeaderboard | null>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [resetEmail, setResetEmail] = useState(''); const [resetPath, setResetPath] = useState(''); const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({})
   const load = async (e: FormEvent) => { e.preventDefault(); setBusy(true); setError(''); try { const headers = { 'X-Pilot-Admin': key }; const [exported, rankings] = await Promise.all([call<ExportData>('/founder/export', undefined, headers), call<FounderLeaderboard>('/founder/leaderboard', undefined, headers)]); setData(exported); setLeaderboard(rankings) } catch (e) { setError(errorText(e)) } finally { setBusy(false) } }
@@ -844,7 +841,7 @@ function Founder() {
     <form className="p-card" onSubmit={load}><label>Private founder token<input type="password" value={key} onChange={e => setKey(e.target.value)} required autoComplete="off" /></label><p className="p-fine">Uses PILOT_ADMIN_TOKEN from the server. The token is never persisted in this browser.</p><ErrorNote message={error} /><button className="p-button" disabled={busy}>{busy ? 'Loading…' : 'Open private records'}</button></form>
     {data && <><div className="p-actions"><button className="p-secondary" onClick={download}>Export private raw JSON</button><span className="p-fine">Contains contact details and questions. Do not publish.</span></div>
       <form className="p-card" onSubmit={issueReset}><h2>Issue a password reset</h2><label>Account email<input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required /></label><button className="p-secondary">Issue reset link</button>{resetPath && <p className="p-fine">Reset path: <a href={resetPath}>{resetPath}</a></p>}</form>
-      {leaderboard && <section className="p-card"><h2>Preference leaderboard</h2><p className="p-fine">{leaderboard.total_votes} votes · {leaderboard.participants} participants</p><div className="p-leaderboard-table"><table><thead><tr><th>Rank</th><th>Model</th><th>Rating</th><th>Wins</th><th>Losses</th><th>Votes</th></tr></thead><tbody>{leaderboard.rows.map(row => <tr key={row.model_id}><td>{row.rank}</td><th scope="row">{row.model_id} <span className={`bd-w bd-w-${row.weights ?? 'unknown'}`}>{({ open: 'Open weights', closed: 'Closed', unknown: 'Not stated' } as const)[row.weights ?? 'unknown']}</span></th><td>{row.rating}</td><td>{row.wins}</td><td>{row.losses}</td><td>{row.votes}</td></tr>)}</tbody></table></div></section>}
+      {leaderboard && <section className="p-card"><h2>Preference leaderboard</h2><p className="p-fine">{leaderboard.total_votes} votes · {leaderboard.participants} participants</p><div className="p-leaderboard-table"><table><thead><tr><th>Rank</th><th>Model</th><th>Rating</th><th>Wins</th><th>Losses</th><th>Votes</th></tr></thead><tbody>{leaderboard.rows.map(row => <tr key={row.model_id}><td>{row.rank}</td><th scope="row">{row.model_id} {row.weights && <span className={`bd-w bd-w-${row.weights}`}>{row.weights === 'open' ? 'Open weights' : 'Closed'}</span>}</th><td>{row.rating}</td><td>{row.wins}</td><td>{row.losses}</td><td>{row.votes}</td></tr>)}</tbody></table></div></section>}
       <div className="p-founder-summary"><span>{data.participants.length} browser profiles</span><span>{data.runs.filter(r => r.status === 'completed').length} completed judgments</span><span>{data.runs.filter(r => r.status !== 'completed').length} incomplete / failed</span></div>
       {data.participants.map(p => { const runs = data.runs.filter(r => r.participant_id === p.id); const days = new Set(data.events.filter(e => e.participant_id === p.id && ['visit', 'session_started', 'judgment_completed'].includes(e.name)).map(e => e.at.slice(0, 10))); return <section className="p-card" key={p.id}><h2>{p.name}</h2><p>{p.role} · {p.experience} · {p.framework} · source: {p.source} · dataset: {p.dataset || 'preview'}</p><p className="p-fine">{runs.filter(r => r.status === 'completed').length} completed · {days.size} UTC activity days · {p.account_email ? `Account email: ${p.account_email}` : 'No account email'}</p>
         {p.account_email && <div className="p-founder-budget"><p className="p-fine">Account: {p.account_email} · budget override: {p.token_budget ?? 'default'}</p><input type="number" min="0" value={budgetInputs[p.id] ?? p.token_budget ?? ''} placeholder="Token budget" onChange={e => setBudgetInputs(values => ({ ...values, [p.id]: e.target.value }))} /><button className="p-secondary" onClick={() => setBudget(p.id)}>Set budget</button></div>}

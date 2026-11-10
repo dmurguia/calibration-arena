@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { ArrowUpRight, Search } from 'lucide-react'
+import { ArrowUpRight, Ban, Building2, Columns3, LayoutGrid, Quote, RefreshCw, Search, ShieldCheck } from 'lucide-react'
 import BenchmarkBoards, { Board, ModelRec } from './BenchmarkBoards'
-import { checkOverdue, currentFlags, useFreshnessClock } from './benchmarkFreshness'
+import { currentFlags, useFreshnessClock } from './benchmarkFreshness'
 import './benchmarks.css'
 
 type ResultsStatus = 'leaderboard' | 'snapshot' | 'archived' | 'unpublished' | 'unknown'
@@ -85,12 +85,71 @@ function Row({ b }: { b: Benchmark }) {
 type Section = 'leaderboards' | 'all' | 'awaiting' | 'method'
 const SECTIONS: Record<string, Section> = { '': 'leaderboards', all: 'all', awaiting: 'awaiting', method: 'method' }
 
-function Glossary() {
-  return <dl className="bm-glossary" id="labels">
-    <dt>Published results</dt><dd>{(Object.keys(STATUS) as ResultsStatus[]).map(k => <p key={k}><b>{STATUS[k]}.</b> {STATUS_HELP[k]}</p>)}</dd>
-    <dt>Data</dt><dd>{Object.keys(ACCESS).map(k => <p key={k}><b>{ACCESS[k]}.</b> {ACCESS_HELP[k]}</p>)}</dd>
-    <dt>Relevance</dt><dd>{Object.keys(RELEVANCE).map(k => <p key={k}><b>{RELEVANCE[k]}.</b> {RELEVANCE_HELP[k]}</p>)}</dd>
-  </dl>
+const PUBLISHER: Record<string, string> = { academic: 'Academic', eval_lab: 'Eval lab', vendor: 'Vendor', aggregator: 'Aggregator', community: 'Community', consortium: 'Consortium', other: 'Other' }
+const PIPELINE: [ReactNode, string, string][] = [
+  [<Building2 size={18} aria-hidden />, 'Publisher runs it', 'Tasks, grading and scores stay with the publisher.'],
+  [<RefreshCw size={18} aria-hidden />, 'Checked daily', 'Each model board is fetched from its source every day.'],
+  [<ShieldCheck size={18} aria-hidden />, 'Validated', 'A failed check keeps the last verified board.'],
+  [<LayoutGrid size={18} aria-hidden />, 'Shown here', 'One board per benchmark, linked to its source.'],
+]
+const PRINCIPLES: [ReactNode, string][] = [
+  [<Quote size={16} aria-hidden />, "The publisher's own score"],
+  [<Columns3 size={16} aria-hidden />, 'One board per benchmark'],
+  [<Ban size={16} aria-hidden />, 'Never re-run, rescaled or combined'],
+]
+
+function tally<T extends string>(items: T[]): Record<string, number> {
+  return items.reduce<Record<string, number>>((acc, k) => ({ ...acc, [k]: (acc[k] ?? 0) + 1 }), {})
+}
+
+function Split({ title, labels, counts, help, total }: { title: string; labels: Record<string, string>; counts: Record<string, number>; help?: Record<string, string>; total: number }) {
+  const keys = Object.keys(labels).filter(k => counts[k])
+  return <figure className="bm-split">
+    <figcaption>{title}</figcaption>
+    <div className="bm-split-bar" role="img" aria-label={keys.map(k => `${labels[k]} ${counts[k]}`).join(', ')}>
+      {keys.map((k, i) => <span key={k} className={`bm-tone-${i}`} style={{ flexGrow: counts[k] }} title={`${labels[k]}: ${counts[k]}`} />)}
+    </div>
+    <ul>{keys.map((k, i) => <li key={k} title={help?.[k]}><i className={`bm-tone-${i}`} aria-hidden /><b>{counts[k]}</b> {labels[k]}<span className="sr-only"> of {total}</span></li>)}</ul>
+  </figure>
+}
+
+function Overview({ data, benchmarks }: { data: Catalog; benchmarks: Benchmark[] }) {
+  const areas = tally(benchmarks.flatMap(b => b.domains))
+  const maxArea = Math.max(...Object.values(areas))
+  const boardIds = new Set(data.boards?.map(b => b.benchmark_id))
+  const n = benchmarks.length
+  return <section className="bm-overview" aria-labelledby="method">
+    <h2 id="method" className="bm-section-title">Overview</h2>
+    <ul className="bm-principles">{PRINCIPLES.map(([icon, text]) => <li key={text}>{icon}{text}</li>)}</ul>
+
+    <h3>How a score gets here</h3>
+    <ol className="bm-flow">{PIPELINE.map(([icon, title, text]) => <li key={title}>{icon}<b>{title}</b><span>{text}</span></li>)}</ol>
+    <p className="bm-fine">{data.boards?.length ?? 0} model boards are checked daily; a check older than 36 hours is marked overdue on that board. The rest of the directory is reviewed every {data.review_after_days} days.</p>
+
+    <h3>What exists</h3>
+    <div className="bm-areas-chart" role="list">
+      {Object.entries(DOMAINS).filter(([k]) => areas[k]).sort((a, b) => areas[b[0]] - areas[a[0]]).map(([k, label]) => {
+        const withBoard = benchmarks.filter(b => b.domains.includes(k) && boardIds.has(b.id)).length
+        return <div role="listitem" key={k} className="bm-area-row">
+          <span>{label}</span>
+          <span className="bm-area-track" title={`${areas[k]} benchmarks, ${withBoard} with a daily model board`}>
+            <span className="bm-area-fill" style={{ width: `${(areas[k] / maxArea) * 100}%` }}><span className="bm-area-board" style={{ width: `${(withBoard / areas[k]) * 100}%` }} /></span>
+          </span>
+          <b>{areas[k]}</b>
+        </div>
+      })}
+      <p className="bm-legend"><i className="bm-area-board" aria-hidden /> With a daily model board <i className="bm-area-fill" aria-hidden /> Listed</p>
+    </div>
+
+    <div className="bm-splits" id="labels">
+      <Split title="Published results" labels={STATUS} help={STATUS_HELP} counts={tally(benchmarks.map(b => b.results_status))} total={n} />
+      <Split title="Data access" labels={ACCESS} help={ACCESS_HELP} counts={tally(benchmarks.map(b => b.data_access))} total={n} />
+      <Split title="Relevance to accounting work" labels={RELEVANCE} help={RELEVANCE_HELP} counts={tally(benchmarks.map(b => b.relevance))} total={n} />
+      <Split title="Who publishes" labels={PUBLISHER} counts={tally(benchmarks.map(b => b.publisher_type))} total={n} />
+    </div>
+
+    <p className="bm-fine">Catalog metadata is open as <a href="/benchmarks.json">benchmarks.json</a> (CC BY 4.0). Scores stay under each publisher's terms. <a href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a></p>
+  </section>
 }
 
 export default function Benchmarks() {
@@ -143,11 +202,10 @@ export default function Benchmarks() {
   const quiet = data?.products.filter(p => p.status !== 'published') ?? []
   const filtered = !!(query || domain || status || access || relevance || agentic)
   if (!section) return <div className="p-workspace bm-page"><h1 className="bm-title">Page not found</h1><p><Link to="/benchmarks">Back to the leaderboards</Link></p></div>
-  const overdue = data?.boards?.filter(b => checkOverdue(b.last_successful_check ?? b.retrieved, now)).length ?? 0
   return <div className="p-workspace bm-page" data-snapshot-id={data?.refresh?.snapshot_id ?? 'bundled'}>
     <header className="bm-intro">
-      <p className="p-eyebrow">Finance &amp; accounting AI benchmarks</p>
-      <h1 className="bm-title">Which models lead each public finance and accounting benchmark</h1>
+      <h1 className="bm-title">Industry Benchmarks</h1>
+      <p className="bm-tagline">Calibration Arena's pulse on accounting and financial AI benchmarks.</p>
       {data && <p className="bm-tally">
         <span><b>{data.counts.benchmarks}</b> benchmarks tracked</span>
         <span><b>{data.counts.by_results_status.leaderboard}</b> live leaderboards</span>
@@ -156,17 +214,13 @@ export default function Benchmarks() {
           ? <span>Checked daily · {data.boards?.length} model boards</span>
           : <span>Snapshot {monthLabel(data.catalog_updated)}</span>}
       </p>}
-      {data && (usingFallback || overdue > 0 || (data.refresh && checkOverdue(data.refresh.checked_at, now))) && <p className="bm-freshness-notice" role="status">
-        {usingFallback ? 'Daily feed unavailable. Showing the saved catalog; check each board’s date.'
-          : `${overdue ? `${overdue} ${overdue === 1 ? 'board is' : 'boards are'} overdue for a successful check.` : 'The daily refresh is overdue.'} Last verified results remain available.`}
-      </p>}
-      <p className="bm-promise">Every score is the publisher's own, linked to its source. We don't re-run, rescale or combine them.</p>
+      {usingFallback && <p className="bm-freshness-notice" role="status">Daily feed unavailable. Showing the saved catalog; check each board’s date.</p>}
     </header>
     <nav className="bm-tabs" aria-label="Benchmark sections">
       <NavLink to="/benchmarks" end>Leaderboards</NavLink>
       <NavLink to="/benchmarks/all">All benchmarks{data && <span>{data.counts.benchmarks}</span>}</NavLink>
       <NavLink to="/benchmarks/awaiting">Awaiting results{data && <span>{awaiting.length + quiet.length}</span>}</NavLink>
-      <NavLink to="/benchmarks/method">How we maintain this</NavLink>
+      <NavLink to="/benchmarks/method">Overview</NavLink>
     </nav>
     {error && <p className="p-error" role="alert">{error}</p>}
     {!data && !error && <p className="p-loading" role="status">Loading the catalog…</p>}
@@ -212,18 +266,6 @@ export default function Benchmarks() {
       <a className="p-secondary" href={CONTACT} target="_blank" rel="noreferrer">Submit results or correct a listing</a>
     </section>}
 
-    {data && section === 'method' && <section className="bm-method" aria-labelledby="method">
-      <h2 id="method" className="bm-section-title">How we maintain this list</h2>
-      <ul>
-        <li><b>Publishers own their results.</b> We copy the headline figure, metric and date as stated at the linked source, and label where it came from: the publisher, a vendor report, a paper, or a third-party mirror.</li>
-        <li><b>One board per benchmark.</b> Each board keeps its publisher's metric. We never combine boards into a single score, because they use different tasks, graders and metrics.</li>
-        <li><b>Status and data access are separate.</b> A benchmark can have a live leaderboard and private data, or open data and no published results.</li>
-        <li><b>Daily board checks.</b> We check the nine model boards daily. Each board shows its last successful check separately from the publisher’s own update date, when available. A check can succeed without any scores changing. Checks more than 36 hours old are marked overdue; failed checks keep the last verified results.</li>
-        <li><b>Editorial review is separate.</b> The wider directory is reviewed separately. Listings not reviewed within {data.review_after_days} days, or active leaderboards whose publisher-dated results are more than {data.results_stale_after_days} days old, are flagged using today’s date.</li>
-        <li><b>Open metadata, cited results.</b> Our catalog metadata (ids, taxonomy, status, freshness and links) is published as <a href="/benchmarks.json">benchmarks.json</a> under CC BY 4.0. The result figures and board snapshots in that file are reproduced from each publisher as cited facts with a link to the source. They stay under the publisher's own terms and are not relicensed by us; reuse them under those terms and credit the publisher.</li>
-      </ul>
-      <h3>What the labels mean</h3>
-      <Glossary />
-    </section>}
+    {data && section === 'method' && <Overview data={data} benchmarks={data.benchmarks} />}
   </div>
 }

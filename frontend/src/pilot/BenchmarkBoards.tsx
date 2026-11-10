@@ -64,13 +64,13 @@ function Weight({ r }: { r: Row }) {
   return <span className={`bd-w bd-w-${r.weights}`} title={r.m ? `${WEIGHTS[r.weights]}: ${BASIS[r.m.weights_basis]}` : undefined}>{WEIGHTS[r.weights]}</span>
 }
 
-function Leaders({ boards, selected, benchmarks, models, onPick }: { boards: Board[]; selected: Board; benchmarks: Map<string, BoardBenchmark>; models: Map<string, ModelRec>; onPick: (id: string) => void }) {
+function Leaders({ boards, selected, benchmarks, models, now, onPick }: { boards: Board[]; selected: Board; benchmarks: Map<string, BoardBenchmark>; models: Map<string, ModelRec>; now: number; onPick: (id: string) => void }) {
   return <ul className="bd-leaders" aria-label="Leader on each benchmark">
     {boards.map(b => {
       const info = benchmarks.get(b.benchmark_id)
       const top = ranked(b, b.metrics[0].key, models, true)[0]
       return <li key={b.benchmark_id}><button type="button" aria-pressed={b === selected} onClick={() => onPick(b.benchmark_id)}>
-        <span className="bd-leader-board">{info?.name}{info?.results_status === 'archived' ? ' · archived' : ''}</span>
+        <span className="bd-leader-board">{info?.name}{info?.results_status === 'archived' ? ' · archived' : ''}{checkOverdue(b.last_successful_check ?? b.retrieved, now) && <em title="The last daily check didn't succeed. Showing the last verified results."> · check overdue</em>}</span>
         {top && <>
           <span className="bd-leader-model"><Logo org={top.m?.org} size={20} /><b>{rowName(top)}</b></span>
           <span className="bd-leader-score"><strong>{pct(top.score)}</strong><span>{b.metrics[0].label}</span></span>
@@ -280,7 +280,7 @@ export default function BenchmarkBoards({ boards, models: modelList, benchmarks:
     </nav>
     <h2 id="boards" className="sr-only">Model leaderboards</h2>
     <p className="bd-explain">The top model on each benchmark, in that publisher's own metric. Pick one to see its full ranking. Boards can't be compared with each other.</p>
-    <Leaders boards={inArea} selected={board} benchmarks={benchmarks} models={models} onPick={id => set({ board: id, metric: null })} />
+    <Leaders boards={inArea} selected={board} benchmarks={benchmarks} models={models} now={now} onPick={id => set({ board: id, metric: null })} />
 
     <article className="bd-panel" aria-labelledby="board-title">
       <header className="bd-panel-head">

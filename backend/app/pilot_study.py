@@ -77,7 +77,7 @@ def validate_pack(document):
             if not aid or aid in artifact_ids:
                 raise ValueError('Output artifact IDs must be unique within a pack.')
             artifact_ids.add(aid)
-            if draft.get('origin') not in ('openrouter', 'local-cli', 'openai', 'anthropic'):
+            if draft.get('origin') not in ('openrouter', 'merge', 'local-cli', 'openai', 'anthropic'):
                 raise ValueError('Authored fixtures cannot be imported as model outputs.')
             if not draft.get('model_id') or not draft.get('text', '').strip():
                 raise ValueError('Model identity and original output are required.')

@@ -161,6 +161,38 @@ def test_pool_parsing_pair_history_and_pair_validation(monkeypatch):
         asyncio.run(pilot_inference.generate("follow-up", "accounting-question", history={"openai:gpt-test": [], "other:model": []}))
 
 
+def test_merge_gateway_pool_entry_calls_gateway_and_records_cost(monkeypatch):
+    monkeypatch.setenv("PILOT_MODELS", "merge:xai/grok-test,merge:deepseek/deepseek-test")
+    monkeypatch.setenv("MERGE_API_KEY", "DO-NOT-RECORD")
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setenv("ARENA_INFERENCE_BACKEND", "pool")
+    monkeypatch.setenv("PILOT_MAX_OUTPUT_TOKENS", "1500")
+    assert [model.id for model in parse_pool()] == ["merge:xai/grok-test", "merge:deepseek/deepseek-test"]
+    from app import pilot_inference
+    import httpx
+    seen = []
+
+    async def post(self, url, headers=None, json=None):
+        seen.append((url, headers, json))
+        body = {"id": "resp-1", "model": json["model"], "choices": [{"finish_reason": "stop", "message": {"content": "Gateway answer for " + json["model"]}}],
+                "usage": {"input_tokens": 10, "output_tokens": 5, "total_tokens": 15, "cost": 0.0021}}
+        return httpx.Response(200, json=body, headers={"x-request-id": "req-1", "x-merge-vendor": json["model"].split("/")[0]}, request=httpx.Request("POST", url))
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", post)
+    drafts = asyncio.run(pilot_inference.generate("question", "accounting-question"))
+    assert {d["model_id"] for d in drafts} == {"merge:xai/grok-test", "merge:deepseek/deepseek-test"}
+    assert all(url == "https://api-gateway.merge.dev/v1/chat/completions" for url, _, _ in seen)
+    assert all(headers["Authorization"] == "Bearer DO-NOT-RECORD" for _, headers, _ in seen)
+    assert all("provider" not in body and body["max_tokens"] == 1500 for _, _, body in seen)
+    for draft in drafts:
+        attempt = draft["attempt"]
+        assert attempt["provider"] == "merge" and attempt["status"] == "complete"
+        assert attempt["cost"] == 0.0021 and attempt["provider_request_id"] == "req-1"
+        assert attempt["provider_routing"]["x-merge-vendor"] in ("xai", "deepseek")
+        assert "DO-NOT-RECORD" not in str(attempt)
+        assert draft["origin"] == "merge"
+
+
 def test_leaderboard_filters_unblinded_and_authored_runs():
     def run(participant, preference, *, mode="pool", scope="blind-conversation", task="accounting-question"):
         drafts = [{"model_id": "openai:gpt"}, {"model_id": "anthropic:claude"}]

@@ -10,10 +10,11 @@ KEYS = {
     "openai": "OPENAI_API_KEY",
     "anthropic": "ANTHROPIC_API_KEY",
     "openrouter": "OPENROUTER_API_KEY",
+    "merge": "MERGE_API_KEY",
 }
 
 # Org fallback when the benchmark catalog has no record for a model slug.
-CLOSED_ORGS = {"anthropic", "openai", "google", "x-ai"}
+CLOSED_ORGS = {"anthropic", "openai", "google", "x-ai", "xai"}
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -42,7 +43,7 @@ def _catalog_weights() -> dict[str, str]:
 
 
 def weights_for(model_id: str) -> str:
-    """Weights label for a pool model id like 'openrouter:deepseek/deepseek-v4-pro'."""
+    """Weights label for a pool model id like 'merge:deepseek/deepseek-v4-pro'."""
     model = model_id.partition(":")[2] or model_id
     if "/" in model:
         org, _, slug = model.partition("/")
@@ -76,7 +77,7 @@ def parse_pool(value: str | None = None, environ: dict | None = None) -> list[Po
         provider, separator, model = item.partition(":")
         model = model.strip()
         if not separator or provider not in KEYS or not model:
-            raise ValueError("PILOT_MODELS entries must use openai:model, anthropic:model, or openrouter:model.")
+            raise ValueError("PILOT_MODELS entries must use openai:model, anthropic:model, merge:vendor/model, or openrouter:model.")
         entry = PoolModel(provider, model)
         if entry.id in seen:
             raise ValueError("PILOT_MODELS must contain unique entries.")

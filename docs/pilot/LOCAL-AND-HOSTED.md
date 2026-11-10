@@ -52,9 +52,9 @@ OPENAI_API_KEY=<OpenAI API key>
 ANTHROPIC_API_KEY=<Anthropic API key>
 OPENAI_MODEL=<verified OpenAI API model ID>
 ANTHROPIC_MODEL=<verified Anthropic API model ID>
-PILOT_MAX_OUTPUT_TOKENS=2000
+PILOT_MAX_OUTPUT_TOKENS=16000
 PILOT_TOKEN_BUDGET=2000000
-PILOT_GUEST_TOKEN_BUDGET=30000
+PILOT_GUEST_TOKEN_BUDGET=100000
 PILOT_GLOBAL_DAILY_TOKENS=3000000
 PILOT_PUBLIC_LEADERBOARD=0
 ```
@@ -82,10 +82,10 @@ A Vercel Preview deployment is still a hosted browser app. If it points at the s
 The implemented direct adapter selects one OpenAI model via `OPENAI_MODEL` and one Anthropic model via `ANTHROPIC_MODEL`. For a configurable rotating pool, use `ARENA_INFERENCE_BACKEND=pool` and provide at least two unique entries:
 
 ```dotenv
-PILOT_MODELS=anthropic:claude-opus-4-1,openai:gpt-5,openrouter:google/gemini-2.5-pro
+PILOT_MODELS=anthropic:claude-opus-4-1,openai:gpt-5,merge:google/gemini-2.5-pro
 ```
 
-The pool requires the corresponding `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, and/or `OPENROUTER_API_KEY`. The first turn samples two distinct entries; follow-ups retain that pair. Verify each candidate supports this app's text endpoint/configuration and the account has access. API model availability and CLI model availability are separate; a CLI alias is not automatically a valid API ID.
+The pool requires the corresponding `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `MERGE_API_KEY` (Merge Gateway, `merge:vendor/model`, OpenAI-compatible chat completions at `https://api-gateway.merge.dev/v1`, returns `usage.cost`) and/or `OPENROUTER_API_KEY` (legacy `openrouter:` entries). The first turn samples two distinct entries; follow-ups retain that pair. Verify each candidate supports this app's text endpoint/configuration and the account has access. API model availability and CLI model availability are separate; a CLI alias is not automatically a valid API ID.
 
 No new key is required per model when the existing provider account/project key already has access. Keep provider keys only in the backend environment; never add them to frontend variables.
 

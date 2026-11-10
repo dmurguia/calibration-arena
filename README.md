@@ -17,7 +17,7 @@ The current product is a prompt-first accounting workspace: choose a work type, 
 
 See [the product decision](docs/pilot/DECISIONS.md), [the cohort and credential runbook](docs/pilot/RUNBOOK.md), and [verification](docs/pilot/QA.md).
 
-Start with `backend/.env.pilot.example`. Explicit authored samples work without credentials. Live prompting supports server-side OpenRouter configuration, or a temporary loopback-only [Codex and Claude Code bridge](docs/pilot/LOCAL-MODELS.md) using existing CLI sign-ins. Browser-bound identity is implemented; Clerk is an explicitly deferred cross-device upgrade.
+Start with `backend/.env.pilot.example`. Explicit authored samples work without credentials. Live prompting supports a server-side model pool (direct OpenAI/Anthropic keys plus Merge Gateway for other vendors; OpenRouter remains as a legacy option), or a temporary loopback-only [Codex and Claude Code bridge](docs/pilot/LOCAL-MODELS.md) using existing CLI sign-ins. Browser-bound identity is implemented; Clerk is an explicitly deferred cross-device upgrade.
 
 ## Local dev
 

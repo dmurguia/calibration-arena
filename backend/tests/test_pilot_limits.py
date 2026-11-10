@@ -267,6 +267,7 @@ def test_daily_run_limit_preserves_prompt_as_failed_run(client, monkeypatch):
 
 
 def test_founder_usage_lists_budget_runs_and_last_rejection(client, monkeypatch):
+    monkeypatch.setenv('PILOT_MAX_OUTPUT_TOKENS', '2000')  # budgets below assume the old 2,000 cap
     from app.routers import pilot
     monkeypatch.setattr(pilot, 'live_ready', lambda: True)
     monkeypatch.setattr(pilot, 'generate', live_generate(attempt={'usage': {'input_tokens': 2000, 'output_tokens': 500}}))

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from .db import Base
 from .pilot_accounts import PilotAccount, PilotUsage
 from .pilot_usage import usage_tokens
+from .pilot_direct import token_limit
 
 
 class PilotReservation(Base):
@@ -61,7 +62,7 @@ def participant_budget(account):
         return account.token_budget
     if account:
         return _env_int("PILOT_TOKEN_BUDGET", 2000000)
-    return _env_int("PILOT_GUEST_TOKEN_BUDGET", 30000)
+    return _env_int("PILOT_GUEST_TOKEN_BUDGET", 100000)
 
 
 def global_daily_tokens():
@@ -100,7 +101,7 @@ def reservation_tokens(prompt, histories=None):
         total_chars += max((sum(len(m.get("content", "")) for m in h) for h in histories.values()), default=0)
     elif isinstance(histories, list):
         total_chars += sum(len(m.get("content", "")) for m in histories)
-    return 2 * (estimate_tokens(total_chars) + _env_int("PILOT_MAX_OUTPUT_TOKENS", 2000))
+    return 2 * (estimate_tokens(total_chars) + token_limit())
 
 
 class LimitRejected(Exception):

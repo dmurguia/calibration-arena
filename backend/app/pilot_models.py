@@ -13,8 +13,11 @@ KEYS = {
     "merge": "MERGE_API_KEY",
 }
 
-# Org fallback when the benchmark catalog has no record for a model slug.
-CLOSED_ORGS = {"anthropic", "openai", "google", "x-ai", "xai"}
+# The leaderboard shows only open or closed. When the benchmark catalog has
+# no open/closed record, labs that publish their model weights default to
+# open (checked 10 Nov 2026: DeepSeek V4 Pro 0813 is MIT on Hugging Face,
+# Kimi K3.1 Pro weights went up 4 Nov); every other model defaults to closed.
+OPEN_ORGS = {"deepseek", "moonshot", "moonshotai"}
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -43,16 +46,16 @@ def _catalog_weights() -> dict[str, str]:
 
 
 def weights_for(model_id: str) -> str:
-    """Weights label for a pool model id like 'merge:deepseek/deepseek-v4-pro'."""
+    """'open' or 'closed' for a pool model id like 'merge:deepseek/deepseek-v4-pro'."""
     model = model_id.partition(":")[2] or model_id
     if "/" in model:
         org, _, slug = model.partition("/")
     else:
         org, slug = model_id.partition(":")[0], model
     match = _catalog_weights().get(_norm(slug))
-    if match:
+    if match in ("open", "closed"):
         return match
-    return "closed" if org in CLOSED_ORGS else "unknown"
+    return "open" if org in OPEN_ORGS else "closed"
 
 
 @dataclass(frozen=True)

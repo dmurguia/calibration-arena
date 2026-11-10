@@ -2,6 +2,7 @@
 import asyncio
 from datetime import datetime, timezone, timedelta
 import hashlib
+import json
 import os
 import re
 import secrets
@@ -9,11 +10,12 @@ from copy import deepcopy
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator, model_validator
 from sqlalchemy import JSON, String, select, func, update
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
-from ..db import Base, get_db
+from ..db import Base, SessionLocal, get_db
 from ..pilot_cases import CASES, snapshot
 from ..pilot_inference import generate, live_ready, inference_backend
 from .. import pilot_artifacts
@@ -29,7 +31,7 @@ from ..pilot_accounts import (
     record_admin_failure, reset_limits as reset_rate_limits, verify_password,
     UNUSABLE_PASSWORD,
 )
-from .. import pilot_clerk, pilot_labels, pilot_limits
+from .. import pilot_clerk, pilot_labels, pilot_limits, pilot_stream
 from ..pilot_usage import usage_tokens
 from ..pilot_models import pool_labels
 from ..pilot_leaderboard import build_leaderboard
@@ -145,6 +147,9 @@ class Start(Strict):
     task_type: Literal["accounting-question", "journal-entry", "treatment-memo", "workpaper-review"] = "accounting-question"
     workflow_id: str | None = Field(default=None, max_length=100)
     assets: list[AssetUpload] = Field(default_factory=list, max_length=2)
+    # A random id the browser chose and is listening on (GET /runs/stream/{id}).
+    # Display only: without it, or with streaming off, the run behaves as before.
+    stream_id: str | None = Field(default=None, pattern=r'^[0-9a-f]{32}$')
 
     @model_validator(mode='after')
     def context_fields(self):
@@ -672,6 +677,22 @@ def record_attempt_usage(db, participant_id, run_id, attempts):
             ))
 
 
+@router.get("/runs/stream/{stream_id}")
+async def run_stream(stream_id: str, authorization: str = Header(default="")):
+    """Live thinking and answer text for a comparison this browser is about to start.
+    Events carry a position (a or b) and text only: no model, lab, usage or cost."""
+    if not re.fullmatch(r'[0-9a-f]{32}', stream_id):
+        raise HTTPException(404, "Stream not found.")
+    # Resolve the person on a short-lived session so no database connection is held while streaming.
+    with SessionLocal() as db:
+        owner = participant(authorization, db).id
+    channel = pilot_stream.open_channel(stream_id, owner) if pilot_stream.enabled() else None
+    if channel is None:
+        raise HTTPException(404, "Stream not found.")
+    return StreamingResponse(pilot_stream.subscribe(channel), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
+
+
 @router.post("/runs")
 async def start(body: Start, p=Depends(participant), db: Session = Depends(get_db)):
     count = db.scalar(select(func.count()).select_from(Run).where(Run.participant_id == p.id, Run.created_at >= now()[:10]))
@@ -802,14 +823,22 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
             if labels:
                 labels.cancel()
             raise HTTPException(exc.status_code, exc.detail)
+        channel = pilot_stream.open_channel(body.stream_id, p.id) if body.stream_id and pilot_stream.enabled() else None
+        relay = pilot_stream.Relay(channel, pair_order, json.dumps([effective_prompt, pair_histories or history], ensure_ascii=False)) if channel else None
         try:
-            coro = generate(effective_prompt, body.task_type, history=pair_histories or history) if history or pair_histories else generate(effective_prompt, body.task_type)
+            options = {'history': pair_histories or history} if history or pair_histories else {}
+            if relay:
+                options['on_event'] = relay.on_event
+            coro = generate(effective_prompt, body.task_type, **options)
             drafts = await asyncio.wait_for(coro, timeout=pilot_limits.generation_timeout_seconds())
             attempts = [d.pop('attempt') for d in drafts if 'attempt' in d]
             if pair_order:
                 if set(pair_order) != {d['model_id'] for d in drafts}:
                     raise GenerationFailure('The model pair changed. Start a new comparison.', attempts)
                 drafts.sort(key=lambda d: pair_order.index(d['model_id']))
+            elif relay:
+                # The sides were fixed before the first token so what was watched is what is voted on.
+                relay.order(drafts)
             else:
                 secrets.SystemRandom().shuffle(drafts)
             run.data = {**data, "drafts": drafts, "generation_attempts": attempts, "drafts_shown_at": now()}
@@ -826,6 +855,9 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
                         'generation_error_type': type(exc).__name__}
             run.status = "failed"
             emit(db, p, "generation_failed", run)
+        finally:
+            if channel:
+                channel.close()
         record_attempt_usage(db, p.id, run.id, attempts)
         pilot_limits.reconcile(db, reservation, attempts)
         if labels:

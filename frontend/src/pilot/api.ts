@@ -29,3 +29,50 @@ export interface Run { archived?: boolean; failures?: { side: string; error: str
 export interface Me { participant: Participant; runs: Run[]; account?: { email: string; provider?: 'clerk' | 'password' } | null; usage?: { used: number; budget: number; remaining: number } }
 export interface Config { inference_backend?: string; generation_paused?: boolean; ask_mode: 'live' | 'fixture'; invite_required: boolean; accounts_enabled?: boolean; auth_provider?: 'clerk' | 'password'; leaderboard_public?: boolean; models?: string[]; prompt_starters: { id: string; title: string; brief: string; version: string }[]; task_types: { id: string; label: string; placeholder: string }[] }
 export interface CaseAssignment { id: string; pack_id: string; case_id: string; version: string; title: string; brief: string; framework: string; evidence: unknown[]; ordinal: number; run_id: string | null; status: string; exposure: string }
+
+// Live view of a comparison while both models write. Display only: the POST /runs
+// response is still what the person votes on, and every failure here falls back
+// to waiting for it. Events name a side (a or b) and never a model.
+export interface PanelStream { thinking: string; answer: string; state: 'working' | 'complete' | 'stopped'; hidden: boolean }
+export interface PairStream { a: PanelStream; b: PanelStream }
+const emptyPanel = (): PanelStream => ({ thinking: '', answer: '', state: 'working', hidden: false })
+
+async function followStream(streamId: string, signal: AbortSignal, onStream: (stream: PairStream) => void) {
+  const authorization = token()
+  const response = await fetch(apiUrl(`/api/pilot/runs/stream/${streamId}`), { headers: authorization ? { Authorization: `Bearer ${authorization}` } : {}, signal })
+  if (!response.ok || !response.body) return
+  const pair: PairStream = { a: emptyPanel(), b: emptyPanel() }
+  let dirty = false
+  // Markdown re-renders on every update, so paint at most ten times a second.
+  const timer = setInterval(() => { if (dirty) { dirty = false; onStream({ a: { ...pair.a }, b: { ...pair.b } }) } }, 100)
+  const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = ''
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      let cut: number
+      while ((cut = buffer.indexOf('\n\n')) >= 0) {
+        const block = buffer.slice(0, cut); buffer = buffer.slice(cut + 2)
+        const data = block.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n')
+        if (!data) continue
+        let event: { type?: string; position?: string; text?: string; state?: string }
+        try { event = JSON.parse(data) } catch { continue }
+        const panel = event.position === 'a' ? pair.a : event.position === 'b' ? pair.b : null
+        if (!panel) continue
+        if (event.type === 'thinking' || event.type === 'answer') panel[event.type] += event.text ?? ''
+        else if (event.type === 'withheld') { panel.hidden = true; panel.thinking = ''; panel.answer = '' }
+        else if (event.type === 'state' && (event.state === 'complete' || event.state === 'stopped')) panel.state = event.state
+        dirty = true
+      }
+    }
+  } finally { clearInterval(timer) }
+}
+
+export async function callStreamed<T>(path: string, body: Record<string, unknown>, onStream: (stream: PairStream | null) => void): Promise<T> {
+  const bytes = new Uint8Array(16); crypto.getRandomValues(bytes)
+  const streamId = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
+  const abort = new AbortController()
+  followStream(streamId, abort.signal, onStream).catch(() => { /* the answer still arrives with the response below */ })
+  try { return await call<T>(path, { ...body, stream_id: streamId }) } finally { abort.abort(); onStream(null) }
+}

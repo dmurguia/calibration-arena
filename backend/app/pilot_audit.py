@@ -54,6 +54,34 @@ def hygiene(text, supplied_text=''):
     return flags
 
 
+# Model and lab names a reasoning trace could give itself away with. Thinking is
+# shown before the vote, so it is checked more strictly than the answer: any of
+# these names that the person did not supply withholds the panel.
+MODEL_NAMES = (r'ChatGPT|GPT-?\d[\w.-]*|OpenAI|Anthropic|Claude|Gemini|DeepMind|Bard|DeepSeek|Zhipu|Z\.ai|'
+               r'ChatGLM|GLM-?\d[\w.-]*|Mistral|Le Chat|Codex|Grok|xAI|Qwen|Tongyi|Kimi|Moonshot|Llama|Meta AI')
+_MODEL_NAME = re.compile(r'(?i)(?<![\w-])(?:' + MODEL_NAMES + r')(?![\w-])')
+_MAKER = re.compile(r'(?i)\b(?:trained|developed|created|built|made) by (?:Google|Meta|Alibaba|Microsoft)\b')
+
+
+def thinking_hygiene(text, supplied_text=''):
+    """The answer checks plus model and lab names. Flags only; the text is never altered."""
+    flags = hygiene(text, supplied_text)
+    supplied = supplied_text.casefold()
+    names = [m.group(0) for m in _MODEL_NAME.finditer(text)] + [m.group(0) for m in _MAKER.finditer(text)]
+    if any(name.casefold() not in supplied for name in names):
+        flags.append('model-or-lab-name')
+    return flags
+
+
+def record_thinking(attempt, text, kind):
+    """Reasoning text a provider returned, kept apart from the judged answer."""
+    if not isinstance(text, str) or not text.strip():
+        return
+    supplied = json.dumps(attempt['request'], ensure_ascii=False)
+    attempt.update(thinking_text=text, thinking_sha256=text_hash(text), thinking_kind=kind,
+                   thinking_hygiene_flags=thinking_hygiene(text, supplied))
+
+
 def finish_artifact(attempt, text, task_type, settings, prompt_version, *, cli=None, truncated=False):
     if not isinstance(text, str) or not text.strip():
         raise ValueError('Empty response')

@@ -77,7 +77,10 @@ def record_thinking(attempt, text, kind):
     """Reasoning text a provider returned, kept apart from the judged answer."""
     if not isinstance(text, str) or not text.strip():
         return
-    supplied = json.dumps(attempt['request'], ensure_ascii=False)
+    # Only the person's own words exempt a name; system text and earlier model answers do not.
+    request = attempt['request']
+    messages = request.get('messages') or request.get('input') or []
+    supplied = json.dumps([m.get('content') for m in messages if isinstance(m, dict) and m.get('role') == 'user'], ensure_ascii=False)
     attempt.update(thinking_text=text, thinking_sha256=text_hash(text), thinking_kind=kind,
                    thinking_hygiene_flags=thinking_hygiene(text, supplied))
 

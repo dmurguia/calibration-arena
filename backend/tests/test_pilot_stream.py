@@ -498,3 +498,45 @@ def test_pool_generation_passes_live_events_per_slot(monkeypatch):
     assert [r['model_id'] for r in results] == [model_id for slot, model_id, kind, _ in sorted(e for e in seen if e[2] == 'done')]
     assert {(slot, kind) for slot, _, kind, _ in seen} == {(s, k) for s in (0, 1) for k in ('thinking', 'answer', 'done')}
     assert all(done for _, _, kind, done in seen if kind == 'done')
+
+
+def test_a_name_from_an_earlier_model_answer_does_not_exempt_thinking(client, monkeypatch):
+    """A blind follow-up: an earlier answer mentioned a model name, the person never did."""
+    from app.routers import pilot
+    pilot_stream.reset()
+    first = 'Tools such as Claude can draft the memo, but the entries are the same either way. ' * 2
+    answer = 'Amortize the balance evenly over the remaining eleven months of the policy. ' * 3
+
+    async def opening(question, task_type, **kwargs):
+        return [draft('merge:lab-one/model', first), draft('merge:lab-two/model', first)]
+
+    headers, run = live_run(client, monkeypatch, opening, '2' * 32)
+
+    async def follow_up(question, task_type, *, history, on_event):
+        assert any('Claude' in m['content'] for h in history.values() for m in h if m['role'] == 'assistant')
+        on_event(0, 'merge:lab-one/model', 'thinking', 'I am Claude, so I will restate my earlier schedule carefully here. ' * 3)
+        on_event(0, 'merge:lab-one/model', 'answer', answer)
+        on_event(1, 'merge:lab-two/model', 'thinking', 'Divide the remaining balance by the months left on the policy. ' * 3)
+        on_event(1, 'merge:lab-two/model', 'answer', answer)
+        for slot, model in enumerate(('merge:lab-one/model', 'merge:lab-two/model')):
+            on_event(slot, model, 'done', True)
+        return [draft('merge:lab-one/model', answer), draft('merge:lab-two/model', answer)]
+
+    monkeypatch.setattr(pilot, 'generate', follow_up)
+    response = client.post('/api/pilot/runs', headers=headers, json={'question': 'And the entry for May?', 'source_run_id': run['id'], 'continuation_mode': 'compare', 'stream_id': '3' * 32})
+    assert response.status_code == 200, response.text
+    events = read_stream(client, headers, '3' * 32)
+    assert len([e for e in events if e['type'] == 'withheld']) == 1 and 'Claude' not in json.dumps(events)
+    assert [e for e in events if e['type'] == 'thinking']
+
+
+def test_stored_thinking_flags_ignore_names_in_earlier_answers():
+    from app.pilot_audit import new_attempt, record_thinking
+    request = {'messages': [{'role': 'system', 'content': 'Rules'}, {'role': 'user', 'content': 'How do I book the premium?'},
+                            {'role': 'assistant', 'content': 'Claude would book it monthly.'}, {'role': 'user', 'content': 'And May?'}]}
+    attempt = new_attempt('merge', 'lab/model', request)
+    record_thinking(attempt, 'As Claude, I continue the schedule.', 'provider')
+    assert 'model-or-lab-name' in attempt['thinking_hygiene_flags']
+    asked = new_attempt('openai', 'm', {'instructions': 'Rules', 'input': [{'role': 'user', 'content': 'Is our Claude subscription a prepaid?'}]})
+    record_thinking(asked, 'The Claude subscription is paid annually.', 'summary')
+    assert asked['thinking_hygiene_flags'] == []

@@ -824,7 +824,11 @@ async def start(body: Start, p=Depends(participant), db: Session = Depends(get_d
                 labels.cancel()
             raise HTTPException(exc.status_code, exc.detail)
         channel = pilot_stream.open_channel(body.stream_id, p.id) if body.stream_id and pilot_stream.enabled() else None
-        relay = pilot_stream.Relay(channel, pair_order, json.dumps([effective_prompt, pair_histories or history], ensure_ascii=False)) if channel else None
+        # Only what the person wrote exempts a name from the identity checks. Earlier model
+        # answers are left out: a name one model used must not let the other side show it.
+        earlier = [m for h in pair_histories.values() for m in h] if pair_histories else history
+        typed = [effective_prompt, *(m['content'] for m in earlier if m.get('role') == 'user')]
+        relay = pilot_stream.Relay(channel, pair_order, json.dumps(typed, ensure_ascii=False)) if channel else None
         try:
             options = {'history': pair_histories or history} if history or pair_histories else {}
             if relay:

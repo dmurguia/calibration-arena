@@ -1,0 +1,326 @@
+<title>Review Queue Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#171B21; --card:#1F2630; --inset:#232B36; --ink:#E7EBEF; --muted:#8D99A6;
+  --hairline:#2C3542; --accent:#D9A441; --accent-ink:#241A05;
+  --approve:#4CAF7D; --approve-bg:#1E3328; --reject:#E06C5C; --reject-bg:#3A2622;
+  --note:#7FA6D9; --note-bg:#22303F; --doc:#1B222B;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 6px 20px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --ground:#F2F3F1; --card:#FFFFFF; --inset:#F7F7F5; --ink:#1E242B; --muted:#5F6B77;
+    --hairline:#DDE1E4; --accent:#8F6516; --accent-ink:#FFFFFF;
+    --approve:#2E7D4F; --approve-bg:#E8F3EC; --reject:#B3402A; --reject-bg:#FAEBE7;
+    --note:#33628F; --note-bg:#E9F0F7; --doc:#FCFCFA;
+    --shadow:0 1px 3px rgba(30,36,43,.10), 0 4px 14px rgba(30,36,43,.07);
+  }
+}
+:root[data-theme="light"]{
+  --ground:#F2F3F1; --card:#FFFFFF; --inset:#F7F7F5; --ink:#1E242B; --muted:#5F6B77;
+  --hairline:#DDE1E4; --accent:#8F6516; --accent-ink:#FFFFFF;
+  --approve:#2E7D4F; --approve-bg:#E8F3EC; --reject:#B3402A; --reject-bg:#FAEBE7;
+  --note:#33628F; --note-bg:#E9F0F7; --doc:#FCFCFA;
+  --shadow:0 1px 3px rgba(30,36,43,.10), 0 4px 14px rgba(30,36,43,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:26px 18px 90px}
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
+h1{font-size:22px;font-weight:700;margin:4px 0 0}
+.queue{display:flex;gap:8px}
+.qchip{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);border:1px solid var(--hairline);border-radius:999px;padding:4px 10px}
+.qchip .dot{width:7px;height:7px;border-radius:50%;background:var(--hairline)}
+.qchip.now{color:var(--ink);border-color:var(--accent)} .qchip.now .dot{background:var(--accent)}
+.qchip.done .dot{background:var(--approve)}
+.item{background:var(--card);border:1px solid var(--hairline);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.ctx{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--hairline);background:var(--inset)}
+.ctx .kind{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:2px 7px}
+.ctx .brief{flex:1;min-width:240px;font-size:13.5px;color:var(--ink)}
+.pill{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);background:var(--card);border:1px solid var(--hairline);border-radius:999px;padding:2px 9px}
+.docwrap{padding:18px;display:grid;gap:14px}
+.docwrap.duel{grid-template-columns:1fr 1fr}
+@media (max-width:700px){.docwrap.duel{grid-template-columns:1fr}}
+.doc{background:var(--doc);border:1px solid var(--hairline);border-radius:8px;padding:16px 18px;font-family:'Source Serif 4',Georgia,serif;font-size:13.5px}
+.doc .who{font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.doc h4{margin:0 0 4px;font-family:'Instrument Sans',sans-serif;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table{border-collapse:collapse;width:100%;margin:6px 0 10px}
+th,td{border:1px solid var(--hairline);padding:4px 8px;text-align:left;font-size:12.5px}
+th{font-family:'Instrument Sans',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--inset)}
+td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+td.indent{padding-left:22px}
+tr.tot td{font-weight:600;background:var(--inset)}
+.memo{font-style:italic;color:var(--muted);font-size:12.5px;margin:4px 0 0}
+.bar{border-top:1px solid var(--hairline);padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.decide{display:flex;gap:8px;flex-wrap:wrap}
+.decide button, .duelpick button{appearance:none;font:inherit;font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:8px;border:1px solid var(--hairline);background:transparent;color:var(--ink);cursor:pointer}
+.decide button:focus-visible,.duelpick button:focus-visible,.reasons button:focus-visible,.conf button:focus-visible,.next:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.decide button[data-d="approve"].on{background:var(--approve-bg);border-color:var(--approve);color:var(--approve)}
+.decide button[data-d="note"].on{background:var(--note-bg);border-color:var(--note);color:var(--note)}
+.decide button[data-d="reject"].on{background:var(--reject-bg);border-color:var(--reject);color:var(--reject)}
+.duelpick{display:flex;gap:8px;flex-wrap:wrap}
+.duelpick button.on{background:var(--note-bg);border-color:var(--note);color:var(--note)}
+.followup{display:none;flex-direction:column;gap:8px}
+.followup.show{display:flex}
+.followup .lbl{font-size:12px;color:var(--muted);font-weight:500}
+.reasons{display:flex;gap:6px;flex-wrap:wrap}
+.reasons button{appearance:none;font:inherit;font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--hairline);background:transparent;color:var(--muted);cursor:pointer}
+.reasons button.on{background:var(--reject-bg);border-color:var(--reject);color:var(--reject);font-weight:600}
+.followup textarea, .followup input{width:100%;border:1px solid var(--hairline);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:13px;padding:8px 10px;resize:vertical}
+.followup ::placeholder{color:var(--muted)}
+.footrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.conf{display:flex;align-items:center;gap:8px}
+.conf .lbl{font-size:12px;color:var(--muted)}
+.conf button{appearance:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer}
+.conf button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.next{appearance:none;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;padding:10px 24px;cursor:pointer}
+.next:disabled{opacity:.4;cursor:not-allowed}
+.summary{display:none}
+.summary.show{display:block}
+.sumcard{background:var(--card);border:1px solid var(--hairline);border-radius:12px;box-shadow:var(--shadow);padding:20px 22px}
+.sumcard h2{margin:0 0 10px;font-size:19px}
+.sumrow{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid var(--hairline);font-size:13.5px}
+.sumrow:first-of-type{border-top:0}
+.sumrow .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.tag.ok{background:var(--approve-bg);color:var(--approve)} .tag.bad{background:var(--reject-bg);color:var(--reject)} .tag.note{background:var(--note-bg);color:var(--note)}
+.calibbox{margin-top:14px;border-radius:8px;padding:12px 14px;font-size:13.5px}
+.calibbox.ok{background:var(--approve-bg);color:var(--approve)} .calibbox.bad{background:var(--reject-bg);color:var(--reject)}
+.datanote{margin-top:14px;padding-top:12px;border-top:1px dashed var(--hairline);font-size:12.5px;color:var(--muted)}
+.footer{margin-top:22px;font-size:11.5px;color:var(--muted);max-width:76ch}
+@media (prefers-reduced-motion: no-preference){
+  .item,.sumcard{animation:up .3s ease-out}
+  @keyframes up{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Calibration Arena · Review queue · Demo</p>
+      <h1>Your queue — 4 items</h1>
+    </div>
+    <div class="queue" id="queue" aria-label="Queue progress"></div>
+  </header>
+
+  <div id="stage"></div>
+
+  <section class="summary" id="summary" aria-live="polite">
+    <div class="sumcard">
+      <h2>Session complete — reveal</h2>
+      <div id="sumrows"></div>
+      <div class="calibbox" id="calibbox"></div>
+      <p class="datanote"><b>What this session recorded:</b> three reviews (each with a decision, reason codes where rejected, and any note or correction), one duel pick, per-item confidence, and server-side decision time. Approvals from verified reviewers become each author's <b>Signable&nbsp;%</b>; duels sharpen close calls; item 2 was a hidden calibration item — it scored you, never a model. Authors here are fictional.</p>
+      <button class="next" id="again" style="margin-top:12px">Reset demo</button>
+    </div>
+  </section>
+
+  <p class="footer">Demo only: fictional company and author names, hand-written work products, nothing stored. Variant B of the pilot A/B — compare against the four-draft comparison screen (Variant A).</p>
+</div>
+
+<script>
+const ITEMS = [
+ { kind:'Review', author:'Kestrel 3', calibration:false,
+   brief:'Halcyon Packaging bought a labeling machine for $45,000 on credit and paid $2,500 cash freight; in service same day. Review the acquisition entry and one month of straight-line depreciation (5-year life, no salvage).',
+   pills:['Accrual basis','Capitalization threshold $2,500','Period: May 2026'],
+   expected:'approve',
+   doc:`<div class="who"><span>Item 1 · Journal entries</span><span>Author hidden</span></div>
+   <h4>Machine acquisition — May 12</h4>
+   <table><tr><th>Account</th><th style="width:84px">Debit</th><th style="width:84px">Credit</th></tr>
+   <tr><td>Machinery &amp; Equipment</td><td class="num">47,500</td><td class="num"></td></tr>
+   <tr><td class="indent">Accounts Payable</td><td class="num"></td><td class="num">45,000</td></tr>
+   <tr><td class="indent">Cash</td><td class="num"></td><td class="num">2,500</td></tr>
+   <tr class="tot"><td>Totals</td><td class="num">47,500</td><td class="num">47,500</td></tr></table>
+   <h4>May depreciation</h4>
+   <table><tr><th>Account</th><th style="width:84px">Debit</th><th style="width:84px">Credit</th></tr>
+   <tr><td>Depreciation Expense</td><td class="num">792</td><td class="num"></td></tr>
+   <tr><td class="indent">Accumulated Depreciation</td><td class="num"></td><td class="num">792</td></tr>
+   <tr class="tot"><td>Totals</td><td class="num">792</td><td class="num">792</td></tr></table>
+   <p class="memo">Memo: Freight-in capitalized to asset cost per policy; $47,500 ÷ 60 months = $792/mo, full month taken in month placed in service. Depreciation schedule filed at FA-2026-014.</p>`,
+   verdict:{pass:true, text:'Passes checks — cost correctly capitalized including freight, depreciation arithmetic right, memo cites the schedule.'} },
+
+ { kind:'Review', author:'Vireo 8', calibration:true,
+   brief:'Halcyon paid $14,400 on March 15 for a 12-month insurance policy covering April 1, 2026 – March 31, 2027. Review the payment entry and the March amortization position.',
+   pills:['Accrual basis','Materiality $500','Period: March 2026'],
+   expected:'reject',
+   doc:`<div class="who"><span>Item 2 · Journal entries</span><span>Author hidden</span></div>
+   <h4>Policy payment — March 15</h4>
+   <table><tr><th>Account</th><th style="width:84px">Debit</th><th style="width:84px">Credit</th></tr>
+   <tr><td>Prepaid Insurance</td><td class="num">14,400</td><td class="num"></td></tr>
+   <tr><td class="indent">Cash</td><td class="num"></td><td class="num">14,400</td></tr>
+   <tr class="tot"><td>Totals</td><td class="num">14,400</td><td class="num">14,400</td></tr></table>
+   <h4>March amortization</h4>
+   <table><tr><th>Account</th><th style="width:84px">Debit</th><th style="width:84px">Credit</th></tr>
+   <tr><td>Insurance Expense</td><td class="num">1,200</td><td class="num"></td></tr>
+   <tr><td class="indent">Prepaid Insurance</td><td class="num"></td><td class="num">1,200</td></tr>
+   <tr class="tot"><td>Totals</td><td class="num">1,200</td><td class="num">1,200</td></tr></table>
+   <p class="memo">Memo: $14,400 ÷ 12 = $1,200 monthly amortization beginning in the month of payment. Schedule maintained through February 2027.</p>`,
+   verdict:{pass:false, text:'Fails checks — hidden calibration item. Coverage begins April 1; expensing $1,200 in March recognizes cost one month before the coverage period. Tidy arithmetic, wrong period.'} },
+
+ { kind:'Duel', author:null, calibration:false,
+   brief:'Orion Retail’s $8,400 receivable was written off under the allowance method; later that month they unexpectedly paid $3,000. Both drafts below pass objective checks. Which would you sign as filed?',
+   pills:['Allowance method','Period: August 2026'],
+   expected:null,
+   doc:`<div class="who"><span>Draft A</span><span>Author hidden</span></div>
+   <h4>Write-off</h4>
+   <table><tr><th>Account</th><th style="width:74px">Dr</th><th style="width:74px">Cr</th></tr>
+   <tr><td>Allowance for Doubtful Accts</td><td class="num">8,400</td><td class="num"></td></tr>
+   <tr><td class="indent">Accounts Receivable</td><td class="num"></td><td class="num">8,400</td></tr></table>
+   <h4>Recovery</h4>
+   <table><tr><th>Account</th><th style="width:74px">Dr</th><th style="width:74px">Cr</th></tr>
+   <tr><td>Cash</td><td class="num">3,000</td><td class="num"></td></tr>
+   <tr><td class="indent">Allowance for Doubtful Accts</td><td class="num"></td><td class="num">3,000</td></tr></table>
+   <p class="memo">Memo: Write-off and partial recovery, net effect to allowance.</p>`,
+   doc2:`<div class="who"><span>Draft B</span><span>Author hidden</span></div>
+   <h4>Write-off</h4>
+   <table><tr><th>Account</th><th style="width:74px">Dr</th><th style="width:74px">Cr</th></tr>
+   <tr><td>Allowance for Doubtful Accts</td><td class="num">8,400</td><td class="num"></td></tr>
+   <tr><td class="indent">Accounts Receivable</td><td class="num"></td><td class="num">8,400</td></tr></table>
+   <h4>Recovery — reinstate, then collect</h4>
+   <table><tr><th>Account</th><th style="width:74px">Dr</th><th style="width:74px">Cr</th></tr>
+   <tr><td>Accounts Receivable</td><td class="num">3,000</td><td class="num"></td></tr>
+   <tr><td class="indent">Allowance for Doubtful Accts</td><td class="num"></td><td class="num">3,000</td></tr>
+   <tr><td>Cash</td><td class="num">3,000</td><td class="num"></td></tr>
+   <tr><td class="indent">Accounts Receivable</td><td class="num"></td><td class="num">3,000</td></tr></table>
+   <p class="memo">Memo: Reinstatement preserves the customer’s payment history before collection, per standard allowance-method treatment.</p>`,
+   verdict:{pass:true, text:'Both pass checks. Draft A nets the reinstatement; Draft B shows it explicitly — the panel’s split on exactly this kind of pair is the preference signal duels exist to capture.'},
+   authors:['Kestrel 3','Marlin 2'] },
+
+ { kind:'Review', author:'Marlin 2', calibration:false,
+   brief:'Year-end bonus accrual for Caldera Systems: pool is 8% of EBITDA above a $2.0M threshold; preliminary EBITDA $3.1M includes a flagged-uncertain $150K revenue item; board discretion ±20% (prior year −10%). Review the proposed accrual memo.',
+   pills:['Estimate — range acceptable','Materiality $25K','Period: Dec 2026'],
+   expected:'note',
+   doc:`<div class="who"><span>Item 4 · Accrual memo</span><span>Author hidden</span></div>
+   <h4>Proposed entry</h4>
+   <table><tr><th>Account</th><th style="width:84px">Debit</th><th style="width:84px">Credit</th></tr>
+   <tr><td>Bonus Expense</td><td class="num">76,000</td><td class="num"></td></tr>
+   <tr><td class="indent">Accrued Bonus Payable</td><td class="num"></td><td class="num">76,000</td></tr>
+   <tr class="tot"><td>Totals</td><td class="num">76,000</td><td class="num">76,000</td></tr></table>
+   <p><b>Basis.</b> Pool = 8% × (EBITDA − $2.0M). We exclude the $150K uncertain revenue item pending resolution, giving qualifying EBITDA of $2.95M and a pool of $76,000. No board-discretion adjustment is assumed; prior year’s −10% is noted but not extrapolated. Sensitivity: including the uncertain item raises the pool to $88,000; a −10% discretion lowers the base case to $68,400.</p>
+   <p class="memo">Memo: Assumptions documented above; recommend confirming board intent before final close. Range considered: $68,400–$88,000.</p>`,
+   verdict:{pass:true, text:'Passes checks — figure sits inside the defensible range with assumptions disclosed and sensitivity shown. Whether the hedging earns a note ("commit to a number") or praise is judgment: exactly what approve-with-note captures.'} },
+];
+
+const REASONS = ['Wrong account','Wrong period','Doesn’t balance','Policy violation','Insufficient support','Overstates certainty','Other'];
+let idx = 0;
+const results = [];
+const queueEl = document.getElementById('queue');
+const stage = document.getElementById('stage');
+
+function renderQueue(){
+  queueEl.innerHTML = ITEMS.map((it,i)=>`<span class="qchip ${i<idx?'done':i===idx?'now':''}"><span class="dot"></span>${it.kind}</span>`).join('');
+}
+
+function renderItem(){
+  renderQueue();
+  const it = ITEMS[idx];
+  const isDuel = it.kind === 'Duel';
+  stage.innerHTML = `
+  <section class="item">
+    <div class="ctx"><span class="kind">${it.kind}</span><span class="brief">${it.brief}</span>${it.pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>
+    <div class="docwrap ${isDuel?'duel':''}">
+      <div class="doc">${it.doc}</div>${isDuel?`<div class="doc">${it.doc2}</div>`:''}
+    </div>
+    <div class="bar">
+      ${isDuel ? `
+      <div class="duelpick" role="group" aria-label="Duel decision">
+        <button data-p="A">Sign Draft A</button><button data-p="B">Sign Draft B</button>
+        <button data-p="either">Either — equivalent</button><button data-p="neither">Neither</button>
+      </div>` : `
+      <div class="decide" role="group" aria-label="Review decision">
+        <button data-d="approve">Approve</button>
+        <button data-d="note">Approve with note</button>
+        <button data-d="reject">Reject</button>
+      </div>
+      <div class="followup" id="fu-note"><span class="lbl">Your note to the author</span>
+        <input id="notetext" maxlength="200" placeholder="e.g. commit to the base case; keep the sensitivity in the workpaper"></div>
+      <div class="followup" id="fu-reject"><span class="lbl">Why? (pick all that apply)</span>
+        <div class="reasons" id="reasons">${REASONS.map(r=>`<button>${r}</button>`).join('')}</div>
+        <span class="lbl">Optional — correct it</span>
+        <textarea id="fixtext" rows="2" placeholder="What should the entry or memo say instead?"></textarea>
+      </div>`}
+      <div class="footrow">
+        <div class="conf"><span class="lbl">Confidence</span>
+          <button data-c="1" aria-label="Low confidence">1</button><button data-c="2" aria-label="Medium confidence">2</button><button data-c="3" aria-label="High confidence">3</button></div>
+        <button class="next" id="nextbtn" disabled>${idx===ITEMS.length-1?'Finish & reveal':'Next item'}</button>
+      </div>
+    </div>
+  </section>`;
+  wireItem(it, isDuel);
+}
+
+function wireItem(it, isDuel){
+  const st = {decision:null, conf:null, reasons:new Set()};
+  const nextBtn = document.getElementById('nextbtn');
+  const ready = () => { nextBtn.disabled = !(st.decision && st.conf); };
+
+  if(isDuel){
+    stage.querySelectorAll('.duelpick button').forEach(b=>b.addEventListener('click',()=>{
+      st.decision = b.dataset.p;
+      stage.querySelectorAll('.duelpick button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); ready();
+    }));
+  } else {
+    stage.querySelectorAll('.decide button').forEach(b=>b.addEventListener('click',()=>{
+      st.decision = b.dataset.d;
+      stage.querySelectorAll('.decide button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('fu-note').classList.toggle('show', st.decision==='note');
+      document.getElementById('fu-reject').classList.toggle('show', st.decision==='reject');
+      ready();
+    }));
+    stage.querySelectorAll('#reasons button').forEach(b=>b.addEventListener('click',()=>{
+      b.classList.toggle('on');
+      b.classList.contains('on') ? st.reasons.add(b.textContent) : st.reasons.delete(b.textContent);
+    }));
+  }
+  stage.querySelectorAll('.conf button').forEach(b=>b.addEventListener('click',()=>{
+    st.conf = b.dataset.c;
+    stage.querySelectorAll('.conf button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); ready();
+  }));
+  nextBtn.addEventListener('click',()=>{
+    const noteEl = document.getElementById('notetext');
+    const fixEl = document.getElementById('fixtext');
+    results.push({item:it, decision:st.decision, conf:st.conf,
+      reasons:[...st.reasons], note:noteEl?noteEl.value:'', fix:fixEl?fixEl.value:''});
+    idx++;
+    if(idx < ITEMS.length){ renderItem(); window.scrollTo({top:0,behavior:'smooth'}); }
+    else finish();
+  });
+}
+
+function finish(){
+  renderQueue();
+  stage.innerHTML = '';
+  const rows = document.getElementById('sumrows');
+  rows.innerHTML = results.map((r,i)=>{
+    const it = r.item;
+    let tag, cls;
+    if(it.kind==='Duel'){ tag = r.decision==='A'?'Signed A':r.decision==='B'?'Signed B':r.decision==='either'?'Either':'Neither'; cls='note'; }
+    else { tag = r.decision==='approve'?'Approved':r.decision==='note'?'Approved + note':'Rejected'; cls = r.decision==='reject'?'bad':r.decision==='note'?'note':'ok'; }
+    const who = it.kind==='Duel' ? `${it.authors[0]} vs ${it.authors[1]}` : it.author;
+    const reasons = r.reasons.length?` · ${r.reasons.join(', ')}`:'';
+    const fix = r.fix?` · correction captured`:'';
+    return `<div class="sumrow"><span class="tag ${cls}">${tag}</span>
+      <span><b>Item ${i+1}</b> — ${who} <span style="color:var(--muted)">(fictional)</span>: ${it.verdict.text}${reasons}${fix}</span></div>`;
+  }).join('');
+  const r2 = results[1];
+  const box = document.getElementById('calibbox');
+  if(r2.decision==='reject'){
+    box.className='calibbox ok';
+    box.innerHTML = '<b>Calibration: caught.</b> You rejected the item that expenses insurance a month before coverage begins' +
+      (r2.reasons.includes('Wrong period') ? ' — and cited the right reason (wrong period).' : '.');
+  } else {
+    box.className='calibbox bad';
+    box.innerHTML = '<b>Calibration: missed.</b> Item 2 amortizes from the payment month, but coverage starts April 1 — a full month of expense lands in the wrong period. Subtle planted items like this are how your calibration score is measured.';
+  }
+  document.getElementById('summary').classList.add('show');
+  document.getElementById('summary').scrollIntoView({behavior:'smooth'});
+}
+
+document.getElementById('again').addEventListener('click',()=>location.reload());
+renderItem();
+</script>

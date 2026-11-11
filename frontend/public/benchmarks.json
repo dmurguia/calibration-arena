@@ -10,9 +10,9 @@
     "results": "Result figures and board snapshots remain the property of their publishers and are reproduced as cited facts with source links. Reuse them under each publisher's own terms."
   },
   "counts": {
-    "benchmarks": 60,
+    "benchmarks": 62,
     "by_results_status": {
-      "leaderboard": 23,
+      "leaderboard": 25,
       "snapshot": 30,
       "archived": 5,
       "unpublished": 1,
@@ -604,6 +604,86 @@
       "first_published": "2026-09",
       "last_verified": "2026-09-29",
       "notes": null,
+      "flags": []
+    },
+    {
+      "id": "dayjob-finance",
+      "name": "DAYJOB: Finance",
+      "publisher": "Surge AI",
+      "publisher_type": "eval_lab",
+      "kind": "benchmark",
+      "task_format": "agentic",
+      "stateful": true,
+      "grader": "rubric",
+      "data_access": "partial",
+      "license": "MIT (public sample tasks)",
+      "results_status": "leaderboard",
+      "first_published": "2026-09",
+      "last_verified": "2026-11-10",
+      "domains": [
+        "financial_analysis"
+      ],
+      "summary": "Long-horizon, loosely specified finance assignments (corporate finance, banking, credit, investing, real assets) where agents must work out what is needed from messy workspace files and deliver finished work.",
+      "size": "80 tasks (3 public samples); avg 25.7 input files, median 57.5 rubric criteria, ~16.6 expert-hours per task",
+      "relevance": "adjacent",
+      "relevance_note": "Expert-built Harbor tasks with strict rubric pass thresholds; finance rather than bookkeeping or close.",
+      "results": {
+        "as_of": "2026-11-10",
+        "metric": "Leaderboard score",
+        "leader": "Claude Opus 5.5 (Adaptive/Max)",
+        "leader_score": "42.5%",
+        "models_evaluated": null,
+        "source_url": "https://surgehq.ai/benchmarks/dayjob-finance",
+        "source_type": "first_party",
+        "note": "Dataset card defines task completion as 100% of rubric criteria satisfied; the launch post reported under 25% for the strongest models at release, so scores from different dates may not be comparable."
+      },
+      "links": {
+        "leaderboard": "https://surgehq.ai/benchmarks/dayjob-finance",
+        "home": "https://surgehq.ai/blog/dayjob",
+        "data": "https://huggingface.co/datasets/surgeai/DAYJOB-finance",
+        "code": "https://github.com/surge-ai/dayjob"
+      },
+      "notes": "Full set is evaluated on request (benchmarks@surgehq.ai). Samples carry a canary and a no-training notice.",
+      "flags": []
+    },
+    {
+      "id": "dayjob-tax",
+      "name": "DAYJOB: Tax",
+      "publisher": "Surge AI",
+      "publisher_type": "eval_lab",
+      "kind": "benchmark",
+      "task_format": "agentic",
+      "stateful": true,
+      "grader": "rubric",
+      "data_access": "partial",
+      "license": "MIT (public sample tasks)",
+      "results_status": "leaderboard",
+      "first_published": "2026-09",
+      "last_verified": "2026-11-10",
+      "domains": [
+        "tax"
+      ],
+      "summary": "Professional tax assignments from a client request to a finished return, workpaper, technical review or advice, across eight areas of tax practice with conflicting and incomplete records.",
+      "size": "50 tasks (2 public samples); 1,789 workspace files, avg 35.8 input files per task",
+      "relevance": "adjacent",
+      "relevance_note": "Tests unprompted issue-spotting and judgment in tax work; adjacent to accounting close.",
+      "results": {
+        "as_of": "2026-11-10",
+        "metric": "Pass@1 at a 95% rubric threshold",
+        "leader": "Claude Sonnet 5.5 (Adaptive/Max)",
+        "leader_score": "10.8%",
+        "models_evaluated": null,
+        "source_url": "https://surgehq.ai/benchmarks/dayjob-tax",
+        "source_type": "first_party",
+        "note": null
+      },
+      "links": {
+        "leaderboard": "https://surgehq.ai/benchmarks/dayjob-tax",
+        "home": "https://surgehq.ai/blog/dayjob-tax",
+        "data": "https://huggingface.co/datasets/surgeai/DAYJOB-tax",
+        "code": "https://github.com/surge-ai/dayjob"
+      },
+      "notes": "Full set is evaluated on request (benchmarks@surgehq.ai). Samples carry a canary and a no-training notice.",
       "flags": []
     },
     {

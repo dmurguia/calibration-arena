@@ -30,6 +30,8 @@ from ..pilot_accounts import (
     UNUSABLE_PASSWORD,
 )
 from .. import pilot_clerk, pilot_labels, pilot_limits
+from .. import pilot_experts
+from ..pilot_experts import PilotExpertProfile
 from ..pilot_usage import usage_tokens
 from ..pilot_models import pool_labels
 from ..pilot_leaderboard import build_leaderboard
@@ -630,9 +632,113 @@ def me(p=Depends(participant), db: Session = Depends(get_db)):
     return {
         "participant": {"id": p.id, **p.profile},
         "account": {"email": account.email, "provider": "clerk" if account.clerk_user_id else "password"} if account else None,
+        "expert": pilot_experts.public_expert(db.get(PilotExpertProfile, p.id)),
         "usage": {"used": used, "budget": budget, "remaining": max(0, budget - used)},
         "runs": [public_run(r) for r in runs],
     }
+
+
+class ExpertProfile(Strict):
+    vertical: pilot_experts.Vertical
+    specialty: str = Field(min_length=2, max_length=120)
+    experience: str = Field(min_length=10, max_length=2000)
+    profile_url: str | None = Field(default=None, max_length=2048)
+    intake_reference: str | None = Field(default=None, max_length=36)
+
+    @field_validator("profile_url")
+    @classmethod
+    def _https_only(cls, v):
+        if v in (None, ""):
+            return None
+        if not re.match(r"^https://[^\s/@]+(/\S*)?$", v) or "@" in v.split("//", 1)[1].split("/", 1)[0]:
+            raise ValueError("Use a public HTTPS link without embedded credentials.")
+        return v
+
+    @field_validator("intake_reference")
+    @classmethod
+    def _uuid_like(cls, v):
+        if v in (None, ""):
+            return None
+        if not re.fullmatch(r"[0-9a-fA-F-]{36}", v):
+            raise ValueError("intake_reference must be the submission reference from the calibrated.co form.")
+        return v.lower()
+
+
+@router.post("/expert-profile")
+def upsert_expert_profile(body: ExpertProfile, p=Depends(participant), db: Session = Depends(get_db)):
+    """A participant describes their expertise. Creates or updates their one
+    expert profile; verification always goes back to pending on a change so a
+    founder re-reviews edited claims."""
+    if db.get(PilotAccount, p.id) is None:
+        raise HTTPException(403, "Create an account before submitting an expert profile.")
+    stamp = now()
+    profile = db.get(PilotExpertProfile, p.id)
+    created = profile is None
+    if created:
+        profile = PilotExpertProfile(participant_id=p.id, created_at=stamp)
+        db.add(profile)
+    profile.vertical = body.vertical
+    profile.specialty = body.specialty
+    profile.experience = body.experience
+    profile.profile_url = body.profile_url
+    if body.intake_reference:
+        profile.intake_reference = body.intake_reference
+    profile.verification_status = "pending"
+    profile.verified_at = None
+    profile.updated_at = stamp
+    emit(db, p, "expert_profile_submitted" if created else "expert_profile_updated", None, {"vertical": body.vertical})
+    db.commit()
+    return {"expert": pilot_experts.public_expert(profile)}
+
+
+@router.get("/founder/experts")
+def founder_experts(
+    request: Request, status: str | None = None,
+    x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db),
+):
+    require_admin(x_pilot_admin, request)
+    if status is not None and status not in pilot_experts.VERIFICATION_STATUSES:
+        raise HTTPException(422, "Unknown verification status.")
+    q = select(PilotExpertProfile).order_by(PilotExpertProfile.created_at.desc())
+    if status:
+        q = q.where(PilotExpertProfile.verification_status == status)
+    rows = []
+    for profile in db.scalars(q).all():
+        account = db.get(PilotAccount, profile.participant_id)
+        person = db.get(Participant, profile.participant_id)
+        name = (person.profile or {}).get("name") if person else None
+        rows.append(pilot_experts.founder_expert(profile, account.email if account else None, name))
+    return {"experts": rows}
+
+
+class ExpertVerification(Strict):
+    verification_status: pilot_experts.VerificationStatus
+    rate_tier: pilot_experts.RateTier | None = None
+    note: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/founder/experts/{participant_id}/verification")
+def founder_verify_expert(
+    participant_id: str, body: ExpertVerification, request: Request,
+    x_pilot_admin: str = Header(default=""), db: Session = Depends(get_db),
+):
+    require_admin(x_pilot_admin, request)
+    profile = db.get(PilotExpertProfile, participant_id)
+    if profile is None:
+        raise HTTPException(404, "Expert profile not found.")
+    stamp = now()
+    profile.verification_status = body.verification_status
+    profile.verified_at = stamp if body.verification_status == "verified" else None
+    if body.rate_tier:
+        profile.rate_tier = body.rate_tier
+    if body.note is not None:
+        profile.verification_note = body.note
+    profile.updated_at = stamp
+    person = db.get(Participant, participant_id)
+    if person is not None:
+        emit(db, person, "expert_verification_" + body.verification_status, None, {"rate_tier": profile.rate_tier})
+    db.commit()
+    return {"expert": pilot_experts.founder_expert(profile, None, None)}
 
 
 @router.post("/events")

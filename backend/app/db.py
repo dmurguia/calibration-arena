@@ -35,7 +35,7 @@ def get_db():
 
 def init_db() -> None:
     # Register the pilot mappings so create_all sees every table.
-    from . import pilot_accounts, pilot_limits  # noqa: F401
+    from . import pilot_accounts, pilot_experts, pilot_limits  # noqa: F401
     from .routers import pilot  # noqa: F401
 
     if _is_sqlite and is_production_like():

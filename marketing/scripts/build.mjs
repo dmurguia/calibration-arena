@@ -34,16 +34,7 @@ export async function build({ includeReview = true } = {}) {
     JSON.parse(await readFile(path.join(root, `evaluation/run-${number}-result.json`), 'utf8'))
   ));
   const allRoutes = [
-    [
-      "/",
-      site.defaultDirection === "craft"
-        ? "Your expertise. Better agents"
-        : "Hone your agents",
-      site.defaultDirection === "craft"
-        ? pages.homeCraft(sample)
-        : pages.homeOutcomes(sample),
-      "home",
-    ],
+    ["/", "The art of better", pages.home(), "home"],
     [
       "/directions/craft/",
       "Your expertise. Better agents",
@@ -57,15 +48,7 @@ export async function build({ includeReview = true } = {}) {
       "outcomes",
     ],
     ["/enterprises/", "For enterprises", pages.enterprisePage(), "enterprises"],
-    ["/training/", "Our approach", pages.trainingPage(sample), "training"],
-    ["/company/", "The company", pages.companyPage(), "company"],
-    [
-      "/leaderboard/",
-      "Leaderboard",
-      pages.leaderboardPage(config),
-      "leaderboard",
-    ],
-    ["/get-data/", "Get data", pages.dataPage(), "data"],
+    ["/company/", "About", pages.companyPage(), "company"],
     ["/contact/", "Discuss a project", pages.contactPage(config), "contact"],
     [
       "/privacy/",
@@ -93,7 +76,7 @@ export async function build({ includeReview = true } = {}) {
     training:
       "See how company expertise becomes training tasks, feedback and evaluations for knowledge-work agents.",
     company:
-      "Our belief: companies will own their knowledge work through open-weight models shaped by their expertise.",
+      "Meet the researchers and engineers bringing craftsmanship to open-weight models, training environments and enterprise intelligence.",
     leaderboard:
       "Knowledge-work model comparisons: publication status and evaluation criteria.",
     data: "Discuss training data and evaluation tasks shaped around professional workflows.",
@@ -102,7 +85,7 @@ export async function build({ includeReview = true } = {}) {
     privacy:
       "How the Calibrated marketing preview handles information, project briefs and local interactions.",
     terms:
-      "Preview terms for the Calibrated Co. marketing website and authored practice case.",
+      "Preview terms for the Calibrated Co. marketing website.",
   };
   for (const [route, title, content, id] of routes) {
     const isPrivate = route.startsWith("/directions/") || route === "/review/";

@@ -2,7 +2,7 @@
 
 # Public finance & accounting AI benchmarks
 
-Catalog updated: 2026-11-10 · 60 benchmarks · 8 products
+Catalog updated: 2026-11-10 · 62 benchmarks · 8 products
 
 ## How to read this
 
@@ -37,6 +37,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [DAYJOB: Tax](https://surgehq.ai/benchmarks/dayjob-tax) | Surge AI | agentic | partial | MIT (public sample tasks) | rubric | yes | leaderboard, leader Claude Sonnet 5.5 (Adaptive/Max) score 10.8% (as of 2026-11-10) | adjacent |
 | [TaxCalcBench](https://github.com/column-tax/tax-calc-bench) | Column Tax | generation | open | MIT | programmatic | no | leaderboard, leader Claude Opus 5.5 / Claude Fable 5.1 (tie) score 38.00% (as of 2026-09-23) | adjacent |
 | [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | Entendre Research | generation | private | — | rubric | no | leaderboard, leader Kimi K3 score 81.4% | adjacent |
 | [TaxBench (Tax AI Consortium)](https://tax.intelligenceconsortium.org/) | The Intelligence Consortium with Stanford and Carnegie Mellon | qa | partial | — | rubric | no | leaderboard, leader Accordance 2.5 score 46.8% (as of 2026-09-29) | adjacent |
@@ -50,6 +51,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Vals Finance Agent v2.1](https://www.vals.ai/benchmarks/fabv2-1) | Vals AI | agentic | partial | Harness MIT | rubric_llm | no | leaderboard, leader Claude Fable 5.2 score 69.47% (as of 2026-11-09) | adjacent |
+| [DAYJOB: Finance](https://surgehq.ai/benchmarks/dayjob-finance) | Surge AI | agentic | partial | MIT (public sample tasks) | rubric | yes | leaderboard, leader Claude Opus 5.5 (Adaptive/Max) score 42.5% (as of 2026-11-10) | adjacent |
 | [Vals Finance Agent v2](https://www.vals.ai/benchmarks/fabv2) | Vals AI | agentic | partial | Harness MIT | rubric_llm | no | archived, leader Gemini 4 Argon score 65.4% (as of 2026-10-29) | adjacent |
 | [Vals CorpFin v2](https://www.vals.ai/benchmarks/corp_fin_v2) | Vals AI | document_qa | partial | — | reference_answer | no | archived, leader Claude Opus 5 score 73.19% (as of 2026-08-12) | reference |
 | [BigFinanceBench](https://bigfinancebench.com/) | Rogo | qa | private | — | rubric_llm | no | leaderboard, leader Muse Spark 1.1 score 53.36% (as of 2026-09-17) | adjacent |

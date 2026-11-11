@@ -1465,7 +1465,5 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
-  "methodology_sha256": null,
-  "source_sha256": "415dc2994dcd0dfc1edf5f402a6c7f38eb908b0f7e7d0b6e49adfc4945ffb461"
+  "frozen": true
 }

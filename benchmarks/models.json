@@ -33,6 +33,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "beam1-0",
+      "name": "Beam 1.0",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "commanda032025",
       "name": "Command A 03 2025",
       "org": "Cohere",
@@ -1212,6 +1220,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "mistrallarge4oss",
+      "name": "Mistral Large 4 OSS",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mistralmedium2505",
       "name": "Mistral Medium 2505",
       "org": "Mistral",
@@ -1246,7 +1262,7 @@
     {
       "id": "museember",
       "name": "Muse Ember",
-      "org": null,
+      "org": "Meta",
       "weights_reported": {},
       "weights": "unknown",
       "weights_basis": "none"
@@ -1347,6 +1363,14 @@
       "id": "nemotron3-5supervl",
       "name": "Nemotron 3.5 Super VL",
       "org": "NVIDIA",
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
+    },
+    {
+      "id": "nemotron3-5supervl120ba12b",
+      "name": "Nemotron 3.5 Super Vl 120B A12B",
+      "org": null,
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"

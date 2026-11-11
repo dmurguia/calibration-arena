@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-11-10",
+  "catalog_updated": "2026-11-11",
   "source": "benchmarks/registry.json",
   "review_after_days": 45,
   "results_stale_after_days": 180,
@@ -10,9 +10,9 @@
     "results": "Result figures and board snapshots remain the property of their publishers and are reproduced as cited facts with source links. Reuse them under each publisher's own terms."
   },
   "counts": {
-    "benchmarks": 59,
+    "benchmarks": 60,
     "by_results_status": {
-      "leaderboard": 22,
+      "leaderboard": 23,
       "snapshot": 30,
       "archived": 5,
       "unpublished": 1,
@@ -1174,22 +1174,63 @@
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
       "results_status": "archived",
       "results": {
-        "as_of": "2026-10-20",
+        "as_of": "2026-10-29",
         "metric": "Accuracy",
         "leader": "Gemini 4 Argon",
         "leader_score": "65.4%",
         "models_evaluated": 81,
-        "source_url": "https://vals.ai/benchmarks/fabv2",
+        "source_url": "https://www.vals.ai/benchmarks/fabv2",
         "source_type": "first_party",
         "note": "Cost is Vals' reported USD per test."
       },
       "links": {
-        "leaderboard": "https://vals.ai/benchmarks/fabv2",
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2",
         "code": "https://github.com/vals-ai/finance-agent"
       },
       "first_published": "2026",
-      "last_verified": "2026-09-29",
-      "notes": "Public, private-validation and held-out test splits.",
+      "last_verified": "2026-11-10",
+      "notes": "Public, private-validation and held-out test splits. Superseded by Finance Agent v2.1; Vals no longer runs new models on v2.",
+      "flags": []
+    },
+    {
+      "id": "vals-finance-agent-v2-1",
+      "name": "Vals Finance Agent v2.1",
+      "publisher": "Vals AI",
+      "publisher_type": "eval_lab",
+      "kind": "benchmark",
+      "domains": [
+        "financial_analysis"
+      ],
+      "summary": "Analyst research tasks where agents search the web and SEC EDGAR to answer questions about public companies.",
+      "metric_definitions": {
+        "accuracy": "Share of research questions answered correctly, graded against expert rubrics by an LLM judge."
+      },
+      "task_format": "agentic",
+      "size": null,
+      "stateful": false,
+      "grader": "rubric_llm",
+      "data_access": "partial",
+      "license": "Harness MIT",
+      "relevance": "adjacent",
+      "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
+      "results_status": "leaderboard",
+      "results": {
+        "as_of": "2026-11-09",
+        "metric": "Accuracy",
+        "leader": "Claude Fable 5.2",
+        "leader_score": "69.47%",
+        "models_evaluated": 38,
+        "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
+        "source_type": "first_party",
+        "note": "Cost is Vals' reported USD per test."
+      },
+      "links": {
+        "leaderboard": "https://www.vals.ai/benchmarks/fabv2-1",
+        "code": "https://github.com/vals-ai/finance-agent"
+      },
+      "first_published": "2026",
+      "last_verified": "2026-11-10",
+      "notes": "Revision of Finance Agent v2: new judge jury, grading prompt updated for hedged answers, question and rubric fixes, and a larger held-out test split.",
       "flags": []
     },
     {
@@ -2430,6 +2471,14 @@
       "weights_basis": "none"
     },
     {
+      "id": "beam1-0",
+      "name": "Beam 1.0",
+      "org": null,
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "commanda032025",
       "name": "Command A 03 2025",
       "org": "Cohere",
@@ -3609,6 +3658,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "mistrallarge4oss",
+      "name": "Mistral Large 4 OSS",
+      "org": "Mistral",
+      "weights_reported": {},
+      "weights": "unknown",
+      "weights_basis": "none"
+    },
+    {
       "id": "mistralmedium2505",
       "name": "Mistral Medium 2505",
       "org": "Mistral",
@@ -3643,7 +3700,7 @@
     {
       "id": "museember",
       "name": "Muse Ember",
-      "org": null,
+      "org": "Meta",
       "weights_reported": {},
       "weights": "unknown",
       "weights_basis": "none"
@@ -3744,6 +3801,14 @@
       "id": "nemotron3-5supervl",
       "name": "Nemotron 3.5 Super VL",
       "org": "NVIDIA",
+      "weights_reported": {},
+      "weights": "open",
+      "weights_basis": "family"
+    },
+    {
+      "id": "nemotron3-5supervl120ba12b",
+      "name": "Nemotron 3.5 Super Vl 120B A12B",
+      "org": null,
       "weights_reported": {},
       "weights": "open",
       "weights_basis": "family"
@@ -4059,7 +4124,7 @@
       "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
       "adapter": "apex_accounting",
       "as_of": null,
-      "retrieved": "2026-11-10",
+      "retrieved": "2026-11-11",
       "metrics": [
         {
           "key": "mean-score",
@@ -5055,16 +5120,16 @@
           "cost": 0.07
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
       "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-      "source_sha256": "58fae0123337eb4ab8e0144ae0270cf0b717d966fc3abf01c861df9c91c4f9e6"
+      "source_sha256": "ee3c471d0a340041958df7b021348f5a811312ee2276e318051f724e5a4b8d51"
     },
     {
       "benchmark_id": "dualentry-accounting-ai-benchmark",
       "source_url": "https://www.dualentry.com/benchmark",
       "adapter": "dualentry",
       "as_of": null,
-      "retrieved": "2026-11-10",
+      "retrieved": "2026-11-11",
       "metrics": [
         {
           "key": "accuracy",
@@ -5291,16 +5356,16 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
       "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-      "source_sha256": "8650153506b7b2d922d2c1a5f94e2eb8b297d821882a3dcb45843808317d30cc"
+      "source_sha256": "1298b89a399df65db1e96a924a776b0db553d4bc416f3d86a40fc74bc2fc6432"
     },
     {
       "benchmark_id": "taxbench-entendre",
       "source_url": "https://entendre.ai/research/taxbench/",
       "adapter": "entendre",
       "as_of": null,
-      "retrieved": "2026-11-10",
+      "retrieved": "2026-11-11",
       "metrics": [
         {
           "key": "mean",
@@ -5473,9 +5538,9 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
       "methodology_sha256": null,
-      "source_sha256": "2673cddc622ac97faa7103a43766a61b7193f82d9f6846aca88d521b3b497dfc"
+      "source_sha256": "6ae3a2c4accf654132a24ff4d7077431aaec3a8672235f0fc0d4d8f5db30572e"
     },
     {
       "benchmark_id": "vals-taxeval-v2",
@@ -6944,9 +7009,7 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
-      "methodology_sha256": null,
-      "source_sha256": "415dc2994dcd0dfc1edf5f402a6c7f38eb908b0f7e7d0b6e49adfc4945ffb461"
+      "frozen": true
     },
     {
       "benchmark_id": "vals-mortgagetax",
@@ -7945,17 +8008,427 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
-      "methodology_sha256": null,
-      "source_sha256": "f2f2dec47df43745ce7db43d2788197e83d7df49392140d47ceeed40272c7349"
+      "frozen": true
+    },
+    {
+      "benchmark_id": "vals-finance-agent-v2-1",
+      "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
+      "adapter": "vals",
+      "as_of": "2026-11-09",
+      "retrieved": "2026-11-11",
+      "archived": false,
+      "metrics": [
+        {
+          "key": "accuracy",
+          "label": "Accuracy",
+          "unit": "%"
+        }
+      ],
+      "cost_label": "USD per test (publisher-reported)",
+      "entries": [
+        {
+          "model": "fable5-2",
+          "label": "Claude Fable 5.2",
+          "config": null,
+          "scores": {
+            "accuracy": 69.47
+          },
+          "source_model_id": "anthropic/claude-fable-5-2",
+          "cost": 4.833915
+        },
+        {
+          "model": "opus5-5",
+          "label": "Claude Opus 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 67.846
+          },
+          "source_model_id": "anthropic/claude-opus-5-5",
+          "cost": 8.908721
+        },
+        {
+          "model": "gemini4argon",
+          "label": "Gemini 4 Argon",
+          "config": null,
+          "scores": {
+            "accuracy": 67.658
+          },
+          "source_model_id": "google/gemini-4-argon",
+          "cost": 4.315759
+        },
+        {
+          "model": "musewonderfull",
+          "label": "Muse Wonder Full",
+          "config": null,
+          "scores": {
+            "accuracy": 67.575
+          },
+          "source_model_id": "meta/muse-wonder-full",
+          "cost": 2.680843
+        },
+        {
+          "model": "inkling2small",
+          "label": "Inkling 2 Small",
+          "config": null,
+          "scores": {
+            "accuracy": 67.536
+          },
+          "source_model_id": "thinkingmachines/inkling-2-small",
+          "cost": 0.175784
+        },
+        {
+          "model": "sonnet5-5",
+          "label": "Claude Sonnet 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 67.275
+          },
+          "source_model_id": "anthropic/claude-sonnet-5-5",
+          "cost": 6.950246
+        },
+        {
+          "model": "gemini4carbon",
+          "label": "Gemini 4 Carbon",
+          "config": null,
+          "scores": {
+            "accuracy": 67.162
+          },
+          "source_model_id": "google/gemini-4-carbon",
+          "cost": 7.290456
+        },
+        {
+          "model": "gemini3-8flash",
+          "label": "Gemini 3.8 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 65.761
+          },
+          "source_model_id": "google/gemini-3.8-flash",
+          "cost": 1.991077
+        },
+        {
+          "model": "musewonder",
+          "label": "Muse Wonder",
+          "config": null,
+          "scores": {
+            "accuracy": 65.545
+          },
+          "source_model_id": "meta/muse-wonder",
+          "cost": 2.620705
+        },
+        {
+          "model": "deepseekv4-1flash",
+          "label": "DeepSeek V4.1 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 65.428
+          },
+          "source_model_id": "deepseek/deepseek-v4.1-flash",
+          "cost": 0.366574
+        },
+        {
+          "model": "haiku5-5",
+          "label": "Claude Haiku 5.5",
+          "config": null,
+          "scores": {
+            "accuracy": 65.373
+          },
+          "source_model_id": "anthropic/claude-haiku-5-5",
+          "cost": 1.637243
+        },
+        {
+          "model": "glm5-3",
+          "label": "GLM 5.3",
+          "config": null,
+          "scores": {
+            "accuracy": 65.004
+          },
+          "source_model_id": "zai/glm-5.3",
+          "cost": 1.030939
+        },
+        {
+          "model": "hy4",
+          "label": "HY4",
+          "config": null,
+          "scores": {
+            "accuracy": 64.705
+          },
+          "source_model_id": "tencent/hy4",
+          "cost": 1.277206
+        },
+        {
+          "model": "mimov2-6pro",
+          "label": "MiMo V2.6 Pro",
+          "config": null,
+          "scores": {
+            "accuracy": 64.259
+          },
+          "source_model_id": "xiaomi/mimo-v2.6-pro",
+          "cost": 0.183321
+        },
+        {
+          "model": "museember",
+          "label": "Muse Ember",
+          "config": null,
+          "scores": {
+            "accuracy": 63.834
+          },
+          "source_model_id": "meta/muse-ember",
+          "cost": 0.056396
+        },
+        {
+          "model": "mimov2-6flash",
+          "label": "MiMo V2.6 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 63.316
+          },
+          "source_model_id": "xiaomi/mimo-v2.6-flash",
+          "cost": 0.066534
+        },
+        {
+          "model": "deepseekv4-1flash1017",
+          "label": "DeepSeek V4.1 Flash 1017",
+          "config": null,
+          "scores": {
+            "accuracy": 62.933
+          },
+          "source_model_id": "deepseek/deepseek-v4.1-flash-1017",
+          "cost": 0.466261
+        },
+        {
+          "model": "gpt6-1sol",
+          "label": "GPT 6.1 Sol",
+          "config": null,
+          "scores": {
+            "accuracy": 61.817
+          },
+          "source_model_id": "openai/gpt-6.1-sol",
+          "cost": 1.626543
+        },
+        {
+          "model": "mistrallarge4oss",
+          "label": "Mistral Large 4 OSS",
+          "config": null,
+          "scores": {
+            "accuracy": 61.723
+          },
+          "source_model_id": "mistralai/mistral-large-4-oss",
+          "cost": 0.353164
+        },
+        {
+          "model": "hy4",
+          "label": "HY4 Preview",
+          "config": null,
+          "scores": {
+            "accuracy": 61.623
+          },
+          "source_model_id": "tencent/hy4-preview",
+          "cost": 0.667449
+        },
+        {
+          "model": "kimik3-1pro",
+          "label": "Kimi K3.1 Pro",
+          "config": null,
+          "scores": {
+            "accuracy": 61.488
+          },
+          "source_model_id": "kimi/kimi-k3.1-pro",
+          "cost": 2.290605
+        },
+        {
+          "model": "mistrallarge4",
+          "label": "Mistral Large 4",
+          "config": null,
+          "scores": {
+            "accuracy": 61.383
+          },
+          "source_model_id": "mistralai/mistral-large-4",
+          "cost": 0.521834
+        },
+        {
+          "model": "musesparkopen",
+          "label": "Muse Spark Open",
+          "config": null,
+          "scores": {
+            "accuracy": 60.665
+          },
+          "source_model_id": "meta/muse-spark-open",
+          "cost": 2.758047
+        },
+        {
+          "model": "glm5-3flash",
+          "label": "GLM 5.3 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 60.587
+          },
+          "source_model_id": "zai/glm-5.3-flash",
+          "cost": 0.072473
+        },
+        {
+          "model": "grok4-7",
+          "label": "Grok 4.7",
+          "config": null,
+          "scores": {
+            "accuracy": 60.585
+          },
+          "source_model_id": "grok/grok-4.7",
+          "cost": 2.238652
+        },
+        {
+          "model": "gpt6astra",
+          "label": "GPT 6 Astra",
+          "config": null,
+          "scores": {
+            "accuracy": 60.428
+          },
+          "source_model_id": "openai/gpt-6-astra",
+          "cost": 7.823464
+        },
+        {
+          "model": "kimik3",
+          "label": "Kimi K3",
+          "config": null,
+          "scores": {
+            "accuracy": 60.013
+          },
+          "source_model_id": "kimi/kimi-k3",
+          "cost": 1.881233
+        },
+        {
+          "model": "step5",
+          "label": "Step 5 Preview",
+          "config": null,
+          "scores": {
+            "accuracy": 58.9
+          },
+          "source_model_id": "stepfun/step-5-preview",
+          "cost": 0.575115
+        },
+        {
+          "model": "qwen3-8maxinternal",
+          "label": "Qwen3.8 Max Internal",
+          "config": null,
+          "scores": {
+            "accuracy": 58.829
+          },
+          "source_model_id": "alibaba/qwen3.8-max-internal",
+          "cost": 2.992239
+        },
+        {
+          "model": "minimaxm3-1flash",
+          "label": "MiniMax M3.1 Flash",
+          "config": null,
+          "scores": {
+            "accuracy": 58.826
+          },
+          "source_model_id": "minimax/MiniMax-M3.1-flash",
+          "cost": 0.158978
+        },
+        {
+          "model": "deepseekv4pro0813",
+          "label": "DeepSeek V4 Pro 0813",
+          "config": null,
+          "scores": {
+            "accuracy": 57.116
+          },
+          "source_model_id": "deepseek/deepseek-v4-pro-0813",
+          "cost": 0.82234
+        },
+        {
+          "model": "gpt6luna",
+          "label": "GPT 6 Luna",
+          "config": null,
+          "scores": {
+            "accuracy": 56.841
+          },
+          "source_model_id": "openai/gpt-6-luna",
+          "cost": 0.120919
+        },
+        {
+          "model": "gpt6-1terra",
+          "label": "GPT 6.1 Terra",
+          "config": null,
+          "scores": {
+            "accuracy": 55.958
+          },
+          "source_model_id": "openai/gpt-6.1-terra",
+          "cost": 1.922848
+        },
+        {
+          "model": "mercury3",
+          "label": "Mercury 3",
+          "config": null,
+          "scores": {
+            "accuracy": 54.708
+          },
+          "source_model_id": "inception/mercury-3",
+          "cost": 0.064622
+        },
+        {
+          "model": "minimaxm3",
+          "label": "MiniMax M3",
+          "config": null,
+          "scores": {
+            "accuracy": 54.338
+          },
+          "source_model_id": "minimax/MiniMax-M3",
+          "cost": 0.302923
+        },
+        {
+          "model": "beam1-0",
+          "label": "Beam 1.0",
+          "config": null,
+          "scores": {
+            "accuracy": 51.827
+          },
+          "source_model_id": "reflection/Beam-1.0",
+          "cost": null
+        },
+        {
+          "model": "inkling",
+          "label": "Inkling",
+          "config": null,
+          "scores": {
+            "accuracy": 49.873
+          },
+          "source_model_id": "thinkingmachines/inkling",
+          "cost": 0.891309
+        },
+        {
+          "model": "nemotron3-5supervl120ba12b",
+          "label": "Nemotron 3.5 Super Vl 120B A12B",
+          "config": null,
+          "scores": {
+            "accuracy": 47.729
+          },
+          "source_model_id": "baseten/nemotron-3.5-super-vl-120b-a12b",
+          "cost": 0.106934
+        },
+        {
+          "model": "inklingsmall",
+          "label": "Inkling Small",
+          "config": null,
+          "scores": {
+            "accuracy": 44.776
+          },
+          "source_model_id": "thinkingmachines/inkling-small",
+          "cost": 0.207921
+        }
+      ],
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
+      "methodology_sha256": "dbae2bb475d7c15b2ef73cce6b65c0381ac8d56ed9a94027766ead5af3dfc4e6",
+      "source_sha256": "a9fdff8fe3782ccadc184405105eefe296e44b6900e2fa13e5a5cd5089798489"
     },
     {
       "benchmark_id": "vals-finance-agent-v2",
       "source_url": "https://www.vals.ai/benchmarks/fabv2",
       "adapter": "vals",
-      "as_of": "2026-10-20",
-      "retrieved": "2026-10-27",
+      "as_of": "2026-10-29",
+      "retrieved": "2026-11-10",
       "archived": true,
+      "superseded_by": "Finance Agent v2.1",
       "metrics": [
         {
           "key": "accuracy",
@@ -8073,7 +8546,7 @@
             "accuracy": 58.587
           },
           "source_model_id": "anthropic/claude-opus-5-5",
-          "cost": 9.215734
+          "cost": 9.02999
         },
         {
           "model": "sonnet5-5",
@@ -8083,7 +8556,7 @@
             "accuracy": 58.103
           },
           "source_model_id": "anthropic/claude-sonnet-5-5",
-          "cost": 6.552431
+          "cost": 6.39361
         },
         {
           "model": "qwen3-8maxinternal",
@@ -8113,7 +8586,7 @@
             "accuracy": 57.85
           },
           "source_model_id": "zai/glm-5.3-flash",
-          "cost": 0.047625
+          "cost": 0.09525
         },
         {
           "model": "mimov2-6pro",
@@ -8233,7 +8706,7 @@
             "accuracy": 54.678
           },
           "source_model_id": "mistralai/mistral-large-4",
-          "cost": 1.201399
+          "cost": 0.614903
         },
         {
           "model": "gpt5-6terra",
@@ -8776,9 +9249,7 @@
           "cost": 1.63003
         }
       ],
-      "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
-      "methodology_sha256": "ff34fe110b910c63ee01d93d6dca9b591c70541cbc3c8a0c9285e143d99a05e4",
-      "source_sha256": "0b9a8af65868b8b52434daef3546af29195deedd4d471cc3fa01cbc9d112f349"
+      "frozen": true
     },
     {
       "benchmark_id": "vals-corpfin-v2",
@@ -10137,16 +10608,14 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
-      "methodology_sha256": "3c2d89717c9dc6349bc0617dbc6da3a42044a18a5f2dea0958f5dfc8665b30eb",
-      "source_sha256": "595fe702839559a4001289cdb52b61dcabc8a0585e96a7362776051b786a85f0"
+      "frozen": true
     },
     {
       "benchmark_id": "bigfinancebench",
       "source_url": "https://bigfinancebench.com/",
       "adapter": "bigfinancebench",
       "as_of": "2026-10-19",
-      "retrieved": "2026-11-10",
+      "retrieved": "2026-11-11",
       "metrics": [
         {
           "key": "answer",
@@ -10981,7 +11450,7 @@
           "cost": 0.017
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
       "methodology_sha256": null,
       "source_sha256": "9ef85e1b7867e5cda96e2fafa6efdfbae4d703a22d77e22abf27cf089658549a"
     },
@@ -10990,7 +11459,7 @@
       "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
       "adapter": "apex_agents",
       "as_of": null,
-      "retrieved": "2026-11-10",
+      "retrieved": "2026-11-11",
       "metrics": [
         {
           "key": "mean-score",
@@ -11726,60 +12195,62 @@
           "cost": null
         }
       ],
-      "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+      "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
       "methodology_sha256": null,
-      "source_sha256": "1f8a57b8eec67f5311cf3cf4561273315f95a32d7f419df0412c619af7cae834"
+      "source_sha256": "fe317e2c474310a173096aee2cce8fe23e928c9c1b7c740d6287d70118676ebf"
     }
   ],
   "refresh": {
-    "checked_at": "2026-11-10T20:29:12.600363+00:00",
+    "checked_at": "2026-11-11T20:14:01.690469+00:00",
     "cadence": "daily",
     "sources": {
       "apex-accounting": {
         "status": "ok",
         "rows": 49,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
       },
       "dualentry-accounting-ai-benchmark": {
         "status": "ok",
         "rows": 24,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
+      },
+      "vals-finance-agent-v2-1": {
+        "status": "ok",
+        "rows": 39,
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
       },
       "vals-finance-agent-v2": {
-        "status": "failed",
-        "last_successful_check": "2026-10-27T18:43:36.185858+00:00"
+        "status": "frozen",
+        "last_successful_check": "2026-11-10"
       },
       "vals-corpfin-v2": {
-        "status": "ok",
-        "rows": 134,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "status": "frozen",
+        "last_successful_check": "2026-11-10"
       },
       "vals-taxeval-v2": {
-        "status": "ok",
-        "rows": 145,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "status": "frozen",
+        "last_successful_check": "2026-11-10"
       },
       "vals-mortgagetax": {
-        "status": "ok",
-        "rows": 98,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "status": "frozen",
+        "last_successful_check": "2026-11-10"
       },
       "taxbench-entendre": {
         "status": "ok",
         "rows": 18,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
       },
       "apex-agents-ib": {
         "status": "ok",
         "rows": 72,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
       },
       "bigfinancebench": {
         "status": "ok",
         "rows": 39,
-        "last_successful_check": "2026-11-10T20:29:12.600363+00:00"
+        "last_successful_check": "2026-11-11T20:14:01.690469+00:00"
       }
     },
-    "snapshot_id": "35e2b6c95a3f675697cf75aed4849fc82c02b36d46f7540cb499911a79f002c9"
+    "snapshot_id": "9d85c076cdbc8c7c436856079c49faf2bff8131d7f20d7d3d238358647d48449"
   }
 }

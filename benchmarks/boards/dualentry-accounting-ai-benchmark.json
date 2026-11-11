@@ -3,7 +3,7 @@
   "source_url": "https://www.dualentry.com/benchmark",
   "adapter": "dualentry",
   "as_of": null,
-  "retrieved": "2026-11-10",
+  "retrieved": "2026-11-11",
   "metrics": [
     {
       "key": "accuracy",
@@ -230,7 +230,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-10T20:29:12.600363+00:00",
+  "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
   "methodology_sha256": "fe6d6204a80f3db79f02ba286af756bebdcf11c14f3983200520edbd20056359",
-  "source_sha256": "8650153506b7b2d922d2c1a5f94e2eb8b297d821882a3dcb45843808317d30cc"
+  "source_sha256": "1298b89a399df65db1e96a924a776b0db553d4bc416f3d86a40fc74bc2fc6432"
 }

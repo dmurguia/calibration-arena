@@ -2,9 +2,10 @@
   "benchmark_id": "vals-finance-agent-v2",
   "source_url": "https://www.vals.ai/benchmarks/fabv2",
   "adapter": "vals",
-  "as_of": "2026-10-20",
-  "retrieved": "2026-10-27",
+  "as_of": "2026-10-29",
+  "retrieved": "2026-11-10",
   "archived": true,
+  "superseded_by": "Finance Agent v2.1",
   "metrics": [
     {
       "key": "accuracy",
@@ -122,7 +123,7 @@
         "accuracy": 58.587
       },
       "source_model_id": "anthropic/claude-opus-5-5",
-      "cost": 9.215734
+      "cost": 9.02999
     },
     {
       "model": "sonnet5-5",
@@ -132,7 +133,7 @@
         "accuracy": 58.103
       },
       "source_model_id": "anthropic/claude-sonnet-5-5",
-      "cost": 6.552431
+      "cost": 6.39361
     },
     {
       "model": "qwen3-8maxinternal",
@@ -162,7 +163,7 @@
         "accuracy": 57.85
       },
       "source_model_id": "zai/glm-5.3-flash",
-      "cost": 0.047625
+      "cost": 0.09525
     },
     {
       "model": "mimov2-6pro",
@@ -282,7 +283,7 @@
         "accuracy": 54.678
       },
       "source_model_id": "mistralai/mistral-large-4",
-      "cost": 1.201399
+      "cost": 0.614903
     },
     {
       "model": "gpt5-6terra",
@@ -825,7 +826,5 @@
       "cost": 1.63003
     }
   ],
-  "last_successful_check": "2026-10-27T18:43:36.185858+00:00",
-  "methodology_sha256": "ff34fe110b910c63ee01d93d6dca9b591c70541cbc3c8a0c9285e143d99a05e4",
-  "source_sha256": "0b9a8af65868b8b52434daef3546af29195deedd4d471cc3fa01cbc9d112f349"
+  "frozen": true
 }

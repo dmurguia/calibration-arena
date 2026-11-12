@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_updated": "2026-11-11",
+  "catalog_updated": "2026-11-12",
   "benchmarks": [
     {
       "id": "apex-accounting",
@@ -30,7 +30,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Argon (High)",
         "leader_score": "71.5%",
-        "models_evaluated": 49,
+        "models_evaluated": 50,
         "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/",
         "source_type": "first_party",
         "note": "Publisher reports costs per run where available. The current page header and earlier paper describe different task counts; do not assume scores from different snapshots use an unchanged evaluation protocol."
@@ -942,11 +942,11 @@
       "relevance_note": "Widely cited finance-agent reference; public-company analysis rather than bookkeeping.",
       "results_status": "leaderboard",
       "results": {
-        "as_of": "2026-11-09",
+        "as_of": "2026-11-11",
         "metric": "Accuracy",
         "leader": "Claude Fable 5.2",
         "leader_score": "69.47%",
-        "models_evaluated": 38,
+        "models_evaluated": 39,
         "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
         "source_type": "first_party",
         "note": "Cost is Vals' reported USD per test."
@@ -1688,7 +1688,7 @@
         "metric": "Mean score",
         "leader": "Gemini 4 Carbon (High)",
         "leader_score": "90.4%",
-        "models_evaluated": 68,
+        "models_evaluated": 69,
         "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
         "source_type": "first_party",
         "note": null

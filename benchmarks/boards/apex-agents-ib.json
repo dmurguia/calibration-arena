@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/",
   "adapter": "apex_agents",
   "as_of": null,
-  "retrieved": "2026-11-11",
+  "retrieved": "2026-11-12",
   "metrics": [
     {
       "key": "mean-score",
@@ -55,6 +55,16 @@
       "scores": {
         "pass-1": 77.6,
         "mean-score": 85.1
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini4hydrogen",
+      "label": "Gemini 4 Hydrogen",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 78,
+        "mean-score": 84
       },
       "cost": null
     },
@@ -739,7 +749,7 @@
       "cost": null
     }
   ],
-  "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
+  "last_successful_check": "2026-11-12T20:51:45.206946+00:00",
   "methodology_sha256": null,
-  "source_sha256": "fe317e2c474310a173096aee2cce8fe23e928c9c1b7c740d6287d70118676ebf"
+  "source_sha256": "a2c028d2a7e9ec1d0f02311bbab2e7a01462305bbb844c0200eee9eef0087968"
 }

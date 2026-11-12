@@ -2,7 +2,7 @@
 
 # Public finance & accounting AI benchmarks
 
-Catalog updated: 2026-11-11 · 60 benchmarks · 8 products
+Catalog updated: 2026-11-12 · 60 benchmarks · 8 products
 
 ## How to read this
 
@@ -49,7 +49,7 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | Publisher | Format | Data | License | Grader | Stateful | Results | Relevance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Vals Finance Agent v2.1](https://www.vals.ai/benchmarks/fabv2-1) | Vals AI | agentic | partial | Harness MIT | rubric_llm | no | leaderboard, leader Claude Fable 5.2 score 69.47% (as of 2026-11-09) | adjacent |
+| [Vals Finance Agent v2.1](https://www.vals.ai/benchmarks/fabv2-1) | Vals AI | agentic | partial | Harness MIT | rubric_llm | no | leaderboard, leader Claude Fable 5.2 score 69.47% (as of 2026-11-11) | adjacent |
 | [Vals Finance Agent v2](https://www.vals.ai/benchmarks/fabv2) | Vals AI | agentic | partial | Harness MIT | rubric_llm | no | archived, leader Gemini 4 Argon score 65.4% (as of 2026-10-29) | adjacent |
 | [Vals CorpFin v2](https://www.vals.ai/benchmarks/corp_fin_v2) | Vals AI | document_qa | partial | — | reference_answer | no | archived, leader Claude Opus 5 score 73.19% (as of 2026-08-12) | reference |
 | [BigFinanceBench](https://bigfinancebench.com/) | Rogo | qa | private | — | rubric_llm | no | leaderboard, leader Muse Spark 1.1 score 53.36% (as of 2026-10-19) | adjacent |
@@ -122,16 +122,16 @@ Results status: **leaderboard** = maintained public results; **snapshot** = one-
 
 | Benchmark | As-of | Models | Metric | Top entry |
 | --- | --- | ---: | --- | --- |
-| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-11-11 | 49 | Mean score | Gemini 4 Argon (High) — 71.5% |
-| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-11-11 | 24 | Overall accuracy | Gemini 4 Argon — 91.1% |
-| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-11-11 | 18 | Mean score | Kimi K3 — 81.4% |
+| [APEX-Accounting](https://www.mercor.com/apex/apex-accounting-leaderboard/) | retrieved 2026-11-12 | 50 | Mean score | Gemini 4 Argon (High) — 71.5% |
+| [DualEntry Accounting AI Benchmark](https://www.dualentry.com/benchmark) | retrieved 2026-11-12 | 24 | Overall accuracy | Gemini 4 Argon — 91.1% |
+| [TaxBench (Entendre)](https://entendre.ai/research/taxbench/) | retrieved 2026-11-12 | 18 | Mean score | Kimi K3 — 81.4% |
 | [Vals TaxEval v2](https://www.vals.ai/benchmarks/tax_eval_v2) | 2026-09-01 | 133 | Accuracy | Muse Spark 1.2 — 80.376% |
 | [Vals MortgageTax](https://www.vals.ai/benchmarks/mortgage_tax) | 2026-09-01 | 88 | Accuracy | Claude Opus 5 — 72.059% |
-| [Vals Finance Agent v2.1](https://www.vals.ai/benchmarks/fabv2-1) | 2026-11-09 | 38 | Accuracy | Claude Fable 5.2 — 69.47% |
+| [Vals Finance Agent v2.1](https://www.vals.ai/benchmarks/fabv2-1) | 2026-11-11 | 39 | Accuracy | Claude Fable 5.2 — 69.47% |
 | [Vals Finance Agent v2](https://www.vals.ai/benchmarks/fabv2) | 2026-10-29 | 81 | Accuracy | Gemini 4 Argon — 65.401% |
 | [Vals CorpFin v2](https://www.vals.ai/benchmarks/corp_fin_v2) | 2026-08-12 | 122 | Accuracy | Claude Opus 5 — 73.194% |
 | [BigFinanceBench](https://bigfinancebench.com/) | 2026-10-19 | 39 | Final answer accuracy | Muse Spark 1.1 — 53.36% |
-| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-11-11 | 68 | Mean score | Gemini 4 Carbon (High) — 90.4% |
+| [APEX-Agents: Investment Banking Analyst](https://www.mercor.com/apex/apex-agents-leaderboard/investment-banking-analyst-agent/) | retrieved 2026-11-12 | 69 | Mean score | Gemini 4 Carbon (High) — 90.4% |
 
 ## Awaiting public results
 

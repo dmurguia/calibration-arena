@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
   "adapter": "apex_accounting",
   "as_of": null,
-  "retrieved": "2026-11-11",
+  "retrieved": "2026-11-12",
   "metrics": [
     {
       "key": "mean-score",
@@ -74,6 +74,26 @@
         "mean-score": [
           65.7,
           75.1
+        ]
+      },
+      "cost": null
+    },
+    {
+      "model": "gemini4hydrogen",
+      "label": "Gemini 4 Hydrogen",
+      "config": "XHigh",
+      "scores": {
+        "pass-1": 20,
+        "mean-score": 67.6
+      },
+      "ci": {
+        "pass-1": [
+          12.7,
+          27.3
+        ],
+        "mean-score": [
+          62.6,
+          72.6
         ]
       },
       "cost": null
@@ -999,7 +1019,7 @@
       "cost": 0.07
     }
   ],
-  "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
+  "last_successful_check": "2026-11-12T20:51:45.206946+00:00",
   "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-  "source_sha256": "ee3c471d0a340041958df7b021348f5a811312ee2276e318051f724e5a4b8d51"
+  "source_sha256": "a1beebc830e0acdd0cafccbdcf130766581e6039e724fca613a90738b21dfea9"
 }

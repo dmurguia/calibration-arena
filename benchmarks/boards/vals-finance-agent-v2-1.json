@@ -2,8 +2,8 @@
   "benchmark_id": "vals-finance-agent-v2-1",
   "source_url": "https://www.vals.ai/benchmarks/fabv2-1",
   "adapter": "vals",
-  "as_of": "2026-11-09",
-  "retrieved": "2026-11-11",
+  "as_of": "2026-11-11",
+  "retrieved": "2026-11-12",
   "archived": false,
   "metrics": [
     {
@@ -123,6 +123,16 @@
       },
       "source_model_id": "anthropic/claude-haiku-5-5",
       "cost": 1.637243
+    },
+    {
+      "model": "gemini4hydrogen",
+      "label": "Gemini 4 Hydrogen",
+      "config": null,
+      "scores": {
+        "accuracy": 65.118
+      },
+      "source_model_id": "google/gemini-4-hydrogen",
+      "cost": 4.358646
     },
     {
       "model": "glm5-3",
@@ -405,7 +415,7 @@
       "cost": 0.207921
     }
   ],
-  "last_successful_check": "2026-11-11T20:14:01.690469+00:00",
+  "last_successful_check": "2026-11-12T20:51:45.206946+00:00",
   "methodology_sha256": "dbae2bb475d7c15b2ef73cce6b65c0381ac8d56ed9a94027766ead5af3dfc4e6",
-  "source_sha256": "a9fdff8fe3782ccadc184405105eefe296e44b6900e2fa13e5a5cd5089798489"
+  "source_sha256": "e4b268a74852747738c69de8e8e434436aaca45d6d72486b374180a90fdedf28"
 }

@@ -395,6 +395,14 @@
       "weights_basis": "publisher"
     },
     {
+      "id": "gemini4hydrogen",
+      "name": "Gemini 4 Hydrogen",
+      "org": "Google",
+      "weights_reported": {},
+      "weights": "closed",
+      "weights_basis": "family"
+    },
+    {
       "id": "gemma431bit",
       "name": "Gemma 4 31B IT",
       "org": "Google",

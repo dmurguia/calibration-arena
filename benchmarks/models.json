@@ -398,9 +398,11 @@
       "id": "gemini4hydrogen",
       "name": "Gemini 4 Hydrogen",
       "org": "Google",
-      "weights_reported": {},
+      "weights_reported": {
+        "dualentry-accounting-ai-benchmark": "closed"
+      },
       "weights": "closed",
-      "weights_basis": "family"
+      "weights_basis": "publisher"
     },
     {
       "id": "gemma431bit",

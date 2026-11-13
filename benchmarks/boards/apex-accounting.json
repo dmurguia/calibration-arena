@@ -3,7 +3,7 @@
   "source_url": "https://www.mercor.com/apex/apex-accounting-leaderboard/?pass=mean-score",
   "adapter": "apex_accounting",
   "as_of": null,
-  "retrieved": "2026-11-12",
+  "retrieved": "2026-11-13",
   "metrics": [
     {
       "key": "mean-score",
@@ -1019,7 +1019,7 @@
       "cost": 0.07
     }
   ],
-  "last_successful_check": "2026-11-12T20:51:45.206946+00:00",
+  "last_successful_check": "2026-11-13T20:30:23.341235+00:00",
   "methodology_sha256": "8bee2dac4ce0414fd05053c883fcce2678136b24ca8af66e0993b6435da2d329",
-  "source_sha256": "a1beebc830e0acdd0cafccbdcf130766581e6039e724fca613a90738b21dfea9"
+  "source_sha256": "933e37970a261e3b54432c373f296b9605ca042eb0112b3712c03690db37315c"
 }
